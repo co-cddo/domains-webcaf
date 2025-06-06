@@ -1,0 +1,19 @@
+[flake8]
+# Rule definitions: http://flake8.pycqa.org/en/latest/user/error-codes.html
+exclude = venv*,__pycache__,node_modules,cache,wsgi.py,asgi.py
+max-complexity = 14
+max-line-length = 120
+
+# E203 whitespace before ':' in slice — Black will manage this whitespace, so trust it
+# B003 assigning to os.environ
+# B306 BaseException.message has been deprecated
+# E501 line too long — We trust Black knows what it's doing if it leaves lines >120 chars
+# W503: line break before binary operator
+# W504 line break after binary operator
+extend_ignore=
+    E203,
+    B003,
+    B306,
+    E501,
+    W503,
+    W504

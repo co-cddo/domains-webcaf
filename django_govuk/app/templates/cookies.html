@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+
+{% block title %}Cookies - Title - GOV.UK{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      {% if GOOGLE_ANALYTICS_ID %}
+        <style nonce="{{request.csp_nonce}}">#success-banner { display: none }</style>
+        <div id="success-banner" class="govuk-notification-banner govuk-notification-banner--success" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+          <div class="govuk-notification-banner__header">
+            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              Success
+            </h2>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <h3 class="govuk-notification-banner__heading">
+              Your cookie settings were saved
+            </h3>
+            <div class="govuk-body">
+              Government services may set additional cookies and, if so, will have their own cookie policy and banner.
+            </div>
+            <div class="govuk-body">
+              <a href="govuk-notification-banner__link" id="cookie-success-back-link">Go back to the page you were looking at</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <h1 class="govuk-heading-xl">
+        Cookies on the Title service
+      </h1>
+
+      <h2 class="govuk-heading-l">
+        Cookies
+      </h2>
+      <p class="govuk-body">
+        Small files (known as 'cookies') are put onto your computer to collect information about how you browse
+        the site.
+      </p>
+      <p class="govuk-body">Cookies are used to:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>measure how you use the website so it can be updated and improved based on your needs</li>
+        <li>remember the notifications you've seen so that you're not shown them again</li>
+      </ul>
+      <div class="govuk-inset-text">
+        The cookies on this service are not used to identify you personally.
+      </div>
+
+
+      <p class="govuk-body">
+        Find out more about <a href="https://www.aboutcookies.org/" target="new" class="govuk-link">how to
+        manage cookies (opens in a new tab)</a> .
+      </p>
+
+      {% if GOOGLE_ANALYTICS_ID %}
+        <style nonce="{{request.csp_nonce}}">#cookies-analytics { display: none }</style>
+        <div class="govuk-form-group govuk-!-margin-bottom-6" id="cookies-analytics">
+          <fieldset class="govuk-fieldset" aria-describedby="hint-0c454062">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              <h2 class="govuk-fieldset__heading">Cookies that measure website use</h2>
+            </legend>
+
+            <div id="hint-0c454062" class="govuk-hint">
+              <p class="govuk-body govuk-hint">We use Google Analytics cookies to measure how you use GOV.UK and government digital services.</p>
+              <p class="govuk-body govuk-hint">These cookies collect information about:</p>
+              <ul class="govuk-list--bullet govuk-hint">
+                <li>how you got to these sites</li>
+                <li>the pages you visit and how long you spend on each page</li>
+                <li>what you click on while you're visiting these sites</li>
+              </ul>
+              <p class="govuk-body govuk-hint">We do not allow Google to use or share this data for their own purposes.</p>
+           </div>
+           <div class="govuk-radios">
+             <div class="govuk-radios__item">
+               <input type="radio" name="cookies-usage" id="use-cookies" value="on" class="govuk-radios__input">
+               <label for="use-cookies" class="govuk-label govuk-radios__label">Use cookies that measure my website use</label>
+             </div>
+             <div class="govuk-radios__item">
+               <input type="radio" name="cookies-usage" id="no-cookies" value="off" class="govuk-radios__input" checked="">
+               <label for="no-cookies" class="govuk-label govuk-radios__label">Do not use cookies that measure my website use</label>
+             </div>
+           </div>
+          </fieldset>
+          <button id="save-cookies" class="govuk-!-margin-top-5 govuk-button" type="submit">Save changes</button>
+        </div>
+      {% endif %}
+      <h2 class="govuk-heading-m">
+        Essential cookies
+      </h2>
+      <p class="govuk-body">We use some essential cookies to make this service work.
+      </p>
+      <p class="govuk-body">
+        Essential cookies keep your information secure while you use this service. We do not need to ask
+        permission to use them.
+      </p>
+
+      <table class="govuk-table">
+        <caption class="govuk-table__caption govuk-table__caption--s">Types of essential cookies</caption>
+
+        <thead class="govuk-table__head">
+
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Name</th>
+          <th scope="col" class="govuk-table__header">Purpose</th>
+          <th scope="col" class="govuk-table__header">Expires</th>
+        </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">sessionid</th>
+          <td class="govuk-table__cell">Used to save your session data</td>
+          <td class="govuk-table__cell">14 days</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <th scope="row" class="govuk-table__header">csrftoken</th>
+          <td class="govuk-table__cell">Prevents submitting invalid data</td>
+          <td class="govuk-table__cell">1 year</td>
+        </tr>
+        </tbody>
+      </table>
+
+
+      <h3 class="govuk-heading-l">
+        Government services and external websites
+      </h3>
+      <p class="govuk-body">
+        Most services we link to are run by different government departments, or external websites for example
+        Government Digital Service (GDS) or the Nominet website. These services may set additional cookies and,
+        if so, will have their own cookies policy.
+      </p>
+
+
+    </div>
+  </div>
+
+{% endblock %}
