@@ -1,4 +1,4 @@
-'assessment-rules: &standard-rules':
+assessment-rules: &standard-rules
   1:
   - achieved
   - all
@@ -8,6 +8,7 @@
   3:
   - not-achieved
   - any
+
 objectives:
   1:
     code: A
@@ -59,7 +60,7 @@ objectives:
                   information systems supporting your essential function(s).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           2:
             code: A1.b
             title: Roles and Responsibilities
@@ -84,7 +85,7 @@ objectives:
                   your essential function(s).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           3:
             code: A1.c
             title: Decision-making
@@ -116,7 +117,7 @@ objectives:
                   continued relevance and validity.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       2:
         code: A2
         title: Risk Management
@@ -185,7 +186,7 @@ objectives:
                   organisational approach to security.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           5:
             code: A2.b
             title: Assurance
@@ -217,7 +218,7 @@ objectives:
                   working as intended and remain the most appropriate method to use.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       3:
         code: A3
         title: Asset Management
@@ -253,7 +254,7 @@ objectives:
                   through to eventual decommissioning or disposal.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       4:
         code: A4
         title: Supply Chain
@@ -278,7 +279,7 @@ objectives:
                   function(s), including sub-contractors.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
   2:
     code: B
     title: Protecting against cyber attack
@@ -334,7 +335,7 @@ objectives:
                   incident.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           9:
             code: B1.b
             title: Policy, Process and Procedure Implementation
@@ -376,7 +377,7 @@ objectives:
                   essential function(s) including aggregated breaches.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       6:
         code: B2
         title: Identity and Access Control
@@ -435,7 +436,7 @@ objectives:
                   and information systems that operate or support your essential function(s).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           11:
             code: B2.b
             title: Device Management
@@ -480,7 +481,7 @@ objectives:
                   any findings.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           12:
             code: B2.c
             title: Privileged User Management
@@ -523,7 +524,7 @@ objectives:
                   and recorded for offline analysis and investigation.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           13:
             code: B2.d
             title: Identity and Access Management (IdAM)
@@ -563,7 +564,7 @@ objectives:
                   promptly assessed and investigated.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       7:
         code: B3
         title: Data Security
@@ -626,7 +627,7 @@ objectives:
                   important data.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           15:
             code: B3.b
             title: Data in Transit
@@ -657,7 +658,7 @@ objectives:
                   or function failure, or important data being blocked or jammed).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           16:
             code: B3.c
             title: Stored Data
@@ -696,7 +697,7 @@ objectives:
                 179: Necessary historic or archive data is suitably secured in storage.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           17:
             code: B3.d
             title: Mobile Data
@@ -727,7 +728,7 @@ objectives:
                   a certain period.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           18:
             code: B3.e
             title: Media / Equipment Sanitisation
@@ -750,7 +751,7 @@ objectives:
                   reuse and / or disposal using an assured product or service.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       8:
         code: B4
         title: System Security
@@ -782,7 +783,7 @@ objectives:
                   systems.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           20:
             code: B4.b
             title: Secure Configuration
@@ -807,7 +808,7 @@ objectives:
                   or the latest known good configuration version for that environment.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           21:
             code: B4.c
             title: Secure Management
@@ -834,7 +835,7 @@ objectives:
                   dedicated solely to those operations.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       9:
         code: B5
         title: Resilient Networks and Systems
@@ -872,7 +873,7 @@ objectives:
                   outbreak of very damaging malware).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           23:
             code: B5.b
             title: Design for Resilience
@@ -901,7 +902,7 @@ objectives:
                   geographical limitations and mitigations when necessary.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           24:
             code: B5.c
             title: Backups
@@ -927,7 +928,7 @@ objectives:
                   reviewed.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       10:
         code: B6
         title: Staff Awareness and Training
@@ -972,7 +973,7 @@ objectives:
                   knowledge of their area of expertise.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           26:
             code: B6.b
             title: Cyber Security Training
@@ -1005,7 +1006,7 @@ objectives:
                   and used within your organisation.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
   3:
     code: C
     title: Detecting cyber security events
@@ -1067,7 +1068,7 @@ objectives:
                   to maintain a comprehensive monitoring capability.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           28:
             code: C1.b
             title: Securing Logs
@@ -1101,7 +1102,7 @@ objectives:
                 284: Legitimate reasons for accessing log data are given in use policies.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           29:
             code: C1.c
             title: Generating Alerts
@@ -1137,7 +1138,7 @@ objectives:
                   from false alarms.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           30:
             code: C1.d
             title: Identifying Security Incidents
@@ -1178,7 +1179,7 @@ objectives:
                   providers, government agencies).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           31:
             code: C1.e
             title: Monitoring Tools and Skills
@@ -1232,7 +1233,7 @@ objectives:
                   that relate to them.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       12:
         code: C2
         title: Proactive Security Event Discovery
@@ -1269,7 +1270,7 @@ objectives:
                   intelligence.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           33:
             code: C2.b
             title: Proactive Attack Discovery
@@ -1288,7 +1289,7 @@ objectives:
                   for system abnormalities indicative of malicious activity.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
   4:
     code: D
     title: Minimising the impact of cyber security incidents
@@ -1337,7 +1338,7 @@ objectives:
                   function(s).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           35:
             code: D1.b
             title: Response and Recovery Capability
@@ -1374,7 +1375,7 @@ objectives:
                   cyber incident responders).
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           36:
             code: D1.c
             title: Testing and Exercising
@@ -1385,7 +1386,7 @@ objectives:
               not-achieved: {}
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
       14:
         code: D2
         title: Lessons Learned
@@ -1423,7 +1424,7 @@ objectives:
                   in line with the lessons learned.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
           38:
             code: D2.b
             title: Using Incidents to Drive Improvements
@@ -1450,4 +1451,4 @@ objectives:
                   management and continuous improvement.
               partially-achieved: {}
               achieved: {}
-            assessment-rules: '*standard'
+            assessment-rules: *standard-rules
