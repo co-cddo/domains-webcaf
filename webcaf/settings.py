@@ -139,8 +139,8 @@ CONTENT_SECURITY_POLICY = {
         "frame-ancestors": "'self'",
         "frame-src": "'self' https://www.googletagmanager.com",
         "img-src": "'self' data:",
-        "script-src": "'self' https://*.googletagmanager.com",
-        "style-src": "'self'",
+        "script-src": "'self' 'sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' https://*.googletagmanager.com",  # pragma: allowlist secret
+        "style-src": "'self' 'sha256-Rq+Udb7G9s54kGQgXm9FNWjdD54j3K2pjH36tR6lliI='",  # pragma: allowlist secret
     }
 }
 
