@@ -1,8 +1,8 @@
 x-common-application-variables: &common-application-variables
   DEBUG: "True"
   SECRET_KEY: "Unneeded"  # pragma: allowlist secret
-  DJANGO_SETTINGS_MODULE: django_govuk.settings
-  DATABASE_URL: postgresql://django_govuk:django_govuk@postgres:5432/django_govuk  # pragma: allowlist secret
+  DJANGO_SETTINGS_MODULE: webcaf.settings
+  DATABASE_URL: postgresql://webcaf:webcaf@postgres:5432/webcaf  # pragma: allowlist secret
   ENVIRONMENT: 'local'
   GOOGLE_ANALYTICS_ID: GTM-TEST
 
@@ -20,12 +20,12 @@ services:
     ports:
       - "8010:8000"
     #Added the reload flag so the application will be reloaded when the source is modified.
-    entrypoint: [ "/usr/local/bin/gunicorn", "django_govuk.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-", "--reload" ]
+    entrypoint: [ "/usr/local/bin/gunicorn", "webcaf.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-", "--reload" ]
     environment:
       <<: *common-application-variables
     volumes:
       - .:/app
-      - django_govuk_home:/home/django_govuk
+      - webcaf_home:/home/webcaf
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,9 +38,9 @@ services:
     ports:
       - 54321:5432
     environment:
-      POSTGRES_USER: django_govuk
-      POSTGRES_PASSWORD: django_govuk  # pragma: allowlist secret
-      POSTGRES_DB: django_govuk
+      POSTGRES_USER: webcaf
+      POSTGRES_PASSWORD: webcaf  # pragma: allowlist secret
+      POSTGRES_DB: webcaf
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -64,4 +64,4 @@ services:
 
 volumes:
   postgres-data: { }
-  django_govuk_home: { }
+  webcaf_home: { }

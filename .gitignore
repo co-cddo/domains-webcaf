@@ -171,4 +171,4 @@ cypress/screenshots/
 .DS_Store
 
 # django static files
-django_govuk/static
+webcaf/static

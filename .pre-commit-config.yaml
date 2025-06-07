@@ -5,9 +5,9 @@ repos:
     -   id: check-yaml
         args: [--allow-multiple-documents]
     -   id: end-of-file-fixer
-        exclude: django_govuk/static|seed/
+        exclude: webcaf/static|seed/
     -   id: trailing-whitespace
-        exclude: django_govuk/static|seed/
+        exclude: webcaf/static|seed/
 # Sort import statements
 - repo: https://github.com/pycqa/isort
   rev: 5.12.0
@@ -19,19 +19,19 @@ repos:
     rev: 23.12.0
     hooks:
     -   id: black
-        exclude: django_govuk/static|seed/
+        exclude: webcaf/static|seed/
 # Linting
 -   repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
     -   id: flake8
-        exclude: django_govuk/static|seed/
+        exclude: webcaf/static|seed/
 # https://gds-way.cloudapps.digital/standards/pre-commit-hooks.html
 -   repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
     -   id: detect-secrets
-        exclude: (^\.github/workflows/)|package\.lock\.json|(^tests/fixtures/)|django_govuk/static|seed/
+        exclude: (^\.github/workflows/)|package\.lock\.json|(^tests/fixtures/)|webcaf/static|seed/
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:

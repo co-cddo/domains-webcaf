@@ -1,5 +1,5 @@
 """
-URL configuration for django_govuk project.
+URL configuration for webcaf project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from django_govuk.app.views import Index
+from webcaf.webcaf.views import Index
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
