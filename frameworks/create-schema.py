@@ -194,7 +194,6 @@ def create_yaml_structure(objectives: list, sections: list, principle_headings: 
     section_index = 1
     # Create a global indicator counter to maintain continuous indexing
     indicator_index = 1
-
     for section_code, section_title, section_paragraph, table_items in sections:
         principle_code = section_code[:2]
         principle_index = next(
