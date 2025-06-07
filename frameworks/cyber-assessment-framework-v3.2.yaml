@@ -47,17 +47,17 @@ objectives:
               achieved:
                 5: Your organisation's approach and policy relating to the security
                   of network and information systems supporting the operation of your
-                  essential function(s) are owned and managed at board-level. These are 
-                  communicated, in a meaningful way, to risk management decision-makers 
+                  essential function(s) are owned and managed at board-level. These are
+                  communicated, in a meaningful way, to risk management decision-makers
                   across the organisation.
-                7: Regular board-level discussions on the security of network and
+                6: Regular board-level discussions on the security of network and
                   information systems supporting the operation of your essential function(s)
                   take place, based on timely and accurate information and informed
                   by expert guidance.
-                8: There is a board-level individual who has overall accountability
+                7: There is a board-level individual who has overall accountability
                   for the security of network and information systems and drives regular
                   discussion at board-level.
-                9: Direction set at board-level is translated into effective organisational
+                8: Direction set at board-level is translated into effective organisational
                   practices that direct and control the security of the network and
                   information systems supporting your essential function(s).
             assessment-rules: *standard-rules
@@ -70,23 +70,23 @@ objectives:
               risks.
             indicators:
               not-achieved:
-                10: Key roles are missing, left vacant, or fulfilled on an ad-hoc
+                9: Key roles are missing, left vacant, or fulfilled on an ad-hoc
                   or informal basis.
-                11: Staff are assigned security responsibilities but without adequate
+                10: Staff are assigned security responsibilities but without adequate
                   authority or resources to fulfil them.
-                12: Staff are unsure what their responsibilities are for the security
+                11: Staff are unsure what their responsibilities are for the security
                   of the essential function(s).
               partially-achieved: {}
               achieved:
-                13: Key roles and responsibilities for the security of
+                12: Key roles and responsibilities for the security of
                     network and information systems supporting your
                     essential function(s) have been identified. These
                     are reviewed regularly to ensure they remain fit for
                     purpose.
-                14: Appropriately capable and knowledgeable staff fill those roles
+                13: Appropriately capable and knowledgeable staff fill those roles
                   and are given the time, authority, and resources to carry out their
                   duties.
-                15: There is clarity on who in your organisation has overall accountability
+                14: There is clarity on who in your organisation has overall accountability
                   for the security of the network and information systems supporting
                   your essential function(s).
             assessment-rules: *standard-rules
@@ -100,14 +100,14 @@ objectives:
               in the context of other organisational risks.
             indicators:
               not-achieved:
-                16: What should be relatively straightforward risk decisions are constantly
+                15: What should be relatively straightforward risk decisions are constantly
                   referred up the chain, or not made.
-                17: Risks are resolved informally (or ignored) at a local level when
+                16: Risks are resolved informally (or ignored) at a local level when
                   the use of a more formal risk reporting mechanism would be more
                   appropriate.
-                18: Decision-makers are unsure of what senior management's risk appetite
+                17: Decision-makers are unsure of what senior management's risk appetite
                   is, or only understand it in vague terms such as "averse" or "cautious".
-                19: Organisational structure causes risk decisions to be
+                18: Organisational structure causes risk decisions to be
                     made in isolation. (e.g. engineering and IT don't
                     talk to each other about risk).
                 19: Risk priorities are too vague to make meaningful
@@ -293,40 +293,40 @@ objectives:
                   or how it is managed.
                 59: Elements of the supply chain for essential function(s) are subcontracted
                   and you little or no visibility of the sub-contractors.
-                59: You have no understanding
+                60: You have no understanding
                     of which contracts are
                     relevant and / or relevant
                     contracts do not specify
                     appropriate security
                     obligations.
-                60: Suppliers have access to
+                61: Suppliers have access to
                     systems that provide your
                     essential function(s) that is
                     unrestricted, not monitored
                     or bypasses your own
                     security controls.
               partially-achieved:
-                60: You understand the general risks
+                62: You understand the general risks
                     suppliers may pose to your
                     essential function(s).
-                60: You know the extent of your
+                63: You know the extent of your
                     supply chain that supports your
                     essential function(s), including
                     sub-contractors.
-                60: You understand which contracts
+                64: You understand which contracts
                     are relevant and you include
                     appropriate security obligations in
                     relevant contracts.
-                60: You are aware of all third-party
+                65: You are aware of all third-party
                     connections and have assurance
                     that they meet your
-                    organisation’s security
+                    organisation's security
                     requirements.
-                60: Your approach to security
+                66: Your approach to security
                     incident management considers
                     incidents that might arise in your
                     supply chain.
-                60: You have confidence that
+                67: You have confidence that
                     information shared with suppliers
                     that is necessary for the
                     operation of your essential
@@ -335,43 +335,43 @@ objectives:
                     well-known attacks and known
                     vulnerabilities.
               achieved:
-                60: You have a deep understanding of
+                68: You have a deep understanding of
                     your supply chain, including sub-
                     contractors and the wider risks it
                     faces. You consider factors such as
-                    supplier’s partnerships,
+                    supplier's partnerships,
                     competitors, nationality and other
                     organisations with which they sub-
-                    contract. This informs your risk 
+                    contract. This informs your risk
                     assessment and procurement
                     processes.
-                60: Your approach to supply chain risk
+                69: Your approach to supply chain risk
                     management considers the risks to
                     your essential function(s) arising
                     from supply chain subversion by
                     capable and well-resourced
                     attackers.
-                60: You have confidence that
+                70: You have confidence that
                     information shared with suppliers
                     that is essential to the operation of
                     your function(s) is appropriately
                     protected from sophisticated
                     attacks.
-                60: You understand which contracts are
+                71: You understand which contracts are
                     relevant and you include
                     appropriate security obligations in
                     relevant contracts. You have a
                     proactive approach to contract
                     management which may include a
                     contract management.
-                60: Customer / supplier ownership of
+                72: Customer / supplier ownership of
                     responsibilities is laid out in
                     contracts.
-                60: All network connections and data
+                73: All network connections and data
                     sharing with third parties are
                     managed effectively and
                     proportionately.
-                60: When appropriate, your
+                74: When appropriate, your
                     incident management process and
                     that of your suppliers provide
                     mutual support in the resolution of
@@ -400,51 +400,51 @@ objectives:
               and mitigate the risk of adverse impact on your essential function(s).
             indicators:
               not-achieved:
-                61: Your policies, processes and procedures are absent or incomplete.
-                62: Policies, processes and procedures are not applied universally
+                75: Your policies, processes and procedures are absent or incomplete.
+                76: Policies, processes and procedures are not applied universally
                   or consistently.
-                63: People often or routinely circumvent policies, processes and procedures
+                77: People often or routinely circumvent policies, processes and procedures
                   to achieve business objectives.
-                64: Your organisation’s security governance and risk management approach
+                78: Your organisation's security governance and risk management approach
                   has no bearing on your policies, processes and procedures.
-                65: System security is totally reliant on users' careful and consistent
+                79: System security is totally reliant on users' careful and consistent
                   application of manual security processes.
-                65: Policies, processes and
+                80: Policies, processes and
                     procedures have not been
                     reviewed in response to major
                     changes (e.g. technology or
                     regulatory framework), or within
                     a suitable period.
-                66: Policies, processes and procedures are not readily available to
+                81: Policies, processes and procedures are not readily available to
                     staff, too detailed to remember, or too hard to
-                    understand. 
+                    understand.
               partially-achieved:
-                66: Your policies, processes and procedures document
+                82: Your policies, processes and procedures document
                     your overarching security governance and risk management approach,
                     technical security practice and specific regulatory compliance.
-                67: You review and update policies, processes and procedures in response
+                83: You review and update policies, processes and procedures in response
                   to major cyber security incidents.
               achieved:
-                68: You fully document your overarching security governance and risk
+                84: You fully document your overarching security governance and risk
                   management approach, technical security practice and specific regulatory
                   compliance. Cyber security is integrated and embedded throughout policies,
                   processes and procedures and key performance indicators are reported
                   to your executive management.
-                70: Your organisation’s policies, processes and procedures are developed
+                85: Your organisation's policies, processes and procedures are developed
                   to be practical, usable and appropriate for your essential function(s)
                   and your technologies.
-                71: Policies, processes and procedures that rely on user behaviour
+                86: Policies, processes and procedures that rely on user behaviour
                   are practical, appropriate and achievable.
-                72: You review and update policies, processes and procedures at suitably
-                  regular intervals to ensure they remain relevant. This is in addition to 
+                87: You review and update policies, processes and procedures at suitably
+                  regular intervals to ensure they remain relevant. This is in addition to
                   reviews following a major cyber security incident.
-                72: Any changes to the essential function(s) or the threat it faces triggers 
+                88: Any changes to the essential function(s) or the threat it faces triggers
                    a review of policies, processes and procedures.
-                72: Your systems are designed so
+                89: Your systems are designed so
                     that they remain secure even
                     when user security policies,
                     processes and procedures
-                    are not always followed.              
+                    are not always followed.
             assessment-rules: *standard-rules
           9:
             code: B1.b
@@ -453,45 +453,45 @@ objectives:
               processes and procedures and can demonstrate the security benefits achieved.
             indicators:
               not-achieved:
-                74: Policies, processes and procedures are ignored or only partially
+                90: Policies, processes and procedures are ignored or only partially
                   followed.
-                75: How your policies, processes and procedures support the resilience
+                91: How your policies, processes and procedures support the resilience
                   of your essential function(s) is not well understood.
-                76: Staff are unaware of their responsibilities under your policies,
+                92: Staff are unaware of their responsibilities under your policies,
                   processes and procedures.
-                77: You do not attempt to detect breaches of policies, processes and
+                93: You do not attempt to detect breaches of policies, processes and
                   procedures.
-                78: Policies, processes and procedures lack integration with other
+                94: Policies, processes and procedures lack integration with other
                   organisational policies, processes and procedures.
-                79: Your policies, processes and procedures are not well communicated
+                95: Your policies, processes and procedures are not well communicated
                   across your organisation.
               partially-achieved:
-                80: Most of your policies, processes and procedures are followed and
+                96: Most of your policies, processes and procedures are followed and
                   their application is monitored.
-                81: Your policies, processes and procedures are integrated with other
+                97: Your policies, processes and procedures are integrated with other
                   organisational policies, processes and procedures, including HR
                   assessments of individuals' trustworthiness.
-                82: All staff are aware of their responsibilities under your policies,
+                98: All staff are aware of their responsibilities under your policies,
                   processes and procedures.
-                83: All breaches of policies,
+                99: All breaches of policies,
                     processes and procedures with
                     the potential to adversely impact
                     the essential function(s) are fully
-                    investigated.Other breaches are tracked, 
+                    investigated. Other breaches are tracked,
                     assessed for trends and action is
-                    taken to understand and address.              
+                    taken to understand and address.
               achieved:
-                84: All your policies, processes and procedures are followed, their
+                100: All your policies, processes and procedures are followed, their
                   correct application and security effectiveness is evaluated.
-                85: Your policies, processes and procedures are integrated with other
+                101: Your policies, processes and procedures are integrated with other
                   organisational policies, processes and procedures, including HR
                   assessments of individuals' trustworthiness.
-                86: Your policies, processes and procedures are effectively and appropriately
+                102: Your policies, processes and procedures are effectively and appropriately
                   communicated across all levels of the organisation resulting in
                   good staff awareness of their responsibilities.
-                87: Appropriate action is taken to address all breaches of policies,
+                103: Appropriate action is taken to address all breaches of policies,
                   processes and procedures with potential to adversely impact the
-                  essential function(s) including aggregated breaches.              
+                  essential function(s) including aggregated breaches.
             assessment-rules: *standard-rules
       6:
         code: B2
@@ -508,66 +508,66 @@ objectives:
               the network and information systems supporting your essential function(s).
             indicators:
               not-achieved:
-                88: Initial identity verification is not robust enough to provide
-                  an acceptable level of confidence of a user’s identity profile.
-                89: Authorised users and systems with access to networks or information
+                104: Initial identity verification is not robust enough to provide
+                  an acceptable level of confidence of a user's identity profile.
+                105: Authorised users and systems with access to networks or information
                   systems on which your essential function(s) depends cannot be individually
                   identified.
-                90: Unauthorised individuals or devices can access your network or
+                106: Unauthorised individuals or devices can access your network or
                   information systems on which your essential function(s) depends.
-                91: The number of authorised users and systems that have access to
+                107: The number of authorised users and systems that have access to
                   your network and information systems are not limited to the minimum
                   necessary.
-                92: Your approach to authenticating users, devices and systems does
+                108: Your approach to authenticating users, devices and systems does
                   not follow up to date best practice.
               partially-achieved:
-                93: Your process of initial identity verification is robust enough
-                  to provide a reasonable level of confidence of a user’s identity
+                109: Your process of initial identity verification is robust enough
+                  to provide a reasonable level of confidence of a user's identity
                   profile before allowing an authorised user access to network and
                   information systems that support your essential function(s).
-                94: All authorised users and systems with access to network or information
+                110: All authorised users and systems with access to network or information
                   systems on which your essential function(s) depends are individually
                   identified and authenticated.
-                95: The number of authorised users and systems that have access to
+                111: The number of authorised users and systems that have access to
                   essential function(s) network and information systems is limited
                   to the minimum necessary.
-                96: You use additional authentication mechanisms, such as multi-factor
+                112: You use additional authentication mechanisms, such as multi-factor
                   (MFA), for privileged access to all network and information systems
                   that operate or support your essential function(s).
-                97: You individually authenticate and authorise all remote access
+                113: You individually authenticate and authorise all remote access
                   to all your network and information systems that support your essential
                   function(s).
-                97: The list of users and systems
+                114: The list of users and systems
                     with access to network and
                     information systems supporting
                     and delivering the essential
                     function(s) is reviewed on a
                     regular basis, at least annually.
-                97: Your approach to authenticating
+                115: Your approach to authenticating
                     users, devices and systems
                     follows up to date best practice.
               achieved:
-                98: Your process of initial identity verification is robust enough
-                  to provide a high level of confidence of a user’s identity profile
+                116: Your process of initial identity verification is robust enough
+                  to provide a high level of confidence of a user's identity profile
                   before allowing an authorised user access to network and information
                   systems that support your essential function(s).
-                99: Only authorised and individually authenticated users can physically
+                117: Only authorised and individually authenticated users can physically
                   access and logically connect to your network or information systems
                   on which your essential function(s) depends.
-                100: The number of authorised users and systems that have access to
+                118: The number of authorised users and systems that have access to
                   all your network and information systems supporting the essential
                   function(s) is limited to the minimum necessary.
-                101: You use additional authentication mechanisms, such as multi-factor
+                119: You use additional authentication mechanisms, such as multi-factor
                   (MFA), for all user access, including remote access, to all network
                   and information systems that operate or support your essential function(s).
-                101: The list of users and systems
+                120: The list of users and systems
                     with access to network and
                     information systems supporting
                     and delivering the essential
                     function(s) is reviewed on a
                     regular basis, at least every six
                     months.
-                101: Your approach to authenticating
+                121: Your approach to authenticating
                     users, devices and systems
                     follows up to date best practice.
             assessment-rules: *standard-rules
@@ -579,47 +579,47 @@ objectives:
               essential function(s).
             indicators:
               not-achieved:
-                102: Users can connect to your network and information systems supporting
+                122: Users can connect to your network and information systems supporting
                   your essential function(s) using devices that are not corporately
                   owned and managed.
-                103: Privileged users can perform privileged operations from devices
+                123: Privileged users can perform privileged operations from devices
                   that are not corporately owned and managed.
-                104: You have not gained assurance in the security of any third-party
+                124: You have not gained assurance in the security of any third-party
                   devices or networks connected to your systems.
-                105: Physically connecting a device to your network and information
+                125: Physically connecting a device to your network and information
                   systems gives that device access without device or user authentication.
               partially-achieved:
-                106: Only corporately owned and managed devices can access your essential
+                126: Only corporately owned and managed devices can access your essential
                   function(s) network and information systems.
-                107: All privileged operations are performed from corporately owned
-                  and managed devices.These devices provide sufficient separation, using a risk-based
+                127: All privileged operations are performed from corporately owned
+                  and managed devices. These devices provide sufficient separation, using a risk-based
                   approach, from the activities of standard users.
-                109: You have sought to understand
+                128: You have sought to understand
                       the security properties of third-
                       party devices and networks
                       before they can be connected to
                       your systems. You have taken
                       appropriate steps to mitigate
                       any risks identified.
-                110: The act of connecting to a network port or cable does not grant
+                129: The act of connecting to a network port or cable does not grant
                   access to any systems.
-                111: You are able to detect unknown devices being connected to your
-                  network and information systems and investigate such incidents.              
+                130: You are able to detect unknown devices being connected to your
+                  network and information systems and investigate such incidents.
               achieved:
-                112: All privileged operations performed on your network and information
+                131: All privileged operations performed on your network and information
                   systems supporting your essential function(s) are conducted from
                   highly trusted devices, such as Privileged Access Workstations,
                   dedicated solely to those operations.
-                113: You either obtain independent and professional assurance of the
+                132: You either obtain independent and professional assurance of the
                   security of third-party devices or networks before they connect
                   to your network and information systems, or you only allow third-party
                   devices or networks that are dedicated to supporting your network
                   and information systems to connect.
-                114: You perform certificate-based device identity management and
+                133: You perform certificate-based device identity management and
                   only allow known devices to access systems necessary for the operation
                   of your essential function(s).
-                115: You perform regular scans to detect unknown devices and investigate
-                  any findings.              
+                134: You perform regular scans to detect unknown devices and investigate
+                  any findings.
             assessment-rules: *standard-rules
           12:
             code: B2.c
@@ -628,39 +628,39 @@ objectives:
               information systems supporting your essential function(s).
             indicators:
               not-achieved:
-                116: The identities of the individuals with privileged access to network
+                135: The identities of the individuals with privileged access to network
                   and information systems (infrastructure, platforms, software, configuration
                   etc) supporting your essential function(s) are not known or not
                   managed.
-                117: Privileged user access to network and information systems supporting
+                136: Privileged user access to network and information systems supporting
                   your essential function(s) is via weak authentication mechanisms
                   (e.g. only simple passwords).
-                118: The list of privileged users has not been reviewed recently (e.g.
+                137: The list of privileged users has not been reviewed recently (e.g.
                   within the last 12 months).
-                119: Privileged user access is granted on a system-wide basis rather
+                138: Privileged user access is granted on a system-wide basis rather
                   than by role or function(s).
-                119: Privileged user access to your
+                139: Privileged user access to your
                     essential function(s) is via
                     generic, shared or default name
                     accounts.
-                119: Where there are “always on”
+                140: Where there are "always on"
                       terminals which can perform
                       privileged actions (such as in a
                       control room), there are no
                       additional controls (e.g. physical
                       controls) to ensure access is
                       appropriately restricted.
-                119: There is no logical separation
+                141: There is no logical separation
                     between roles that an individual
                     may have and hence the actions
                     they perform (e.g. access to
                     corporate email and
                     privilege user actions).
               partially-achieved:
-                122: All privileged user access to network and information systems
+                142: All privileged user access to network and information systems
                   supporting your essential function(s) requires strong authentication,
                   such as multi-factor (MFA).
-                123: The identities of the individuals
+                143: The identities of the individuals
                       with privileged access to
                       network and information
                       systems (infrastructure,
@@ -669,23 +669,23 @@ objectives:
                       your essential function(s) are
                       known and managed. This
                       includes third parties.
-                124: Activity by privileged users is routinely reviewed and validated
+                144: Activity by privileged users is routinely reviewed and validated
                   (e.g. at least annually).
-                125: Privileged users are only granted specific privileged user access
-                  rights which are essential to their business role or function.              
+                145: Privileged users are only granted specific privileged user access
+                  rights which are essential to their business role or function.
               achieved:
-                126: Privileged user access to network and information systems supporting
+                146: Privileged user access to network and information systems supporting
                   your essential function(s) is carried out from dedicated separate
                   accounts that are closely monitored and managed.
-                127: The issuing of temporary, time- bound rights for privileged user
+                147: The issuing of temporary, time- bound rights for privileged user
                   access and / or external third- party support access is in place.
-                128: Privileged user access rights are regularly reviewed and always
+                148: Privileged user access rights are regularly reviewed and always
                   updated as part of your joiners, movers and leavers process.
-                129: All privileged user activity is routinely reviewed, validated
-                  and recorded for offline analysis and investigation.              
+                149: All privileged user activity is routinely reviewed, validated
+                  and recorded for offline analysis and investigation.
             assessment-rules: *standard-rules
 
-          12:
+          13:
             code: B2.d
             title: Identity and Access Management (IdAM)
             description: You closely manage and maintain identity and access control
@@ -693,37 +693,37 @@ objectives:
               systems supporting your essential function(s).
             indicators:
               not-achieved:
-                130: Greater access rights are granted than necessary.
-                131: Identity validation and requirement for access of a user, device
+                150: Greater access rights are granted than necessary.
+                151: Identity validation and requirement for access of a user, device
                   or systems is not carried out.
-                132: User access rights are not reviewed when users change roles.
-                133: User access rights remain active when users leave your organisation.
-                134: Access rights granted to devices or systems to access other devices
+                152: User access rights are not reviewed when users change roles.
+                153: User access rights remain active when users leave your organisation.
+                154: Access rights granted to devices or systems to access other devices
                   and systems are not reviewed on a regular basis (at least annually).
               partially-achieved:
-                135: You follow a robust procedure to verify each user and issue the
+                155: You follow a robust procedure to verify each user and issue the
                   minimum required access rights.
-                136: You regularly review access rights and those no longer needed
+                156: You regularly review access rights and those no longer needed
                   are revoked.
-                137: User access rights are reviewed when users change roles via your
+                157: User access rights are reviewed when users change roles via your
                   joiners, leavers and movers process.
-                138: All user, device and system access to the systems supporting
+                158: All user, device and system access to the systems supporting
                   the essential function(s) is logged and monitored, but it is not
-                  compared to other log data or access records.              
+                  compared to other log data or access records.
               achieved:
-                139: You follow a robust procedure to verify each user and issue the
+                159: You follow a robust procedure to verify each user and issue the
                   minimum required access rights, and the application of the procedure
                   is regularly audited.
-                140: User access rights are reviewed both when people change roles
+                160: User access rights are reviewed both when people change roles
                   via your joiners, leavers and movers process and at regular intervals
                   - at least annually.
-                141: All user, device and systems access to the systems supporting
+                161: All user, device and systems access to the systems supporting
                   the essential function(s) is logged and monitored.
-                142: You regularly review access logs and correlate this data with
+                162: You regularly review access logs and correlate this data with
                   other access records and expected activity.
-                143: Attempts by unauthorised users, devices or systems to connect
+                163: Attempts by unauthorised users, devices or systems to connect
                   to the systems supporting the essential function(s) are alerted,
-                  promptly assessed and investigated.              
+                  promptly assessed and investigated.
             assessment-rules: *standard-rules
       7:
         code: B3
@@ -747,47 +747,47 @@ objectives:
               of your essential function(s).
             indicators:
               not-achieved:
-                144: You have incomplete knowledge of what data is used by and produced
+                164: You have incomplete knowledge of what data is used by and produced
                   in the operation of the essential function(s).
-                145: You have not identified the important data on which your essential
+                165: You have not identified the important data on which your essential
                   function(s) relies.
-                146: You have not identified who has access to data important to the
+                166: You have not identified who has access to data important to the
                   operation of the essential function(s).
-                147: You have not clearly articulated the impact of data compromise
+                167: You have not clearly articulated the impact of data compromise
                   or lack of availability.
-
-                148: You have identified and catalogued all the data important to
+              partially-achieved:
+                168: You have identified and catalogued all the data important to
                   the operation of the essential function(s), or that would assist
                   an attacker.
-                149: You have identified and catalogued who has access to the data
+                169: You have identified and catalogued who has access to the data
                   important to the operation of the essential function(s).
-                150: You regularly review location, transmission, quantity and quality
+                170: You regularly review location, transmission, quantity and quality
                   of data important to the operation of the essential function(s).
-                151: You have identified all mobile devices and media that hold data
+                171: You have identified all mobile devices and media that hold data
                   important to the operation of the essential function(s).
-                152: You understand and document the impact on your essential function(s)
+                172: You understand and document the impact on your essential function(s)
                   of all relevant scenarios, including unauthorised data access, modification
                   or deletion, or when authorised users are unable to appropriately
                   access this data.
-                153: You occasionally validate these documented impact statements.
-
-                154: You have identified and catalogued all the data important to
+                173: You occasionally validate these documented impact statements.
+              achieved:
+                174: You have identified and catalogued all the data important to
                   the operation of the essential function(s), or that would assist
                   an attacker.
-                155: You have identified and catalogued who has access to the data
+                175: You have identified and catalogued who has access to the data
                   important to the operation of the essential function(s).
-                156: You maintain a current understanding of the location, quantity
+                176: You maintain a current understanding of the location, quantity
                   and quality of data important to the operation of the essential
                   function(s).
-                157: You take steps to remove or minimise unnecessary copies or unneeded
+                177: You take steps to remove or minimise unnecessary copies or unneeded
                   historic data.
-                158: You have identified all mobile devices and media that may hold
+                178: You have identified all mobile devices and media that may hold
                   data important to the operation of the essential function(s).
-                159: You maintain a current understanding of the data links used to
+                179: You maintain a current understanding of the data links used to
                   transmit data that is important to your essential function(s).
-                160: You understand the context, limitations and dependencies of your
+                180: You understand the context, limitations and dependencies of your
                   important data.
-                160: You understand and document
+                181: You understand and document
                       the impact on your essential
                       function(s) of all relevant
                       scenarios, including
@@ -796,11 +796,9 @@ objectives:
                       or when authorised users are
                       unable to appropriately
                       access this data.
-                160: You validate these documented
+                182: You validate these documented
                       impact statements regularly, at
                       least annually.
-              partially-achieved: {}
-              achieved: {}
             assessment-rules: *standard-rules
           15:
             code: B3.b
@@ -810,36 +808,36 @@ objectives:
               third parties.
             indicators:
               not-achieved:
-                161: You do not know what all your data links are, or which carry
+                183: You do not know what all your data links are, or which carry
                   data important to the operation of the essential function(s).
-                162: Data important to the operation of the essential function(s)
+                184: Data important to the operation of the essential function(s)
                   travels without technical protection over non-trusted or openly
                   accessible carriers.
-                163: Critical data paths that could fail, be jammed, be overloaded,
+                185: Critical data paths that could fail, be jammed, be overloaded,
                   etc. have no alternative path.
               partially-achieved:
-                164: You have identified and protected (effectively and proportionately)
+                186: You have identified and protected (effectively and proportionately)
                   all the data links that carry data important to the operation of
                   your essential function(s).
-                164: You apply appropriate technical
+                187: You apply appropriate technical
                       means (e.g. cryptography) to
                       protect data that travels
                       over non-trusted or openly
                       accessible carriers, but you have
                       limited or no confidence in the
                       robustness of the protection
-                      applied.              
+                      applied.
               achieved:
-                165: You have identified and protected (effectively and proportionately)
+                188: You have identified and protected (effectively and proportionately)
                   all the data links that carry data important to the operation of
                   your essential function(s).
-                166: You apply appropriate physical and / or technical means to protect
+                189: You apply appropriate physical and / or technical means to protect
                   data that travels over non-trusted or openly accessible carriers,
                   with justified confidence in the robustness of the protection applied.
-                167: Suitable alternative transmission paths are available where there
+                190: Suitable alternative transmission paths are available where there
                   is a significant risk of impact on the operation of the essential
                   function(s) due to resource limitation (e.g. transmission equipment
-                  or function failure, or important data being blocked or jammed).              
+                  or function failure, or important data being blocked or jammed).
             assessment-rules: *standard-rules
           16:
             code: B3.c
@@ -848,14 +846,14 @@ objectives:
               to the operation of your essential function(s).
             indicators:
               not-achieved:
-                168: You have no, or limited, knowledge of where data important to
+                191: You have no, or limited, knowledge of where data important to
                   the operation of the essential function(s) is stored.
-                169: You have not protected vulnerable stored data important to the
+                192: You have not protected vulnerable stored data important to the
                   operation of the essential function(s) in a suitable way.
-                170: Backups are incomplete, untested, not adequately secured or could
+                193: Backups are incomplete, untested, not adequately secured or could
                   be inaccessible in a disaster recovery or business continuity situation.
               partially-achieved:
-                171: All copies of data important to
+                194: All copies of data important to
                     the operation of your essential
                     function(s) are necessary. Where
                     this important data is
@@ -863,13 +861,13 @@ objectives:
                     systems, the data is provided
                     with limited detail and / or as
                     a read-only copy.
-                172: You have applied suitable physical and / or technical means to
+                195: You have applied suitable physical and / or technical means to
                   protect this important stored data from unauthorised access, modification
                   or deletion.
-                173: If cryptographic protections are used, you apply suitable technical
+                196: If cryptographic protections are used, you apply suitable technical
                   and procedural means, but you have limited or no confidence in the
                   robustness of the protection applied.
-                174: You have suitable, secured
+                197: You have suitable, secured
                     backups of data to allow
                     the operation of the essential
                     function(s) to continue should
@@ -879,7 +877,7 @@ objectives:
                     or appropriate alternative forms
                     such as paper copies.
               achieved:
-                175: All copies of data important to
+                198: All copies of data important to
                     the operation of your essential
                     function(s) are necessary. Where
                     this important data is
@@ -887,13 +885,13 @@ objectives:
                     systems, the data is provided
                     with limited detail and / or as
                     a read-only copy.
-                176: You have applied suitable physical and / or technical means to
+                199: You have applied suitable physical and / or technical means to
                   protect this important stored data from unauthorised access, modification
                   or deletion.
-                177: If cryptographic protections are used you apply suitable technical
+                200: If cryptographic protections are used you apply suitable technical
                   and procedural means, and you have justified confidence in the robustness
                   of the protection applied.
-                178: You have suitable, secured
+                201: You have suitable, secured
                       backups of data to allow
                       the operation of the essential
                       function(s) to continue should
@@ -902,7 +900,7 @@ objectives:
                       line or segregated backups,
                       or appropriate alternative forms
                       such as paper copies.
-                179: Necessary historic or archive
+                202: Necessary historic or archive
                       data is suitably secured in
                       storage.
             assessment-rules: *standard-rules
@@ -913,28 +911,28 @@ objectives:
               essential function(s) on mobile devices.
             indicators:
               not-achieved:
-                180: You don’t know which mobile devices may hold data important to
+                203: You don't know which mobile devices may hold data important to
                   the operation of the essential function(s).
-                181: You allow data important to the operation of the essential function(s)
+                204: You allow data important to the operation of the essential function(s)
                   to be stored on devices not managed by your organisation, or to
                   at least equivalent standard.
-                182: Data on mobile devices is not technically secured, or only some
+                205: Data on mobile devices is not technically secured, or only some
                   is secured.
               partially-achieved:
-                183: You know which mobile devices hold data important to the operation
+                206: You know which mobile devices hold data important to the operation
                   of the essential function(s).
-                184: Data important to the operation of the essential function(s)
+                207: Data important to the operation of the essential function(s)
                   is stored on mobile devices only when they have at least the security
                   standard aligned to your overarching security policies.
-                185: Data on mobile devices is technically secured.
+                208: Data on mobile devices is technically secured.
               achieved:
-                186: Mobile devices that hold data that is important to the operation
+                209: Mobile devices that hold data that is important to the operation
                   of the essential function(s) are catalogued, are under your organisation's
                   control and configured according to best practice for the platform,
                   with appropriate technical and procedural policies in place.
-                187: Your organisation can remotely wipe all mobile devices holding
+                210: Your organisation can remotely wipe all mobile devices holding
                   data important to the operation of the essential function(s).
-                188: You have minimised this data on
+                211: You have minimised this data on
                       these mobile devices. Some
                       data may be automatically
                       deleted off mobile devices after
@@ -948,20 +946,20 @@ objectives:
               operation of your essential function(s).
             indicators:
               not-achieved:
-                189: Some or all devices, equipment or removable media that hold data
+                212: Some or all devices, equipment or removable media that hold data
                   important to the operation of the essential function(s) are reused
                   or disposed of without sanitisation of that data.
               partially-achieved:
-                190: Data important to the operations of the essential function(s)
+                213: Data important to the operations of the essential function(s)
                   is removed from all devices, equipment and removable media before
-                  reuse and / or disposal.              
+                  reuse and / or disposal.
               achieved:
-                191: You catalogue and track all devices that contain data important
+                214: You catalogue and track all devices that contain data important
                   to the operation of the essential function(s) (whether a specific
                   storage device or one with integral storage).
-                192: Data important to the operation of the essential function(s)
+                215: Data important to the operation of the essential function(s)
                   is removed from all devices, equipment and removable media before
-                  reuse and / or disposal using an assured product or service.              
+                  reuse and / or disposal using an assured product or service.
             assessment-rules: *standard-rules
       8:
         code: B4
@@ -982,11 +980,11 @@ objectives:
               vulnerability.
             indicators:
               not-achieved:
-                193: Systems essential to the operation of the essential function(s)
+                216: Systems essential to the operation of the essential function(s)
                   are not appropriately segregated from other systems.
-                194: Internet access is available from network and information systems
+                217: Internet access is available from network and information systems
                   supporting your essential function(s).
-                194: Data flows between network
+                218: Data flows between network
                       and information systems
                       supporting your essential
                       function(s) and other systems
@@ -994,65 +992,60 @@ objectives:
                       to discriminate between
                       legitimate and illegitimate /
                       malicious traffic.
-                194: Remote or third-party accesses
+                219: Remote or third-party accesses
                       circumvent some network
                       controls to gain more direct
                       access to network and
                       information systems supporting
                       the essential function(s).
-                
-
-                
-                195: You employ appropriate expertise to design network and information
+              partially-achieved:
+                220: You employ appropriate expertise to design network and information
                   systems.
-                196: You design strong boundary defences where your network and information
+                221: You design strong boundary defences where your network and information
                   systems interface with other organisations or the world at large.
-                196: You design simple data flows
+                222: You design simple data flows
                     between your network and
                     information systems and any
                     external interface to enable
                     effective monitoring.
-                196: You design to make network and
+                223: You design to make network and
                       information system recovery
                       simple.
-                196: All inputs to network and
+                224: All inputs to network and
                     information systems supporting
                     your essential function(s) are
                     checked and validated at the
                     network boundary where
                     possible, or additional
                     monitoring is in place for
-                    content-based attacks.                    
-
-
-                197: You employ appropriate expertise to design network and information
+                    content-based attacks.
+              achieved:
+                225: You employ appropriate expertise to design network and information
                   systems.
-                197: Your network and information
+                226: Your network and information
                       systems are segregated into
                       appropriate security zones (e.g.
                       systems supporting the essential
-                      function(s) are segregated in a 
+                      function(s) are segregated in a
                       highly trusted, more secure
                       zone).
-                197: The network and information
+                227: The network and information
                       systems supporting your
                       essential function(s) are
                       designed to have simple data
                       flows between components to
                       support effective security
                       monitoring.
-                197: The network and information
+                228: The network and information
                       systems supporting your
                       essential function(s) are
                       designed to be easy to recover.
-                197: Content-based attacks are
+                229: Content-based attacks are
                       mitigated for all inputs to
                       network and information
                       systems that affect the essential
                       function(s) (e.g. via
                       transformation and inspection).
-              partially-achieved: {}
-              achieved: {}
             assessment-rules: *standard-rules
           20:
             code: B4.b
@@ -1061,41 +1054,41 @@ objectives:
               that support the operation of your essential function(s).
             indicators:
               not-achieved:
-                198: You haven't identified the assets that need to be carefully configured
+                230: You haven't identified the assets that need to be carefully configured
                   to maintain the security of the essential function(s).
-                199: Policies relating to the security of operating system builds
+                231: Policies relating to the security of operating system builds
                   or configuration are not applied consistently across your network
                   and information systems relating to your essential function(s).
-                200: Configuration details are not recorded or lack enough information
+                232: Configuration details are not recorded or lack enough information
                   to be able to rebuild the system or device.
-                201: The recording of security changes or adjustments that 
+                233: The recording of security changes or adjustments that
                       affect your essential function(s)
                       is lacking or inconsistent.
-                201: Generic, shared, default name
+                234: Generic, shared, default name
                       and built-in accounts have not
                       been removed or disabled.
               partially-achieved:
-                201: You have identified and documented the assets that need to be carefully configured
+                235: You have identified and documented the assets that need to be carefully configured
                      to maintain the security of the essential function(s).
-                202: Secure platform and device builds are used across the estate.
-                203: Consistent, secure and minimal system and device configurations
+                236: Secure platform and device builds are used across the estate.
+                237: Consistent, secure and minimal system and device configurations
                       are applied across the same types of environment.
-                203: Changes and adjustments to
+                238: Changes and adjustments to
                       security configuration at security
                       boundaries with the network
                       and information systems
                       supporting your essential function(s) are approved and
                       documented.
-                203: You verify software before
+                239: You verify software before
                       installation is permitted.
-                203: Generic, shared, default name
+                240: Generic, shared, default name
                       and built-in accounts have been
                       removed or disabled. Where this
                       is not possible, credentials to
                       these accounts have been
                       changed.
               achieved:
-                204: You have identified,
+                241: You have identified,
                       documented and actively
                       manage (e.g. maintain security
                       configurations, patching,
@@ -1104,34 +1097,34 @@ objectives:
                       be carefully configured to
                       maintain the security of the
                       essential function(s).
-                204: All platforms conform to your secure, defined baseline build,
+                242: All platforms conform to your secure, defined baseline build,
                       or the latest known good configuration version for that environment.
-                204: You closely and effectively
+                243: You closely and effectively
                       manage changes in your
                       environment, ensuring that
                       network and system configurations are secure and
                       documented.
-                204: You regularly review and
+                244: You regularly review and
                       validate that your network and
                       information systems have the
                       expected, secure settings and
                       configuration.
-                204: Only permitted software can be
+                245: Only permitted software can be
                       installed.
-                204: Standard users are not able to
+                246: Standard users are not able to
                       change settings that would
                       impact security or the business
                       operation.
-                204: If automated decision-making
+                247: If automated decision-making
                       technologies are in use, their
                       operation is well understood,
                       and decisions can be replicated.
-                204: Generic, shared, default name
+                248: Generic, shared, default name
                       and built-in accounts have been
                       removed or disabled. Where this
                       is not possible, credentials to
                       these accounts have been
-                      changed.              
+                      changed.
             assessment-rules: *standard-rules
           21:
             code: B4.c
@@ -1141,38 +1134,38 @@ objectives:
               maintain security.
             indicators:
               not-achieved:
-                205: Your systems and devices supporting the operation of the essential
+                249: Your systems and devices supporting the operation of the essential
                   function(s) are administered or maintained from devices that are
                   not corporately owned and managed.
-                206: You do not have good or current technical documentation of your
+                250: You do not have good or current technical documentation of your
                   network and information systems.
               partially-achieved:
-                207: Your systems and devices supporting the operation of the essential
+                251: Your systems and devices supporting the operation of the essential
                   function(s) are only administered or maintained by authorised privileged
                   users from devices sufficiently separated, using a risk-based approach,
                   from the activities of standard users.
-                208: Technical knowledge about network and information systems, such
+                252: Technical knowledge about network and information systems, such
                   as documentation and network diagrams, is regularly reviewed and
                   updated.
-                208: You prevent, detect and remove
+                253: You prevent, detect and remove
                       malware, and unauthorised
                       software. You use technical,
                       procedural and physical
                       measures as necessary.
               achieved:
-                209: Your systems and devices supporting the operation of the essential
+                254: Your systems and devices supporting the operation of the essential
                   function(s) are only administered or maintained by authorised privileged
                   users from highly trusted devices, such as Privileged Access Workstations,
                   dedicated solely to those operations.
-                209: You regularly review and update
+                255: You regularly review and update
                       technical knowledge about
                       network and information
                       systems, such as documentation
-                209: You prevent, detect and remove
+                256: You prevent, detect and remove
                     malware, and unauthorised
                     software. You use technical,
                     procedural and physical
-                    measures as necessary.              
+                    measures as necessary.
             assessment-rules: *standard-rules
           22:
             code: B4.d
@@ -1181,31 +1174,31 @@ objectives:
                           your essential function(s).
             indicators:
               not-achieved:
-                209: You do not understand the
+                257: You do not understand the
                     exposure of your essential
                     function(s) to publicly-known
                     vulnerabilities.
-                209: You do not mitigate externally
+                258: You do not mitigate externally
                       exposed vulnerabilities
                       promptly.
-                209: You have not recently tested to
+                259: You have not recently tested to
                       verify your understanding of the
                       vulnerabilities of the network
                       and information systems that
                       support your essential
                       function(s).
-                209: You have not suitably mitigated
+                260: You have not suitably mitigated
                       systems or software that is no
                       longer supported.
-                209: You are not pursuing
+                261: You are not pursuing
                       replacement for unsupported
-                      systems or software.                  
+                      systems or software.
               partially-achieved:
-                209: You maintain a current
+                262: You maintain a current
                       understanding of the exposure
                       of your essential function(s) to
                       publicly-known vulnerabilities.
-                209: Announced vulnerabilities for all
+                263: Announced vulnerabilities for all
                       software packages, network and
                       information systems used to
                       support your essential
@@ -1214,34 +1207,34 @@ objectives:
                       exposed vulnerabilities are
                       mitigated (e.g. by patching)
                       promptly.
-                209: Some vulnerabilities that are not
+                264: Some vulnerabilities that are not
                       externally exposed have
                       temporary mitigations for an
                       extended period.
-                209: You have temporary mitigations
+                265: You have temporary mitigations
                       for unsupported systems and
                       software while pursuing
                       migration to supported
                       technology.
-                209: You regularly test to fully
+                266: You regularly test to fully
                       understand the vulnerabilities of
                       the network and information
                       systems that support the
                       operation of your essential
                       function(s).
               achieved:
-                209: You maintain a current
+                267: You maintain a current
                       understanding of the exposure
                       of your essential function(s) to
                       publicly-known vulnerabilities.
-                209: Announced vulnerabilities for all
+                268: Announced vulnerabilities for all
                       software packages, network and
                       information systems used to
                       support your essential
                       function(s) are tracked,
                       prioritised and mitigated (e.g. by
                       patching) promptly.
-                209: You regularly test to fully
+                269: You regularly test to fully
                       understand the vulnerabilities of
                       the network and information
                       systems that support the
@@ -1249,7 +1242,7 @@ objectives:
                       function(s) and verify this
                       understanding with third-party
                       testing.
-                209: You maximise the use of
+                270: You maximise the use of
                       supported software, firmware
                       and hardware in your network
                       and information systems
@@ -1270,29 +1263,29 @@ objectives:
               function(s) following adverse impact.
             indicators:
               not-achieved:
-                210: You have limited understanding of all the elements that are required
+                271: You have limited understanding of all the elements that are required
                   to restore operation of the essential function(s).
-                211: You have not completed business continuity and disaster recovery
+                272: You have not completed business continuity and disaster recovery
                   plans for network and information systems, including their dependencies,
                   supporting the operation of the essential function(s).
-                212: You have not fully assessed the practical implementation of your
+                273: You have not fully assessed the practical implementation of your
                   business continuity and disaster recovery plans.
               partially-achieved:
-                213: You know all network and information systems, and underlying
+                274: You know all network and information systems, and underlying
                   technologies, that are necessary to restore the operation of the
                   essential function(s) and understand their interdependence.
-                214: You know the order in which systems need to be recovered to efficiently
+                275: You know the order in which systems need to be recovered to efficiently
                   and effectively restore the operation of the essential function(s).
               achieved:
-                215: You have business continuity and disaster recovery plans that
-                  have been tested for practicality, effectiveness and completeness. Appropriate 
+                276: You have business continuity and disaster recovery plans that
+                  have been tested for practicality, effectiveness and completeness. Appropriate
                   use is made of different test methods (e.g. manual
                   fail-over, table-top exercises, or red-teaming).
-                217: You use your security awareness and threat intelligence sources
+                277: You use your security awareness and threat intelligence sources
                   to identify new or heightened levels of risk, which result in immediate
                   and potentially temporary security measures to enhance the security
                   of your network and information systems (e.g. in response to a widespread
-                  outbreak of very damaging malware).            
+                  outbreak of very damaging malware).
             assessment-rules: *standard-rules
           24:
             code: B5.b
@@ -1302,14 +1295,14 @@ objectives:
               Systems are appropriately segregated and resource limitations are mitigated.
             indicators:
               not-achieved:
-                218: Network and information systems supporting the operation of your
+                278: Network and information systems supporting the operation of your
                   essential function(s) are not appropriately segregated.
-                219: Internet services, such as browsing and email, are accessible
+                279: Internet services, such as browsing and email, are accessible
                   from network and information systems supporting the essential function(s).
-                220: You do not understand or lack plans to mitigate all resource
+                280: You do not understand or lack plans to mitigate all resource
                   limitations that could adversely affect your essential function(s).
               partially-achieved:
-                221: Network and information
+                281: Network and information
                       systems supporting the
                       operation of your essential
                       function(s) are logically
@@ -1321,12 +1314,12 @@ objectives:
                       accessible from network and
                       information systems supporting
                       the essential function(s).
-                222: Resource limitations (e.g.
+                282: Resource limitations (e.g.
                       network bandwidth, single
                       network paths) have been
                       identified but not fully mitigated.
               achieved:
-                223: Network and information
+                283: Network and information
                       systems supporting the
                       operation of your essential
                       function(s) are segregated from
@@ -1340,9 +1333,9 @@ objectives:
                       network and information
                       systems supporting the essential
                       function(s).
-                224: You have identified and mitigated all resource limitations (e.g.
+                284: You have identified and mitigated all resource limitations (e.g.
                   bandwidth limitations and single network paths).
-                224: You have identified and
+                285: You have identified and
                       mitigated any geographical
                       constraints or weaknesses. (e.g.
                       systems that your essential
@@ -1351,9 +1344,9 @@ objectives:
                       location, important network
                       connectivity has alternative
                       physical paths and service
-                      providers). 
-                225: You review and update assessments of dependencies, resource and
-                  geographical limitations and mitigations when necessary.              
+                      providers).
+                286: You review and update assessments of dependencies, resource and
+                  geographical limitations and mitigations when necessary.
             assessment-rules: *standard-rules
           25:
             code: B5.c
@@ -1362,30 +1355,30 @@ objectives:
               information needed to recover operation of your essential function(s).
             indicators:
               not-achieved:
-                226: Backup coverage is incomplete and does not include all relevant
+                287: Backup coverage is incomplete and does not include all relevant
                   data and information needed to restore the operation of your essential
                   function(s).
-                227: Backups are not frequent enough for the operation of your essential
+                288: Backups are not frequent enough for the operation of your essential
                   function(s) to be restored effectively.
-                228: Your restoration process does not restore your essential function(s)
+                289: Your restoration process does not restore your essential function(s)
                   in a suitable time frame.
               partially-achieved:
-                229: You have appropriately secured
+                290: You have appropriately secured
                     backups (including data,
                     configuration information,
                     software, equipment, processes
                     and knowledge). These backups
                     will be accessible to recover
                     from an extreme event.
-                230: You routinely test backups to ensure that the backup process
-                  function(s) correctly and the backups are usable.              
+                291: You routinely test backups to ensure that the backup process
+                  function(s) correctly and the backups are usable.
               achieved:
-                231: Your comprehensive, automatic and tested technical and procedural
+                292: Your comprehensive, automatic and tested technical and procedural
                   backups are secured at centrally accessible or secondary sites to
                   recover from an extreme event.
-                232: Backups of all important data and information needed to recover
+                293: Backups of all important data and information needed to recover
                   the essential function(s) are made, tested, documented and routinely
-                  reviewed.              
+                  reviewed.
             assessment-rules: *standard-rules
       10:
         code: B6
@@ -1401,27 +1394,27 @@ objectives:
             description: You develop and maintain a positive cyber security culture.
             indicators:
               not-achieved:
-                233: People in your organisation don't understand what they contribute
+                294: People in your organisation don't understand what they contribute
                   to the cyber security of the essential function(s).
-                234: People in your organisation don't know how to raise a concern
+                295: People in your organisation don't know how to raise a concern
                   about cyber security.
-                235: People believe that reporting issues may get them into trouble.
-                236: Your organisation's approach to cyber security is perceived by
+                296: People believe that reporting issues may get them into trouble.
+                297: Your organisation's approach to cyber security is perceived by
                   staff as hindering the business of the organisation.
               partially-achieved:
-                237: Your executive management understand and widely communicate the
-                  importance of a positive cyber security culture. Positive attitudes, 
+                298: Your executive management understand and widely communicate the
+                  importance of a positive cyber security culture. Positive attitudes,
                   behaviours and expectations are described for your organisation.
-                239: All people in your organisation understand the contribution they
+                299: All people in your organisation understand the contribution they
                   make to the essential function(s) cyber security.
-                240: All individuals in your
+                300: All individuals in your
                     organisation know who to
                     contact and where to access
                     more information about cyber
                     security. They know how to raise
-                    a cyber security issue.              
+                    a cyber security issue.
               achieved:
-                241: Your executive management
+                301: Your executive management
                       clearly and effectively
                       communicates the organisation's
                       cyber security priorities and
@@ -1429,18 +1422,18 @@ objectives:
                       organisation displays positive
                       cyber security attitudes,
                       behaviours and expectations.
-                242: People in your organisation raising potential cyber security
+                302: People in your organisation raising potential cyber security
                   incidents and issues are treated positively.
-                243: Individuals at all levels in your organisation routinely report
+                303: Individuals at all levels in your organisation routinely report
                   concerns or issues about cyber security and are recognised for their
                   contribution to keeping the organisation secure.
-                244: Your management is seen to be committed to and actively involved
+                304: Your management is seen to be committed to and actively involved
                   in cyber security.
-                245: Your organisation communicates openly about cyber security, with
+                305: Your organisation communicates openly about cyber security, with
                   any concern being taken seriously.
-                246: People across your organisation participate in cyber security
+                306: People across your organisation participate in cyber security
                   activities and improvements, building joint ownership and bringing
-                  knowledge of their area of expertise.              
+                  knowledge of their area of expertise.
             assessment-rules: *standard-rules
           27:
             code: B6.b
@@ -1450,30 +1443,30 @@ objectives:
               cyber security training, awareness and communications are employed.
             indicators:
               not-achieved:
-                247: There are teams who operate and support your essential function(s)
+                307: There are teams who operate and support your essential function(s)
                   that lack any cyber security training.
-                248: Cyber security training is restricted to specific roles in your
+                308: Cyber security training is restricted to specific roles in your
                   organisation.
-                249: Cyber security training records for your organisation are lacking
+                309: Cyber security training records for your organisation are lacking
                   or incomplete.
               partially-achieved:
-                250: You have defined appropriate cyber security training and awareness
+                310: You have defined appropriate cyber security training and awareness
                   activities for all roles in your organisation, from executives to
                   the most junior roles.
-                251: You use a range of teaching and communication techniques for
+                311: You use a range of teaching and communication techniques for
                   cyber security training and awareness to reach the widest audience
                   effectively.
-                252: Cyber security information is easily available.              
+                312: Cyber security information is easily available.
               achieved:
-                253: All people in your organisation, from the most senior to the
+                313: All people in your organisation, from the most senior to the
                   most junior, follow appropriate cyber security training paths.
-                254: Each individuals cyber security training is tracked and refreshed
+                314: Each individuals cyber security training is tracked and refreshed
                   at suitable intervals.
-                255: You routinely evaluate your cyber security training and awareness
+                315: You routinely evaluate your cyber security training and awareness
                   activities to ensure they reach the widest audience and are effective.
-                256: You make cyber security information and good practice guidance
+                316: You make cyber security information and good practice guidance
                   easily accessible, widely available and you know it is referenced
-                  and used within your organisation.              
+                  and used within your organisation.
             assessment-rules: *standard-rules
   3:
     code: C
@@ -1498,44 +1491,44 @@ objectives:
               operation of your essential function(s).
             indicators:
               not-achieved:
-                257: Data relating to the security and operation of your essential
+                317: Data relating to the security and operation of your essential
                   function(s) is not collected.
-                258: You do not confidently detect the presence or absence of Indicators
+                318: You do not confidently detect the presence or absence of Indicators
                   of Compromise (IoCs) on your essential function(s), such as known
                   malicious command and control signatures (e.g. because applying
                   the indicator is difficult or your log data is not sufficiently
                   detailed).
-                259: You are not able to audit the activities of users in relation
+                319: You are not able to audit the activities of users in relation
                   to your essential function(s).
-                260: You do not capture any traffic crossing your network boundary
+                320: You do not capture any traffic crossing your network boundary
                   including as a minimum IP connections.
               partially-achieved:
-                261: Data relating to the security and operation of some areas of
+                321: Data relating to the security and operation of some areas of
                   your essential function(s) is collected but coverage is not comprehensive.
-                262: You easily detect the presence or absence of IoCs on your essential
+                322: You easily detect the presence or absence of IoCs on your essential
                   function(s), such as known malicious command and control signatures.
-                263: Some user monitoring is done, but not covering a fully agreed
+                323: Some user monitoring is done, but not covering a fully agreed
                   list of suspicious or undesirable behaviour.
-                264: You monitor traffic crossing your network boundary (including
-                  IP address connections as a minimum).              
+                324: You monitor traffic crossing your network boundary (including
+                  IP address connections as a minimum).
               achieved:
-                265: Monitoring is based on an understanding of your networks, common
+                325: Monitoring is based on an understanding of your networks, common
                   cyber attack methods and what you need awareness of in order to
                   detect potential security incidents that could affect the operation
                   of your essential function(s) (e.g. presence of malware, malicious
                   emails, user policy violations).
-                266: Your monitoring data provides enough detail to reliably detect
+                326: Your monitoring data provides enough detail to reliably detect
                   security incidents that could affect the operation of your essential
                   function(s).
-                267: You easily detect the presence or absence of IoCs on your essential
+                327: You easily detect the presence or absence of IoCs on your essential
                   function(s), such as known malicious command and control signatures.
-                268: Extensive monitoring of user activity in relation to the operation
+                328: Extensive monitoring of user activity in relation to the operation
                   of your essential function(s) enables you to detect policy violations
                   and an agreed list of suspicious or undesirable behaviour.
-                269: You have extensive monitoring coverage that includes host-based
+                329: You have extensive monitoring coverage that includes host-based
                   monitoring and network gateways.
-                270: All new systems are considered as potential monitoring data sources
-                  to maintain a comprehensive monitoring capability.              
+                330: All new systems are considered as potential monitoring data sources
+                  to maintain a comprehensive monitoring capability.
             assessment-rules: *standard-rules
           29:
             code: C1.b
@@ -1546,22 +1539,22 @@ objectives:
               period, after which it should be deleted.
             indicators:
               not-achieved:
-                271: It is possible for log data to be easily edited or deleted by
+                331: It is possible for log data to be easily edited or deleted by
                   unauthorised users or malicious attackers.
-                272: There is no controlled list of the users and systems that can
+                332: There is no controlled list of the users and systems that can
                   view and query log data.
-                273: There is no monitoring of the access to log data.
-                274: There is no policy for accessing log data.
-                275: Log data is not synchronised, using an accurate common time source.
+                333: There is no monitoring of the access to log data.
+                334: There is no policy for accessing log data.
+                335: Log data is not synchronised, using an accurate common time source.
               partially-achieved:
-                276: Only authorised staff can view log data for investigations.
-                277: Authorised users and systems can appropriately access log data.
-                278: There is some monitoring of access to log data (e.g. copying,
-                  deleting, modifying or viewing).              
+                336: Only authorised staff can view log data for investigations.
+                337: Authorised users and systems can appropriately access log data.
+                338: There is some monitoring of access to log data (e.g. copying,
+                  deleting, modifying or viewing).
               achieved:
-                279: The integrity of log data is protected, or any modification is
+                339: The integrity of log data is protected, or any modification is
                   detected and attributed.
-                280: The logging architecture has
+                340: The logging architecture has
                       mechanisms, policies, processes
                       and procedures to ensure that it
                       can protect itself from threats
@@ -1569,17 +1562,17 @@ objectives:
                       identify. This includes protecting
                       the essential function(s) itself,
                       and the data within it.
-                281: Log data analysis and normalisation is only performed on copies
+                341: Log data analysis and normalisation is only performed on copies
                   of the data keeping the master copy unaltered.
-                282: Log data is synchronised, using an accurate common time source,
+                342: Log data is synchronised, using an accurate common time source,
                   so that separate datasets can be correlated in different ways.
-                283: Access to log data is limited to those with business need and
+                343: Access to log data is limited to those with business need and
                   no others.
-                283: All actions involving all log data
+                344: All actions involving all log data
                       (e.g. copying, deleting, modifying
                       or viewing) can be traced back to
                       a unique user.
-                284: Legitimate reasons for accessing log data are given in use policies.              
+                345: Legitimate reasons for accessing log data are given in use policies.
             assessment-rules: *standard-rules
           30:
             code: C1.c
@@ -1588,40 +1581,40 @@ objectives:
               monitoring data is reliably identified and triggers alerts.
             indicators:
               not-achieved:
-                285: Alerts from third party security
+                346: Alerts from third party security
                       software are not investigated (e.g.
                       Anti-Virus (AV) providers).
-                286: Logs are distributed across devices with no easy way to access
+                347: Logs are distributed across devices with no easy way to access
                   them other than manual login or physical action.
-                287: The resolution of alerts to a network asset or system is not
+                348: The resolution of alerts to a network asset or system is not
                   performed.
-                288: Security alerts relating to essential function(s) are not prioritised.
-                289: Logs are reviewed infrequently.
+                349: Security alerts relating to essential function(s) are not prioritised.
+                350: Logs are reviewed infrequently.
               partially-achieved:
-                290: Alerts from third party security software are investigated, and
+                351: Alerts from third party security software are investigated, and
                   action taken.
-                291: Some, but not all, log data can be easily queried with search
+                352: Some, but not all, log data can be easily queried with search
                   tools to aid investigations.
-                292: The resolution of alerts to a network asset or system is performed
+                353: The resolution of alerts to a network asset or system is performed
                   regularly.
-                293: Security alerts relating to some essential function(s) are prioritised.
-                294: Logs are reviewed at regular intervals.              
+                354: Security alerts relating to some essential function(s) are prioritised.
+                355: Logs are reviewed at regular intervals.
               achieved:
-                295: Log data is enriched with other network knowledge and data when
+                356: Log data is enriched with other network knowledge and data when
                   investigating certain suspicious activity or alerts.
-                296: A wide range of signatures and indicators of compromise is used
+                357: A wide range of signatures and indicators of compromise is used
                   for investigations of suspicious activity and alerts.
-                297: Alerts can be easily resolved to
+                358: Alerts can be easily resolved to
                       network assets using knowledge
                       of networks and systems. The
                       resolution of these alerts is
                       performed in almost real time.
-                298: Security alerts relating to all essential function(s) are prioritised
+                359: Security alerts relating to all essential function(s) are prioritised
                   and this information is used to support incident management.
-                299: Logs are reviewed almost continuously, in real time.
-                300: Alerts are tested to ensure that they are generated reliably
+                360: Logs are reviewed almost continuously, in real time.
+                361: Alerts are tested to ensure that they are generated reliably
                   and that it is possible to distinguish genuine security incidents
-                  from false alarms.              
+                  from false alarms.
             assessment-rules: *standard-rules
           31:
             code: C1.d
@@ -1631,41 +1624,41 @@ objectives:
               form of response.
             indicators:
               not-achieved:
-                301: Your organisation has no sources of threat intelligence.
-                302: You do not apply updates in a
+                362: Your organisation has no sources of threat intelligence.
+                363: You do not apply updates in a
                     timely way, after receiving them
                     (e.g. AV signature updates, other
                     threat signatures or Indicators of
                     Compromise (IoCs)).
-                303: You do not receive signature updates for all protective technologies
+                364: You do not receive signature updates for all protective technologies
                   such as AV and IDS or other software in use.
-                304: You do not evaluate the usefulness of your threat intelligence
+                365: You do not evaluate the usefulness of your threat intelligence
                   or share feedback with providers or other users.
               partially-achieved:
-                305: Your organisation uses some threat intelligence services, but
+                366: Your organisation uses some threat intelligence services, but
                   you don't necessarily choose sources or providers specifically because
                   of your business needs, or specific threats in your sector (e.g.
                   sector-based infoshare, ICS software vendors, anti-virus providers,
                   specialist threat intel firms, special interest groups).
-                306: You receive updates for all your signature based protective technologies
+                367: You receive updates for all your signature based protective technologies
                   (e.g. AV, IDS).
-                307: You apply some updates, signatures and IoCs in a timely way.
-                308: You know how effective your threat intelligence is (e.g. by tracking
-                  how threat intelligence helps you identify security problems).              
+                368: You apply some updates, signatures and IoCs in a timely way.
+                369: You know how effective your threat intelligence is (e.g. by tracking
+                  how threat intelligence helps you identify security problems).
               achieved:
-                309: You have selected threat intelligence sources or services using
+                370: You have selected threat intelligence sources or services using
                   risk-based and threat- informed decisions based on your business
                   needs and sector (e.g. vendor reporting and patching, strong anti-virus
                   providers, sector and community-based infoshare, special interest
                   groups).
-                310: You apply all new signatures and IoCs within a reasonable (risk-based)
+                371: You apply all new signatures and IoCs within a reasonable (risk-based)
                   time of receiving them.
-                311: You receive signature updates for all your protective technologies
+                372: You receive signature updates for all your protective technologies
                   (e.g. AV, IDS).
-                312: You track the effectiveness of your intelligence feeds and actively
+                373: You track the effectiveness of your intelligence feeds and actively
                   share feedback on the usefulness of IoCs and any other indicators
                   with the threat community (e.g. sector partners, threat intelligence
-                  providers, government agencies).              
+                  providers, government agencies).
             assessment-rules: *standard-rules
           32:
             code: C1.e
@@ -1677,49 +1670,49 @@ objectives:
               they need to protect.
             indicators:
               not-achieved:
-                313: There are no staff who perform a monitoring function.
-                314: Monitoring staff do not have the correct specialist skills.
-                315: Monitoring staff are not capable of reporting against governance
+                374: There are no staff who perform a monitoring function.
+                375: Monitoring staff do not have the correct specialist skills.
+                376: Monitoring staff are not capable of reporting against governance
                   requirements.
-                316: Monitoring staff lack the skills to successfully perform some
+                377: Monitoring staff lack the skills to successfully perform some
                   significant parts of the defined workflow.
-                317: Monitoring tools are only able to make use of a fraction of log
+                378: Monitoring tools are only able to make use of a fraction of log
                   data being collected.
-                318: Monitoring tools cannot be configured to make use of new logging
+                379: Monitoring tools cannot be configured to make use of new logging
                   streams, as they come online.
-                319: Monitoring staff have a lack of awareness of the essential function(s)
+                380: Monitoring staff have a lack of awareness of the essential function(s)
                   the organisation provides, what assets relate to those functions
                   and hence the importance of the log data and security events.
               partially-achieved:
-                320: Monitoring staff have some investigative skills and a basic understanding
+                381: Monitoring staff have some investigative skills and a basic understanding
                   of the data they need to work with.
-                321: Monitoring staff can report to other parts of the organisation
+                382: Monitoring staff can report to other parts of the organisation
                   (e.g. security directors, resilience managers).
-                322: Monitoring staff are capable of following most of the required
+                383: Monitoring staff are capable of following most of the required
                   workflows.
-                323: Your monitoring tools can make use of logging that would capture
+                384: Your monitoring tools can make use of logging that would capture
                   most unsophisticated and untargeted attack types.
-                324: Your monitoring tools work with most log data, with some configuration.
-                325: Monitoring staff are aware of some essential function(s) and
-                  can manage alerts relating to them.              
+                385: Your monitoring tools work with most log data, with some configuration.
+                386: Monitoring staff are aware of some essential function(s) and
+                  can manage alerts relating to them.
               achieved:
-                326: You have monitoring staff, who are responsible for the analysis,
+                387: You have monitoring staff, who are responsible for the analysis,
                   investigation and reporting of monitoring alerts covering both security
                   and performance.
-                327: Monitoring staff have defined roles and skills that cover all
+                388: Monitoring staff have defined roles and skills that cover all
                   parts of the monitoring and investigation process.
-                328: Monitoring staff follow policies, processes and procedures that
+                389: Monitoring staff follow policies, processes and procedures that
                   address all governance reporting requirements, internal and external.
-                329: Monitoring staff are empowered to look beyond the fixed process
+                390: Monitoring staff are empowered to look beyond the fixed process
                   to investigate and understand non-standard threats, by developing
                   their own investigative techniques and making new use of data.
-                330: Your monitoring tools make use of all log data collected to pinpoint
+                391: Your monitoring tools make use of all log data collected to pinpoint
                   activity within an incident.
-                331: Monitoring staff and tools drive and shape new log data collection
+                392: Monitoring staff and tools drive and shape new log data collection
                   and can make wide use of it.
-                332: Monitoring staff are aware of the operation of essential function(s)
+                393: Monitoring staff are aware of the operation of essential function(s)
                   and related assets and can identify and prioritise alerts or investigations
-                  that relate to them.              
+                  that relate to them.
             assessment-rules: *standard-rules
       12:
         code: C2
@@ -1738,23 +1731,23 @@ objectives:
               otherwise hard to identify.
             indicators:
               not-achieved:
-                333: Normal system behaviour is insufficiently understood to be able
+                394: Normal system behaviour is insufficiently understood to be able
                   to use system abnormalities to detect malicious activity.
-                334: You have no established understanding of what abnormalities to
+                395: You have no established understanding of what abnormalities to
                   look for that might signify malicious activities.
               partially-achieved: {}
               achieved:
-                335: Normal system behaviour is fully understood to such an extent
+                396: Normal system behaviour is fully understood to such an extent
                   that searching for system abnormalities is a potentially effective
                   way of detecting malicious activity (e.g. You fully understand which
                   systems should and should not communicate and when).
-                336: System abnormality descriptions from past attacks and threat
+                397: System abnormality descriptions from past attacks and threat
                   intelligence, on yours and other networks, are used to signify malicious
                   activity.
-                337: The system abnormalities you search for consider the nature of
+                398: The system abnormalities you search for consider the nature of
                   attacks likely to impact on the network and information systems
                   supporting the operation of your essential function(s).
-                338: The system abnormality descriptions you use are updated to reflect
+                399: The system abnormality descriptions you use are updated to reflect
                   changes in your network and information systems and current threat
                   intelligence.
             assessment-rules: *standard-rules
@@ -1766,16 +1759,15 @@ objectives:
               activity.
             indicators:
               not-achieved:
-                339: You do not routinely search for system abnormalities indicative
-                  of malicious activity.
+                400: You do not routinely search for system abnormalities indicative of malicious activity.
               partially-achieved: {}
               achieved:
-                340: You routinely search for system abnormalities indicative of malicious
+                401: You routinely search for system abnormalities indicative of malicious
                   activity on the network and information systems supporting the operation
                   of your essential function(s), generating alerts based on the results
                   of such searches.
-                341: You have justified confidence in the effectiveness of your searches
-                  for system abnormalities indicative of malicious activity.              
+                402: You have justified confidence in the effectiveness of your searches
+                  for system abnormalities indicative of malicious activity.
             assessment-rules: *standard-rules
   4:
     code: D
@@ -1800,25 +1792,25 @@ objectives:
               and covers a range of incident scenarios.
             indicators:
               not-achieved:
-                342: Your incident response plan is not documented.
-                343: Your incident response plan does not include your organisations
+                403: Your incident response plan is not documented.
+                404: Your incident response plan does not include your organisations
                   identified essential function(s).
-                344: Your incident response plan is not well understood by relevant
+                405: Your incident response plan is not well understood by relevant
                   staff.
               partially-achieved:
-                345: Your incident response plan covers your essential function(s).
-                346: Your incident response plan comprehensively covers scenarios
+                406: Your incident response plan covers your essential function(s).
+                407: Your incident response plan comprehensively covers scenarios
                   that are focused on likely impacts of known and well understood
                   attacks only.
-                347: Your incident response plan is understood by all staff who are
+                408: Your incident response plan is understood by all staff who are
                   involved with your organisation's response function.
-                348: Your incident response plan is documented and shared with all
-                  relevant stakeholders.              
+                409: Your incident response plan is documented and shared with all
+                  relevant stakeholders.
               achieved:
-                349: Your incident response plan is based on a clear understanding
+                410: Your incident response plan is based on a clear understanding
                   of the security risks to the network and information systems supporting
                   your essential function(s).
-                349: Your incident response plan is
+                411: Your incident response plan is
                     comprehensive (i.e. covers the
                     complete lifecycle of an incident,
                     roles and responsibilities, and
@@ -1826,13 +1818,13 @@ objectives:
                     impacts of both known attack
                     patterns and of possible attacks,
                     previously unseen.
-                350: Your incident response plan is documented and integrated with
+                412: Your incident response plan is documented and integrated with
                   wider organisational business plans and supply chain response plans,
                   as well as dependencies on supporting infrastructure (e.g. power,
                   cooling etc).
-                351: Your incident response plan is communicated and understood by
+                413: Your incident response plan is communicated and understood by
                   the business areas involved with the operation of your essential
-                  function(s).              
+                  function(s).
             assessment-rules: *standard-rules
           36:
             code: D1.b
@@ -1843,33 +1835,33 @@ objectives:
               on which to base your response decisions.
             indicators:
               not-achieved:
-                352: Inadequate arrangements have been made to make the right resources
+                414: Inadequate arrangements have been made to make the right resources
                   available to implement your response plan.
-                353: Your response team members are not equipped to make good response
+                415: Your response team members are not equipped to make good response
                   decisions and put them into effect.
-                354: Inadequate back-up mechanisms exist to allow the continued operation
+                416: Inadequate back-up mechanisms exist to allow the continued operation
                   of your essential function(s) during an incident.
               partially-achieved: {}
               achieved:
-                355: You understand the resources that will likely be needed to carry
+                417: You understand the resources that will likely be needed to carry
                   out any required response activities, and arrangements are in place
                   to make these resources available.
-                356: You understand the types of information that will likely be needed
+                418: You understand the types of information that will likely be needed
                   to inform response decisions and arrangements are in place to make
                   this information available.
-                357: Your response team members have the skills and knowledge required
+                419: Your response team members have the skills and knowledge required
                   to decide on the response actions necessary to limit harm, and the
                   authority to carry them out.
-                358: Key roles are duplicated, and operational delivery knowledge
+                420: Key roles are duplicated, and operational delivery knowledge
                   is shared with all individuals involved in the operations and recovery
                   of the essential function(s).
-                359: Back-up mechanisms are available that can be readily activated
+                421: Back-up mechanisms are available that can be readily activated
                   to allow continued operation of your essential function(s), although
                   possibly at a reduced level, if primary network and information
                   systems fail or are unavailable.
-                360: Arrangements exist to augment your organisation’s incident response
+                422: Arrangements exist to augment your organisation's incident response
                   capabilities with external support if necessary (e.g. specialist
-                  cyber incident responders).              
+                  cyber incident responders).
             assessment-rules: *standard-rules
           37:
             code: D1.c
@@ -1879,27 +1871,27 @@ objectives:
               and scenarios that draw on threat intelligence and your risk assessment.
             indicators:
               not-achieved:
-                360: Exercises test only a discrete part of the process
+                423: Exercises test only a discrete part of the process
                       (e.g. that backups are working), but do not
                       consider all areas.
-                360: Incident response exercises are not routinely
+                424: Incident response exercises are not routinely
                       carried out or are carried out in an ad-hoc way.
-                360: Outputs from exercises are not fed into the
+                425: Outputs from exercises are not fed into the
                       organisation's lessons learned process.
-                360: Exercises do not test all parts of the response
+                426: Exercises do not test all parts of the response
                       cycle.
               partially-achieved: {}
               achieved:
-                360: Exercise scenarios are based on incidents experienced
+                427: Exercise scenarios are based on incidents experienced
                       by your and other organisations or are composed
                       using experience or threat intelligence.
-                360: Exercise scenarios are documented, regularly
+                428: Exercise scenarios are documented, regularly
                       reviewed, and validated.
-                360: Exercises are routinely run, with the findings
+                429: Exercises are routinely run, with the findings
                       documented and used to refine incident response
                       plans and protective security, in line with the lessons
                       learned.
-                360: Exercises test all parts of your response cycle relating
+                430: Exercises test all parts of your response cycle relating
                       to your essential function(s) (e.g. restoration of
                       normal function(s) levels).
             assessment-rules: *standard-rules
@@ -1917,17 +1909,17 @@ objectives:
               its root causes and ensure appropriate remediating action is taken.
             indicators:
               not-achieved:
-                361: You are not usually able to resolve incidents to a root cause.
-                362: You do not have a formal process for investigating causes.
+                431: You are not usually able to resolve incidents to a root cause.
+                432: You do not have a formal process for investigating causes.
               partially-achieved: {}
               achieved:
-                363: Root cause analysis is conducted routinely as a key part of your
+                433: Root cause analysis is conducted routinely as a key part of your
                   lessons learned activities following an incident.
-                364: Your root cause analysis is comprehensive, covering organisational
+                434: Your root cause analysis is comprehensive, covering organisational
                   process issues, as well as vulnerabilities in your networks, systems
                   or software.
-                365: All relevant incident data is made available to the analysis
-                  team to perform root cause analysis.              
+                435: All relevant incident data is made available to the analysis
+                  team to perform root cause analysis.
             assessment-rules: *standard-rules
           39:
             code: D2.b
@@ -1936,23 +1928,23 @@ objectives:
               improve your security measures.
             indicators:
               not-achieved:
-                372: Following incidents, lessons learned are not captured or are
+                436: Following incidents, lessons learned are not captured or are
                   limited in scope.
-                373: Improvements arising from lessons learned following an incident
+                437: Improvements arising from lessons learned following an incident
                   are not implemented or not given sufficient organisational priority.
               partially-achieved: {}
               achieved:
-                374: You have a documented incident review process/policy which ensures
+                438: You have a documented incident review process/policy which ensures
                   that lessons learned from each incident are identified, captured,
                   and acted upon.
-                375: Lessons learned cover issues with reporting, roles, governance,
+                439: Lessons learned cover issues with reporting, roles, governance,
                   skills and organisational processes as well as technical aspects
                   of network and information systems.
-                376: You use lessons learned to improve security measures, including
+                440: You use lessons learned to improve security measures, including
                   updating and retesting response plans when necessary.
-                377: Security improvements identified as a result of lessons learned
+                441: Security improvements identified as a result of lessons learned
                   are prioritised, with the highest priority improvements completed
                   quickly.
-                378: Analysis is fed to senior management and incorporated into risk
+                442: Analysis is fed to senior management and incorporated into risk
                   management and continuous improvement.
             assessment-rules: *standard-rules
