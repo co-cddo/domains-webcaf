@@ -13,14 +13,14 @@ objectives:
   1:
     code: A
     title: Managing security risk
-    objective_description: Appropriate organisational structures, policies, processes
+    description: Appropriate organisational structures, policies, processes
       and procedures in place to understand, assess and systematically manage security
       risks to the network and information systems supporting essential functions.
     principles:
       1:
         code: A1
         title: Governance
-        principle_description: The organisation has appropriate management policies,
+        description: The organisation has appropriate management policies,
           processes and procedures in place to govern its approach to the security
           of network and information systems.
         sections:
@@ -130,7 +130,7 @@ objectives:
       2:
         code: A2
         title: Risk Management
-        principle_description: The organisation takes appropriate steps to identify,
+        description: The organisation takes appropriate steps to identify,
           assess and understand security risks to the network and information systems
           supporting the operation of essential functions. This includes an overall
           organisational approach to risk management.
@@ -235,7 +235,7 @@ objectives:
       3:
         code: A3
         title: Asset Management
-        principle_description: Everything required to deliver, maintain or support
+        description: Everything required to deliver, maintain or support
           network and information systems necessary for the operation of essential
           functions is determined and understood. This includes data, people and systems,
           as well as any supporting infrastructure (such as power or cooling).
@@ -277,7 +277,7 @@ objectives:
       4:
         code: A4
         title: Supply Chain
-        principle_description: The organisation understands and manages security risks
+        description: The organisation understands and manages security risks
           to network and information systems supporting the operation of essential
           functions that arise as a result of dependencies on external suppliers.
           This includes ensuring that appropriate measures are employed where third
@@ -380,14 +380,14 @@ objectives:
   2:
     code: B
     title: Protecting against cyber attack
-    objective_description: Proportionate security measures are in place to protect
+    description: Proportionate security measures are in place to protect
       the network and information systems supporting essential functions from cyber
       attack.
     principles:
       5:
         code: B1
         title: Service Protection Policies, Processes and Procedures
-        principle_description: The organisation defines, implements, communicates
+        description: The organisation defines, implements, communicates
           and enforces appropriate policies, processes and procedures that direct
           its overall approach to securing systems and data that support operation
           of essential functions.
@@ -496,7 +496,7 @@ objectives:
       6:
         code: B2
         title: Identity and Access Control
-        principle_description: The organisation understands, documents and manages
+        description: The organisation understands, documents and manages
           access to network and information systems supporting the operation of essential
           functions. Users (or automated functions) that can access data or systems
           are appropriately verified, authenticated and authorised.
@@ -728,7 +728,7 @@ objectives:
       7:
         code: B3
         title: Data Security
-        principle_description: Data stored or transmitted electronically is protected
+        description: Data stored or transmitted electronically is protected
           from actions such as unauthorised access, modification, or deletion that
           may cause an adverse impact on essential functions. Such protection extends
           to the means by which authorised users, devices and systems access critical
@@ -964,7 +964,7 @@ objectives:
       8:
         code: B4
         title: System Security
-        principle_description: Network and information systems and technology critical
+        description: Network and information systems and technology critical
           for the operation of essential functions are protected from cyber attack.
           An organisational understanding of risk to essential functions informs the
           use of robust and reliable protective security measures to effectively limit
@@ -1252,7 +1252,7 @@ objectives:
       9:
         code: B5
         title: Resilient Networks and Systems
-        principle_description: The organisation builds resilience against cyber attack
+        description: The organisation builds resilience against cyber attack
           and system failure into the design, implementation, operation and management
           of systems that support the operation of essential functions.
         sections:
@@ -1383,7 +1383,7 @@ objectives:
       10:
         code: B6
         title: Staff Awareness and Training
-        principle_description: Staff have appropriate awareness, knowledge and skills
+        description: Staff have appropriate awareness, knowledge and skills
           to carry out their organisational roles effectively in relation to the security
           of network and information systems supporting the operation of essential
           functions.
@@ -1471,14 +1471,14 @@ objectives:
   3:
     code: C
     title: Detecting cyber security events
-    objective_description: Capabilities exist to ensure security defences remain effective
+    description: Capabilities exist to ensure security defences remain effective
       and to detect cyber security events affecting, or with the potential to affect,
       essential function(s).
     principles:
       11:
         code: C1
         title: Security Monitoring
-        principle_description: The organisation monitors the security status of the
+        description: The organisation monitors the security status of the
           network and information systems supporting the operation of essential functions
           in order to detect potential security problems and to track the ongoing
           effectiveness of protective security measures.
@@ -1717,7 +1717,7 @@ objectives:
       12:
         code: C2
         title: Proactive Security Event Discovery
-        principle_description: The organisation detects, within network and information
+        description: The organisation detects, within network and information
           systems, malicious activity affecting, or with the potential to affect,
           the operation of essential functions even when the activity evades standard
           signature based security prevent/detect solutions (or when standard solutions
@@ -1772,14 +1772,14 @@ objectives:
   4:
     code: D
     title: Minimising the impact of cyber security incidents
-    objective_description: Capabilities exist to minimise the adverse impact of a
+    description: Capabilities exist to minimise the adverse impact of a
       cyber security incident on the operation of essential functions, including the
       restoration of those function(s) where necessary.
     principles:
       13:
         code: D1
         title: Response and Recovery Planning
-        principle_description: There are well-defined and tested incident management
+        description: There are well-defined and tested incident management
           processes in place, that aim to ensure continuity of essential function(s)
           in the event of system or service failure. Mitigation activities designed
           to contain or limit the impact of compromise are also in place.
@@ -1898,7 +1898,7 @@ objectives:
       14:
         code: D2
         title: Lessons Learned
-        principle_description: When an incident occurs, steps are taken to understand
+        description: When an incident occurs, steps are taken to understand
           its root causes and to ensure appropriate remediating action is taken to
           protect against future incidents.
         sections:
