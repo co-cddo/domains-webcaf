@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "govuk_frontend_django",
     "webcaf.webcaf",
     "csp",
+    "crispy_forms",
+    "crispy_forms_gds",
 ]
 
 MIDDLEWARE = [
