@@ -15,6 +15,7 @@ RUN poetry config virtualenvs.create false && \
 
 COPY manage.py /app/
 COPY webcaf /app/webcaf
+COPY frameworks /app/frameworks
 
 RUN sed -i 's/\r$//' /app/manage.py  && \
     chmod +x /app/manage.py
