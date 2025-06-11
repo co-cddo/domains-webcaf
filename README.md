@@ -1,8 +1,6 @@
-# Django GOVUK Boilerplate
+# WebCAF Prototype
 
-A boilerplate Django project using the GOV.UK Design System, including a basic Dockerfile and docker-compose.yml.
-
-It is based on the [Register a gov.uk Domain service](https://github.com/co-cddo/domains-register-a-govuk-domain).
+A work in progress application to enable users to self-assess against the NCSC Cyber Assessment Framework, designed to enable future versions or different assessments to be represented with minimal code additions.
 
 ## Running
 
@@ -10,7 +8,13 @@ It is based on the [Register a gov.uk Domain service](https://github.com/co-cddo
 docker compose up
 ```
 
-This brings up Postgres, runs an init container to apply migrations and collect static files, then brings up the app. It includes a single page, accessible at `localhost:8000`
+This brings up Postgres, runs an init container to apply migrations and collect static files, then brings up the app.
+
+The current flow is a single pass through the CAF v3.2. It starts at `localhost:8010/a-managing-security-risk/`
+
+It is purely a proof of concept for now. Field values are not retained across pages. Nothing is done with the data at the end. It lacks any pages to bookend the flow. The only validations are those provided by default (e.g. text boxes cannot be empty).
+
+What it does do is demonstrate that a user flow can be generated using GOV.UK components from a machine-readable version of a CAF and that it doesn't take a huge amount of code to do it.
 
 ## Developing
 
@@ -19,7 +23,3 @@ pip install poetry
 poetry install
 pre-commit install
 ```
-
-It's probably a good idea to also run `poetry update` before making any changes.
-
-The Django version is pinned to 5.1.9. As of June 2025 this is the highest version supported by `govuk-frontend-django`. If you change the version in `pyproject.toml` before running `poetry install`, remember to run `poetry lock` first.
