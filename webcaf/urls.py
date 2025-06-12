@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from webcaf.webcaf.views import Index
+from webcaf.webcaf.views import Index, TutorialView
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
+    path(r"tutorial", TutorialView.as_view(), name="tutorial"),
     path("admin/", admin.site.urls),
 ]

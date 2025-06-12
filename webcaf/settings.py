@@ -135,19 +135,8 @@ MEDIA_URL = "/media/"
 
 # Content Security Policy: only allow images, stylesheets and scripts from the
 # same origin as the HTML
-CONTENT_SECURITY_POLICY = {
-    "DIRECTIVES": {
-        "connect-src": "'self' https://*.google-analytics.com "
-        "https://*.analytics.google.com "
-        "https://*.googletagmanager.com",
-        "form-action": "'self'",
-        "frame-ancestors": "'self'",
-        "frame-src": "'self' https://www.googletagmanager.com",
-        "img-src": "'self' data:",
-        "script-src": "'self' 'sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' https://*.googletagmanager.com",  # pragma: allowlist secret
-        "style-src": "'self' 'sha256-Rq+Udb7G9s54kGQgXm9FNWjdD54j3K2pjH36tR6lliI='",  # pragma: allowlist secret
-    }
-}
+
+CONTENT_SECURITY_POLICY = {}
 
 
 # If we want to test CSP breaches we need to set a fake reporting URL, so the tests
