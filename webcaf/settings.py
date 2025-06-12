@@ -57,8 +57,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "govuk_frontend_django",
-    "webcaf.webcaf",
+    "webcaf.webcaf.apps.WebcafConfig",
     "csp",
+    "crispy_forms",
+    "crispy_forms_gds",
 ]
 
 MIDDLEWARE = [
@@ -78,7 +80,7 @@ ROOT_URLCONF = "webcaf.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "webcaf", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -119,6 +121,9 @@ else:
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "webcaf", "static"),
+]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -194,3 +199,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+FRAMEWORK_PATH = os.path.join(BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
