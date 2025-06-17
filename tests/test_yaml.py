@@ -5,6 +5,7 @@ import yaml
 
 
 class TestFrameworkIndexes(unittest.TestCase):
+    # Note the limitations of this class in the frameworks README
     def setUp(self):
         yaml_path = Path("frameworks/cyber-assessment-framework-v3.2.yaml")
         with open(yaml_path, "r") as f:
@@ -18,24 +19,16 @@ class TestFrameworkIndexes(unittest.TestCase):
         self._populate_indexes()
 
     def _populate_indexes(self):
-        """Populate all index collections by traversing the nested structure"""
-        # Get objectives indexes
         for obj_idx, objective in self.framework.get("objectives", {}).items():
-            self.objectives_indexes.append(int(obj_idx))
-
-            # Get principles indexes for this objective
+            self.objectives_indexes.append(obj_idx)
             for princ_idx, principle in objective.get("principles", {}).items():
-                self.principles_indexes.append(int(princ_idx))
-
-                # Get sections indexes for this principle
+                self.principles_indexes.append(princ_idx)
                 for section_idx, section in principle.get("sections", {}).items():
-                    self.sections_indexes.append(int(section_idx))
-
-                    # Get indicator indexes for this section
+                    self.sections_indexes.append(section_idx)
                     indicators = section.get("indicators", {})
                     for indicator_type in ["not-achieved", "partially-achieved", "achieved"]:
                         for index in indicators.get(indicator_type, {}):
-                            self.indicators_indexes.append(int(index))
+                            self.indicators_indexes.append(index)
 
     # There's no point testing the uniqueness of the objective indexes because they are always
     # in the same YAML dictionary and the duplicate index will just overwrite the first when the
@@ -52,47 +45,59 @@ class TestFrameworkIndexes(unittest.TestCase):
         self._test_indexes_are_unique(self.indicators_indexes, "indicator")
 
     def _test_indexes_are_unique(self, indexes, index_type):
-        """Test that all indexes of a given type are unique"""
         seen_indexes = {}
         duplicate_indexes = []
-
         for index in indexes:
             if index in seen_indexes:
                 if index not in duplicate_indexes:
                     duplicate_indexes.append(index)
             else:
                 seen_indexes[index] = True
-
         if duplicate_indexes:
             error_msg = f"\nDuplicate {index_type} indexes found:\n"
             for index in duplicate_indexes:
                 occurrences = indexes.count(index)
                 error_msg += f"Index {index} appears {occurrences} times\n"
-
             self.fail(error_msg)
 
-    def _test_indexes_are_continuous(self, indexes, index_type):
-        min_idx = min(indexes)
-        max_idx = max(indexes)
-        expected_range = set(range(min_idx, max_idx + 1))
+    def test_indicators_unique_within_sections(self):
+        for objective in self.framework.get("objectives", {}).values():
+            for principle in objective.get("principles", {}).values():
+                for sec_idx, section in principle.get("sections", {}).items():
+                    section_indicators = []
+                    for level in ["not-achieved", "partially-achieved", "achieved"]:
+                        level_indicators = section.get("indicators", {}).get(level, {})
+                        for indicator_idx in level_indicators.keys():
+                            section_indicators.append(indicator_idx)
+                    seen_indices = {}
+                    duplicates = []
+                    for idx in section_indicators:
+                        if idx in seen_indices:
+                            duplicates.append(idx)
+                        else:
+                            seen_indices[idx] = True
+                    if duplicates:
+                        error_msg = f"\nDuplicate indicator indices in section {section.get('code', sec_idx)}:\n"
+                        for idx in set(duplicates):
+                            count = section_indicators.count(idx)
+                            error_msg += f"Index {idx} appears {count} times\n"
+                        self.fail(error_msg)
 
-        missing_indexes = expected_range - set(indexes)
-
-        if missing_indexes:
-            missing_list = sorted(list(missing_indexes))
-            self.fail(f"Missing {index_type} indexes: {missing_list}")
-
-    def test_objective_indexes_are_continuous(self):
-        self._test_indexes_are_continuous(self.objectives_indexes, "objective")
-
-    def test_principle_indexes_are_continuous(self):
-        self._test_indexes_are_continuous(self.principles_indexes, "principle")
-
-    def test_section_indexes_are_continuous(self):
-        self._test_indexes_are_continuous(self.sections_indexes, "section")
-
-    def test_indicator_indexes_are_continuous(self):
-        self._test_indexes_are_continuous(self.indicators_indexes, "indicator")
+    def test_indicator_indices_within_sections_match_code_prefix(self):
+        for objective in self.framework.get("objectives", {}).values():
+            for principle in objective.get("principles", {}).values():
+                for sec_idx, section in principle.get("sections", {}).items():
+                    section_code = section.get("code", "")
+                    if not section_code:
+                        self.fail(f"Section {sec_idx} does not have a code defined")
+                    for level in ["not-achieved", "partially-achieved", "achieved"]:
+                        level_indicators = section.get("indicators", {}).get(level, {})
+                        for indicator_idx in level_indicators.keys():
+                            if not str(indicator_idx).startswith(section_code):
+                                self.fail(
+                                    f"Indicator index {indicator_idx} in section {section_code} "
+                                    f"does not start with section code"
+                                )
 
 
 class TestFrameworkStructure(unittest.TestCase):
