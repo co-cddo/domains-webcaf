@@ -24,24 +24,24 @@ class FieldProvider(ABC):
         pass
 
 
-class SectionIndicatorsFieldProvider(FieldProvider):
-    def __init__(self, section_data: dict):
-        self.section_data = section_data
+class OutcomeIndicatorsFieldProvider(FieldProvider):
+    def __init__(self, outcome_data: dict):
+        self.outcome_data = outcome_data
 
     def get_metadata(self) -> dict:
         return {
-            "code": self.section_data.get("code", ""),
-            "title": self.section_data.get("title", ""),
-            "description": self.section_data.get("description", ""),
-            "id": self.section_data.get("id", ""),
+            "code": self.outcome_data.get("code", ""),
+            "title": self.outcome_data.get("title", ""),
+            "description": self.outcome_data.get("description", ""),
+            "id": self.outcome_data.get("id", ""),
         }
 
     def get_field_definitions(self) -> list[dict]:
         fields = []
 
         for level in ["not-achieved", "partially-achieved", "achieved"]:
-            if level in self.section_data.get("indicators", {}):
-                for indicator_id, indicator_text in self.section_data["indicators"][level].items():
+            if level in self.outcome_data.get("indicators", {}):
+                for indicator_id, indicator_text in self.outcome_data["indicators"][level].items():
                     fields.append(
                         {
                             "name": f"{level}_{indicator_id}",
@@ -56,8 +56,8 @@ class SectionIndicatorsFieldProvider(FieldProvider):
     def get_layout_structure(self) -> dict:
         layout: dict[str, Any] = {
             "header": {
-                "title": f"{self.section_data.get('code', '')} {self.section_data.get('title', '')}",
-                "description": self.section_data.get("description", ""),
+                "title": f"{self.outcome_data.get('code', '')} {self.outcome_data.get('title', '')}",
+                "description": self.outcome_data.get("description", ""),
             },
             "groups": [],
         }
@@ -67,8 +67,8 @@ class SectionIndicatorsFieldProvider(FieldProvider):
             ("partially-achieved", "Partially Achieved"),
             ("achieved", "Achieved"),
         ]:
-            if level in self.section_data.get("indicators", {}) and self.section_data["indicators"][level]:
-                field_names = [f"{level}_{id}" for id in self.section_data["indicators"][level].keys()]
+            if level in self.outcome_data.get("indicators", {}) and self.outcome_data["indicators"][level]:
+                field_names = [f"{level}_{id}" for id in self.outcome_data["indicators"][level].keys()]
 
                 if field_names:
                     layout["groups"].append({"title": display_name, "fields": field_names})
@@ -76,15 +76,15 @@ class SectionIndicatorsFieldProvider(FieldProvider):
         return layout
 
 
-class SectionOutcomeFieldProvider(FieldProvider):
-    def __init__(self, section_data: dict):
-        self.section_data = section_data
+class OutcomeConfirmationFieldProvider(FieldProvider):
+    def __init__(self, outcome_data: dict):
+        self.outcome_data = outcome_data
 
     def get_metadata(self) -> dict:
         return {
-            "code": self.section_data.get("code", ""),
-            "title": self.section_data.get("title", ""),
-            "id": self.section_data.get("id", ""),
+            "code": self.outcome_data.get("code", ""),
+            "title": self.outcome_data.get("title", ""),
+            "id": self.outcome_data.get("id", ""),
         }
 
     def get_field_definitions(self) -> list[dict]:
@@ -94,8 +94,8 @@ class SectionOutcomeFieldProvider(FieldProvider):
         ]
 
         if (
-            "partially-achieved" in self.section_data.get("indicators", {})
-            and self.section_data["indicators"]["partially-achieved"]
+            "partially-achieved" in self.outcome_data.get("indicators", {})
+            and self.outcome_data["indicators"]["partially-achieved"]
         ):
             status_choices.append(("partially_achieved", "Change to Partially Achieved"))
 
@@ -125,7 +125,7 @@ class SectionOutcomeFieldProvider(FieldProvider):
     def get_layout_structure(self) -> dict:
         return {
             "header": {
-                "title": f"{self.section_data.get('code', '')} Outcome",
+                "title": f"{self.outcome_data.get('code', '')} Outcome",
                 "status_message": "<p class='govuk-body'><strong>Status: Achieved</strong></p>",
                 "help_text": "<p class='govuk-body'>Message to be changed</p>",
             },

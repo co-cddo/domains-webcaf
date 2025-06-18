@@ -23,7 +23,7 @@ objectives:
         description: The organisation has appropriate management policies, processes
           and procedures in place to govern its approach to the security of network
           and information systems.
-        sections:
+        outcomes:
           A1.a:
             code: A1.a
             title: Board Direction
@@ -133,7 +133,7 @@ objectives:
           and understand security risks to the network and information systems supporting
           the operation of essential functions. This includes an overall organisational
           approach to risk management.
-        sections:
+        outcomes:
           A2.a:
             code: A2.a
             title: Risk Management Process
@@ -237,7 +237,7 @@ objectives:
           information systems necessary for the operation of essential functions is
           determined and understood. This includes data, people and systems, as well
           as any supporting infrastructure (such as power or cooling).
-        sections:
+        outcomes:
           A3.a:
             code: A3.a
             title: Asset Management
@@ -279,7 +279,7 @@ objectives:
           that arise as a result of dependencies on external suppliers. This includes
           ensuring that appropriate measures are employed where third party services
           are used.
-        sections:
+        outcomes:
           A4.a:
             code: A4.a
             title: Supply Chain
@@ -345,7 +345,7 @@ objectives:
         description: The organisation defines, implements, communicates and enforces
           appropriate policies, processes and procedures that direct its overall approach
           to securing systems and data that support operation of essential functions.
-        sections:
+        outcomes:
           B1.a:
             code: B1.a
             title: Policy, Process and Procedure Development
@@ -445,7 +445,7 @@ objectives:
           network and information systems supporting the operation of essential functions.
           Users (or automated functions) that can access data or systems are appropriately
           verified, authenticated and authorised.
-        sections:
+        outcomes:
           B2.a:
             code: B2.a
             title: Identity Verification, Authentication and Authorisation
@@ -655,7 +655,7 @@ objectives:
           for the operation of essential functions. It also covers information that
           would assist an attacker, such as design details of network and information
           systems.
-        sections:
+        outcomes:
           B3.a:
             code: B3.a
             title: Understanding Data
@@ -860,7 +860,7 @@ objectives:
           understanding of risk to essential functions informs the use of robust and
           reliable protective security measures to effectively limit opportunities
           for attackers to compromise networks and systems.
-        sections:
+        outcomes:
           B4.a:
             code: B4.a
             title: Secure by Design
@@ -1047,7 +1047,7 @@ objectives:
         description: The organisation builds resilience against cyber attack and system
           failure into the design, implementation, operation and management of systems
           that support the operation of essential functions.
-        sections:
+        outcomes:
           B5.a:
             code: B5.a
             title: Resilience Preparation
@@ -1152,7 +1152,7 @@ objectives:
         description: Staff have appropriate awareness, knowledge and skills to carry
           out their organisational roles effectively in relation to the security of
           network and information systems supporting the operation of essential functions.
-        sections:
+        outcomes:
           B6.a:
             code: B6.a
             title: Cyber Security Culture
@@ -1240,7 +1240,7 @@ objectives:
           and information systems supporting the operation of essential functions
           in order to detect potential security problems and to track the ongoing
           effectiveness of protective security measures.
-        sections:
+        outcomes:
           C1.a:
             code: C1.a
             title: Monitoring Coverage
@@ -1479,7 +1479,7 @@ objectives:
           of essential functions even when the activity evades standard signature
           based security prevent/detect solutions (or when standard solutions are
           not deployable).
-        sections:
+        outcomes:
           C2.a:
             code: C2.a
             title: System Abnormalities for Attack Detection
@@ -1541,7 +1541,7 @@ objectives:
           in place, that aim to ensure continuity of essential function(s) in the
           event of system or service failure. Mitigation activities designed to contain
           or limit the impact of compromise are also in place.
-        sections:
+        outcomes:
           D1.a:
             code: D1.a
             title: Response Plan
@@ -1652,7 +1652,7 @@ objectives:
         description: When an incident occurs, steps are taken to understand its root
           causes and to ensure appropriate remediating action is taken to protect
           against future incidents.
-        sections:
+        outcomes:
           D2.a:
             code: D2.a
             title: Incident Root Cause Analysis

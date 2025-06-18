@@ -13,7 +13,7 @@ class TestFrameworkIndexes(unittest.TestCase):
 
         self.objectives_indexes = []
         self.principles_indexes = []
-        self.sections_indexes = []
+        self.outcomes_indexes = []
         self.indicators_indexes = []
 
         self._populate_indexes()
@@ -23,9 +23,9 @@ class TestFrameworkIndexes(unittest.TestCase):
             self.objectives_indexes.append(obj_idx)
             for princ_idx, principle in objective.get("principles", {}).items():
                 self.principles_indexes.append(princ_idx)
-                for section_idx, section in principle.get("sections", {}).items():
-                    self.sections_indexes.append(section_idx)
-                    indicators = section.get("indicators", {})
+                for outcome_idx, outcome in principle.get("outcomes", {}).items():
+                    self.outcomes_indexes.append(outcome_idx)
+                    indicators = outcome.get("indicators", {})
                     for indicator_type in ["not-achieved", "partially-achieved", "achieved"]:
                         for index in indicators.get(indicator_type, {}):
                             self.indicators_indexes.append(index)
@@ -38,8 +38,8 @@ class TestFrameworkIndexes(unittest.TestCase):
     def test_principle_indexes_are_unique(self):
         self._test_indexes_are_unique(self.principles_indexes, "principle")
 
-    def test_section_indexes_are_unique(self):
-        self._test_indexes_are_unique(self.sections_indexes, "section")
+    def test_outcome_indexes_are_unique(self):
+        self._test_indexes_are_unique(self.outcomes_indexes, "outcome")
 
     def test_indicator_indexes_are_unique(self):
         self._test_indexes_are_unique(self.indicators_indexes, "indicator")
@@ -60,43 +60,43 @@ class TestFrameworkIndexes(unittest.TestCase):
                 error_msg += f"Index {index} appears {occurrences} times\n"
             self.fail(error_msg)
 
-    def test_indicators_unique_within_sections(self):
+    def test_indicators_unique_within_outcomes(self):
         for objective in self.framework.get("objectives", {}).values():
             for principle in objective.get("principles", {}).values():
-                for sec_idx, section in principle.get("sections", {}).items():
-                    section_indicators = []
+                for sec_idx, outcome in principle.get("outcomes", {}).items():
+                    outcome_indicators = []
                     for level in ["not-achieved", "partially-achieved", "achieved"]:
-                        level_indicators = section.get("indicators", {}).get(level, {})
+                        level_indicators = outcome.get("indicators", {}).get(level, {})
                         for indicator_idx in level_indicators.keys():
-                            section_indicators.append(indicator_idx)
+                            outcome_indicators.append(indicator_idx)
                     seen_indices = {}
                     duplicates = []
-                    for idx in section_indicators:
+                    for idx in outcome_indicators:
                         if idx in seen_indices:
                             duplicates.append(idx)
                         else:
                             seen_indices[idx] = True
                     if duplicates:
-                        error_msg = f"\nDuplicate indicator indices in section {section.get('code', sec_idx)}:\n"
+                        error_msg = f"\nDuplicate indicator indices in outcome {outcome.get('code', sec_idx)}:\n"
                         for idx in set(duplicates):
-                            count = section_indicators.count(idx)
+                            count = outcome_indicators.count(idx)
                             error_msg += f"Index {idx} appears {count} times\n"
                         self.fail(error_msg)
 
-    def test_indicator_indices_within_sections_match_code_prefix(self):
+    def test_indicator_indices_within_outcomes_match_code_prefix(self):
         for objective in self.framework.get("objectives", {}).values():
             for principle in objective.get("principles", {}).values():
-                for sec_idx, section in principle.get("sections", {}).items():
-                    section_code = section.get("code", "")
-                    if not section_code:
-                        self.fail(f"Section {sec_idx} does not have a code defined")
+                for sec_idx, outcome in principle.get("outcomes", {}).items():
+                    outcome_code = outcome.get("code", "")
+                    if not outcome_code:
+                        self.fail(f"outcome {sec_idx} does not have a code defined")
                     for level in ["not-achieved", "partially-achieved", "achieved"]:
-                        level_indicators = section.get("indicators", {}).get(level, {})
+                        level_indicators = outcome.get("indicators", {}).get(level, {})
                         for indicator_idx in level_indicators.keys():
-                            if not str(indicator_idx).startswith(section_code):
+                            if not str(indicator_idx).startswith(outcome_code):
                                 self.fail(
-                                    f"Indicator index {indicator_idx} in section {section_code} "
-                                    f"does not start with section code"
+                                    f"Indicator index {indicator_idx} in outcome {outcome_code} "
+                                    f"does not start with outcome code"
                                 )
 
 
@@ -107,7 +107,7 @@ class TestFrameworkStructure(unittest.TestCase):
             self.framework = yaml.safe_load(f)
         self.objectives = {}
         self.principles = {}
-        self.sections = {}
+        self.outcomes = {}
 
         self._populate_yaml_items()
 
@@ -116,8 +116,8 @@ class TestFrameworkStructure(unittest.TestCase):
             self.objectives[obj_idx] = objective
             for princ_idx, principle in objective.get("principles", {}).items():
                 self.principles[princ_idx] = principle
-                for section_idx, section in principle.get("sections", {}).items():
-                    self.sections[section_idx] = section
+                for outcome_idx, outcome in principle.get("outcomes", {}).items():
+                    self.outcomes[outcome_idx] = outcome
 
     def _test_structure(self, items, item_type, expected_keys):
         for idx, item in items.items():
@@ -142,25 +142,25 @@ class TestFrameworkStructure(unittest.TestCase):
         self._test_structure(
             self.principles,
             "principle",
-            expected_keys={"code", "title", "description", "sections"},
+            expected_keys={"code", "title", "description", "outcomes"},
         )
 
-    def test_sections_structure(self):
+    def test_outcomes_structure(self):
         expected_keys = {"code", "title", "description", "indicators", "assessment-rules"}
 
         self._test_structure(
-            self.sections,
-            "section",
+            self.outcomes,
+            "outcome",
             expected_keys=expected_keys,
         )
 
-        for section_idx, section in self.sections.items():
-            indicators = section.get("indicators", {})
+        for outcome_idx, outcome in self.outcomes.items():
+            indicators = outcome.get("indicators", {})
             expected_indicator_categories = {"not-achieved", "partially-achieved", "achieved"}
             indicator_categories = set(indicators.keys())
             unexpected_categories = indicator_categories - expected_indicator_categories
             if unexpected_categories:
-                self.fail(f"Section {section_idx} contains unexpected indicator categories: {unexpected_categories}")
+                self.fail(f"outcome {outcome_idx} contains unexpected indicator categories: {unexpected_categories}")
 
 
 if __name__ == "__main__":

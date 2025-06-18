@@ -19,7 +19,7 @@ objectives:
         code: A1
         title: Security Monitoring
         description: The organisation monitors the security status of systems.
-        sections:
+        outcomes:
           A1.a:
             code: A1.a
             title: Monitoring Coverage
@@ -51,7 +51,7 @@ objectives:
         title: Proactive Security Event Discovery
         description: The organisation detects malicious activity even when it evades
           standard solutions.
-        sections:
+        outcomes:
           A2.a:
             code: A2.a
             title: System Abnormalities for Attack Detection
@@ -91,7 +91,7 @@ objectives:
         code: B1
         title: Response and Recovery Planning
         description: Well-defined incident management processes are in place.
-        sections:
+        outcomes:
           B1.a:
             code: B1.a
             title: Response Plan
@@ -154,7 +154,7 @@ objectives:
         code: B2
         title: Lessons Learned
         description: Incident root causes are analyzed to prevent recurrence.
-        sections:
+        outcomes:
           B2.a:
             code: B2.a
             title: Incident Root Cause Analysis

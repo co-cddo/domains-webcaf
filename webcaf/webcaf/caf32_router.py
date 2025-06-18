@@ -8,8 +8,8 @@ from webcaf import urls
 
 from .caf32_field_providers import (
     FieldProvider,
-    SectionIndicatorsFieldProvider,
-    SectionOutcomeFieldProvider,
+    OutcomeConfirmationFieldProvider,
+    OutcomeIndicatorsFieldProvider,
 )
 from .form_factory import create_form
 from .view_factory import create_form_view
@@ -23,7 +23,7 @@ class FrameworkRouter:
     as a class partly in case we later want to use an ABC to declare a common interface for different types
     of router.
 
-    It reads the YAML and from there can produce a route based on all the sections, only those associated with
+    It reads the YAML and from there can produce a route based on all the outcomes, only those associated with
     organisations or only those associated with systems. This is done by creating a class for each view and form
     element in the CAF then updating Django's url patterns with paths to the views. Each form is provided the
     success_url for the next page in the route.
@@ -64,9 +64,8 @@ class FrameworkRouter:
             )
             urls.urlpatterns.append(path(f"{url_path}/", item["view_class"].as_view(), name=url_name))
         else:
-            template_name = "section.html"
-            section_type = item_type.split("-")[1]
-            class_prefix = f"Section{section_type.capitalize()}View"
+            template_name = "outcome.html"
+            class_prefix = f"Outcome{item_type.capitalize()}View"
             item["view_class"] = create_form_view(
                 success_url_name=success_url_name,
                 template_name=template_name,
@@ -75,7 +74,7 @@ class FrameworkRouter:
                 class_id=item["id"],
                 extra_context=extra_context,
             )
-            urls.urlpatterns.append(path(f"{url_path}/{section_type}/", item["view_class"].as_view(), name=url_name))
+            urls.urlpatterns.append(path(f"{url_path}/{item_type}/", item["view_class"].as_view(), name=url_name))
 
         return item, url_name
 
@@ -93,76 +92,76 @@ class FrameworkRouter:
             for principle_key, principle in objective.get("principles", {}).items():
                 principle_url_name = f"principle_{principle_key}"
                 all_url_names.append(principle_url_name)
-                for section_key, _ in principle.get("sections", {}).items():
-                    indicators_url_name = f"section-indicators_{section_key}"
-                    outcome_url_name = f"section-outcome_{section_key}"
+                for outcome_key, _ in principle.get("outcomes", {}).items():
+                    indicators_url_name = f"indicators_{outcome_key}"
+                    outcome_url_name = f"confirmation_{outcome_key}"
                     all_url_names.append(indicators_url_name)
                     all_url_names.append(outcome_url_name)
         return all_url_names
 
     @staticmethod
-    def _prepare_section_stage(
-        section_base: dict,
-        section_type: str,
-        section_key: str,
+    def _prepare_outcome_stage(
+        outcome: dict,
+        outcome_stage: str,
+        outcome_key: str,
         all_url_names: list[str],
         # Need to change this to a better default value
         exit_url: str = "#",
     ) -> tuple[dict, str, str]:
         """
-        Prepares a stage in the route relating to a section, either where indicators are entered or
+        Prepares a stage in the route relating to a outcome, either where indicators are entered or
         the outcome is agreed.
         """
-        item_copy = section_base.copy()
-        item_copy["type"] = f"section-{section_type}"
-        url_name = f"section-{section_type}_{section_key}"
+        outcome_copy = outcome.copy()
+        outcome_copy["type"] = f"outcome-{outcome_stage}"
+        url_name = f"{outcome_stage}_{outcome_key}"
         current_index = all_url_names.index(url_name)
 
-        if section_type == "indicators":
-            success_url = f"section-outcome_{section_key}"
-        else:  # outcome
+        if outcome_stage == "indicators":
+            success_url = f"confirmation_{outcome_key}"
+        else:
             success_url = FrameworkRouter._get_success_url(current_index, all_url_names, exit_url)
 
-        return item_copy, url_name, success_url
+        return outcome_copy, url_name, success_url
 
     @staticmethod
-    def _process_section(
-        section_key: str, section: dict, principle_key: str, obj_key: str, all_url_names: list[str], exit_url: str
+    def _process_outcome(
+        outcome_key: str, outcome: dict, principle_key: str, obj_key: str, all_url_names: list[str], exit_url: str
     ) -> list[dict]:
         """
-        Processes a 'section' dictionary from the CAF. Each section results in two pages in the route, one
+        Processes a 'outcome' dictionary from the CAF. Each outcome results in two pages in the route, one
         for indicators and the other for the result.
 
-        If the section is the last element in the route the form button points to an exit url. Otherwise to
-        the next page in the route, which can be a section, principle or objective.
+        If the outcome is the last element in the route the form button points to an exit url. Otherwise to
+        the next page in the route, which can be a outcome, principle or objective.
         """
         items = []
-        section_base = section.copy()
-        section_base.update(
+        outcome_copy = outcome.copy()
+        outcome_copy.update(
             {
-                "id": section_key,
+                "id": outcome_key,
                 "principle_id": principle_key,
                 "objective_id": obj_key,
             }
         )
-        indicators_copy, _, success_url = FrameworkRouter._prepare_section_stage(
-            section_base, "indicators", section_key, all_url_names
+        indicators_stage, _, success_url = FrameworkRouter._prepare_outcome_stage(
+            outcome_copy, "indicators", outcome_key, all_url_names
         )
-        provider: FieldProvider = SectionIndicatorsFieldProvider(indicators_copy)
+        provider: FieldProvider = OutcomeIndicatorsFieldProvider(indicators_stage)
         indicators_form = create_form(provider)
-        indicators_copy, _ = FrameworkRouter._create_view_and_url(
-            indicators_copy, "section-indicators", success_url, form_class=indicators_form
+        indicators_stage, _ = FrameworkRouter._create_view_and_url(
+            indicators_stage, "indicators", success_url, form_class=indicators_form
         )
-        items.append(indicators_copy)
-        outcome_copy, _, success_url = FrameworkRouter._prepare_section_stage(
-            section_base, "outcome", section_key, all_url_names, exit_url
+        items.append(indicators_stage)
+        confirmation_stage, _, success_url = FrameworkRouter._prepare_outcome_stage(
+            outcome_copy, "confirmation", outcome_key, all_url_names, exit_url
         )
-        provider = SectionOutcomeFieldProvider(outcome_copy)
+        provider = OutcomeConfirmationFieldProvider(confirmation_stage)
         outcome_form = create_form(provider)
-        outcome_copy, _ = FrameworkRouter._create_view_and_url(
-            outcome_copy, "section-outcome", success_url, form_class=outcome_form
+        confirmation_stage, _ = FrameworkRouter._create_view_and_url(
+            confirmation_stage, "confirmation", success_url, form_class=outcome_form
         )
-        items.append(outcome_copy)
+        items.append(confirmation_stage)
         return items
 
     @staticmethod
@@ -170,7 +169,7 @@ class FrameworkRouter:
         principle_key: str, principle: dict, obj_key: str, all_url_names: list[str], exit_url: str
     ) -> tuple[dict, list[dict]]:
         """
-        Processes a 'principle' dictionary from the CAF. These are much simpler than sections.
+        Processes a 'principle' dictionary from the CAF. These are much simpler than outcomes.
         """
         items = []
         principle_copy = principle.copy()
@@ -181,16 +180,16 @@ class FrameworkRouter:
                 "objective_id": obj_key,
             }
         )
-        if "sections" in principle_copy:
-            del principle_copy["sections"]
+        if "outcomes" in principle_copy:
+            del principle_copy["outcomes"]
         current_index = all_url_names.index(f"principle_{principle_key}")
         success_url = FrameworkRouter._get_success_url(current_index, all_url_names, exit_url)
         principle_copy, _ = FrameworkRouter._create_view_and_url(principle_copy, "principle", success_url)
-        for section_key, section in principle.get("sections", {}).items():
-            section_items = FrameworkRouter._process_section(
-                section_key, section, principle_key, obj_key, all_url_names, exit_url
+        for outcome_key, outcome in principle.get("outcomes", {}).items():
+            outcome_items = FrameworkRouter._process_outcome(
+                outcome_key, outcome, principle_key, obj_key, all_url_names, exit_url
             )
-            items.extend(section_items)
+            items.extend(outcome_items)
         return principle_copy, items
 
     @staticmethod
@@ -201,7 +200,7 @@ class FrameworkRouter:
         each page and then adding the paths to Django's urlpatterns.
 
         This directly handles the objectives elements and calls other methods to deal with the
-        principles and sections.
+        principles and outcomes.
         """
         # There are currenltly no protections against this being called more than once, which would lead
         # to pages displaying in the wrong order if called with different parameters
@@ -218,11 +217,11 @@ class FrameworkRouter:
             obj_copy, _ = FrameworkRouter._create_view_and_url(obj_copy, "objective", success_url)
             flattened.append(obj_copy)
             for principle_key, principle in objective.get("principles", {}).items():
-                principle_copy, section_items = FrameworkRouter._process_principle(
+                principle_copy, outcome_items = FrameworkRouter._process_principle(
                     principle_key, principle, obj_key, all_url_names, exit_url
                 )
                 flattened.append(principle_copy)
-                flattened.extend(section_items)
+                flattened.extend(outcome_items)
         return flattened
 
     def __init__(self, framework_path) -> None:
@@ -237,23 +236,23 @@ class FrameworkRouter:
     def _filter_framework_by_scope(self, scope: str) -> dict[str, FrameworkValue]:
         """
         This filters the framework according to the scope which is either 'organisation' or 'system'. It
-        removes sections which do not match the scope argument, then any principles which do not have
-        any sections, then any objectives which do not have any principles.
+        removes outcomes which do not match the scope argument, then any principles which do not have
+        any outcomes, then any objectives which do not have any principles.
         """
         filtered_framework = copy.deepcopy(self.framework)
         principles_to_keep = set()
         objectives_to_keep = set()
         for obj_key, objective in list(filtered_framework.get("objectives", {}).items()):
             for principle_key, principle in list(objective.get("principles", {}).items()):
-                has_sections = False
-                for section_key, section in list(principle.get("sections", {}).items()):
-                    if section.get("scope") != scope:
-                        del principle["sections"][section_key]
+                has_outcomes = False
+                for outcome_key, outcome in list(principle.get("outcomes", {}).items()):
+                    if outcome.get("scope") != scope:
+                        del principle["outcomes"][outcome_key]
                     else:
-                        has_sections = True
+                        has_outcomes = True
                         principles_to_keep.add(principle_key)
                         objectives_to_keep.add(obj_key)
-                if not has_sections:
+                if not has_outcomes:
                     del objective["principles"][principle_key]
             if obj_key not in objectives_to_keep:
                 del filtered_framework["objectives"][obj_key]
