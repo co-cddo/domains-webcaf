@@ -10,161 +10,163 @@ assessment-rules: &standard-rules
   - any
 
 objectives:
-  1:
+  A:
     code: A
     title: Detecting cyber security events
     description: Capabilities exist to ensure security defences remain effective.
     principles:
-      1:
+      A1:
         code: A1
         title: Security Monitoring
         description: The organisation monitors the security status of systems.
         sections:
-          1:
+          A1.a:
             code: A1.a
             title: Monitoring Coverage
-            description: Monitoring data sources allow for timely identification of security events.
+            description: Monitoring data sources allow for timely identification of
+              security events.
             scope: system
             indicators:
               not-achieved:
-                1: Security operation data is not collected.
-                2: You cannot detect the presence of IoCs on essential functions.
-                3: User activity auditing is not possible.
-                4: Network boundary traffic is not captured.
+                A1.a.1: Security operation data is not collected.
+                A1.a.2: You cannot detect the presence of IoCs on essential functions.
+                A1.a.3: User activity auditing is not possible.
+                A1.a.4: Network boundary traffic is not captured.
               partially-achieved:
-                5: Some security data is collected but coverage is not comprehensive.
-                6: IoCs can be detected on essential functions.
-                7: Limited user monitoring is performed.
-                8: Basic network traffic monitoring is in place.
+                A1.a.5: Some security data is collected but coverage is not comprehensive.
+                A1.a.6: IoCs can be detected on essential functions.
+                A1.a.7: Limited user monitoring is performed.
+                A1.a.8: Basic network traffic monitoring is in place.
               achieved:
-                9: Monitoring is based on understanding of networks and attack methods.
-                10: Monitoring data is detailed enough to detect security incidents.
-                11: IoC detection is effective and reliable.
-                12: User activity monitoring detects policy violations.
-                13: Monitoring includes host-based and network gateway coverage.
-                14: New systems are evaluated as monitoring data sources.
+                A1.a.9: Monitoring is based on understanding of networks and attack
+                  methods.
+                A1.a.10: Monitoring data is detailed enough to detect security incidents.
+                A1.a.11: IoC detection is effective and reliable.
+                A1.a.12: User activity monitoring detects policy violations.
+                A1.a.13: Monitoring includes host-based and network gateway coverage.
+                A1.a.14: New systems are evaluated as monitoring data sources.
             assessment-rules: *standard-rules
-
-
-      2:
+      A2:
         code: A2
         title: Proactive Security Event Discovery
-        description: The organisation detects malicious activity even when it evades standard solutions.
+        description: The organisation detects malicious activity even when it evades
+          standard solutions.
         sections:
-          2:
+          A2.a:
             code: A2.a
             title: System Abnormalities for Attack Detection
             description: Abnormality detection is used to identify malicious activity.
             scope: organisation
             indicators:
-              not-achieved:
-                15: Normal system behavior is not understood for abnormality detection.
-                16: No framework exists for identifying suspicious abnormalities.
               partially-achieved: {}
+              not-achieved:
+                A2.a.1: Normal system behavior is not understood for abnormality detection.
+                A2.a.2: No framework exists for identifying suspicious abnormalities.
               achieved:
-                17: Normal system behavior is well understood for effective detection.
-                18: Past attack patterns inform abnormality detection.
-                19: Detection considers likely attack scenarios for essential systems.
-                20: Abnormality definitions are regularly updated.
+                A2.a.3: Normal system behavior is well understood for effective detection.
+                A2.a.4: Past attack patterns inform abnormality detection.
+                A2.a.5: Detection considers likely attack scenarios for essential
+                  systems.
+                A2.a.6: Abnormality definitions are regularly updated.
             assessment-rules: *standard-rules
-          3:
+          A2.b:
             code: A2.b
             title: Proactive Attack Discovery
             description: Sophisticated attack detection through behavior monitoring.
             scope: system
             indicators:
-              not-achieved:
-                21: No routine searching for system abnormalities occurs.
               partially-achieved: {}
+              not-achieved:
+                A2.b.1: No routine searching for system abnormalities occurs.
               achieved:
-                22: Regular searches for abnormalities generate actionable alerts.
-                23: Confidence in abnormality detection effectiveness is justified.
+                A2.b.2: Regular searches for abnormalities generate actionable alerts.
+                A2.b.3: Confidence in abnormality detection effectiveness is justified.
             assessment-rules: *standard-rules
-  2:
+  B:
     code: B
     title: Minimising the impact of cyber security incidents
     description: Capabilities exist to minimize adverse impacts of security incidents.
     principles:
-      3:
+      B1:
         code: B1
         title: Response and Recovery Planning
         description: Well-defined incident management processes are in place.
         sections:
-          4:
+          B1.a:
             code: B1.a
             title: Response Plan
             description: Incident response plan is based on risk assessment.
             scope: system
             indicators:
               not-achieved:
-                24: Response plan is not documented.
-                25: Response plan omits essential functions.
-                26: Staff do not understand the response plan.
+                B1.a.1: Response plan is not documented.
+                B1.a.2: Response plan omits essential functions.
+                B1.a.3: Staff do not understand the response plan.
               partially-achieved:
-                27: Response plan includes essential functions.
-                28: Plan covers known attack scenarios only.
-                29: Response team understands the plan.
-                30: Plan is documented and shared with stakeholders.
+                B1.a.4: Response plan includes essential functions.
+                B1.a.5: Plan covers known attack scenarios only.
+                B1.a.6: Response team understands the plan.
+                B1.a.7: Plan is documented and shared with stakeholders.
               achieved:
-                31: Plan is based on security risk understanding.
-                32: Plan comprehensively covers incident lifecycle and scenarios.
-                33: Plan integrates with organizational and supply chain plans.
-                34: Plan is understood by all relevant business areas.
+                B1.a.8: Plan is based on security risk understanding.
+                B1.a.9: Plan comprehensively covers incident lifecycle and scenarios.
+                B1.a.10: Plan integrates with organizational and supply chain plans.
+                B1.a.11: Plan is understood by all relevant business areas.
             assessment-rules: *standard-rules
-          5:
+          B1.b:
             code: B1.b
             title: Response and Recovery Capability
             description: Capability exists to execute the response plan effectively.
             scope: organisation
             indicators:
-              not-achieved:
-                35: Resource planning for response is inadequate.
-                36: Response team lacks necessary skills and authority.
-                37: Backup mechanisms for operations are insufficient.
               partially-achieved: {}
+              not-achieved:
+                B1.b.1: Resource planning for response is inadequate.
+                B1.b.2: Response team lacks necessary skills and authority.
+                B1.b.3: Backup mechanisms for operations are insufficient.
               achieved:
-                38: Resource requirements are understood and available.
-                39: Information needs for response decisions are planned.
-                40: Response team has skills and authority to act.
-                41: Key roles have redundancy and knowledge is shared.
-                42: Backup mechanisms support continued operations.
-                43: External support arrangements exist if needed.
+                B1.b.4: Resource requirements are understood and available.
+                B1.b.5: Information needs for response decisions are planned.
+                B1.b.6: Response team has skills and authority to act.
+                B1.b.7: Key roles have redundancy and knowledge is shared.
+                B1.b.8: Backup mechanisms support continued operations.
+                B1.b.9: External support arrangements exist if needed.
             assessment-rules: *standard-rules
-          6:
+          B1.c:
             code: B1.c
             title: Testing and Exercising
             description: Response plans are regularly tested with realistic scenarios.
             scope: system
             indicators:
-              not-achieved:
-                44: Testing covers only limited parts of the process.
-                45: Response exercises are infrequent or ad-hoc.
-                46: Exercise outputs aren't used for improvement.
-                47: Testing doesn't cover full response cycle.
               partially-achieved: {}
+              not-achieved:
+                B1.c.1: Testing covers only limited parts of the process.
+                B1.c.2: Response exercises are infrequent or ad-hoc.
+                B1.c.3: Exercise outputs aren't used for improvement.
+                B1.c.4: Testing doesn't cover full response cycle.
               achieved:
-                48: Scenarios are based on actual incidents and threat intelligence.
-                49: Exercise scenarios are documented and regularly reviewed.
-                50: Regular exercises improve response plans and security.
-                51: Testing covers the entire response cycle.
+                B1.c.5: Scenarios are based on actual incidents and threat intelligence.
+                B1.c.6: Exercise scenarios are documented and regularly reviewed.
+                B1.c.7: Regular exercises improve response plans and security.
+                B1.c.8: Testing covers the entire response cycle.
             assessment-rules: *standard-rules
-      4:
+      B2:
         code: B2
         title: Lessons Learned
         description: Incident root causes are analyzed to prevent recurrence.
         sections:
-          7:
+          B2.a:
             code: B2.a
             title: Incident Root Cause Analysis
             description: Root cause analysis ensures appropriate remediation.
             scope: system
             indicators:
-              not-achieved:
-                52: Incidents cannot be resolved to root cause.
-                53: No formal cause investigation process exists.
               partially-achieved: {}
+              not-achieved:
+                B2.a.1: Incidents cannot be resolved to root cause.
+                B2.a.2: No formal cause investigation process exists.
               achieved:
-                54: Root cause analysis is routine after incidents.
-                55: Analysis covers process issues and technical vulnerabilities.
-                56: All relevant data is available to the analysis team.
+                B2.a.3: Root cause analysis is routine after incidents.
+                B2.a.4: Analysis covers process issues and technical vulnerabilities.
+                B2.a.5: All relevant data is available to the analysis team.
             assessment-rules: *standard-rules
