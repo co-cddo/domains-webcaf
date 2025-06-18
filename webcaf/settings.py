@@ -43,7 +43,7 @@ SECRET_KEY: str = str(uuid.uuid4()) if DEBUG else env.str("SECRET_KEY", default=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: list = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
