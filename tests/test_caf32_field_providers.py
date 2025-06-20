@@ -1,19 +1,19 @@
 from django.test import TestCase
 
 from webcaf.webcaf.caf32_field_providers import (
-    SectionIndicatorsFieldProvider,
-    SectionOutcomeFieldProvider,
+    OutcomeConfirmationFieldProvider,
+    OutcomeIndicatorsFieldProvider,
 )
 
 
 class FormProvidersTestCase(TestCase):
     def setUp(self):
         """Set up test data"""
-        self.section_data = {
-            "id": "section_1",
+        self.outcome_data = {
+            "id": "outcome_1",
             "code": "A1.1",
-            "title": "Test Section",
-            "description": "Test section description",
+            "title": "Test Outcome",
+            "description": "Test outcome description",
             "indicators": {
                 "not-achieved": {
                     "1": "Not achieved indicator 1",
@@ -30,16 +30,16 @@ class FormProvidersTestCase(TestCase):
         }
 
     def test_indicators_provider_metadata(self):
-        provider = SectionIndicatorsFieldProvider(self.section_data)
+        provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "section_1")
+        self.assertEqual(metadata["id"], "outcome_1")
         self.assertEqual(metadata["code"], "A1.1")
-        self.assertEqual(metadata["title"], "Test Section")
-        self.assertEqual(metadata["description"], "Test section description")
+        self.assertEqual(metadata["title"], "Test Outcome")
+        self.assertEqual(metadata["description"], "Test outcome description")
 
     def test_indicators_provider_field_definitions(self):
-        provider = SectionIndicatorsFieldProvider(self.section_data)
+        provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
         self.assertEqual(len(fields), 5)
@@ -61,13 +61,13 @@ class FormProvidersTestCase(TestCase):
         self.assertEqual(field_labels["achieved_5"], "Achieved indicator 5")
 
     def test_indicators_provider_layout_structure(self):
-        provider = SectionIndicatorsFieldProvider(self.section_data)
+        provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         layout = provider.get_layout_structure()
         self.assertIsInstance(layout, dict)
         self.assertIn("header", layout)
         self.assertIn("groups", layout)
-        self.assertEqual(layout["header"]["title"], "A1.1 Test Section")
-        self.assertEqual(layout["header"]["description"], "Test section description")
+        self.assertEqual(layout["header"]["title"], "A1.1 Test Outcome")
+        self.assertEqual(layout["header"]["description"], "Test outcome description")
         self.assertEqual(len(layout["groups"]), 3)
         group_titles = [group["title"] for group in layout["groups"]]
         self.assertIn("Not Achieved", group_titles)
@@ -87,15 +87,15 @@ class FormProvidersTestCase(TestCase):
                 self.assertIn("achieved_5", group["fields"])
 
     def test_outcome_provider_metadata(self):
-        provider = SectionOutcomeFieldProvider(self.section_data)
+        provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "section_1")
+        self.assertEqual(metadata["id"], "outcome_1")
         self.assertEqual(metadata["code"], "A1.1")
-        self.assertEqual(metadata["title"], "Test Section")
+        self.assertEqual(metadata["title"], "Test Outcome")
 
     def test_outcome_provider_field_definitions(self):
-        provider = SectionOutcomeFieldProvider(self.section_data)
+        provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
         self.assertEqual(len(fields), 2)
@@ -116,7 +116,7 @@ class FormProvidersTestCase(TestCase):
         self.assertEqual(comments_field["widget_attrs"]["maxlength"], 200)
 
     def test_outcome_provider_layout_structure(self):
-        provider = SectionOutcomeFieldProvider(self.section_data)
+        provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         layout = provider.get_layout_structure()
         self.assertIsInstance(layout, dict)
         self.assertIn("header", layout)
@@ -131,12 +131,12 @@ class FormProvidersTestCase(TestCase):
         self.assertEqual(layout["groups"][1]["fields"], ["supporting_comments"])
 
     def test_outcome_provider_without_partially_achieved(self):
-        section_without_partial = self.section_data.copy()
-        section_without_partial["indicators"] = {
-            "not-achieved": self.section_data["indicators"]["not-achieved"],
-            "achieved": self.section_data["indicators"]["achieved"],
+        outcome_without_partial = self.outcome_data.copy()
+        outcome_without_partial["indicators"] = {
+            "not-achieved": self.outcome_data["indicators"]["not-achieved"],
+            "achieved": self.outcome_data["indicators"]["achieved"],
         }
-        provider = SectionOutcomeFieldProvider(section_without_partial)
+        provider = OutcomeConfirmationFieldProvider(outcome_without_partial)
         fields = provider.get_field_definitions()
         status_field = next(field for field in fields if field["name"] == "status")
         choices = [choice[0] for choice in status_field["choices"]]
