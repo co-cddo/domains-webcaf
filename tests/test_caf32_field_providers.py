@@ -1,3 +1,6 @@
+import os
+
+import yaml
 from django.test import TestCase
 
 from webcaf.webcaf.caf32_field_providers import (
@@ -8,41 +11,29 @@ from webcaf.webcaf.caf32_field_providers import (
 
 class FormProvidersTestCase(TestCase):
     def setUp(self):
-        """Set up test data"""
-        self.outcome_data = {
-            "id": "outcome_1",
-            "code": "A1.1",
-            "title": "Test Outcome",
-            "description": "Test outcome description",
-            "indicators": {
-                "not-achieved": {
-                    "1": "Not achieved indicator 1",
-                    "2": "Not achieved indicator 2",
-                },
-                "partially-achieved": {
-                    "3": "Partially achieved indicator 3",
-                },
-                "achieved": {
-                    "4": "Achieved indicator 4",
-                    "5": "Achieved indicator 5",
-                },
-            },
-        }
+        """Set up test data from actual YAML fixture file"""
+        fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
+        with open(fixture_path, "r") as file:
+            framework_data = yaml.safe_load(file)
+        self.outcome_data = framework_data["objectives"]["A"]["principles"]["A1"]["outcomes"]["A1.a"]
+        self.outcome_data["id"] = "A1.a"
 
     def test_indicators_provider_metadata(self):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "outcome_1")
-        self.assertEqual(metadata["code"], "A1.1")
-        self.assertEqual(metadata["title"], "Test Outcome")
-        self.assertEqual(metadata["description"], "Test outcome description")
+        self.assertEqual(metadata["id"], "A1.a")
+        self.assertEqual(metadata["code"], "A1.a")
+        self.assertEqual(metadata["title"], "Monitoring Coverage")
+        self.assertEqual(
+            metadata["description"], "Monitoring data sources allow for timely identification of security events."
+        )
 
     def test_indicators_provider_field_definitions(self):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 5)
+        self.assertEqual(len(fields), 14)
         for field in fields:
             self.assertIn("name", field)
             self.assertIn("label", field)
@@ -51,14 +42,15 @@ class FormProvidersTestCase(TestCase):
             self.assertEqual(field["type"], "boolean")
             self.assertFalse(field["required"])
         field_names = [field["name"] for field in fields]
-        self.assertIn("not-achieved_1", field_names)
-        self.assertIn("not-achieved_2", field_names)
-        self.assertIn("partially-achieved_3", field_names)
-        self.assertIn("achieved_4", field_names)
-        self.assertIn("achieved_5", field_names)
+        self.assertIn("not-achieved_A1.a.1", field_names)
+        self.assertIn("not-achieved_A1.a.4", field_names)
+        self.assertIn("partially-achieved_A1.a.5", field_names)
+        self.assertIn("partially-achieved_A1.a.8", field_names)
+        self.assertIn("achieved_A1.a.9", field_names)
+        self.assertIn("achieved_A1.a.14", field_names)
         field_labels = {field["name"]: field["label"] for field in fields}
-        self.assertEqual(field_labels["not-achieved_1"], "Not achieved indicator 1")
-        self.assertEqual(field_labels["achieved_5"], "Achieved indicator 5")
+        self.assertEqual(field_labels["not-achieved_A1.a.1"], "Security operation data is not collected.")
+        self.assertEqual(field_labels["achieved_A1.a.14"], "New systems are evaluated as monitoring data sources.")
 
     def test_indicators_provider_layout_structure(self):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
@@ -66,8 +58,11 @@ class FormProvidersTestCase(TestCase):
         self.assertIsInstance(layout, dict)
         self.assertIn("header", layout)
         self.assertIn("groups", layout)
-        self.assertEqual(layout["header"]["title"], "A1.1 Test Outcome")
-        self.assertEqual(layout["header"]["description"], "Test outcome description")
+        self.assertEqual(layout["header"]["title"], "A1.a Monitoring Coverage")
+        self.assertEqual(
+            layout["header"]["description"],
+            "Monitoring data sources allow for timely identification of security events.",
+        )
         self.assertEqual(len(layout["groups"]), 3)
         group_titles = [group["title"] for group in layout["groups"]]
         self.assertIn("Not Achieved", group_titles)
@@ -75,24 +70,25 @@ class FormProvidersTestCase(TestCase):
         self.assertIn("Achieved", group_titles)
         for group in layout["groups"]:
             if group["title"] == "Not Achieved":
-                self.assertEqual(len(group["fields"]), 2)
-                self.assertIn("not-achieved_1", group["fields"])
-                self.assertIn("not-achieved_2", group["fields"])
+                self.assertEqual(len(group["fields"]), 4)
+                self.assertIn("not-achieved_A1.a.1", group["fields"])
+                self.assertIn("not-achieved_A1.a.4", group["fields"])
             elif group["title"] == "Partially Achieved":
-                self.assertEqual(len(group["fields"]), 1)
-                self.assertIn("partially-achieved_3", group["fields"])
+                self.assertEqual(len(group["fields"]), 4)
+                self.assertIn("partially-achieved_A1.a.5", group["fields"])
+                self.assertIn("partially-achieved_A1.a.8", group["fields"])
             elif group["title"] == "Achieved":
-                self.assertEqual(len(group["fields"]), 2)
-                self.assertIn("achieved_4", group["fields"])
-                self.assertIn("achieved_5", group["fields"])
+                self.assertEqual(len(group["fields"]), 6)
+                self.assertIn("achieved_A1.a.9", group["fields"])
+                self.assertIn("achieved_A1.a.14", group["fields"])
 
     def test_outcome_provider_metadata(self):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "outcome_1")
-        self.assertEqual(metadata["code"], "A1.1")
-        self.assertEqual(metadata["title"], "Test Outcome")
+        self.assertEqual(metadata["id"], "A1.a")
+        self.assertEqual(metadata["code"], "A1.a")
+        self.assertEqual(metadata["title"], "Monitoring Coverage")
 
     def test_outcome_provider_field_definitions(self):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
@@ -121,7 +117,7 @@ class FormProvidersTestCase(TestCase):
         self.assertIsInstance(layout, dict)
         self.assertIn("header", layout)
         self.assertIn("groups", layout)
-        self.assertEqual(layout["header"]["title"], "A1.1 Outcome")
+        self.assertEqual(layout["header"]["title"], "A1.a Outcome")
         self.assertIn("status_message", layout["header"])
         self.assertIn("help_text", layout["header"])
         self.assertEqual(len(layout["groups"]), 2)
