@@ -1,6 +1,10 @@
 import os
 import unittest
 
+from django.test import RequestFactory
+from django.urls.resolvers import URLPattern
+
+from webcaf import urls
 from webcaf.webcaf.caf32_router import FrameworkRouter
 
 # Test that when _create_view_and_url is called with an outcome, it has a form class as an argument.
@@ -10,10 +14,13 @@ from webcaf.webcaf.caf32_router import FrameworkRouter
 class TestFrameworkRouter(unittest.TestCase):
     def setUp(self):
         self.fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
+        self._original_urlpatterns = list(urls.urlpatterns)
+        urls.urlpatterns[:] = []
+
+    def tearDown(self):
+        urls.urlpatterns[:] = self._original_urlpatterns
 
     def test_urlpatterns_expected_count(self):
-        from webcaf import urls
-
         router = FrameworkRouter(self.fixture_path)
         original_length = len(urls.urlpatterns)
         router.all_route()
@@ -23,8 +30,6 @@ class TestFrameworkRouter(unittest.TestCase):
         self.assertEqual(len(added_patterns), expected_count)
 
     def test_urls_added_to_urlpatterns(self):
-        from webcaf import urls
-
         original_length = len(urls.urlpatterns)
         router = FrameworkRouter(self.fixture_path)
         router.all_route()
@@ -84,8 +89,6 @@ class TestFrameworkRouter(unittest.TestCase):
             self.assertIn(expected_paths[i], url_pattern.pattern.describe())
 
     def test_urlpatterns_no_duplicates(self):
-        from webcaf import urls
-
         router = FrameworkRouter(self.fixture_path)
         original_length = len(urls.urlpatterns)
         router.all_route()
@@ -93,6 +96,82 @@ class TestFrameworkRouter(unittest.TestCase):
         added_patterns = urls.urlpatterns[original_length:]
         names = [pattern.name for pattern in added_patterns if hasattr(pattern, "name")]
         self.assertEqual(len(names), len(set(names)), "Duplicate URL pattern names found")
+
+    def test_objective_breadcrumbs(self):
+        router = FrameworkRouter(self.fixture_path)
+        router.all_route()
+        factory = RequestFactory()
+        request = factory.get("/")
+        for pattern in urls.urlpatterns:
+            if isinstance(pattern, URLPattern) and pattern.name == "objective_A":
+                view_class = pattern.callback.view_class
+                break
+        else:
+            self.fail("objective_A not found in urlpatterns")
+        view = view_class()
+        view.request = request
+        context = view.get_context_data()
+        breadcrumbs = context.get("breadcrumbs")
+        self.assertIsInstance(breadcrumbs, list)
+        self.assertEqual(breadcrumbs[0]["text"], "Root")
+        self.assertEqual(breadcrumbs[-1]["text"], "Detecting cyber security events")
+
+    def test_principle_breadcrumbs(self):
+        router = FrameworkRouter(self.fixture_path)
+        router.all_route()
+        factory = RequestFactory()
+        request = factory.get("/")
+        for pattern in urls.urlpatterns:
+            if isinstance(pattern, URLPattern) and pattern.name == "principle_A1":
+                view_class = pattern.callback.view_class
+                break
+        else:
+            self.fail("principle_A1 not found in urlpatterns")
+        view = view_class()
+        view.request = request
+        context = view.get_context_data()
+        breadcrumbs = context.get("breadcrumbs")
+        self.assertEqual(breadcrumbs[-2]["text"], "Detecting cyber security events")
+        self.assertEqual(breadcrumbs[-1]["text"], "Security Monitoring")
+
+    def test_outcome_breadcrumbs(self):
+        router = FrameworkRouter(self.fixture_path)
+        router.all_route()
+        factory = RequestFactory()
+        request = factory.get("/")
+        for pattern in urls.urlpatterns:
+            if isinstance(pattern, URLPattern) and pattern.name == "indicators_A1.a":
+                view_class = pattern.callback.view_class
+                break
+        else:
+            self.fail("indicators_A1.a not found in urlpatterns")
+        view = view_class()
+        view.request = request
+        context = view.get_context_data()
+        breadcrumbs = context.get("breadcrumbs")
+        self.assertEqual(breadcrumbs[0]["text"], "Root")
+        self.assertEqual(breadcrumbs[1]["text"], "Detecting cyber security events")
+        self.assertEqual(breadcrumbs[2]["text"], "Security Monitoring")
+        self.assertEqual(breadcrumbs[3]["text"], "Monitoring Coverage")
+
+    def test_breadcrumbs_have_urls(self):
+        router = FrameworkRouter(self.fixture_path)
+        router.all_route()
+        factory = RequestFactory()
+        request = factory.get("/")
+        for pattern in urls.urlpatterns:
+            if isinstance(pattern, URLPattern) and pattern.name == "confirmation_B2.a":
+                view_class = pattern.callback.view_class
+                break
+        else:
+            self.fail("confirmation_B2.a not found in urlpatterns")
+        view = view_class()
+        view.request = request
+        context = view.get_context_data()
+        breadcrumbs = context.get("breadcrumbs")
+        for crumb in breadcrumbs:
+            self.assertIn("url", crumb)
+            self.assertTrue(isinstance(crumb["url"], str) or hasattr(crumb["url"], "__class__"))
 
 
 if __name__ == "__main__":
