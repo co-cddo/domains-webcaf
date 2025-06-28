@@ -1,5 +1,3 @@
-import copy
-
 import yaml
 from django.urls import path
 from django.utils.text import slugify
@@ -193,7 +191,7 @@ class FrameworkRouter:
         return principle_copy, items
 
     @staticmethod
-    def _create_route(framework: dict, exit_url: str = "index") -> list[dict[str, FrameworkValue]]:
+    def _create_route(framework: dict, exit_url: str = "index") -> None:
         """
         Takes a dictionary representing the CAF framework, or a subset of it, and creates a linear
         route through the web application. This is done by creating a view class and form class for
@@ -204,7 +202,6 @@ class FrameworkRouter:
         """
         # There are currenltly no protections against this being called more than once, which would lead
         # to pages displaying in the wrong order if called with different parameters
-        flattened = []
         all_url_names = FrameworkRouter._build_url_names(framework)
         for i, obj_key in enumerate(framework.get("objectives", {}).items()):
             obj_key, objective = obj_key
@@ -215,14 +212,8 @@ class FrameworkRouter:
             current_index = all_url_names.index(f"objective_{obj_key}")
             success_url = FrameworkRouter._get_success_url(current_index, all_url_names, exit_url)
             obj_copy, _ = FrameworkRouter._create_view_and_url(obj_copy, "objective", success_url)
-            flattened.append(obj_copy)
             for principle_key, principle in objective.get("principles", {}).items():
-                principle_copy, outcome_items = FrameworkRouter._process_principle(
-                    principle_key, principle, obj_key, all_url_names, exit_url
-                )
-                flattened.append(principle_copy)
-                flattened.extend(outcome_items)
-        return flattened
+                FrameworkRouter._process_principle(principle_key, principle, obj_key, all_url_names, exit_url)
 
     def __init__(self, framework_path) -> None:
         self.file_path = framework_path
@@ -233,40 +224,5 @@ class FrameworkRouter:
         with open(self.file_path, "r") as file:
             self.framework = yaml.safe_load(file)
 
-    def _filter_framework_by_scope(self, scope: str) -> dict[str, FrameworkValue]:
-        """
-        This filters the framework according to the scope which is either 'organisation' or 'system'. It
-        removes outcomes which do not match the scope argument, then any principles which do not have
-        any outcomes, then any objectives which do not have any principles.
-        """
-        filtered_framework = copy.deepcopy(self.framework)
-        principles_to_keep = set()
-        objectives_to_keep = set()
-        for obj_key, objective in list(filtered_framework.get("objectives", {}).items()):
-            for principle_key, principle in list(objective.get("principles", {}).items()):
-                has_outcomes = False
-                for outcome_key, outcome in list(principle.get("outcomes", {}).items()):
-                    if outcome.get("scope") != scope:
-                        del principle["outcomes"][outcome_key]
-                    else:
-                        has_outcomes = True
-                        principles_to_keep.add(principle_key)
-                        objectives_to_keep.add(obj_key)
-                if not has_outcomes:
-                    del objective["principles"][principle_key]
-            if obj_key not in objectives_to_keep:
-                del filtered_framework["objectives"][obj_key]
-        return filtered_framework
-
-    # This is currently only used in the tests but it's useful since it doesn't interfere
-    # with the ordering of the pages
-    def all_route(self) -> list[dict[str, FrameworkValue]]:
-        return self._create_route(self.framework)
-
-    def org_route(self) -> list[dict[str, FrameworkValue]]:
-        filtered = self._filter_framework_by_scope("organisation")
-        return self._create_route(filtered)
-
-    def system_route(self) -> list[dict[str, FrameworkValue]]:
-        filtered = self._filter_framework_by_scope("system")
-        return self._create_route(filtered)
+    def all_route(self) -> None:
+        self._create_route(self.framework)
