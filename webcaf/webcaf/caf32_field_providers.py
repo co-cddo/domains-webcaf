@@ -50,6 +50,23 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "required": False,
                         }
                     )
+                # Add optional checkboxes for each group
+                fields.append(
+                    {
+                        "name": f"{level}_comment",
+                        "label": "Make a comment about a statement",
+                        "type": "boolean",
+                        "required": False,
+                    }
+                )
+                fields.append(
+                    {
+                        "name": f"{level}_none_of_the_above",
+                        "label": "None of the above",
+                        "type": "boolean",
+                        "required": False,
+                    }
+                )
 
         return fields
 
@@ -69,6 +86,9 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         ]:
             if level in self.outcome_data.get("indicators", {}) and self.outcome_data["indicators"][level]:
                 field_names = [f"{level}_{id}" for id in self.outcome_data["indicators"][level].keys()]
+                # Add the new fields to the group
+                field_names.append(f"{level}_comment")
+                field_names.append(f"{level}_none_of_the_above")
 
                 if field_names:
                     layout["groups"].append({"title": display_name, "fields": field_names})
