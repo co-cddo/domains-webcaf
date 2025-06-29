@@ -45,7 +45,7 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                     fields.append(
                         {
                             "name": f"{level}_{indicator_id}",
-                            "label": indicator_text,
+                            "label": indicator_text["description"],
                             "type": "boolean",
                             "required": False,
                         }
