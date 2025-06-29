@@ -1,8 +1,16 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout
+from crispy_forms_gds.layout import (
+    HTML,
+    Button,
+    Field,
+    Fieldset,
+    Layout,
+    TabPanel,
+    Tabs,
+)
 from django import forms
 
-from .caf32_field_providers import FieldProvider
+from webcaf.webcaf.caf32_field_providers import FieldProvider
 
 
 def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
@@ -64,22 +72,48 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
             layout_components.append(HTML(header["status_message"]))
         if "help_text" in header:
             layout_components.append(HTML(header["help_text"]))
-        for group in layout_structure.get("groups", []):
-            group_fields = []
-            if "title" in group:
-                group_fields.append(HTML(f"<h3 class='govuk-heading-m'>{group['title']}</h3>"))
 
-            for field_name in group.get("fields", []):
-                if (
-                    field_name == "status"
-                    and "status" in form_fields
-                    and isinstance(form_fields["status"], forms.ChoiceField)
-                ):
-                    group_fields.append(Field.radios(field_name))
-                else:
-                    group_fields.append(Field(field_name))
-            if group_fields:
-                layout_components.append(Fieldset(*group_fields))
+        # Once we settle on a design we can remove one of the following two blocks.
+        # The first covers the tabbed form design...
+        if layout_structure.get("use_tabs", False) and layout_structure.get("tabs", []):
+            tab_panels = []
+            for tab in layout_structure["tabs"]:
+                tab_fields = []
+                for field_name in tab.get("fields", []):
+                    if (
+                        field_name == "status"
+                        and "status" in form_fields
+                        and isinstance(form_fields["status"], forms.ChoiceField)
+                    ):
+                        tab_fields.append(Field.radios(field_name))
+                    else:
+                        tab_fields.append(Field(field_name))
+
+                if tab_fields:
+                    tab_panel = TabPanel(tab.get("label", "Tab"), *tab_fields, css_id=tab.get("id"))
+                    tab_panels.append(tab_panel)
+
+            if tab_panels:
+                layout_components.append(Tabs(*tab_panels))
+        else:
+            # ...and the original, non-tabbed design
+            for group in layout_structure.get("groups", []):
+                group_fields = []
+                if "title" in group:
+                    group_fields.append(HTML(f"<h3 class='govuk-heading-m'>{group['title']}</h3>"))
+
+                for field_name in group.get("fields", []):
+                    if (
+                        field_name == "status"
+                        and "status" in form_fields
+                        and isinstance(form_fields["status"], forms.ChoiceField)
+                    ):
+                        group_fields.append(Field.radios(field_name))
+                    else:
+                        group_fields.append(Field(field_name))
+                if group_fields:
+                    layout_components.append(Fieldset(*group_fields))
+
         button_text = layout_structure.get("button_text", "Save and Continue")
         layout_components.append(Button("submit", button_text, css_class="govuk-button"))
         self.helper.layout = Layout(*layout_components)

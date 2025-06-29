@@ -3,14 +3,16 @@ from django.urls import NoReverseMatch, path, reverse_lazy
 from django.utils.text import slugify
 
 from webcaf import urls
+from webcaf.webcaf.form_factory import create_form
+from webcaf.webcaf.view_factory import create_form_view
 
-from .caf32_field_providers import (
-    FieldProvider,
-    OutcomeConfirmationFieldProvider,
-    OutcomeIndicatorsFieldProvider,
-)
-from .form_factory import create_form
-from .view_factory import create_form_view
+# Import two field providers, so we can switch for demo purposes
+from .caf32_field_providers import OutcomeIndicatorsFieldProvider  # noqa: F401
+from .caf32_field_providers import TabbedOutcomeIndicatorsFieldProvider  # noqa: F401
+from .caf32_field_providers import FieldProvider, OutcomeConfirmationFieldProvider
+
+# INDICATORS_FIELD_PROVIDER = OutcomeIndicatorsFieldProvider
+INDICATORS_FIELD_PROVIDER = TabbedOutcomeIndicatorsFieldProvider
 
 FrameworkValue = str | dict | int | None
 
@@ -181,7 +183,8 @@ class FrameworkRouter:
         indicators_stage, indicators_url_name, success_url = FrameworkRouter._prepare_outcome_stage(
             outcome_copy, "indicators", outcome_key, all_url_names, parent_map
         )
-        provider: FieldProvider = OutcomeIndicatorsFieldProvider(indicators_stage)
+        # Once we settle on a design we can just use the desired field provider
+        provider: FieldProvider = INDICATORS_FIELD_PROVIDER(indicators_stage)
         indicators_form = create_form(provider)
         indicators_stage, _ = FrameworkRouter._create_view_and_url(
             indicators_stage, "indicators", success_url, parent_map, indicators_url_name, form_class=indicators_form
