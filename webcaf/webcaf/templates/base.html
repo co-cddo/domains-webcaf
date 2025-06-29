@@ -141,6 +141,13 @@
     {% endgds_footer %}
   {% endblock %}
 
+  <script type="module">
+    import { initAll } from "{% static 'govuk-frontend-5.0.0.min.js' %}";
+    document.addEventListener('DOMContentLoaded', function() {
+      initAll();
+    });
+  </script>
+
   {% block extra_script %}
   {% endblock %}
 
