@@ -1,7 +1,5 @@
-import copy
-
 import yaml
-from django.urls import path
+from django.urls import NoReverseMatch, path, reverse_lazy
 from django.utils.text import slugify
 
 from webcaf import urls
@@ -41,16 +39,35 @@ class FrameworkRouter:
             return exit_url
 
     @staticmethod
-    def _create_view_and_url(item: dict, item_type: str, success_url_name: str, form_class=None) -> tuple[dict, str]:
+    def _build_breadcrumbs(url_name, parent_map):
+        breadcrumbs = []
+        current = url_name
+        while current in parent_map:
+            parent = parent_map[current]["parent"]
+            text = parent_map[current]["text"]
+            try:
+                url = reverse_lazy(current)
+            except NoReverseMatch:
+                url = "#"
+            breadcrumbs.insert(0, {"url": url, "text": text})
+            current = parent
+        if current == "root":
+            breadcrumbs.insert(0, {"url": "#", "text": "Root"})
+        return breadcrumbs
+
+    @staticmethod
+    def _create_view_and_url(
+        item: dict, item_type: str, success_url_name: str, parent_map, url_name, form_class=None
+    ) -> tuple[dict, str]:
         """
         Takes an element from the CAF, the url for the next page in the route and a form class
         to create a view class and add a path for the view to Django's urlpatterns.
         """
         url_path = slugify(f"{item['code']}-{item['title']}")
-        url_name = f"{item_type}_{item['id']}"
         extra_context = {
             "title": item.get("title"),
             "description": item.get("description"),
+            "breadcrumbs": FrameworkRouter._build_breadcrumbs(url_name, parent_map),
         }
         if item_type in ["objective", "principle"]:
             template_name = "title.html"
@@ -75,29 +92,39 @@ class FrameworkRouter:
                 extra_context=extra_context,
             )
             urls.urlpatterns.append(path(f"{url_path}/{item_type}/", item["view_class"].as_view(), name=url_name))
-
         return item, url_name
 
     @staticmethod
-    def _build_url_names(framework: dict) -> list[str]:
+    def _build_url_names(framework: dict):
         """
         Each page in the route has a form button that points to the next page. This means we need the name
         of the next url in the sequence each time we generate a view class and form class. This builds a
         list of all the url names for this purpose.
         """
         all_url_names = []
+        parent_map = {}
         for obj_key, objective in framework.get("objectives", {}).items():
             obj_url_name = f"objective_{obj_key}"
             all_url_names.append(obj_url_name)
+            parent_map[obj_url_name] = {"parent": "root", "text": objective.get("title", obj_key)}
             for principle_key, principle in objective.get("principles", {}).items():
                 principle_url_name = f"principle_{principle_key}"
                 all_url_names.append(principle_url_name)
-                for outcome_key, _ in principle.get("outcomes", {}).items():
+                parent_map[principle_url_name] = {"parent": obj_url_name, "text": principle.get("title", principle_key)}
+                for outcome_key, outcome in principle.get("outcomes", {}).items():
                     indicators_url_name = f"indicators_{outcome_key}"
                     outcome_url_name = f"confirmation_{outcome_key}"
                     all_url_names.append(indicators_url_name)
                     all_url_names.append(outcome_url_name)
-        return all_url_names
+                    parent_map[indicators_url_name] = {
+                        "parent": principle_url_name,
+                        "text": outcome.get("title", outcome_key),
+                    }
+                    parent_map[outcome_url_name] = {
+                        "parent": principle_url_name,
+                        "text": outcome.get("title", outcome_key),
+                    }
+        return all_url_names, parent_map
 
     @staticmethod
     def _prepare_outcome_stage(
@@ -105,6 +132,7 @@ class FrameworkRouter:
         outcome_stage: str,
         outcome_key: str,
         all_url_names: list[str],
+        parent_map: dict,
         # Need to change this to a better default value
         exit_url: str = "#",
     ) -> tuple[dict, str, str]:
@@ -126,7 +154,13 @@ class FrameworkRouter:
 
     @staticmethod
     def _process_outcome(
-        outcome_key: str, outcome: dict, principle_key: str, obj_key: str, all_url_names: list[str], exit_url: str
+        outcome_key: str,
+        outcome: dict,
+        principle_key: str,
+        obj_key: str,
+        all_url_names: list[str],
+        parent_map: dict,
+        exit_url: str,
     ) -> list[dict]:
         """
         Processes a 'outcome' dictionary from the CAF. Each outcome results in two pages in the route, one
@@ -144,29 +178,29 @@ class FrameworkRouter:
                 "objective_id": obj_key,
             }
         )
-        indicators_stage, _, success_url = FrameworkRouter._prepare_outcome_stage(
-            outcome_copy, "indicators", outcome_key, all_url_names
+        indicators_stage, indicators_url_name, success_url = FrameworkRouter._prepare_outcome_stage(
+            outcome_copy, "indicators", outcome_key, all_url_names, parent_map
         )
         provider: FieldProvider = OutcomeIndicatorsFieldProvider(indicators_stage)
         indicators_form = create_form(provider)
         indicators_stage, _ = FrameworkRouter._create_view_and_url(
-            indicators_stage, "indicators", success_url, form_class=indicators_form
+            indicators_stage, "indicators", success_url, parent_map, indicators_url_name, form_class=indicators_form
         )
         items.append(indicators_stage)
-        confirmation_stage, _, success_url = FrameworkRouter._prepare_outcome_stage(
-            outcome_copy, "confirmation", outcome_key, all_url_names, exit_url
+        confirmation_stage, confirmation_url_name, success_url = FrameworkRouter._prepare_outcome_stage(
+            outcome_copy, "confirmation", outcome_key, all_url_names, parent_map, exit_url
         )
         provider = OutcomeConfirmationFieldProvider(confirmation_stage)
         outcome_form = create_form(provider)
         confirmation_stage, _ = FrameworkRouter._create_view_and_url(
-            confirmation_stage, "confirmation", success_url, form_class=outcome_form
+            confirmation_stage, "confirmation", success_url, parent_map, confirmation_url_name, form_class=outcome_form
         )
         items.append(confirmation_stage)
         return items
 
     @staticmethod
     def _process_principle(
-        principle_key: str, principle: dict, obj_key: str, all_url_names: list[str], exit_url: str
+        principle_key: str, principle: dict, obj_key: str, all_url_names: list[str], parent_map: dict, exit_url: str
     ) -> tuple[dict, list[dict]]:
         """
         Processes a 'principle' dictionary from the CAF. These are much simpler than outcomes.
@@ -184,16 +218,18 @@ class FrameworkRouter:
             del principle_copy["outcomes"]
         current_index = all_url_names.index(f"principle_{principle_key}")
         success_url = FrameworkRouter._get_success_url(current_index, all_url_names, exit_url)
-        principle_copy, _ = FrameworkRouter._create_view_and_url(principle_copy, "principle", success_url)
+        principle_copy, _ = FrameworkRouter._create_view_and_url(
+            principle_copy, "principle", success_url, parent_map, f"principle_{principle_key}"
+        )
         for outcome_key, outcome in principle.get("outcomes", {}).items():
             outcome_items = FrameworkRouter._process_outcome(
-                outcome_key, outcome, principle_key, obj_key, all_url_names, exit_url
+                outcome_key, outcome, principle_key, obj_key, all_url_names, parent_map, exit_url
             )
             items.extend(outcome_items)
         return principle_copy, items
 
     @staticmethod
-    def _create_route(framework: dict, exit_url: str = "index") -> list[dict[str, FrameworkValue]]:
+    def _create_route(framework: dict, exit_url: str = "index") -> None:
         """
         Takes a dictionary representing the CAF framework, or a subset of it, and creates a linear
         route through the web application. This is done by creating a view class and form class for
@@ -202,10 +238,7 @@ class FrameworkRouter:
         This directly handles the objectives elements and calls other methods to deal with the
         principles and outcomes.
         """
-        # There are currenltly no protections against this being called more than once, which would lead
-        # to pages displaying in the wrong order if called with different parameters
-        flattened = []
-        all_url_names = FrameworkRouter._build_url_names(framework)
+        all_url_names, parent_map = FrameworkRouter._build_url_names(framework)
         for i, obj_key in enumerate(framework.get("objectives", {}).items()):
             obj_key, objective = obj_key
             obj_copy = objective.copy()
@@ -214,15 +247,13 @@ class FrameworkRouter:
                 del obj_copy["principles"]
             current_index = all_url_names.index(f"objective_{obj_key}")
             success_url = FrameworkRouter._get_success_url(current_index, all_url_names, exit_url)
-            obj_copy, _ = FrameworkRouter._create_view_and_url(obj_copy, "objective", success_url)
-            flattened.append(obj_copy)
+            obj_copy, _ = FrameworkRouter._create_view_and_url(
+                obj_copy, "objective", success_url, parent_map, f"objective_{obj_key}"
+            )
             for principle_key, principle in objective.get("principles", {}).items():
-                principle_copy, outcome_items = FrameworkRouter._process_principle(
-                    principle_key, principle, obj_key, all_url_names, exit_url
+                FrameworkRouter._process_principle(
+                    principle_key, principle, obj_key, all_url_names, parent_map, exit_url
                 )
-                flattened.append(principle_copy)
-                flattened.extend(outcome_items)
-        return flattened
 
     def __init__(self, framework_path) -> None:
         self.file_path = framework_path
@@ -233,40 +264,5 @@ class FrameworkRouter:
         with open(self.file_path, "r") as file:
             self.framework = yaml.safe_load(file)
 
-    def _filter_framework_by_scope(self, scope: str) -> dict[str, FrameworkValue]:
-        """
-        This filters the framework according to the scope which is either 'organisation' or 'system'. It
-        removes outcomes which do not match the scope argument, then any principles which do not have
-        any outcomes, then any objectives which do not have any principles.
-        """
-        filtered_framework = copy.deepcopy(self.framework)
-        principles_to_keep = set()
-        objectives_to_keep = set()
-        for obj_key, objective in list(filtered_framework.get("objectives", {}).items()):
-            for principle_key, principle in list(objective.get("principles", {}).items()):
-                has_outcomes = False
-                for outcome_key, outcome in list(principle.get("outcomes", {}).items()):
-                    if outcome.get("scope") != scope:
-                        del principle["outcomes"][outcome_key]
-                    else:
-                        has_outcomes = True
-                        principles_to_keep.add(principle_key)
-                        objectives_to_keep.add(obj_key)
-                if not has_outcomes:
-                    del objective["principles"][principle_key]
-            if obj_key not in objectives_to_keep:
-                del filtered_framework["objectives"][obj_key]
-        return filtered_framework
-
-    # This is currently only used in the tests but it's useful since it doesn't interfere
-    # with the ordering of the pages
-    def all_route(self) -> list[dict[str, FrameworkValue]]:
-        return self._create_route(self.framework)
-
-    def org_route(self) -> list[dict[str, FrameworkValue]]:
-        filtered = self._filter_framework_by_scope("organisation")
-        return self._create_route(filtered)
-
-    def system_route(self) -> list[dict[str, FrameworkValue]]:
-        filtered = self._filter_framework_by_scope("system")
-        return self._create_route(filtered)
+    def all_route(self) -> None:
+        self._create_route(self.framework)
