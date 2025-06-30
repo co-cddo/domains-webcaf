@@ -33,24 +33,57 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 14)
+        expected_field_names = [
+            "not-achieved_A1.a.1",
+            "not-achieved_A1.a.2",
+            "not-achieved_A1.a.3",
+            "not-achieved_A1.a.4",
+            "not-achieved_comment",
+            "not-achieved_comment_details",
+            "not-achieved_none_of_the_above",
+            "partially-achieved_A1.a.5",
+            "partially-achieved_A1.a.6",
+            "partially-achieved_A1.a.7",
+            "partially-achieved_A1.a.8",
+            "partially-achieved_comment",
+            "partially-achieved_comment_details",
+            "partially-achieved_none_of_the_above",
+            "achieved_A1.a.9",
+            "achieved_A1.a.10",
+            "achieved_A1.a.11",
+            "achieved_A1.a.12",
+            "achieved_A1.a.13",
+            "achieved_A1.a.14",
+            "achieved_comment",
+            "achieved_comment_details",
+            "achieved_none_of_the_above",
+        ]
+        self.assertEqual([f["name"] for f in fields], expected_field_names)
         for field in fields:
             self.assertIn("name", field)
             self.assertIn("label", field)
             self.assertIn("type", field)
             self.assertIn("required", field)
-            self.assertEqual(field["type"], "boolean")
+            if field["type"] == "text":
+                self.assertIn("widget_attrs", field)
+                self.assertEqual(field["widget_attrs"]["class"], "govuk-textarea")
+                self.assertEqual(field["widget_attrs"]["rows"], 3)
+                self.assertEqual(field["widget_attrs"]["maxlength"], 500)
+            else:
+                self.assertNotIn("widget_attrs", field)
             self.assertFalse(field["required"])
-        field_names = [field["name"] for field in fields]
-        self.assertIn("not-achieved_A1.a.1", field_names)
-        self.assertIn("not-achieved_A1.a.4", field_names)
-        self.assertIn("partially-achieved_A1.a.5", field_names)
-        self.assertIn("partially-achieved_A1.a.8", field_names)
-        self.assertIn("achieved_A1.a.9", field_names)
-        self.assertIn("achieved_A1.a.14", field_names)
         field_labels = {field["name"]: field["label"] for field in fields}
         self.assertEqual(field_labels["not-achieved_A1.a.1"], "Security operation data is not collected.")
         self.assertEqual(field_labels["achieved_A1.a.14"], "New systems are evaluated as monitoring data sources.")
+        self.assertEqual(field_labels["not-achieved_comment"], "Make a comment about a statement")
+        self.assertEqual(field_labels["not-achieved_comment_details"], "Provide your comment")
+        self.assertEqual(field_labels["not-achieved_none_of_the_above"], "None of the above")
+        self.assertEqual(field_labels["partially-achieved_comment"], "Make a comment about a statement")
+        self.assertEqual(field_labels["partially-achieved_comment_details"], "Provide your comment")
+        self.assertEqual(field_labels["partially-achieved_none_of_the_above"], "None of the above")
+        self.assertEqual(field_labels["achieved_comment"], "Make a comment about a statement")
+        self.assertEqual(field_labels["achieved_comment_details"], "Provide your comment")
+        self.assertEqual(field_labels["achieved_none_of_the_above"], "None of the above")
 
     def test_indicators_provider_layout_structure(self):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
@@ -63,24 +96,44 @@ class FormProvidersTestCase(TestCase):
             layout["header"]["description"],
             "Monitoring data sources allow for timely identification of security events.",
         )
-        self.assertEqual(len(layout["groups"]), 3)
-        group_titles = [group["title"] for group in layout["groups"]]
-        self.assertIn("Not Achieved", group_titles)
-        self.assertIn("Partially Achieved", group_titles)
-        self.assertIn("Achieved", group_titles)
-        for group in layout["groups"]:
-            if group["title"] == "Not Achieved":
-                self.assertEqual(len(group["fields"]), 4)
-                self.assertIn("not-achieved_A1.a.1", group["fields"])
-                self.assertIn("not-achieved_A1.a.4", group["fields"])
-            elif group["title"] == "Partially Achieved":
-                self.assertEqual(len(group["fields"]), 4)
-                self.assertIn("partially-achieved_A1.a.5", group["fields"])
-                self.assertIn("partially-achieved_A1.a.8", group["fields"])
-            elif group["title"] == "Achieved":
-                self.assertEqual(len(group["fields"]), 6)
-                self.assertIn("achieved_A1.a.9", group["fields"])
-                self.assertIn("achieved_A1.a.14", group["fields"])
+        expected_groups = [
+            {
+                "title": "Not Achieved",
+                "fields": [
+                    "not-achieved_A1.a.1",
+                    "not-achieved_A1.a.2",
+                    "not-achieved_A1.a.3",
+                    "not-achieved_A1.a.4",
+                    "not-achieved_comment",
+                    "not-achieved_none_of_the_above",
+                ],
+            },
+            {
+                "title": "Partially Achieved",
+                "fields": [
+                    "partially-achieved_A1.a.5",
+                    "partially-achieved_A1.a.6",
+                    "partially-achieved_A1.a.7",
+                    "partially-achieved_A1.a.8",
+                    "partially-achieved_comment",
+                    "partially-achieved_none_of_the_above",
+                ],
+            },
+            {
+                "title": "Achieved",
+                "fields": [
+                    "achieved_A1.a.9",
+                    "achieved_A1.a.10",
+                    "achieved_A1.a.11",
+                    "achieved_A1.a.12",
+                    "achieved_A1.a.13",
+                    "achieved_A1.a.14",
+                    "achieved_comment",
+                    "achieved_none_of_the_above",
+                ],
+            },
+        ]
+        self.assertEqual(layout["groups"], expected_groups)
 
     def test_outcome_provider_metadata(self):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)

@@ -50,13 +50,27 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "required": False,
                         }
                     )
-                # Add optional checkboxes for each group
+                comment_checkbox_name = f"{level}_comment"
+                comment_textarea_name = f"{level}_comment_details"
                 fields.append(
                     {
-                        "name": f"{level}_comment",
+                        "name": comment_checkbox_name,
                         "label": "Make a comment about a statement",
                         "type": "boolean",
                         "required": False,
+                    }
+                )
+                fields.append(
+                    {
+                        "name": comment_textarea_name,
+                        "label": "Provide your comment",
+                        "type": "text",
+                        "required": False,
+                        "widget_attrs": {
+                            "rows": 3,
+                            "class": "govuk-textarea",
+                            "maxlength": 500,
+                        },
                     }
                 )
                 fields.append(
@@ -86,7 +100,6 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         ]:
             if level in self.outcome_data.get("indicators", {}) and self.outcome_data["indicators"][level]:
                 field_names = [f"{level}_{id}" for id in self.outcome_data["indicators"][level].keys()]
-                # Add the new fields to the group
                 field_names.append(f"{level}_comment")
                 field_names.append(f"{level}_none_of_the_above")
 
@@ -116,12 +129,11 @@ class TabbedOutcomeIndicatorsFieldProvider(OutcomeIndicatorsFieldProvider):
                 "title": f"{self.outcome_data.get('code', '')} {self.outcome_data.get('title', '')}",
                 "description": self.outcome_data.get("description", ""),
             },
-            "use_tabs": True,  # Flag to indicate that this layout uses tabs
+            "use_tabs": True,
             "tabs": [],
             "button_text": "Save and Continue",
         }
 
-        # Define tabs for each achievement level
         for level, display_name in [
             ("not-achieved", "Not Achieved"),
             ("partially-achieved", "Partially Achieved"),
