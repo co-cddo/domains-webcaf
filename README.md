@@ -18,8 +18,25 @@ What it does do is demonstrate that a user flow can be generated using GOV.UK co
 
 ## Developing
 
+Make sure the python version you use is the same as in the [Dockerfile](Dockerfile)
+
+Create a file called `.env` containing the following line:
+
 ```
-pip install poetry
+DATABASE_URL=postgres://localhost/webcaf
+```
+
+Then run in a terminal
+
+``` shell
+pip install poetry pre-commit
 poetry install
 pre-commit install
+poetry run dotenv run ./manage.py migrate
+```
+
+and to run the local server:
+
+``` shell
+poetry run dotenv run ./manage.py runserver
 ```
