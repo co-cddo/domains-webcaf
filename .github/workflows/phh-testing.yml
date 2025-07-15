@@ -16,15 +16,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: Install pyenv and Python
+        run: |
+            curl https://pyenv.run | bash && \
+            export PYENV_ROOT="$HOME/.pyenv" && \
+            [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH" && \
+            eval "$(pyenv init -)" && \
+            for repo in ~/.pyenv/plugins/*/ ~/.pyenv/; do [[ -d "$repo/.git" ]] && (cd "$repo" && git remote set-head origin -a); done && \
+            pyenv update && \
+            pyenv install 3.12 && \
+            pyenv global 3.12 && \
+            pyenv rehash
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
+          node-version: "22"
 
       - name: Install dependencies
         run: |
