@@ -1,3 +1,5 @@
+import logging
+
 import yaml
 from django.urls import NoReverseMatch, path, reverse_lazy
 from django.utils.text import slugify
@@ -26,6 +28,8 @@ class FrameworkRouter:
     element in the CAF then updating Django's url patterns with paths to the views. Each form is provided the
     success_url for the next page in the route.
     """
+
+    logger = logging.getLogger(__name__)
 
     @staticmethod
     def _get_success_url(current_index: int, all_url_names: list[str], exit_url: str) -> str:
@@ -79,6 +83,7 @@ class FrameworkRouter:
                 class_id=item["id"],
                 extra_context=extra_context,
             )
+            FrameworkRouter.logger.info(f"Adding path ({url_name}){url_path}/{item_type}/ -> {item} ")
             urls.urlpatterns.append(path(f"{url_path}/", item["view_class"].as_view(), name=url_name))
         else:
             template_name = "outcome.html"
@@ -91,6 +96,7 @@ class FrameworkRouter:
                 class_id=item["id"],
                 extra_context=extra_context,
             )
+            FrameworkRouter.logger.info(f"Adding path ({url_name}){url_path}/{item_type}/ -> {item} ")
             urls.urlpatterns.append(path(f"{url_path}/{item_type}/", item["view_class"].as_view(), name=url_name))
         return item, url_name
 
