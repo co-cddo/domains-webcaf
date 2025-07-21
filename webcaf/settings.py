@@ -14,6 +14,7 @@ import os
 import uuid
 from pathlib import Path
 
+from csp.constants import NONCE, SELF
 from environ import Env
 
 env = Env(
@@ -38,7 +39,6 @@ if DEBUG:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = str(uuid.uuid4()) if DEBUG else env.str("SECRET_KEY", default="not_set")  # type: ignore
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -96,7 +96,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "webcaf.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -125,7 +124,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "webcaf", "static"),
 ]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-STATIC_URL = "/static/"
+STATIC_URL = "/assets/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Django Whitenoise Configuration
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [".map"]
@@ -137,24 +136,29 @@ MEDIA_URL = "/media/"
 # same origin as the HTML
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
-        "connect-src": "'self' https://*.google-analytics.com "
-        "https://*.analytics.google.com "
-        "https://*.googletagmanager.com",
-        "form-action": "'self'",
-        "frame-ancestors": "'self'",
-        "frame-src": "'self' https://www.googletagmanager.com",
-        "img-src": "'self' data:",
-        "script-src": "'self' 'sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' https://*.googletagmanager.com",  # pragma: allowlist secret
-        "style-src": "'self' 'sha256-Rq+Udb7G9s54kGQgXm9FNWjdD54j3K2pjH36tR6lliI='",  # pragma: allowlist secret
+        "connect-src": (
+            SELF,
+            "https://*.google-analytics.com",
+            "https://*.analytics.google.com",
+            "https://*.googletagmanager.com",
+        ),
+        "form-action": (SELF,),
+        "frame-ancestors": (SELF,),
+        "frame-src": (SELF, NONCE, "https://www.googletagmanager.com"),
+        "img-src": (SELF, NONCE, "data:"),
+        "script-src": (
+            SELF,
+            NONCE,
+            "sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=",  # pragma: allowlist secret
+            "https://*.googletagmanager.com",
+        ),
     }
 }
-
 
 # If we want to test CSP breaches we need to set a fake reporting URL, so the tests
 # check if it's been called.
 if "TEST_CSP" in os.environ:
     CSP_REPORT_URI = "/csp-report"  # The URI doesn't exist but is intercepted by the test suite
-
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["gds"]
 CRISPY_TEMPLATE_PACK = "gds"
@@ -177,7 +181,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -189,15 +192,39 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FRAMEWORK_PATH = os.path.join(BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "[%(asctime)s] [%(process)d:%(threadName)s] [%(levelname)s] [%(name)s] %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S %z",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "": {
+            "level": ("INFO" if not DEBUG else "DEBUG"),
+            "handlers": ["console"],
+            "propagate": True,
+        },
+    },
+}

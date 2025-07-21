@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import Any, Optional
 
@@ -6,6 +7,9 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView
 
 from .forms import ContinueForm
+from .views import ViewRegistry
+
+logger = logging.getLogger(__name__)
 
 
 def create_form_view(
@@ -34,5 +38,10 @@ def create_form_view(
     class_attrs["form_class"] = form_class if form_class else ContinueForm
     if form_class:
         class_attrs["form_class"] = form_class
-    FormViewClass = type(class_name, (FormView,), class_attrs)
+    # Implement the custom view that handles the form submissions if defined in the
+    # view registry.
+    parent_classes = (
+        (FormView,) if not ViewRegistry.get_view(class_name) else (ViewRegistry.get_view(class_name), FormView)
+    )
+    FormViewClass = type(class_name, parent_classes, class_attrs)
     return FormViewClass
