@@ -122,11 +122,18 @@
                             Guidance
                         </a>
                     </li>
-                    <li class="govuk-header__navigation-item">
-                        <a class="govuk-header__link" href="sign-in">
-                            My account
+                    <li class="govuk-header__navigation-item {% if request.path|slice:':-1' == '/my-account' or request.path == '/my-account' %} govuk-header__navigation-item--active {% endif %}">
+                        <a class="govuk-header__link" href="/my-account" {% if request.path|slice:":-1" == "/my-account" or request.path == "/my-account" %} aria-current="page" {% endif %}>
+                        My account
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
+                    <li class="govuk-header__navigation-item">
+                        <a class="govuk-header__link" href="{% url 'logout' %}">
+                            Logout
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
@@ -158,6 +165,17 @@
 
 {% block main %}
 <div class="govuk-width-container">
+    {% if breadcrumbs %}
+        <div class="govuk-breadcrumbs">
+            <ol class="govuk-breadcrumbs__list">
+                {% for crumb in breadcrumbs %}
+                <li class="govuk-breadcrumbs__list-item">
+                    <a class="govuk-breadcrumbs__link" href="{{ crumb.url }}">{{ crumb.text }}</a>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+    {% endif %}
     {% block beforeContent %}{% endblock %}
     <main class="govuk-main-wrapper" id="main-content" role="main">
         {% block content %}

@@ -3,11 +3,12 @@ import uuid
 from typing import Any, Optional
 
 from django import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 
 from .forms import ContinueForm
-from .views import ViewRegistry
+from .view_registry import ViewRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,12 @@ def create_form_view(
     # Implement the custom view that handles the form submissions if defined in the
     # view registry.
     parent_classes = (
-        (FormView,) if not ViewRegistry.get_view(class_name) else (ViewRegistry.get_view(class_name), FormView)
+        (
+            LoginRequiredMixin,
+            FormView,
+        )
+        if not ViewRegistry.get_view(class_name)
+        else (ViewRegistry.get_view(class_name), LoginRequiredMixin, FormView)
     )
     FormViewClass = type(class_name, parent_classes, class_attrs)
     return FormViewClass

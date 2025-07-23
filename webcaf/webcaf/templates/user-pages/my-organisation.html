@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">
+                My organisation details
+            </h2>
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">
+                        About the organisation
+                    </h2>
+                    <div class="govuk-summary-card__actions">
+                        <a class="govuk-link" href="#">Change details<span class="govuk-visually-hidden"> Update organisation details (About the organisation)</span></a>
+                    </div>
+                </div>
+
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {{ profile.organisation.name }}
+                                {% else %}
+                                    You don't have a profile yet. Please create one.
+                                {% endif %}
+                            </dd>
+
+                        </div>
+
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Type
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {{ profile.organisation.organisation_type|default:"-" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Parent organisation
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {% if profile.organisation.parent_organisation %}
+                                        {{ profile.organisation.parent_organisation.name }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+
+                    <h2 class="govuk-summary-card__title">
+                        Additional contact information
+                    </h2>
+                    <div class="govuk-summary-card__actions">
+                        <a class="govuk-link" href="#">Change details<span class="govuk-visually-hidden"> Update additional information details (Additional contact information)</span></a>
+                    </div>
+                </div>
+
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {{ profile.organisation.contact_name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Role
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {{ profile.organisation.contact_role }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Email address
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if profile %}
+                                    {{ profile.organisation.contact_email }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
