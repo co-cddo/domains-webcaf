@@ -22,6 +22,7 @@ RUN sed -i 's/\r$//' /app/manage.py  && \
 
 ENV SECRET_KEY=unneeded
 ENV DOMAIN_NAME=http://localhost:2010
+ENV LOCAL_SSO=False
 
 RUN  /app/manage.py collectstatic --no-input
 

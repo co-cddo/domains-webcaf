@@ -38,6 +38,7 @@ repos:
     -   id: mypy
         exclude: wsgi.py
         verbose: true
+        entry: .hooks/mypy-wrapper.sh
         args: [--pretty]
         additional_dependencies:
         -    types-six
@@ -53,3 +54,4 @@ repos:
         -    types-Markdown
         -    django-csp
         -    pyyaml
+        -    mozilla_django_oidc
