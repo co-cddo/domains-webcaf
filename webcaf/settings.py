@@ -237,7 +237,8 @@ LOGGING = {
     },
 }
 
-if env.str("LOCAL_SSO", None) is not None:
+local_sso_mode = env.str("LOCAL_SSO", "false")
+if local_sso_mode.lower() == "true":
     # DEX OIDC settings
     OIDC_RP_CLIENT_ID = "my-django-app"
     OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
