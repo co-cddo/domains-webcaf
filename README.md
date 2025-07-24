@@ -40,3 +40,13 @@ and to run the local server:
 ``` shell
 poetry run dotenv run ./manage.py runserver
 ```
+### SSO settings
+We use LOCAL_SSO environment variable to decide which SSO implementation should be used.
+If LOCAL_SSO is set to true, then the application will connect to the [DEX](https://dexidp.io/) instance
+deployed locally in the docker compose setup.
+
+This will have two users configured:
+ - a normal user called Alice, alice@example.gov.uk
+ - Admin user called Tin, admin@example.gov.uk
+
+Both the users have the same password set to 'password'

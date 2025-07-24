@@ -83,7 +83,6 @@ class FrameworkRouter:
                 class_id=item["id"],
                 extra_context=extra_context,
             )
-            FrameworkRouter.logger.info(f"Adding path ({url_name}){url_path}/{item_type}/ -> {item} ")
             urls.urlpatterns.append(path(f"{url_path}/", item["view_class"].as_view(), name=url_name))
         else:
             template_name = "outcome.html"
@@ -96,7 +95,6 @@ class FrameworkRouter:
                 class_id=item["id"],
                 extra_context=extra_context,
             )
-            FrameworkRouter.logger.info(f"Adding path ({url_name}){url_path}/{item_type}/ -> {item} ")
             urls.urlpatterns.append(path(f"{url_path}/{item_type}/", item["view_class"].as_view(), name=url_name))
         return item, url_name
 

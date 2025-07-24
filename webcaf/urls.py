@@ -15,11 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
-from webcaf.webcaf.views import Index
+from webcaf.webcaf.general_views import (
+    Index,
+    MyAccountView,
+    MyOrganisationView,
+    logout_view,
+)
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
+    path("my-account", MyAccountView.as_view(), name="my-account"),
+    path("my-organisation", MyOrganisationView.as_view(), name="my-organisation"),
+    path("logout/", logout_view, name="logout"),
     path("admin/", admin.site.urls),
+    path("oidc/", include("mozilla_django_oidc.urls")),
 ]

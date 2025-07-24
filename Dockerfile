@@ -22,8 +22,12 @@ RUN sed -i 's/\r$//' /app/manage.py  && \
 
 ENV SECRET_KEY=unneeded
 ENV DOMAIN_NAME=http://localhost:2010
+ENV LOCAL_SSO=False
 
-RUN  /app/manage.py collectstatic --no-input
+#Pass LOCAL_SSO=true for static file generation
+#but we keep the default value of False in the environment
+#so the caller can override it if needed
+RUN  LOCAL_SSO=true /app/manage.py collectstatic --no-input
 
 RUN mkdir /var/run/webcaf && \
     chown webcaf:webcaf /var/run/webcaf

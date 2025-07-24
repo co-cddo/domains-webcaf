@@ -1,0 +1,30 @@
+issuer: http://localhost:5556
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+staticClients:
+  - id: my-django-app
+    redirectURIs:
+      - 'http://localhost:8010/oidc/callback/'
+    name: "My Django App"
+    secret: my-django-secret #    pragma: allowlist secret
+enablePasswordDB: true
+staticPasswords:
+  - email: "alice@example.gov.uk"
+    # bcrypt hash for password "password"
+    hash: "$2b$12$O0ojmC7GBIDohHuBFlUQQeEBZSxWEPCCayq43ACYbTqQ8fqrNtuEO"
+    username: "alice"
+    given_name: Alice
+    family_name: Wonder Land
+    userID: "1"
+  - email: "admin@example.gov.uk"
+    # bcrypt hash for password "password"
+    hash: "$2b$12$O0ojmC7GBIDohHuBFlUQQeEBZSxWEPCCayq43ACYbTqQ8fqrNtuEO"
+    given_name: Tin
+    family_name: Man
+    username: "admin"
+    userID: "2"

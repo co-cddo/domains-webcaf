@@ -24,6 +24,7 @@ services:
     environment:
       <<: *common-application-variables
       PYTHONBREAKPOINT: "ipdb.set_trace"
+      LOCAL_SSO: "True"
     volumes:
       - .:/app
       - webcaf_home:/home/webcaf
@@ -32,6 +33,8 @@ services:
         condition: service_healthy
       init:
         condition: service_completed_successfully
+      oauth:
+        condition: service_started
 
   postgres:
     platform: linux/amd64
@@ -50,6 +53,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  oauth:
+    image: ghcr.io/dexidp/dex:latest
+    container_name: dex
+    ports:
+      - "5556:5556"  # Dex HTTP server
+    volumes:
+      - ./oauth-stub:/etc/dex
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
 
   init:
     <<: *api-base

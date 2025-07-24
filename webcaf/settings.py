@@ -40,9 +40,6 @@ if DEBUG:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = str(uuid.uuid4()) if DEBUG else env.str("SECRET_KEY", default="not_set")  # type: ignore
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -61,7 +58,13 @@ INSTALLED_APPS = [
     "csp",
     "crispy_forms",
     "crispy_forms_gds",
+    "mozilla_django_oidc",
 ]
+
+AUTHENTICATION_BACKENDS = (
+    "webcaf.auth.OIDCBackend",
+    "django.contrib.auth.backends.ModelBackend",
+)
 
 MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
@@ -73,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "webcaf.auth.LoginRequiredMiddleware",
 ]
 
 ROOT_URLCONF = "webcaf.urls"
@@ -152,6 +156,10 @@ CONTENT_SECURITY_POLICY = {
             "sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=",  # pragma: allowlist secret
             "https://*.googletagmanager.com",
         ),
+        "style-src": (
+            SELF,
+            NONCE,
+        ),
     }
 }
 
@@ -228,3 +236,30 @@ LOGGING = {
         },
     },
 }
+
+local_sso_mode = env.str("LOCAL_SSO", "false")
+if local_sso_mode.lower() == "true":
+    # DEX OIDC settings
+    OIDC_RP_CLIENT_ID = "my-django-app"
+    OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
+    OIDC_OP_AUTHORIZATION_ENDPOINT = "http://localhost:5556/auth"
+    OIDC_OP_TOKEN_ENDPOINT = "http://dex:5556/token"
+    OIDC_OP_USER_ENDPOINT = "http://dex:5556/userinfo"
+    OIDC_OP_JWKS_ENDPOINT = "http://dex:5556/keys"
+    OIDC_OP_LOGOUT_ENDPOINT = "https://dex:5556/logout"
+else:
+    OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
+    OIDC_RP_CLIENT_SECRET = env.str("OIDC_RP_CLIENT_SECRET")  # pragma: allowlist secret
+    OIDC_OP_AUTHORIZATION_ENDPOINT = env.str("OIDC_OP_AUTHORIZATION_ENDPOINT")
+    OIDC_OP_TOKEN_ENDPOINT = env.str("OIDC_OP_TOKEN_ENDPOINT")
+    OIDC_OP_USER_ENDPOINT = env.str("OIDC_OP_USER_ENDPOINT")
+    OIDC_OP_JWKS_ENDPOINT = env.str("OIDC_OP_JWKS_ENDPOINT")
+    LOGOUT_REDIRECT_URL = env.str("LOGOUT_REDIRECT_URL")
+
+OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
+OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")
+if DEBUG:
+    OIDC_VERIFY_SSL = False
+
+ALLOW_LOGOUT_GET_METHOD = True
+LOGIN_REDIRECT_URL = "/my-account"
