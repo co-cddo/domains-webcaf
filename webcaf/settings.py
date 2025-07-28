@@ -39,7 +39,7 @@ if DEBUG:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = str(uuid.uuid4()) if DEBUG else env.str("SECRET_KEY", default="not_set")  # type: ignore
-
+APPEND_SLASH = True
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -239,14 +239,15 @@ LOGGING = {
 
 local_sso_mode = env.str("LOCAL_SSO", "false")
 if local_sso_mode.lower() == "true":
+    LOCAL_SSO_HOST = env.str("LOCAL_SSO_HOST", "dex")
     # DEX OIDC settings
     OIDC_RP_CLIENT_ID = "my-django-app"
     OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
-    OIDC_OP_AUTHORIZATION_ENDPOINT = "http://localhost:5556/auth"
-    OIDC_OP_TOKEN_ENDPOINT = "http://dex:5556/token"
-    OIDC_OP_USER_ENDPOINT = "http://dex:5556/userinfo"
-    OIDC_OP_JWKS_ENDPOINT = "http://dex:5556/keys"
-    OIDC_OP_LOGOUT_ENDPOINT = "https://dex:5556/logout"
+    OIDC_OP_AUTHORIZATION_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/auth"
+    OIDC_OP_TOKEN_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/token"
+    OIDC_OP_USER_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/userinfo"
+    OIDC_OP_JWKS_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/keys"
+    LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 else:
     OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
     OIDC_RP_CLIENT_SECRET = env.str("OIDC_RP_CLIENT_SECRET")  # pragma: allowlist secret
@@ -263,3 +264,10 @@ if DEBUG:
 
 ALLOW_LOGOUT_GET_METHOD = True
 LOGIN_REDIRECT_URL = "/my-account"
+
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
+    CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('DOMAIN_NAME', 'localhost')}"]
+    # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
+    SESSION_COOKIE_SECURE = True

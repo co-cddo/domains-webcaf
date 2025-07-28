@@ -1,3 +1,13 @@
 span.govuk-header__logotype-text {
     font-size: 26px;
 }
+
+.govuk-template--rebranded .govuk-header__content {
+    margin-bottom: 0;
+    padding-top: 16px;
+}
+
+.govuk-template--rebranded .govuk-header__navigation {
+    margin-bottom: 0;
+    padding: 0;
+}

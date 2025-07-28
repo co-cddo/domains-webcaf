@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from webcaf.webcaf.general_views import (
+    ChangeOrganisationView,
     Index,
     MyAccountView,
     MyOrganisationView,
@@ -26,8 +27,11 @@ from webcaf.webcaf.general_views import (
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
-    path("my-account", MyAccountView.as_view(), name="my-account"),
-    path("my-organisation", MyOrganisationView.as_view(), name="my-organisation"),
+    path("my-account/", MyAccountView.as_view(), name="my-account"),
+    path("my-organisation/<int:id>/<str:mode>", MyOrganisationView.as_view(), name="edit-my-organisation"),
+    path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
+    path("view-organisations/", ChangeOrganisationView.as_view(), name="view-organisations"),
+    path("change-organisation/", ChangeOrganisationView.as_view(), name="change-organisation"),
     path("logout/", logout_view, name="logout"),
     path("admin/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),

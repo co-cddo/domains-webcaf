@@ -2,45 +2,76 @@
 {% load govuk_frontend_django %}
 {% block title %}My account - {{ user.first_name }} {% endblock %}
 {% block content %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
+                 data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                        Important
+                    </h2>
+                </div>
+                <div class="govuk-notification-banner__content">
 
-        <form class="form" action="start-draft-assessment" method="post">
-            <h2 class="govuk-heading-l">
-                Year 3 of GovAssure (2025/26) applications
+                    <p class="govuk-notification-banner__heading">
+                        Before starting a new CAF self-assessment, you must have a completed and signed off scoping
+                        document
+                        for stage 1 and 2 of the GovAssure process.
+                    </p>
+
+                </div>
+            </div>
+            <h2 class="govuk-heading-l" title="user email {{ current_profile.user.email }}">
+                My {{ current_profile.role }} account
+            </h2>
+            <div><p class="govuk-hint">On this page you can view any assessments you have already submitted, continue
+                any draft assessments and start a new assessment.</p></div>
+            <form action="/start-draft-assessment/" method="post">
+                <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                    Start a draft assessment
+                </button>
+            </form>
+            <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
+                Draft assessments
+            </h3>
+            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
+            <p>
+                <Br>
+            <h3 class="govuk-heading-m">
+                Submitted assessments
+            </h3>
+
+
+            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
+            <p>
+
+        </div>
+
+        <div class="govuk-grid-column-one-third">
+            <h2 class="govuk-body" id="subsection-title">
+                Logged in as {% if profile_count > 1 %}(
+                <a href="{% url 'view-organisations' %}" class="govuk-link govuk-link--no-visited-state">
+                    change
+                </a>){% endif %}
+                <span class="govuk-heading-m">
+                    {{ current_profile.organisation.name }}
+                </span>
             </h2>
 
+            <nav role="navigation" aria-labelledby="subsection-title">
+                <ul class="govuk-list">
+                    <li>
+                    </li>
+                    <li>
+                        <a href="{% url 'edit-my-organisation' id=current_profile.id mode='type' %}"
+                           class="govuk-link govuk-link--no-visited-state">
+                            Update your organisation
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-            <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Start a draft assessment
-            </button>
 
-        </form>
-
-
+        </div>
     </div>
-
-    <div class="govuk-grid-column-one-third">
-        <h2 class="govuk-body" id="subsection-title">
-            Logged in as
-            <span class="govuk-heading-m">
-          {{ user.first_name }} {{ user.last_name }}
-        </span>
-        </h2>
-
-        <nav role="navigation" aria-labelledby="subsection-title">
-            <ul class="govuk-list">
-                <li>
-                </li>
-                <li>
-                    <a href="my-organisation" class="govuk-link govuk-link--no-visited-state">
-                        Your organisation details
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-
-    </div>
-</div>
 {% endblock %}
