@@ -36,15 +36,11 @@
             </h3>
             <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
             <p>
-                <Br>
             <h3 class="govuk-heading-m">
                 Submitted assessments
             </h3>
-
-
             <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
             <p>
-
         </div>
 
         <div class="govuk-grid-column-one-third">
@@ -61,9 +57,7 @@
             <nav role="navigation" aria-labelledby="subsection-title">
                 <ul class="govuk-list">
                     <li>
-                    </li>
-                    <li>
-                        <a href="{% url 'edit-my-organisation' id=current_profile.id mode='type' %}"
+                        <a href="{% url 'my-organisation' id=current_profile.id %}"
                            class="govuk-link govuk-link--no-visited-state">
                             Update your organisation
                         </a>

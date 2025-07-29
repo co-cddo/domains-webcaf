@@ -20,12 +20,13 @@
                         <div class="govuk-radios" data-module="govuk-radios">
                             {% for option in profile.organisation.ORGANISATION_TYPE_CHOICES %}
                                 <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="orgType{{ forloop.counter }}" name="organisation_type"
+                                    <input class="govuk-radios__input" id="orgType{{ forloop.counter }}"
+                                           name="organisation_type"
                                            type="radio"
                                            {% if option.0 == profile.organisation.organisation_type %}checked{% endif %}
                                            value="{{ option.0 }}">
                                     <label class="govuk-label govuk-radios__label" for="orgType">
-                                        {{ option.0 }}
+                                        {{ option.1 }}
                                     </label>
                                 </div>
                             {% endfor %}
@@ -40,7 +41,6 @@
                     </span>
                 </div>
             </form>
-
         </div>
     </div>
 

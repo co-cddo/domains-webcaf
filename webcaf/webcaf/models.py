@@ -5,20 +5,20 @@ from django.db import models
 class Organisation(models.Model):
     ORGANISATION_TYPE_CHOICES = sorted(
         [
-            ("Ad-hoc advisory group", "Ad-hoc advisory group"),
-            ("Advisory non-departmental public body", "Advisory non-departmental public body"),
-            ("Civil service", "Civil service"),
-            ("Executive agency", "Executive agency"),
-            ("Executive non-departmental public body", "Executive non-departmental public body"),
-            ("Executive office", "Executive office"),
-            ("Independent monitoring body", "Independent monitoring body"),
-            ("Ministerial department", "Ministerial department"),
-            ("Non-ministerial department", "Non-ministerial department"),
-            ("Public corporation", "Public corporation"),
-            ("Special health authority", "Special health authority"),
-            ("Tribunal", "Tribunal"),
+            ("ad-hoc-advisory-group", "Ad-hoc advisory group"),
+            ("advisory-non-departmental-public-body", "Advisory non-departmental public body"),
+            ("civil-service", "Civil service"),
+            ("executive-agency", "Executive agency"),
+            ("executive-non-departmental-public-body", "Executive non-departmental public body"),
+            ("executive-office", "executive office"),
+            ("independent-monitoring-body", "Independent monitoring body"),
+            ("ministerial-department", "Ministerial department"),
+            ("non-ministerial-department", "Non-ministerial department"),
+            ("public-corporation", "Public corporation"),
+            ("special-health-authority", "Special health authority"),
+            ("tribunal", "Tribunal"),
         ]
-    ) + [("Other", "Other")]
+    ) + [("other", "Other")]
     name = models.CharField(max_length=255, unique=True)
     organisation_type = models.CharField(
         max_length=255, null=True, blank=True, choices=ORGANISATION_TYPE_CHOICES, default=None
@@ -45,10 +45,10 @@ class System(models.Model):
 
 class Assessment(models.Model):
     STATUS_CHOICES = [
-        ("Draft", "Draft"),
-        ("Submitted", "Submitted"),
-        ("Completed", "Completed"),
-        ("Cancelled", "Cancelled"),
+        ("draft", "Draft"),
+        ("submitted", "Submitted"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
     ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     name = models.CharField(max_length=255)
@@ -62,9 +62,9 @@ class Assessment(models.Model):
 
 class UserProfile(models.Model):
     ROLE_CHOICES = [
-        ("Cyber advisor", "Cyber advisor"),
-        ("GovAssure Lead", "GovAssure Lead"),
-        ("Organisation user", "Organisation user"),
+        ("cyber_advisor", "Cyber advisor"),
+        ("govassure_lead", "GovAssure Lead"),
+        ("organisation_user", "Organisation user"),
     ]
     # Do this rather than add a foreign key to Organisation, in case we need a many-to-many relationship later
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profiles")

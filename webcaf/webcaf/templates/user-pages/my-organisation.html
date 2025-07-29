@@ -36,13 +36,14 @@
                             </dt>
                             <dd class="govuk-summary-list__value">
                                 {% if profile %}
-                                    {{ profile.organisation.organisation_type|default:"-" }}
+                                    {{ profile.organisation.get_organisation_type_display|default:"-" }}
                                 {% else %}
                                     -
                                 {% endif %}
                             </dd>
                             <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link" href="{% url 'edit-my-organisation' id=profile.id mode='type' %}">Change</a>
+                                <a class="govuk-link"
+                                   href="{% url 'edit-my-organisation-type' id=profile.id %}">Change</a>
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
@@ -72,7 +73,8 @@
                         Additional contact information
                     </h2>
                     <div class="govuk-summary-card__actions">
-                        <a class="govuk-link" href="{% url 'edit-my-organisation' id=profile.id mode='contact' %}">Change details<span class="govuk-visually-hidden"> Update additional information details (Additional contact information)</span></a>
+                        <a class="govuk-link" href="{% url 'edit-my-organisation-contact' id=profile.id %}">Change
+                            details<span class="govuk-visually-hidden"> Update additional information details (Additional contact information)</span></a>
                     </div>
                 </div>
 
