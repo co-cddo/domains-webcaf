@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Select organisation type - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                <span class="govuk-caption-l">Civil Aviation Authority</span>
+                Select organisation type
+            </h1>
+            <form class="form" id="mainForm" method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="orgType-hint">
+                        <div id="orgType-hint" class="govuk-hint">
+                            If you're a department, agency or public body on the <a
+                                href='https://www.gov.uk/government/organisations'>GOV.UK organisations list (opens in a
+                            new tab)</a>, select the type shown.
+                        </div>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            {% for option in profile.organisation.ORGANISATION_TYPE_CHOICES %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="orgType{{ forloop.counter }}"
+                                           name="organisation_type"
+                                           type="radio"
+                                           {% if option.0 == profile.organisation.organisation_type %}checked{% endif %}
+                                           value="{{ option.0 }}">
+                                    <label class="govuk-label govuk-radios__label" for="orgType">
+                                        {{ option.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="govuk-button-group">
+                    <span class="govuk-body govuk-!-font-size-24">
+                      <button type="submit" class="govuk-button" data-module="govuk-button">
+                          Continue
+                      </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

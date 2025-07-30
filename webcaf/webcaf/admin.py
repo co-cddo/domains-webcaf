@@ -7,7 +7,7 @@ from webcaf.webcaf.models import Organisation, System, UserProfile
 class UserProfileAdmin(admin.ModelAdmin):
     model = UserProfile
     search_fields = ["organisation__name", "user__email"]
-    list_display = ["user__email", "organisation__name"]
+    list_display = ["user__email", "organisation__name", "role"]
 
 
 @admin.register(Organisation)

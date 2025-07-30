@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form class="form" action="{% url 'change-organisation' %}" method="post">
+                {% csrf_token %}
+                <table class="govuk-table">
+                    <caption class="govuk-table__caption govuk-table__caption--l">My organisations</caption>
+                    <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header">Organisation name</th>
+                        <th scope="col" class="govuk-table__header">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for profile in profiles %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header"><span
+                                    class="govuk-body">{{ profile.organisation.name|upper }}</span>
+                            </th>
+                            <td class="govuk-table__cell">
+                                {% if request.session.current_profile_id == profile.id %}
+                                    Logged in
+                                {% else %}
+                                    <button type="submit" class="govuk-button" data-module="govuk-button"
+                                            name="profile_id" value="{{ profile.id }}">
+                                        Login
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+{% endblock %}

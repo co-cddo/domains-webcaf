@@ -17,17 +17,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from webcaf.webcaf.general_views import (
-    Index,
-    MyAccountView,
+from webcaf.views.general_views import logout_view
+from webcaf.views.my_account import Index, MyAccountView
+from webcaf.views.my_organisation import (
+    ChangeActiveProfileView,
     MyOrganisationView,
-    logout_view,
+    OrganisationContactView,
+    OrganisationTypeView,
 )
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
-    path("my-account", MyAccountView.as_view(), name="my-account"),
-    path("my-organisation", MyOrganisationView.as_view(), name="my-organisation"),
+    path("my-account/", MyAccountView.as_view(), name="my-account"),
+    path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
+    path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
+    path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
+    path("view-organisations/", ChangeActiveProfileView.as_view(), name="view-organisations"),
+    path("change-organisation/", ChangeActiveProfileView.as_view(), name="change-organisation"),
     path("logout/", logout_view, name="logout"),
     path("admin/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),

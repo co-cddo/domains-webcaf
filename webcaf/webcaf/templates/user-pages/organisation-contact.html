@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Select organisation type - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">
+            <span class="govuk-caption-l">Civil Aviation Authority</span>
+            Add contact details
+        </h1>
+        <form class="form" id="mainForm" method="post">
+            {% csrf_token %}
+            <p class="govuk-body">We are collecting your contact details, so that the GovAssure team can get in touch
+                with you.</p>
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="contact_name">
+                    Full name
+                </label>
+                <input class="govuk-input govuk-input--width-20" id="contact_name" name="contact_name" type="text"
+                       spellcheck="false" autocomplete="name"
+                       value="{{ profile.organisation.contact_name|default:'' }}">
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="contact_role">
+                    Organisation role
+                </label>
+                <input class="govuk-input govuk-input--width-20" id="contact_role" name="contact_role" type="text"
+                       value="{{ profile.organisation.contact_role|default:'' }}">
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="contact_email">
+                    Email address
+                </label>
+                <div id="orgEmail-hint" class="govuk-hint">
+                    Use a current work email address for the civil servant
+                </div>
+                <input class="govuk-input" id="contact_email" name="contact_email" type="email" spellcheck="false"
+                       aria-describedby="orgEmail-hint" autocomplete="email"
+                       value="{{ profile.organisation.contact_email|default:'' }}">
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Continue
+                </button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
