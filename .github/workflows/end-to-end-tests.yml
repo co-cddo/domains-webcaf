@@ -61,7 +61,7 @@ jobs:
         SECRET_KEY: unused
         DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
         DOMAIN_NAME: http://localhost:8010
-        LOCAL_SSO: True
+        SSO_MODE: local
       run: |
         poetry run ./manage.py collectstatic --noinput
         poetry run ./manage.py migrate --noinput
@@ -69,16 +69,10 @@ jobs:
       env:
         SECRET_KEY: unused
         DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
-        OIDC_RP_CLIENT_ID: my-django-app
-        OIDC_RP_CLIENT_SECRET: my-django-secret  # pragma: allowlist secret
-        OIDC_OP_AUTHORIZATION_ENDPOINT: http://localhost:5556/auth
-        OIDC_OP_TOKEN_ENDPOINT: http://localhost:5556/token
-        OIDC_OP_USER_ENDPOINT: http://localhost:5556/userinfo
-        OIDC_OP_JWKS_ENDPOINT: http://localhost:5556/keys
-        LOGOUT_REDIRECT_URL: http://localhost:8010/
+        SSO_MODE: local
       run: |
-        poetry run ./manage.py runserver &
-        until curl -s -o /dev/null http://localhost:8000; do sleep 1; done
+        poetry run ./manage.py runserver 0.0.0.0:8010 &
+        until curl -s -o /dev/null http://localhost:8010; do sleep 1; done
     - name: Run end-to-end tests
       run: |
         cd end-to-end-tests && \

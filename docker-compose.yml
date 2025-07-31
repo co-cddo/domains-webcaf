@@ -24,7 +24,7 @@ services:
     environment:
       <<: *common-application-variables
       PYTHONBREAKPOINT: "ipdb.set_trace"
-      LOCAL_SSO: "True"
+      SSO_MODE: dex
     volumes:
       - .:/app
       - webcaf_home:/home/webcaf

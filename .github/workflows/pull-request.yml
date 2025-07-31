@@ -60,7 +60,7 @@ jobs:
         SECRET_KEY: blah
         DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
         DOMAIN_NAME: http://localhost:8010
-        LOCAL_SSO: True
+        SSO_MODE: none
       run: |
         poetry run ./manage.py collectstatic --noinput
         poetry run ./manage.py migrate --noinput
@@ -75,6 +75,6 @@ jobs:
         ENVIRONMENT: 'local'
         NOMINET_ROMSID: test_romsid
         NOMINET_SECRET: test_secret # pragma: allowlist secret
-        LOCAL_SSO: True
+        SSO_MODE: local
       run: |
         SECRET_KEY=unneeded DOMAIN_NAME=http://localhost:8010 poetry run python manage.py test -v 2
