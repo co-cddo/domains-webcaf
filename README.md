@@ -50,3 +50,13 @@ This will have two users configured:
  - Admin user called Tin, admin@example.gov.uk
 
 Both the users have the same password set to 'password'
+
+### End-to-end testing
+
+This service uses pytest-playwright to perform browser-based end-to-end tests. In order to run the tests,
+follow the steps above to install poetry and run a local server, then in a terminal:
+
+``` shell
+cd end-to-end-tests
+poetry run pytest # add "--headed" to see the browser window
+```
