@@ -5,6 +5,7 @@ from django.urls import NoReverseMatch, path, reverse_lazy
 from django.utils.text import slugify
 
 from webcaf import urls
+from webcaf.webcaf.views.view_factory import create_form_view
 
 from .caf32_field_providers import (
     FieldProvider,
@@ -12,7 +13,6 @@ from .caf32_field_providers import (
     OutcomeIndicatorsFieldProvider,
 )
 from .form_factory import create_form
-from .view_factory import create_form_view
 
 FrameworkValue = str | dict | int | None
 

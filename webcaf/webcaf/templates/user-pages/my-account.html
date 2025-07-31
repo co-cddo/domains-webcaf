@@ -26,21 +26,64 @@
             </h2>
             <div><p class="govuk-hint">On this page you can view any assessments you have already submitted, continue
                 any draft assessments and start a new assessment.</p></div>
-            <form action="/start-draft-assessment/" method="post">
+            <form action="{% url 'create-draft-assessment' %}" method="GET">
+                {% csrf_token %}
                 <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                     Start a draft assessment
                 </button>
             </form>
-            <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
-                Draft assessments
-            </h3>
-            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
-            <p>
+            {% if not draft_systems %}
+                <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    Draft assessments
+                </h3>
+                <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
+                </p>
+            {% else %}
+                <table class="govuk-table">
+                    <caption class="govuk-table__caption govuk-table__caption--m">Draft assessments</caption>
+                    <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header">Organisation name</th>
+                        <th scope="col" class="govuk-table__header">System</th>
+                        <th scope="col" class="govuk-table__header">Profile</th>
+                        <th scope="col" class="govuk-table__header">Created by</th>
+                        <th scope="col" class="govuk-table__header">Created on</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for draft in draft_systems %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                {{ draft.system__organisation__name }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ draft.system__name }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ draft.caf_profile }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ draft.created_by__username }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {{ draft.created_on }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                <a href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
+                                   title="Continue editing the assessment">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            {% endif %}
             <h3 class="govuk-heading-m">
                 Submitted assessments
             </h3>
             <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
-            <p>
+            </p>
         </div>
 
         <div class="govuk-grid-column-one-third">

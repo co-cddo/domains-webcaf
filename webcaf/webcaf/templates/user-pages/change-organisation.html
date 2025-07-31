@@ -17,8 +17,8 @@
                     <tbody class="govuk-table__body">
                     {% for profile in profiles %}
                         <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header"><span
-                                    class="govuk-body">{{ profile.organisation.name|upper }}</span>
+                            <th scope="row" class="govuk-table__header">
+                                <span class="govuk-body">{{ profile.organisation.name|upper }}</span>
                             </th>
                             <td class="govuk-table__cell">
                                 {% if request.session.current_profile_id == profile.id %}
