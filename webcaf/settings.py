@@ -240,13 +240,18 @@ LOGGING = {
 local_sso_mode = env.str("LOCAL_SSO", "false")
 if local_sso_mode.lower() == "true":
     LOCAL_SSO_HOST = env.str("LOCAL_SSO_HOST", "dex")
+    # This is the host name to be used when the django app try to
+    # verify the token claims. When using docker compose, we cannot use
+    # localhost as the host name as withing the application container, 'localhost'
+    # points to itself and not the host machine.
+    LOCAL_SSO_LOOKUP_HOST = env.str("LOCAL_SSO_LOOKUP_HOST", "dex")
     # DEX OIDC settings
     OIDC_RP_CLIENT_ID = "my-django-app"
     OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
     OIDC_OP_AUTHORIZATION_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/auth"
-    OIDC_OP_TOKEN_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/token"
-    OIDC_OP_USER_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/userinfo"
-    OIDC_OP_JWKS_ENDPOINT = f"http://{LOCAL_SSO_HOST}:5556/keys"
+    OIDC_OP_TOKEN_ENDPOINT = f"http://{LOCAL_SSO_LOOKUP_HOST}:5556/token"
+    OIDC_OP_USER_ENDPOINT = f"http://{LOCAL_SSO_LOOKUP_HOST}:5556/userinfo"
+    OIDC_OP_JWKS_ENDPOINT = f"http://{LOCAL_SSO_LOOKUP_HOST}:5556/keys"
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 else:
     OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
