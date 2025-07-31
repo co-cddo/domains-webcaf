@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                Your draft self-assessments
+            </h1>
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--m">Continue a draft assessment</caption>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">System name</th>
+                    <th scope="col" class="govuk-table__header">Profile</th>
+                    <th scope="col" class="govuk-table__header">Last updated on</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for draft in draft_systems %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            {{ draft.system__name }}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {{ draft.caf_profile }}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {{ draft.last_updated }}
+                        </td>
+                        <td class="govuk-table__cell">
+                            <a href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
+                               title="Continue editing the assessment">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

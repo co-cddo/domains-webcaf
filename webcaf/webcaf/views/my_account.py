@@ -57,6 +57,7 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
                     "caf_profile",
                     "system__organisation__name",
                     "created_on",
+                    "last_updated",
                     "assessment_period",
                     "created_by__username",
                 )
@@ -82,3 +83,19 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
         if "current_profile" not in data:
             return render(self.request, "user-pages/no-profile-setup.html", status=403)
         return super().get(request, *args, **kwargs)
+
+
+class MyAccountViewAssessmentsView(MyAccountView):
+    """
+    Represents a view for displaying draft assessments in the user's account.
+
+    This class inherits from `MyAccountView` and sets the template for displaying
+    draft assessments. It is used for rendering user-specific draft assessments
+    on the corresponding user interface.
+
+    :ivar template_name: The path to the HTML template file used for rendering
+        the draft assessments page.
+    :type template_name: str
+    """
+
+    template_name = "user-pages/draft-assessments.html"

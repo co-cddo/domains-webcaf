@@ -27,6 +27,7 @@ from webcaf.webcaf.views import (
     EditAssessmentView,
     Index,
     MyAccountView,
+    MyAccountViewAssessmentsView,
     MyOrganisationView,
     OrganisationContactView,
     OrganisationTypeView,
@@ -36,6 +37,7 @@ from webcaf.webcaf.views.general_views import logout_view
 urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("my-account/", MyAccountView.as_view(), name="my-account"),
+    path("my-account/view-draft-assessments/", MyAccountViewAssessmentsView.as_view(), name="view-draft-assessments"),
     path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
     path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
     path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),

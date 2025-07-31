@@ -7,7 +7,7 @@ from .assesment_views import (
     EditAssessmentView,
 )
 from .general_views import logout_view
-from .my_account import Index, MyAccountView
+from .my_account import Index, MyAccountView, MyAccountViewAssessmentsView
 from .my_organisation import (
     ChangeActiveProfileView,
     MyOrganisationView,
@@ -29,6 +29,7 @@ __all__ = [
     # Account views
     "Index",
     "MyAccountView",
+    "MyAccountViewAssessmentsView",
     # Organisation views
     "MyOrganisationView",
     "OrganisationContactView",
