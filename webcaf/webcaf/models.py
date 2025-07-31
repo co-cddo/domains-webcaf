@@ -77,6 +77,7 @@ class Assessment(models.Model):
     last_updated_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assessments_updated"
     )
+    assessments_data = models.JSONField(default=dict)
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]
