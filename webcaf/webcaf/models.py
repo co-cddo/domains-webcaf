@@ -50,11 +50,34 @@ class Assessment(models.Model):
         ("completed", "Completed"),
         ("cancelled", "Cancelled"),
     ]
+    PROFILE_CHOICES = [
+        (
+            "baseline",
+            "Baseline",
+        ),
+        (
+            "enhanced",
+            "Enhanced",
+        ),
+    ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
-    name = models.CharField(max_length=255)
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
+
+    caf_profile = models.CharField(
+        max_length=255,
+        choices=PROFILE_CHOICES,
+        default="baseline",
+    )
     assessment_period = models.CharField(max_length=255)
-    start_date = models.DateField()
+    created_on = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assessments_created"
+    )
+    last_updated_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assessments_updated"
+    )
+    assessments_data = models.JSONField(default=dict)
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]

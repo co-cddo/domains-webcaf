@@ -7,8 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 
-from .forms import ContinueForm
-from .view_registry import ViewRegistry
+from webcaf.webcaf.forms import ContinueForm
+from webcaf.webcaf.views.view_registry import ViewRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -41,13 +41,14 @@ def create_form_view(
         class_attrs["form_class"] = form_class
     # Implement the custom view that handles the form submissions if defined in the
     # view registry.
+    handler_class = ViewRegistry.get_view(class_name)
     parent_classes = (
         (
             LoginRequiredMixin,
             FormView,
         )
-        if not ViewRegistry.get_view(class_name)
-        else (ViewRegistry.get_view(class_name), LoginRequiredMixin, FormView)
+        if not handler_class
+        else (handler_class, FormView)
     )
     FormViewClass = type(class_name, parent_classes, class_attrs)
     return FormViewClass

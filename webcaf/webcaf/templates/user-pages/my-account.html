@@ -26,21 +26,30 @@
             </h2>
             <div><p class="govuk-hint">On this page you can view any assessments you have already submitted, continue
                 any draft assessments and start a new assessment.</p></div>
-            <form action="/start-draft-assessment/" method="post">
+            <form action="{% url 'create-draft-assessment' %}" method="GET">
+                {% csrf_token %}
                 <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                     Start a draft assessment
                 </button>
             </form>
             <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
-                Draft assessments
+                Continue a draft assessment
             </h3>
-            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
-            <p>
+            {% if not draft_systems %}
+                <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
+                </p>
+            {% else %}
+                <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
+                    <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
+                        View {{ draft_systems| length }} draft assessment(s)
+                    </a>
+                </p>
+            {% endif %}
             <h3 class="govuk-heading-m">
                 Submitted assessments
             </h3>
             <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
-            <p>
+            </p>
         </div>
 
         <div class="govuk-grid-column-one-third">

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                Select a new government system
+            </h1>
+            {% if systems %}
+                <form class="form" id="mainForm" method="post">
+                    {% csrf_token %}
+                    <h2 class="govuk-heading-m">
+                        System name
+                    </h2>
+                    <div class="govuk-form-group autocomplete-wrapper">
+                        <label class="govuk-label" for="system_id">
+                            Select your organisation's system from the list.
+                        </label>
+                        <select class="govuk-select" id="system_id" name="system">
+                            {% for system_ in systems %}
+                                <option value="{{ system_.id }}"
+                                        {% if draft_assessment.system_id == system_.id %}
+                                        selected
+                                        {% endif %}
+                                >{{ system_.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <p><br></p>
+                        <div class="govuk-button-group">
+                        <span class="govuk-body govuk-!-font-size-24">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Save and continue
+                            </button>
+                        </span>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <p title="No systems available to crete draft assessment" class="govuk-body">
+                    You do not have any systems available to create a draft assessment. Please contact your GovAssure
+                    lead or
+                    check the my account page to see available draft assessments.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

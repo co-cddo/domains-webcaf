@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                Government CAF profile
+            </h1>
+            <p>
+                Every system undergoing GovAssure must be classified as one of two profile types. These are baseline or
+                enhanced.
+            </p>
+            <div class="govuk-inset-text">
+                Baseline profile is essential for all government organisations. Enhanced is for critical or CNI systems.
+            </div>
+            <form class="form" method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="cafprofile-hint">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            <h1 class="govuk-fieldset__heading">
+                                Choose a profile for this assessment
+                            </h1>
+                        </legend>
+                        <div id="cafprofile-hint" class="govuk-hint">
+                            Select one
+                        </div>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="caf_profile" name="caf_profile" type="radio"
+                                        {% if draft_assessment.caf_profile == 'baseline' %}
+                                       checked
+                                        {% endif %}
+                                       value="baseline" aria-describedby="cafprofile-item-hint">
+                                <label class="govuk-label govuk-radios__label" for="caf_profile">
+                                    Baseline
+                                </label>
+                                <div id="cafprofile-item-hint" class="govuk-hint govuk-radios__hint">
+                                    Use this if your system is non-critical
+                                </div>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="cafprofile-2" name="caf_profile" type="radio"
+                                        {% if draft_assessment.caf_profile == 'enhanced' %}
+                                       checked
+                                        {% endif %}
+                                       value="enhanced" aria-describedby="cafprofile-2-item-hint">
+                                <label class="govuk-label govuk-radios__label" for="cafprofile-2">
+                                    Enhanced
+                                </label>
+                                <div id="cafprofile-2-item-hint" class="govuk-hint govuk-radios__hint">
+                                    Use this if your system is part of the CNI or is another critical government system
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        All government organisations must meet the Baseline Profile. If your organisation wants to
+                        assign the Enhanced Profile to a system, you should contact us at <code class="govspeak-code">cybergovassure@cabinetoffice.gov.uk</code>.
+                    </strong>
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

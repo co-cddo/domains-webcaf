@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import FormView
 
 
@@ -19,7 +20,7 @@ class ViewRegistry:
         return ViewRegistry.__views.get(view_name)
 
 
-class FormHandlingMixin:
+class FormHandlingMixin(LoginRequiredMixin):
     """
     Mixin for registered views that handle form submissions.
     Subclass must define a view_name attribute which is used to register the view for the appropriate handling.
