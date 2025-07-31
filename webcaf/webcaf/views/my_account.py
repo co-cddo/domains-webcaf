@@ -15,7 +15,14 @@ class Index(TemplateView):
 
 class MyAccountView(LoginRequiredMixin, TemplateView):
     """
-    Initial page after authentication
+    Handles the user account view which provides user account management and displays specific
+    profile-related data. It is accessible only to authenticated users and serves as an entry point
+    for rendering user-specific data upon successful login.
+
+    :ivar template_name: Path to the HTML template used for rendering the user account page.
+    :type template_name: str
+    :ivar login_url: URL to redirect unauthenticated users for login.
+    :type login_url: str
     """
 
     template_name = "user-pages/my-account.html"
@@ -31,12 +38,15 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
         data = super().get_context_data(**kwargs)
         profile_id = self.request.session.get("current_profile_id")
         if not profile_id:
+            # On the landing of the very first time, select the first profile to be displayed
+            # The user is allowed to change this later through the screen
             profiles = list(UserProfile.objects.filter(user=self.request.user).order_by("id").all())
             if profiles:
                 self.request.session["current_profile_id"] = profiles[0].id
                 self.request.session["profile_count"] = len(profiles)
         current_profile_id = self.request.session.get("current_profile_id")
         if current_profile_id:
+            # Data used by the page.
             data["current_profile"] = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
             data["profile_count"] = self.request.session.get("profile_count", 1)
             data["draft_systems"] = list(
