@@ -1,4 +1,4 @@
-name: End-to-end tests
+name: Feature tests
 
 on:
   push:
@@ -48,9 +48,8 @@ jobs:
         with:
           path: |
             ~/.cache/pypoetry
-            ~/.virtualenvs
-            /var/cache/apt/archives
-          key: venv-poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+            ~/.venv
+          key: venv-poetry-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             venv-poetry-${{ runner.os }}-
       - name: Install dependencies
@@ -92,11 +91,10 @@ jobs:
           SECRET_KEY: unused
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
           DOMAIN_NAME: http://localhost:8010
-          LOCAL_SSO: True
+          SSO_MODE: localhost
         run: |
           poetry run ./manage.py collectstatic --noinput
           poetry run ./manage.py migrate --noinput
-
 
       - name: Start Dex container
         run: |
@@ -124,9 +122,7 @@ jobs:
         env:
           SECRET_KEY: unused
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
-          LOCAL_SSO: True
-          LOCAL_SSO_HOST: localhost
-          LOCAL_SSO_LOOKUP_HOST: localhost
+          SSO_MODE: localhost
         run: |
           echo "Starting the server on port 8010..."
           poetry run python manage.py runserver 0.0.0.0:8010 &
@@ -142,4 +138,4 @@ jobs:
           done
 
           echo "=================== Running tests ==================="
-          poetry run pytest end-to-end-tests --tracing=retain-on-failure
+          SSO_MODE=localhost DATABASE_URL=postgresql://webcaf:webcaf@localhost:5432/webcaf poetry run behave

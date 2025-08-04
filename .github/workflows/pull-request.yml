@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres
@@ -25,7 +23,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
 
     steps:
       - name: Install pyenv and Python
@@ -52,7 +49,7 @@ jobs:
           SECRET_KEY: blah
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
           DOMAIN_NAME: http://localhost:8010
-          LOCAL_SSO: True
+          SSO_MODE: localhost
         run: |
           poetry run ./manage.py collectstatic --noinput
           poetry run ./manage.py migrate --noinput
@@ -86,8 +83,6 @@ jobs:
           AWS_ACCESS_KEY_ID: "dummy-key-id"
           AWS_SECRET_ACCESS_KEY: "dummy-key"
           ENVIRONMENT: 'local'
-          NOMINET_ROMSID: test_romsid
-          NOMINET_SECRET: test_secret # pragma: allowlist secret
-          LOCAL_SSO: True
+          SSO_MODE: localhost
         run: |
           SECRET_KEY=unneeded DOMAIN_NAME=http://localhost:8010 poetry run python manage.py test -v 2
