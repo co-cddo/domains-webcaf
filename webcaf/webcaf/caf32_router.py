@@ -1,15 +1,13 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import Any, Generator
-
 import yaml
+from abc import ABC, abstractmethod
 from django.urls import NoReverseMatch, path, reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import FormView
+from typing import Any, Generator
 
 from webcaf import urls
 from webcaf.webcaf.views.view_factory import create_form_view
-
 from .caf32_field_providers import (
     FieldProvider,
     OutcomeConfirmationFieldProvider,
@@ -48,6 +46,8 @@ class FrameworkRouter(ABC):
 
 class CAF32Router(FrameworkRouter):
     logger = logging.getLogger("FrameworkRouter")
+    all_url_names: list[str] = []
+    parent_map: dict[str, Any] = {}
 
     @staticmethod
     def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
