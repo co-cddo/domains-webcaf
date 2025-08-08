@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block title %}Manage Assessment - {{ user.first_name }} {% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -59,14 +59,15 @@
                 </li>
             </ul>
             <h2 class="govuk-heading-m govuk-!-margin-top-5">2. Create your assessment</h2>
-            <p>Take time to select your answers for each outcome. They will be assessed against your system and
+            <p class="govuk-body">Take time to select your answers for each outcome. They will be assessed against your
+                system and
                 organisation.</p>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
                         {% if draft_assessment.assessment_id %}
                             <a class="govuk-link govuk-task-list__link"
-                               href="{% url 'objective_A' %}"
+                               href="{% url 'objective-overview' objective_id='objective_A' %}"
                                aria-describedby="first-section-2-status">
                                 Objective A: Managing security risk
                             </a>
@@ -79,9 +80,15 @@
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="second-section-1-status">
                         {% if draft_assessment.assessment_id %}
-                            <strong class="govuk-tag govuk-tag--blue">
-                                Incomplete
-                            </strong>
+                            {% if objective_a_complete %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Complete
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
                         {% else %}
                             Cannot start yet
                         {% endif %}
@@ -89,44 +96,102 @@
                 </li>
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
-                        <div>
-                            Objective B: Protecting against cyber attacks
-                        </div>
+                        {% if draft_assessment.assessment_id %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'objective-overview' objective_id='objective_B' %}"
+                               aria-describedby="second-section-2-status">
+                                Objective B: Protecting against cyber attacks
+                            </a>
+                        {% else %}
+                            <div>
+                                Objective B: Protecting against cyber attacks
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="second-section-2-status">
-                        Cannot start yet
+                        {% if draft_assessment.assessment_id %}
+                            {% if objective_b_complete %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Complete
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
                     </div>
                 </li>
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
-                        <div>
-                            Objective C: Detecting cyber security events
-                        </div>
+                        {% if draft_assessment.assessment_id %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'objective-overview' objective_id='objective_C' %}"
+                               aria-describedby="third-section-2-status">
+                                Objective C: Detecting cyber security events
+                            </a>
+                        {% else %}
+                            <div>
+                                Objective C: Detecting cyber security events
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="second-section-3-status">
-                        Cannot start yet
+                        {% if draft_assessment.assessment_id %}
+                            {% if objective_c_complete %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Complete
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
                     </div>
                 </li>
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
-                        <div>
-                            Objective D: Minimising the impact of cyber security incidents
-                        </div>
+                        {% if draft_assessment.assessment_id %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'objective-overview' objective_id='objective_D' %}"
+                               aria-describedby="fourth-section-2-status">
+                                Objective D: Minimising the impact of cyber security incidents
+                            </a>
+                        {% else %}
+                            <div>
+                                Objective D: Minimising the impact of cyber security incidents
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="second-section-4-status">
-                        Cannot start yet
+                        {% if draft_assessment.assessment_id %}
+                            {% if objective_d_complete %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Complete
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
                     </div>
                 </li>
             </ul>
             <h2 class="govuk-heading-m govuk-!-margin-top-5">3. Submit your assessment</h2>
             <ul class="govuk-task-list">
-
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
-
                         <div>
                             Complete the full assessment
                         </div>
@@ -136,7 +201,6 @@
                         Cannot start yet
                     </div>
                 </li>
-
             </ul>
         </div>
     </div>

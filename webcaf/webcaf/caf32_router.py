@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import yaml
 from django.urls import NoReverseMatch, path, reverse_lazy
@@ -30,6 +31,8 @@ class FrameworkRouter:
     """
 
     logger = logging.getLogger(__name__)
+    all_url_names: list[str] = []
+    parent_map: dict[str, Any] = {}
 
     @staticmethod
     def _get_success_url(current_index: int, all_url_names: list[str], exit_url: str) -> str:
@@ -96,6 +99,9 @@ class FrameworkRouter:
                 extra_context=extra_context,
             )
             urls.urlpatterns.append(path(f"{url_path}/{item_type}/", item["view_class"].as_view(), name=url_name))
+            FrameworkRouter.logger.info(
+                f"{url_name} mapped to {item['view_class'].__name__} path={url_path}/{item_type}/"
+            )
         return item, url_name
 
     @staticmethod
@@ -243,6 +249,8 @@ class FrameworkRouter:
         principles and outcomes.
         """
         all_url_names, parent_map = FrameworkRouter._build_url_names(framework)
+        FrameworkRouter.all_url_names = all_url_names
+        FrameworkRouter.parent_map = parent_map
         for i, obj_key in enumerate(framework.get("objectives", {}).items()):
             obj_key, objective = obj_key
             obj_copy = objective.copy()
