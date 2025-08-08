@@ -1,10 +1,104 @@
+import re
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
 from django.forms import ModelForm
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
+
+# List of keys expected in the assessment data, So that the 'objective' section can be considered complete.
+OBJECTIVE_A_KEYS = {
+    "OutcomeIndicatorsView_A1.a",
+    "OutcomeIndicatorsView_A1.b",
+    "OutcomeIndicatorsView_A1.c",
+    "OutcomeIndicatorsView_A2.a",
+    "OutcomeIndicatorsView_A2.b",
+    "OutcomeIndicatorsView_A3.a",
+    "OutcomeIndicatorsView_A4.a",
+    "OutcomeConfirmationView_A1.a",
+    "OutcomeConfirmationView_A1.b",
+    "OutcomeConfirmationView_A1.c",
+    "OutcomeConfirmationView_A2.a",
+    "OutcomeConfirmationView_A2.b",
+    "OutcomeConfirmationView_A3.a",
+    "OutcomeConfirmationView_A4.a",
+}
+
+OBJECTIVE_B_KEYS = {
+    "OutcomeConfirmationView_B1.a",
+    "OutcomeConfirmationView_B1.b",
+    "OutcomeConfirmationView_B2.a",
+    "OutcomeConfirmationView_B2.b",
+    "OutcomeConfirmationView_B2.c",
+    "OutcomeConfirmationView_B2.d",
+    "OutcomeConfirmationView_B3.a",
+    "OutcomeConfirmationView_B3.b",
+    "OutcomeConfirmationView_B3.c",
+    "OutcomeConfirmationView_B3.d",
+    "OutcomeConfirmationView_B3.e",
+    "OutcomeConfirmationView_B4.a",
+    "OutcomeConfirmationView_B4.b",
+    "OutcomeConfirmationView_B4.c",
+    "OutcomeConfirmationView_B4.d",
+    "OutcomeConfirmationView_B5.a",
+    "OutcomeConfirmationView_B5.b",
+    "OutcomeConfirmationView_B5.c",
+    "OutcomeConfirmationView_B6.a",
+    "OutcomeConfirmationView_B6.b",
+    "OutcomeIndicatorsView_B1.a",
+    "OutcomeIndicatorsView_B1.b",
+    "OutcomeIndicatorsView_B2.a",
+    "OutcomeIndicatorsView_B2.b",
+    "OutcomeIndicatorsView_B2.c",
+    "OutcomeIndicatorsView_B2.d",
+    "OutcomeIndicatorsView_B3.a",
+    "OutcomeIndicatorsView_B3.b",
+    "OutcomeIndicatorsView_B3.c",
+    "OutcomeIndicatorsView_B3.d",
+    "OutcomeIndicatorsView_B3.e",
+    "OutcomeIndicatorsView_B4.a",
+    "OutcomeIndicatorsView_B4.b",
+    "OutcomeIndicatorsView_B4.c",
+    "OutcomeIndicatorsView_B4.d",
+    "OutcomeIndicatorsView_B5.a",
+    "OutcomeIndicatorsView_B5.b",
+    "OutcomeIndicatorsView_B5.c",
+    "OutcomeIndicatorsView_B6.a",
+    "OutcomeIndicatorsView_B6.b",
+}
+
+OBJECTIVE_C_KEYS = {
+    "OutcomeConfirmationView_C1.a",
+    "OutcomeConfirmationView_C1.b",
+    "OutcomeConfirmationView_C1.c",
+    "OutcomeConfirmationView_C1.d",
+    "OutcomeConfirmationView_C1.e",
+    "OutcomeConfirmationView_C2.a",
+    "OutcomeConfirmationView_C2.b",
+    "OutcomeIndicatorsView_C1.a",
+    "OutcomeIndicatorsView_C1.b",
+    "OutcomeIndicatorsView_C1.c",
+    "OutcomeIndicatorsView_C1.d",
+    "OutcomeIndicatorsView_C1.e",
+    "OutcomeIndicatorsView_C2.a",
+    "OutcomeIndicatorsView_C2.b",
+}
+
+OBJECTIVE_D_KEYS = {
+    "OutcomeConfirmationView_D1.a",
+    "OutcomeConfirmationView_D1.b",
+    "OutcomeConfirmationView_D1.c",
+    "OutcomeConfirmationView_D2.a",
+    "OutcomeConfirmationView_D2.b",
+    "OutcomeIndicatorsView_D1.a",
+    "OutcomeIndicatorsView_D1.b",
+    "OutcomeIndicatorsView_D1.c",
+    "OutcomeIndicatorsView_D2.a",
+    "OutcomeIndicatorsView_D2.b",
+}
 
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
@@ -34,12 +128,31 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             id=assessment_id, status="draft", assessment_period="25/26", system__organisation_id=current_organisation.id
         )
 
+        assessment_keys = set(assessment.assessments_data.keys())
+        objective_a_complete = OBJECTIVE_A_KEYS == set(
+            filter(lambda key: re.match(r".*_A\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_b_complete = OBJECTIVE_A_KEYS == set(
+            filter(lambda key: re.match(r".*_B\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_c_complete = OBJECTIVE_A_KEYS == set(
+            filter(lambda key: re.match(r".*_C\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_d_complete = OBJECTIVE_A_KEYS == set(
+            filter(lambda key: re.match(r".*_D\d{1,}\.[a-z]", key), assessment_keys)
+        )
         draft_assessment = {
             "assessment_id": assessment.id,
             "system": assessment.system.id,
             "caf_profile": assessment.caf_profile,
         }
+        # We need to access this information later in the assessment editing stages.
+        self.request.session["draft_assessment"] = draft_assessment
         data = {
+            "objective_a_complete": objective_a_complete,
+            "objective_b_complete": objective_b_complete,
+            "objective_c_complete": objective_c_complete,
+            "objective_d_complete": objective_d_complete,
             "draft_assessment": draft_assessment,
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},
@@ -259,7 +372,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             assessment.last_updated_by = self.request.user
             assessment.save()
             # Forward to editing the draft now.
-            reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id})
+            return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
         return super().form_valid(form)
 
     def breadcrumbs(self):

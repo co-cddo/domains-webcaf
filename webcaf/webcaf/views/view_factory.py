@@ -37,6 +37,7 @@ def create_form_view(
         "extra_context": extra_context,
     }
     class_attrs["form_class"] = form_class if form_class else ContinueForm
+    class_attrs["class_id"] = class_id
     if form_class:
         class_attrs["form_class"] = form_class
     # Implement the custom view that handles the form submissions if defined in the
@@ -51,4 +52,5 @@ def create_form_view(
         else (handler_class, FormView)
     )
     FormViewClass = type(class_name, parent_classes, class_attrs)
+    logger.info(f"Creating view class {class_name} with parent classes {parent_classes}")
     return FormViewClass

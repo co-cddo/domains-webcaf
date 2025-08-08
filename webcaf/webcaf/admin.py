@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from webcaf.webcaf.models import Organisation, System, UserProfile
+from webcaf.webcaf.models import Assessment, Organisation, System, UserProfile
 
 
 @admin.register(UserProfile)
@@ -22,3 +22,12 @@ class SystemAdmin(admin.ModelAdmin):
     model = System
     search_fields = ["name"]
     list_display = ["name"]
+
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    model = Assessment
+    search_fields = ["status", "system__name"]
+    list_display = ["status", "system__name", "system__organisation__name", "created_on", "last_updated"]
+    list_filter = ["status", "system__organisation"]
+    ordering = ["-created_on"]

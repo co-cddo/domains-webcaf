@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import FormView
 
@@ -10,14 +12,19 @@ class ViewRegistry:
     """
 
     __views: dict[str, type[FormView]] = {}
+    logger = logging.getLogger("ViewRegistry")
 
     @staticmethod
     def register(view):
-        ViewRegistry.__views[view.view_name] = view
+        ViewRegistry.__views[view.view_prefix] = view
 
-    @staticmethod
-    def get_view(view_name):
-        return ViewRegistry.__views.get(view_name)
+    @classmethod
+    def get_view(cls, view_name):
+        for view_prefix, view in ViewRegistry.__views.items():
+            if view_prefix in view_name:
+                cls.logger.info(f"Found view {view_name} for prefix {view_prefix}")
+                return view
+        return None
 
 
 class FormHandlingMixin(LoginRequiredMixin):
@@ -28,7 +35,8 @@ class FormHandlingMixin(LoginRequiredMixin):
         Any subclass of this can override any FormView method.
     """
 
-    view_name: str
+    view_prefix: str
 
     def __init_subclass__(cls, **kwargs):
-        ViewRegistry().register(cls)
+        if hasattr(cls, "view_prefix"):
+            ViewRegistry().register(cls)
