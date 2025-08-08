@@ -1,6 +1,6 @@
 #!/bin/bash
 #Wrapper file to pass the environment variables for the mypy pre-commit command
 
-export LOCAL_SSO=True
+export SSO_MODE=none
 
 exec mypy "$@"

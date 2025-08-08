@@ -1,0 +1,141 @@
+name: Feature tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: webcaf
+          POSTGRES_USER: webcaf
+          POSTGRES_PASSWORD: webcaf
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry to use in-project virtualenv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.venv
+          key: venv-poetry-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-poetry-${{ runner.os }}-
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      - name: Install Playwright system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          libgtk-4-1 \
+          libgraphene-1.0-0 \
+          libwoff1 \
+          libvpx9 \
+          libevent-2.1-7 \
+          libopus0 \
+          gstreamer1.0-libav \
+          gstreamer1.0-plugins-base \
+          gstreamer1.0-plugins-good \
+          gstreamer1.0-plugins-bad \
+          gstreamer1.0-plugins-ugly \
+          gstreamer1.0-gl \
+          gstreamer1.0-gtk3 \
+          gstreamer1.0-pulseaudio \
+          gstreamer1.0-tools \
+          gstreamer1.0-x \
+          libflite1 \
+          libavif16 \
+          libharfbuzz-icu0 \
+          libsecret-1-0 \
+          libhyphen0 \
+          libmanette-0.2-0 \
+          mesa-utils \
+          libx264-dev
+      - name: Install Playwright browsers
+        run: poetry run playwright install
+
+      - name: Prepare Django server
+        env:
+          SECRET_KEY: unused
+          DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
+          DOMAIN_NAME: http://localhost:8010
+          SSO_MODE: localhost
+        run: |
+          poetry run ./manage.py collectstatic --noinput
+          poetry run ./manage.py migrate --noinput
+
+      - name: Start Dex container
+        run: |
+          docker run -d \
+            --name dex \
+            --volume ${{ github.workspace }}/oauth-stub:/etc/dex \
+            -p 5556:5556 \
+            ghcr.io/dexidp/dex:v2.37.0 \
+            dex serve /etc/dex/config.yaml
+      - name: Wait for Dex to be ready
+        run: |
+          echo "Waiting for Dex..."
+          for i in {1..30}; do
+          if curl -sSf http://localhost:5556/.well-known/openid-configuration > /dev/null; then
+          echo "Dex is ready."
+          break
+          else
+          echo "Dex not ready yet ($i)..."
+          sleep 2
+          fi
+          done
+          docker logs dex || true
+
+      - name: Start server and run end-to-end tests
+        env:
+          SECRET_KEY: unused
+          DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
+          SSO_MODE: localhost
+        run: |
+          echo "Starting the server on port 8010..."
+          poetry run python manage.py runserver 0.0.0.0:8010 &
+
+          echo "Waiting for server to be ready..."
+          for i in {1..20}; do
+            if curl -s http://localhost:8010/ > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting... ($i)"
+            sleep 1
+          done
+
+          echo "=================== Running tests ==================="
+          SSO_MODE=localhost DATABASE_URL=postgresql://webcaf:webcaf@localhost:5432/webcaf poetry run behave

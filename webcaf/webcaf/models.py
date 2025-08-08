@@ -33,6 +33,13 @@ class Organisation(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_type_id(cls, label):
+        for type in cls.ORGANISATION_TYPE_CHOICES:
+            if type[1] == label:
+                return type[0]
+        return None
+
 
 class System(models.Model):
     name = models.CharField(max_length=255)
@@ -96,11 +103,19 @@ class UserProfile(models.Model):
     )
     role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES, default="User")
 
-    class Configuration(models.Model):
-        config_data = models.JSONField(default=dict)
+    @classmethod
+    def get_role_id(cls, role_name):
+        for role in cls.ROLE_CHOICES:
+            if role[1] == role_name:
+                return role[0]
+        return None
 
-        def get_current_assessment_period(self):
-            return self.config_data.get("current_assessment_period")
 
-        def get_assessment_period_end(self):
-            return self.config_data.get("assessment_period_end")
+class Configuration(models.Model):
+    config_data = models.JSONField(default=dict)
+
+    def get_current_assessment_period(self):
+        return self.config_data.get("current_assessment_period")
+
+    def get_assessment_period_end(self):
+        return self.config_data.get("assessment_period_end")
