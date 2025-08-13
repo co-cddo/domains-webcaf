@@ -1,5 +1,7 @@
 from django import template
 
+from webcaf.webcaf.models import UserProfile
+
 register = template.Library()
 
 
@@ -101,3 +103,8 @@ def should_display_choice(outcome_status, current_choice):
 @register.simple_tag
 def get_field_value(form, field_name):
     return form.initial.get(field_name, "")
+
+
+@register.simple_tag
+def get_role_name(role):
+    return next(filter(lambda x: x[0] == role, UserProfile.ROLE_CHOICES))[1]

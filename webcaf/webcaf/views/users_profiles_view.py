@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
+from django.shortcuts import render
 from django.views.generic import FormView, TemplateView
 
 from webcaf.webcaf.models import UserProfile
@@ -28,6 +29,7 @@ class UserProfileForm(ModelForm):
     first_name = forms.CharField(max_length=150, required=True)
     last_name = forms.CharField(max_length=150, required=True)
     email = forms.CharField(max_length=150, required=True)
+    action_confirmed = forms.BooleanField(required=True)
 
     class Meta:
         model = UserProfile
@@ -92,19 +94,29 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         form.save()
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        # Capture the first instance of the user input, where we would get flagged
+        # for unconfirmed changes.
+        if len(form.errors) == 1 and "action_confirmed" in form.errors:
+            return render(self.request, "users/user-confirm.html", {"form": form})
+        return super().form_invalid(form)
+
 
 class CreateUserProfileView(UserProfileView):
     def get_object(self):
         return None
 
     def form_valid(self, form):
+        action = self.request.POST.get("action")
+        if action == "change":
+            form.errors.clear()
+            return super().form_invalid(form)
+
         user_email = form.cleaned_data["email"]
         user, created = User.objects.get_or_create(
             email=user_email,
+            defaults={"username": user_email},
         )
-        if created:
-            # Set the username to the email address, this is so that otherwise it wibe set to empty
-            user.username = user_email
 
         form.instance.user = user
         current_profile_id = self.request.session.get("current_profile_id")
