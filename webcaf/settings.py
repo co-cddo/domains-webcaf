@@ -17,6 +17,8 @@ from pathlib import Path
 from csp.constants import NONCE, SELF
 from environ import Env
 
+from webcaf.webcaf.caf_loader.caf32_router import FrameworkRouter
+
 env = Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -257,7 +259,6 @@ else:
     OIDC_OP_JWKS_ENDPOINT = f"http://{sso_host}:5556/keys"
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 
-
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")
 if DEBUG:
@@ -272,3 +273,8 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('DOMAIN_NAME', 'localhost')}"]
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
+
+framework_router = FrameworkRouter(FRAMEWORK_PATH)
+CAF_FRAMEWORKS = {
+    "v3.2": framework_router.parent_map,
+}

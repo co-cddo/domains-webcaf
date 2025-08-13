@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Assessment - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h3 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }} outcome</h3>
+            <h1 class="govuk-heading-m">Status: {{ outcome_status }}</h1>
+            <form class="form" id="mainForm" method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="a3a-not-achieved-hint">
+                        <div id="a3a-not-achieved-hint" class="govuk-hint">
+                            {{ outcome_status_text }}
+                        </div>
+                        <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+                            {% for choice in form.fields.confirm_outcome.choices %}
+                                {% should_display_choice outcome_status choice.0 as should_display_choice %}
+                                {% if  should_display_choice %}
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="id_{{ choice.0 }}" name="confirm_outcome"
+                                               type="radio" value="{{ choice.0 }}"
+                                                {% if form.initial.confirm_outcome  == choice.0 %}
+                                               checked {% endif %}
+                                        >
+                                        <label class="govuk-label govuk-radios__label" for="id_{{ choice.0 }}">
+                                            {{ choice.1 }}
+                                        </label>
+                                        {% should_display_details_section outcome_status choice.0 as should_display_details %}
+                                        {% if should_display_details %}
+                                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden"
+                                                 id="id_{{ choice.0 }}_comment">
+                                                <div class="govuk-form-group">
+                                                    <label class="govuk-label" for="id_{{ detail_fields_name }}">
+                                                        Explain why you've changed the outcome
+                                                    </label>
+                                                    {% with choice.0|add:"_detail" as detail_fields_name %}
+                                                        <textarea class="govuk-textarea"
+                                                                  id="id_{{ detail_fields_name }}"
+                                                                  name="{{ detail_fields_name }}"
+                                                                  rows="5">{% get_field_value form detail_fields_name %}</textarea>
+                                                    {% endwith %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h3 class="govuk-heading-m">Provide a summary about asset management</h3>
+                <details class="govuk-details">
+                    <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                  How to write a good summary
+                </span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        It’s important that you provide enough context for the assessor about your organisation. They
+                        are
+                        unlikely to know it as well as you do.<br>
+                        <p class="govuk-body">The assessor will want your self-assessment to be:</p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>complete</li>
+                            <li>accurate</li>
+                            <li>relevant</li>
+                            <li>consistent</li>
+                        </ul>
+                        <p>
+                            For example, the assessor will want to see that you have clear justifications for answers
+                            and
+                            have provided enough evidence.<br><br>
+                            They will want to see evidence that you accurately measured your organisation’s cyber
+                            security
+                            posture.<br><br>
+                            It will also be important to the assessor that they can see your answers are relevant to
+                            each of
+                            the contributing outcomes and IGPs.<br><br>
+                            Before submitting your self-assessment, you must check that your answers are consistent
+                            across
+                            the outcomes and IGPs, because the assessor will compare your responses.</p></div>
+                </details>
+                <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
+                     data-maxlength="200"
+                     data-govuk-character-count-init="">
+                    <label class="govuk-label" for="summary_outline">
+                        Please write a short summary outlining how you worked towards achieving this outcome.
+                    </label>
+                    <textarea class="govuk-textarea govuk-js-character-count" id="summary_outline"
+                              name="summary_outline" rows="5"
+                              aria-describedby="label-summary_outline-info">{% get_field_value form "summary_outline" %}
+                    </textarea>
+                    <div id="label-summary_outline-info"
+                         class="govuk-hint govuk-character-count__message govuk-visually-hidden">
+                        You can enter up to 200 characters
+                    </div>
+                    <div class="govuk-hint govuk-character-count__message govuk-character-count__status"
+                         aria-hidden="true">
+                        You have 200 characters remaining
+                    </div>
+                    <div class="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have 200
+                        characters remaining
+                    </div>
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                        Save and continue
+                    </button>
+                    <a class="govuk-link" href="{% url 'indicator-view' indicator_id=indicator_id version='v3.2' %}">Back
+                        to statements </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <style nonce="{{ request.csp_nonce }}">
+        .govuk-radios__input:checked ~ .govuk-radios__conditional--hidden {
+            display: block;
+            visibility: visible;
+        }
+
+        .govuk-radios__conditional--hidden {
+            flex-basis: 100%;
+            margin-left: 1em;
+            padding-left: 2em;
+            border-left: 4px solid #b1b4b6;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock %}

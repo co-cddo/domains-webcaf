@@ -24,52 +24,32 @@
                             <dt class="govuk-summary-list__key govuk-!-width-one-half">
                                 {{ indicator.title }}
                             </dt>
-                            <dd class="govuk-summary-list__value">
-                                <a class="govuk-link" href="{% url indicator.url %}">Add your answers</a>
-                            </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link" href="#"><span
-                                        class="govuk-visually-hidden"> Question {{ forloop.counter }} in {{ indicator.title }}</span></a>
-                            </dd>
+                            {% if indicator.complete %}
+                                <dd class="govuk-summary-list__value">
+                                    {% if indicator.outcome == 'Achieved' %}
+                                        <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome }}</strong>
+                                    {% else %}
+                                        <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome }}</strong>
+                                    {% endif %}
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link"
+                                       href="{% url 'indicator-view' indicator_id=indicator.id version='v3.2' %}">
+                                        Change<span class="govuk-visually-hidden"> Question 1</span></a>
+
+                                </dd>
+                            {% else %}
+                                <dd class="govuk-summary-list__value">
+                                    <a class="govuk-link"
+                                       href="{% url 'indicator-view' indicator_id=indicator.id version='v3.2' %}">
+                                        Add your answers
+                                    </a>
+                                </dd>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </dl>
             {% endfor %}
-
-
-            <form action="draft-assessment3" method="post" novalidate>
-                <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h1 class="govuk-fieldset__heading">
-                                Have you completed all four principles?
-                            </h1>
-                        </legend>
-                        <div class="govuk-radios" data-module="govuk-radios">
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="objective-a-completed"
-                                       name="objective-a-completed"
-                                       type="radio" value="yes">
-                                <label class="govuk-label govuk-radios__label" for="objective-a-completed">
-                                    Yes, I&#39;ve completed all four principles
-                                </label>
-                            </div>
-
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="objective-a-completed-2"
-                                       name="objective-a-completed"
-                                       type="radio" value="no">
-                                <label class="govuk-label govuk-radios__label" for="objective-a-completed-2">
-                                    No, I&#39;ll come back to it later
-                                </label>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
-                    Save and continue
-                </button>
-            </form>
         </div>
     </div>
 {% endblock %}
