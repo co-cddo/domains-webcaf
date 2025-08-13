@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Assessment - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <h3 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }}</h3>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include 'partials/error_message.html' %}
+            <h3 class="govuk-heading-m">Read each statement in all tabs and select what's true about your system or
+                organisation.</h3>
+            <form class="form" id="mainForm" method="post">
+                {% csrf_token %}
+                <div class="govuk-tabs" data-module="govuk-tabs">
+                    <h2 class="govuk-tabs__title">
+                        Statements
+                    </h2>
+                    <ul class="govuk-tabs__list">
+                        <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                            <a class="govuk-tabs__tab" href="#achieved">
+                                Achieved
+                            </a>
+                        </li>
+                        {% if partially_achieved|length > 0 %}
+                            <li class="govuk-tabs__list-item">
+                                <a class="govuk-tabs__tab" href="#partially_achieved">
+                                    Partially achieved
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="govuk-tabs__list-item">
+                            <a class="govuk-tabs__tab" href="#not_achieved">
+                                Not achieved
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="govuk-tabs__panel" id="achieved">
+                        <h1 class="govuk-heading-s">Achieved statements</h1>
+                        <div id="signIn-hint" class="govuk-hint">To achieve this outcome you must answer true to all
+                            statements.
+                        </div>
+                        <div class="govuk-warning-text">
+                            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                            <strong class="govuk-warning-text__text">
+                                <span class="govuk-visually-hidden">Warning</span>
+                                If you cannot select true for a statement, you must select not true and provide your
+                                justifications. If you don't have a justification, you will fail this outcome.
+                            </strong>
+                        </div>
+                        {% for item in achieved.items %}
+                            {% include "partials/statement_fieldset.html" with section_type="achieved" field_name_prefix="achieved" %}
+                        {% endfor %}
+                    </div>
+                    <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="partially_achieved">
+                        <h2 class="govuk-heading-l">Partially achieved</h2>
+                        {% for item in partially_achieved.items %}
+                            {% include "partials/statement_fieldset.html" with section_type="partially-achieved" field_name_prefix="partially-achieved" %}
+                        {% endfor %}
+                    </div>
+                    <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="not_achieved">
+                        <h1 class="govuk-heading-s">Not achieved statements</h1>
+                        <div id="signIn-hint" class="govuk-hint">If any statement applies to your system or organisation
+                            in this section you must provide justifications otherwise you will fail this outcome.
+                        </div>
+                        {% for item in not_achieved.items %}
+                            {% include "partials/statement_fieldset.html" with section_type="not-achieved" field_name_prefix="not-achieved" %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        Before you click 'Save and continue', you must answer 'Achieved' and 'Not achieved' statements.
+                    </strong>
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                        Save and continue
+                    </button>
+                    <a class="govuk-link"
+                       href="{% url 'objective-overview' version='3.4' objective_id="objective_"|add:objective.code %}">Back
+                        to Objective
+                        {{ objective.code }} - {{ objective.title }}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

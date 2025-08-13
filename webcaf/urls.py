@@ -40,6 +40,10 @@ from webcaf.webcaf.views.users_profiles_view import (
     UserProfilesView,
     UserProfileView,
 )
+from webcaf.webcaf.views.workflow_views import (
+    OutcomeConfirmationHandlerView,
+    OutcomeIndicatorsHandlerView,
+)
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
@@ -60,19 +64,29 @@ urlpatterns = [
     ),
     path("create-draft-assessment/system", CreateAssessmentSystemView.as_view(), name="create-draft-assessment-system"),
     # Editing existing draft assessment
-    path("edit-draft-assessment/<int:assessment_id>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
     path(
-        "edit-draft-assessment/<int:assessment_id>/profile",
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/",
+        EditAssessmentView.as_view(),
+        name="edit-draft-assessment",
+    ),
+    path(
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/profile",
         EditAssessmentProfileView.as_view(),
         name="edit-draft-assessment-profile",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/system",
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/system",
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
     ),
     #     Objective overview paths
-    path("objective-overview/<str:objective_id>/", ObjectiveView.as_view(), name="objective-overview"),
+    path("<str:version>/objective-overview/<str:objective_id>/", ObjectiveView.as_view(), name="objective-overview"),
+    path("<str:version>/indicator/<str:indicator_id>/", OutcomeIndicatorsHandlerView.as_view(), name="indicator-view"),
+    path(
+        "<str:version>/indicator/<str:indicator_id>/confirmation",
+        OutcomeConfirmationHandlerView.as_view(),
+        name="indicator-confirmation-view",
+    ),
     #     system paths
     path("create-new-system/", SystemView.as_view(), name="create-new-system"),
     path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),
