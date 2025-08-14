@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import django
 from django.db.models import F, Value
@@ -53,8 +54,21 @@ def before_scenario(context, scenario):
     run_async_orm(clear_db)
 
 
-def after_scenario(context, scenario):
-    pass
+def after_step(context, step):
+    if step.status == "failed":
+        # Ensure page object exists in context
+        if hasattr(context, "page"):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            os.makedirs("screenshots", exist_ok=True)
+            path = f"screenshots/{step.name}_{timestamp}.png"
+            context.page.screenshot(path=path, full_page=True)
+            print(f"[Screenshot saved to {path}]")
+
+            # HTML snapshot
+            html_path = f"screenshots/{step.name}_{timestamp}.html"
+            with open(html_path, "w", encoding="utf-8") as f:
+                f.write(context.page.content())
+            print(f"[HTML snapshot saved to {html_path}]")
 
 
 def after_all(context):

@@ -174,3 +174,4 @@ cypress/screenshots/
 webcaf/static
 
 *.pdf
+/screenshots/
