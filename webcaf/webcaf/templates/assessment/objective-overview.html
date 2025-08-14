@@ -62,6 +62,21 @@
                     {% endfor %}
                 </dl>
             {% endfor %}
+            <form method="GET"
+                    {% if not final_objective %}
+                  action="{% url 'objective-overview' version='v3.2' objective_id=next_objective %}"
+                    {% else %}
+                  action="{% url 'edit-draft-assessment' version='v3.2' assessment_id=assessment_id %}"
+                    {% endif %}
+            >
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    {% if not final_objective %}
+                        Save and continue
+                    {% else %}
+                        Review assessment
+                    {% endif %}
+                </button>
+            </form>
         </div>
     </div>
 {% endblock %}
