@@ -169,4 +169,4 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
                 self.request.session["current_profile_id"] = profile.id
             else:
                 return render(request, "user-pages/no-profile-setup.html", status=403)
-        return redirect(reverse("view-organisations"))
+        return redirect(reverse("my-account"))

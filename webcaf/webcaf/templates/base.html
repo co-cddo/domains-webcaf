@@ -160,8 +160,12 @@
                 <ol class="govuk-breadcrumbs__list">
                     {% for crumb in breadcrumbs %}
                         <li class="govuk-breadcrumbs__list-item">
-                            <a class="{{ crumb.class|default:'govuk-breadcrumbs__link' }}"
-                               href="{{ crumb.url }}">{{ crumb.text }}</a>
+                            {% if crumb.url %}
+                                <a class="{{ crumb.class|default:'govuk-breadcrumbs__link' }}"
+                                   href="{{ crumb.url }}">{{ crumb.text }}</a>
+                            {% else %}
+                                {{ crumb.text }}
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ol>
@@ -197,7 +201,6 @@
 <script type="module" nonce="{{ request.csp_nonce }}" src='{% static "govuk-frontend-5.11.1.min.js" %}'></script>
 <script type="module" nonce="{{ request.csp_nonce }}">
     import {initAll} from '{% static "govuk-frontend-5.11.1.min.js" %}'
-
     initAll()
 </script>
 </body>

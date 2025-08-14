@@ -69,6 +69,7 @@ class Assessment(models.Model):
     ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
+    version = models.CharField(max_length=10)
 
     caf_profile = models.CharField(
         max_length=255,
@@ -91,6 +92,10 @@ class Assessment(models.Model):
 
 
 class UserProfile(models.Model):
+    ROLE_ACTIONS = {
+        "govassure_lead": ["View, add and submit assessment", "Add organisation users"],
+        "organisation_user": ["View and edit assessments"],
+    }
     ROLE_CHOICES = [
         ("cyber_advisor", "Cyber advisor"),
         ("govassure_lead", "GovAssure Lead"),

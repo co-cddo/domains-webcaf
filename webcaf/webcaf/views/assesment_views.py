@@ -1,10 +1,104 @@
+import re
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
 from django.forms import ModelForm
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
+
+# List of keys expected in the assessment data, So that the 'objective' section can be considered complete.
+OBJECTIVE_A_KEYS = {
+    "indicator_indicators_A1.a",
+    "indicator_indicators_A1.b",
+    "indicator_indicators_A1.c",
+    "indicator_indicators_A2.a",
+    "indicator_indicators_A2.b",
+    "indicator_indicators_A3.a",
+    "indicator_indicators_A4.a",
+    "confirmation_indicators_A1.a",
+    "confirmation_indicators_A1.b",
+    "confirmation_indicators_A1.c",
+    "confirmation_indicators_A2.a",
+    "confirmation_indicators_A2.b",
+    "confirmation_indicators_A3.a",
+    "confirmation_indicators_A4.a",
+}
+
+OBJECTIVE_B_KEYS = {
+    "confirmation_indicators_B1.a",
+    "confirmation_indicators_B1.b",
+    "confirmation_indicators_B2.a",
+    "confirmation_indicators_B2.b",
+    "confirmation_indicators_B2.c",
+    "confirmation_indicators_B2.d",
+    "confirmation_indicators_B3.a",
+    "confirmation_indicators_B3.b",
+    "confirmation_indicators_B3.c",
+    "confirmation_indicators_B3.d",
+    "confirmation_indicators_B3.e",
+    "confirmation_indicators_B4.a",
+    "confirmation_indicators_B4.b",
+    "confirmation_indicators_B4.c",
+    "confirmation_indicators_B4.d",
+    "confirmation_indicators_B5.a",
+    "confirmation_indicators_B5.b",
+    "confirmation_indicators_B5.c",
+    "confirmation_indicators_B6.a",
+    "confirmation_indicators_B6.b",
+    "indicator_indicators_B1.a",
+    "indicator_indicators_B1.b",
+    "indicator_indicators_B2.a",
+    "indicator_indicators_B2.b",
+    "indicator_indicators_B2.c",
+    "indicator_indicators_B2.d",
+    "indicator_indicators_B3.a",
+    "indicator_indicators_B3.b",
+    "indicator_indicators_B3.c",
+    "indicator_indicators_B3.d",
+    "indicator_indicators_B3.e",
+    "indicator_indicators_B4.a",
+    "indicator_indicators_B4.b",
+    "indicator_indicators_B4.c",
+    "indicator_indicators_B4.d",
+    "indicator_indicators_B5.a",
+    "indicator_indicators_B5.b",
+    "indicator_indicators_B5.c",
+    "indicator_indicators_B6.a",
+    "indicator_indicators_B6.b",
+}
+
+OBJECTIVE_C_KEYS = {
+    "confirmation_indicators_C1.a",
+    "confirmation_indicators_C1.b",
+    "confirmation_indicators_C1.c",
+    "confirmation_indicators_C1.d",
+    "confirmation_indicators_C1.e",
+    "confirmation_indicators_C2.a",
+    "confirmation_indicators_C2.b",
+    "indicator_indicators_C1.a",
+    "indicator_indicators_C1.b",
+    "indicator_indicators_C1.c",
+    "indicator_indicators_C1.d",
+    "indicator_indicators_C1.e",
+    "indicator_indicators_C2.a",
+    "indicator_indicators_C2.b",
+}
+
+OBJECTIVE_D_KEYS = {
+    "confirmation_indicators_D1.a",
+    "confirmation_indicators_D1.b",
+    "confirmation_indicators_D1.c",
+    "confirmation_indicators_D2.a",
+    "confirmation_indicators_D2.b",
+    "indicator_indicators_D1.a",
+    "indicator_indicators_D1.b",
+    "indicator_indicators_D1.c",
+    "indicator_indicators_D2.a",
+    "indicator_indicators_D2.b",
+}
 
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
@@ -34,12 +128,31 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             id=assessment_id, status="draft", assessment_period="25/26", system__organisation_id=current_organisation.id
         )
 
+        assessment_keys = set(assessment.assessments_data.keys())
+        objective_a_complete = OBJECTIVE_A_KEYS == set(
+            filter(lambda key: re.match(r".*_A\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_b_complete = OBJECTIVE_B_KEYS == set(
+            filter(lambda key: re.match(r".*_B\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_c_complete = OBJECTIVE_C_KEYS == set(
+            filter(lambda key: re.match(r".*_C\d{1,}\.[a-z]", key), assessment_keys)
+        )
+        objective_d_complete = OBJECTIVE_D_KEYS == set(
+            filter(lambda key: re.match(r".*_D\d{1,}\.[a-z]", key), assessment_keys)
+        )
         draft_assessment = {
             "assessment_id": assessment.id,
             "system": assessment.system.id,
             "caf_profile": assessment.caf_profile,
         }
+        # We need to access this information later in the assessment editing stages.
+        self.request.session["draft_assessment"] = draft_assessment
         data = {
+            "objective_a_complete": objective_a_complete,
+            "objective_b_complete": objective_b_complete,
+            "objective_c_complete": objective_c_complete,
+            "objective_d_complete": objective_d_complete,
             "draft_assessment": draft_assessment,
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},
@@ -75,7 +188,9 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
+        return reverse(
+            "edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"], "version": "v3.2"}
+        )
 
     def breadcrumbs(self, assessment_id: int):
         return [{"url": "#", "text": "Edit draft assessment"}]
@@ -147,9 +262,7 @@ class EditAssessmentProfileView(EditAssessmentView):
             {
                 "url": reverse(
                     "edit-draft-assessment",
-                    kwargs={
-                        "assessment_id": assessment_id,
-                    },
+                    kwargs={"assessment_id": assessment_id, "version": "v3.2"},
                 ),
                 "text": "Edit draft assessment",
             },
@@ -180,9 +293,7 @@ class EditAssessmentSystemView(EditAssessmentView):
             {
                 "url": reverse(
                     "edit-draft-assessment",
-                    kwargs={
-                        "assessment_id": assessment_id,
-                    },
+                    kwargs={"assessment_id": assessment_id, "version": "v3.2"},
                 ),
                 "text": "Edit draft assessment",
             },
@@ -249,6 +360,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
                 status="draft",
                 assessment_period="25/26",
                 system=system,
+                version="v3.2",
                 defaults={
                     "created_by": self.request.user,
                     "caf_profile": draft_assessment["caf_profile"],
@@ -259,7 +371,9 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             assessment.last_updated_by = self.request.user
             assessment.save()
             # Forward to editing the draft now.
-            reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id})
+            return redirect(
+                reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id, "version": "v3.2"})
+            )
         return super().form_valid(form)
 
     def breadcrumbs(self):

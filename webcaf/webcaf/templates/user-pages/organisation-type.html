@@ -25,7 +25,7 @@
                                            type="radio"
                                            {% if option.0 == profile.organisation.organisation_type %}checked{% endif %}
                                            value="{{ option.0 }}">
-                                    <label class="govuk-label govuk-radios__label" for="orgType">
+                                    <label class="govuk-label govuk-radios__label" for="orgType{{ forloop.counter }}">
                                         {{ option.1 }}
                                     </label>
                                 </div>

@@ -1,5 +1,14 @@
 FROM public.ecr.aws/docker/library/python:3.12
 
+USER root
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get purge -y --auto-remove git sqlite3 libexpat1 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 ARG POETRY_ARGS="--no-root --no-ansi --only main"
 
 RUN useradd -u 1000 webcaf

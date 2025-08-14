@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Users - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <table class="govuk-table">
+                <caption
+                        class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
+                    has {{ current_profile.organisation.members.all |length|default:0 }} users
+                </caption>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">User name</th>
+                    <th scope="col" class="govuk-table__header">Email</th>
+                    <th scope="col" class="govuk-table__header"></th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for user_profile in current_profile.organisation.members.all %}
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">
+                            <span class="govuk-body">
+                                {{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
+                            </span>
+                            <span
+                                    {% if user_profile.role == 'cyber_advisor' %}
+                                        class="govuk-tag govuk-tag--blue"
+                                    {% elif user_profile.role == 'govassure_lead' %}
+                                        class="govuk-tag govuk-tag--green"
+                                    {% elif user_profile.role == 'organisation_user' %}
+                                        class="govuk-tag govuk-tag--pink"
+                                    {% endif %}
+                            >
+                                {{ user_profile.get_role_display }}
+                            </span>
+                        </th>
+                        <td class="govuk-table__cell">
+                            {{ user_profile.user.email }}
+                        </td>
+                        {% if user_profile.id != current_profile.id %}
+                            <td class="govuk-table__cell">
+                                <a href="{% url 'edit-profile' user_profile_id=user_profile.id %}">
+                                    Change
+                                </a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form class="form" action="{% url 'create-new-profile' %}" method="get">
+                {% csrf_token %}
+                <div class="govuk-button-group">
+                        <span class="govuk-body govuk-!-font-size-24">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Add new user
+                            </button>
+                        </span>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

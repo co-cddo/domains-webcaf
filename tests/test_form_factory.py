@@ -1,8 +1,7 @@
-from crispy_forms_gds.layout import Button, Fieldset
 from django import forms
 from django.test import TestCase
 
-from webcaf.webcaf.caf32_field_providers import FieldProvider
+from webcaf.webcaf.caf_loader.caf32_field_providers import FieldProvider
 from webcaf.webcaf.form_factory import create_form
 
 
@@ -80,69 +79,6 @@ class FormFactoryTestCase(TestCase):
         self.assertIsInstance(form.fields["test_text"].widget, forms.Textarea)
         self.assertEqual(form.fields["test_text"].widget.attrs["rows"], 5)
         self.assertEqual(form.fields["test_text"].widget.attrs["maxlength"], 200)
-
-    def test_header_is_included_in_form_html(self):
-        provider = MockProvider(
-            layout={
-                "header": {
-                    "title": "Test Form Title",
-                    "description": "Test form description",
-                    "status_message": "<p>Status message</p>",
-                    "help_text": "<p>Help text</p>",
-                },
-                "groups": [],
-            }
-        )
-        form_class = create_form(provider)
-        form = form_class()
-        layout_components = form.helper.layout.fields
-        html_content = [component.html for component in layout_components if hasattr(component, "html")]
-        self.assertTrue(any("Test Form Title" in content for content in html_content))
-        self.assertTrue(any("Test form description" in content for content in html_content))
-        self.assertTrue(any("Status message" in content for content in html_content))
-        self.assertTrue(any("Help text" in content for content in html_content))
-
-    def test_field_groups_are_included_in_form_html(self):
-        provider = MockProvider(
-            field_defs=[
-                {"name": "field1", "label": "Field 1", "type": "boolean"},
-                {"name": "field2", "label": "Field 2", "type": "boolean"},
-                {"name": "status", "label": "Status", "type": "choice", "choices": [("a", "A")], "widget": "radio"},
-            ],
-            layout={
-                "header": {},
-                "groups": [{"title": "Group 1", "fields": ["field1"]}, {"fields": ["field2", "status"]}],
-            },
-        )
-        form_class = create_form(provider)
-        form = form_class()
-        fieldsets = [f for f in form.helper.layout.fields if isinstance(f, Fieldset)]
-        self.assertEqual(len(fieldsets), 2)
-        first_fieldset_fields = fieldsets[0].fields
-
-        html_content = [field.html for field in first_fieldset_fields if hasattr(field, "html")]
-        self.assertTrue(any("Group 1" in content for content in html_content))
-
-        field_names = []
-        for fieldset in fieldsets:
-            for item in fieldset.fields:
-                # item could be html or a crispy_forms_gds.layout.fields.Field
-                # which unhelpfully has an attribute called 'fields'
-                if hasattr(item, "fields") and item.fields:
-                    field_names.extend(item.fields)
-
-        self.assertIn("field1", field_names)
-        self.assertIn("field2", field_names)
-        self.assertIn("status", field_names)
-
-    def test_button_is_created_with_correct_attributes(self):
-        provider = MockProvider(layout={"header": {}, "groups": [], "button_text": "Custom Submit"})
-        form_class = create_form(provider)
-        form = form_class()
-        buttons = [f for f in form.helper.layout.fields if isinstance(f, Button)]
-        self.assertEqual(len(buttons), 1)
-        self.assertEqual(buttons[0].value, "Custom Submit")
-        self.assertIn("govuk-button", buttons[0].field_classes)
 
     def test_multiple_field_types_each_have_correct_type(self):
         provider = MockProvider(

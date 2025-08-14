@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Systems - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <table class="govuk-table">
+                <caption
+                        class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
+                    has {{ systems |length|default:0 }} systems
+                </caption>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">System name</th>
+                    <th scope="col" class="govuk-table__header">Assessment status</th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for system in systems %}
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">
+                            <span class="govuk-body">
+                                <a href="{% url 'edit-system' system_id=system.id %}"> {{ system.name }} </a>
+                            </span>
+                        </th>
+                        <td class="govuk-table__cell">
+                            {% if system.assessments.all|length == 0 %}
+                                No assessment started
+                            {% else %}
+                                {% with system.assessments.all|slice:"-1:" as last_item %}
+                                    {{ last_item.0.status|capfirst }}
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form class="form" action="{% url 'create-new-system' %}" method="get">
+                {% csrf_token %}
+                <div class="govuk-button-group">
+                        <span class="govuk-body govuk-!-font-size-24">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Create new system
+                            </button>
+                        </span>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

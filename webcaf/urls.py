@@ -33,6 +33,17 @@ from webcaf.webcaf.views import (
     OrganisationTypeView,
 )
 from webcaf.webcaf.views.general_views import logout_view
+from webcaf.webcaf.views.objective_views import ObjectiveView
+from webcaf.webcaf.views.system_views import EditSystemView, SystemView, ViewSystemsView
+from webcaf.webcaf.views.users_profiles_view import (
+    CreateUserProfileView,
+    UserProfilesView,
+    UserProfileView,
+)
+from webcaf.webcaf.views.workflow_views import (
+    OutcomeConfirmationHandlerView,
+    OutcomeIndicatorsHandlerView,
+)
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
@@ -53,15 +64,35 @@ urlpatterns = [
     ),
     path("create-draft-assessment/system", CreateAssessmentSystemView.as_view(), name="create-draft-assessment-system"),
     # Editing existing draft assessment
-    path("edit-draft-assessment/<int:assessment_id>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
     path(
-        "edit-draft-assessment/<int:assessment_id>/profile",
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/",
+        EditAssessmentView.as_view(),
+        name="edit-draft-assessment",
+    ),
+    path(
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/profile",
         EditAssessmentProfileView.as_view(),
         name="edit-draft-assessment-profile",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/system",
+        "<str:version>/edit-draft-assessment/<int:assessment_id>/system",
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
     ),
+    #     Objective overview paths
+    path("<str:version>/objective-overview/<str:objective_id>/", ObjectiveView.as_view(), name="objective-overview"),
+    path("<str:version>/indicator/<str:indicator_id>/", OutcomeIndicatorsHandlerView.as_view(), name="indicator-view"),
+    path(
+        "<str:version>/indicator/<str:indicator_id>/confirmation",
+        OutcomeConfirmationHandlerView.as_view(),
+        name="indicator-confirmation-view",
+    ),
+    #     system paths
+    path("create-new-system/", SystemView.as_view(), name="create-new-system"),
+    path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),
+    path("view-systems/", ViewSystemsView.as_view(), name="view-systems"),
+    #     User management paths
+    path("create-new-profile/", CreateUserProfileView.as_view(), name="create-new-profile"),
+    path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
+    path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
 ]

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Assessment - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+
+            <h1 class="govuk-heading-l">
+                {{ objective_heading }}
+            </h1>
+
+            <p class="govuk-body">Please provide your answers for each principle. You can review the status of
+                individual outcomes below
+                each
+                principle and change your answers if you need to.</p>
+
+            {% for principal in principles %}
+                <h2 class="govuk-heading-m">
+                    {{ principal.name }}
+                </h2>
+                <dl class="govuk-summary-list">
+                    {% for indicator in principal.indicators %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                {{ indicator.title }}
+                            </dt>
+                            {% if indicator.complete %}
+                                <dd class="govuk-summary-list__value">
+                                    {% if indicator.outcome.override_status %}
+                                        {% if indicator.outcome.override_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.override_status }}</strong>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                            overridden
+                                        </span>
+                                    {% else %}
+                                        {% if indicator.outcome.outcome_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% endif %}
+                                    {% endif %}
+
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link"
+                                       href="{% url 'indicator-view' indicator_id=indicator.id version='v3.2' %}">
+                                        Change<span class="govuk-visually-hidden"> Question 1</span></a>
+
+                                </dd>
+                            {% else %}
+                                <dd class="govuk-summary-list__value">
+                                    <a class="govuk-link"
+                                       href="{% url 'indicator-view' indicator_id=indicator.id version='v3.2' %}">
+                                        Add your answers
+                                    </a>
+                                </dd>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </dl>
+            {% endfor %}
+            <form method="GET"
+                    {% if not final_objective %}
+                  action="{% url 'objective-overview' version='v3.2' objective_id=next_objective %}"
+                    {% else %}
+                  action="{% url 'edit-draft-assessment' version='v3.2' assessment_id=assessment_id %}"
+                    {% endif %}
+            >
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    {% if not final_objective %}
+                        Save and continue
+                    {% else %}
+                        Review assessment
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
