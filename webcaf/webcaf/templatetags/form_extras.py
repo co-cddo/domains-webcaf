@@ -82,14 +82,20 @@ def should_display_details_section(outcome_status, current_choice):
 
 
 @register.simple_tag
-def should_display_choice(outcome_status, current_choice):
+def should_display_choice(outcome_status, current_choice, indicators):
+    partially_achieved_available = indicators.get("partially-achieved", {}) != {}
+
     if outcome_status == "Not achieved" and current_choice in (
-        "confirm",
-        "change_to_achieved",
-        "change_to_partially_achieved",
+        (
+            "confirm",
+            "change_to_achieved",
+        )
+        + (("change_to_partially_achieved",) if partially_achieved_available else ())
     ):
         return True
-    if outcome_status == "Achieved" and current_choice in ("confirm", "change_to_partially_achieved"):
+    if outcome_status == "Achieved" and current_choice in (
+        ("confirm",) + (("change_to_partially_achieved",) if partially_achieved_available else ())
+    ):
         return True
     if outcome_status == "Partially achieved" and current_choice in (
         "confirm",

@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from webcaf.webcaf.models import Assessment, UserProfile
+from webcaf.webcaf.views.status_calculator import calculate_outcome_status
 
 
 class ObjectiveView(LoginRequiredMixin, TemplateView):
@@ -72,17 +73,12 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
 
     def calculate_outcome_status(self, indicator_id: str):
         assessment = self.get_assessment()
-        indicators = assessment.assessments_data.get(indicator_id)
-        if indicators:
-            achieved_responses = set(
-                map(
-                    lambda x: x[1],
-                    filter(
-                        lambda x: not x[0].endswith("_comment") and x[0].startswith("achieved_"), indicators.items()
-                    ),
-                )
-            )
-            return (
-                "not achieved" if len(achieved_responses) != 1 or "agreed" not in achieved_responses else "achieved"
-            ).capitalize()
-        return "not achieved".capitalize()
+        indicators = assessment.assessments_data.get(indicator_id, {})
+        confirmation = assessment.assessments_data.get(
+            indicator_id.replace(
+                "indicator_",
+                "confirmation_",
+            ),
+            {},
+        )
+        return calculate_outcome_status(confirmation, indicators)

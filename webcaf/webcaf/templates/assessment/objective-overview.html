@@ -26,11 +26,23 @@
                             </dt>
                             {% if indicator.complete %}
                                 <dd class="govuk-summary-list__value">
-                                    {% if indicator.outcome == 'Achieved' %}
-                                        <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome }}</strong>
+                                    {% if indicator.outcome.override_status %}
+                                        {% if indicator.outcome.override_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.override_status }}</strong>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                            overridden
+                                        </span>
                                     {% else %}
-                                        <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome }}</strong>
+                                        {% if indicator.outcome.outcome_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% endif %}
                                     {% endif %}
+
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link"

@@ -2,7 +2,7 @@
 <fieldset class="govuk-fieldset" aria-describedby="outcome{{ forloop.counter }}-{{ section_type }}-hint">
     <legend class="govuk-fieldset__legend govuk">
         <h1 class="govuk-fieldset__heading">
-            {{ forloop.counter }}. {{ item.1.description }}.
+            {{ forloop.counter }}. {{ item.1.description }}
         </h1>
     </legend>
     <div id="outcome{{ forloop.counter }}-{{ section_type }}-hint" class="govuk-hint">
@@ -25,31 +25,19 @@
                     {% get_field_comment_for_section form full_name section_type as the_field_comment %}
                     {% if the_field_comment %}
                         <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
-                             class="hidden_comments">
+                             class="govuk-radios__conditional--hidden">
                             <label class="govuk-label comments_label div_id_{{ full_name }}_comments_label"
                                    for="div_id_{{ full_name }}_comments">
                                 Tell us your justifications
                             </label>
+                            <!-- @formatter:off -->
+{#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
                             <textarea class="govuk-textarea comments_textarea"
                                       id="div_id_{{ full_name }}_comments"
                                       name="{{ field_name_prefix }}_{{ item.0 }}_{{ choice.0 }}_comment"
                                       rows="5">{{ the_field_comment.initial|default:"" }}</textarea>
+                            <!-- @formatter:on -->
                         </div>
-                        <style nonce="{{ request.csp_nonce }}">
-                            .govuk-radios__input:checked ~ #{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container {
-                                display: block;
-                                visibility: visible;
-                            }
-
-                            #{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container {
-                                flex-basis: 100%;
-                                margin-left: 1em;
-                                padding-left: 2em;
-                                border-left: 4px solid #b1b4b6;
-                                padding-bottom: 0;
-                                margin-bottom: 0;
-                            }
-                        </style>
                     {% endif %}
                 {% endwith %}
             </div>

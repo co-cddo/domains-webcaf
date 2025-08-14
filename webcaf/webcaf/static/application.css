@@ -28,34 +28,16 @@ span.govuk-header__logotype-text {
 }
 
 
-.hidden_comments {
-    display: none;
-    visibility: hidden;
+.govuk-radios__input:checked ~ .govuk-radios__conditional--hidden {
+    display: block;
+    visibility: visible;
 }
 
-.override-item {
-    /*gap: 0.2em;*/
-    align-items: center;
-}
-
-/* First row: radio + label */
-.override-item input[type="radio"] {
-    grid-row: 1;
-    grid-column: 1;
-}
-
-.override-item label[class="govuk-radios__label"] {
-    grid-row: 1;
-    grid-column: 2;
-}
-
-/* Second row: label + textbox */
-.override-item label[class="comments_label"]{
-    grid-row: 2;
-    grid-column: 1 /span 2;
-}
-
-.override-item textarea {
-    grid-row: 3;
-    grid-column: 1/span 2;
+.govuk-radios__conditional--hidden {
+    flex-basis: 100%;
+    margin-left: 1em;
+    padding-left: 2em;
+    border-left: 4px solid #b1b4b6;
+    padding-bottom: 0;
+    margin-bottom: 0;
 }

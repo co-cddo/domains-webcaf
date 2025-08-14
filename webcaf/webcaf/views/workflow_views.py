@@ -19,22 +19,17 @@ from webcaf.webcaf.caf_loader.caf32_field_providers import (
 )
 from webcaf.webcaf.form_factory import create_form
 from webcaf.webcaf.models import Assessment, UserProfile
+from webcaf.webcaf.views.status_calculator import (
+    calculate_outcome_status,
+    outcome_status_to_text,
+)
 
 
-class OutcomeHandlerView(LoginRequiredMixin, FormView):
-    @abstractmethod
-    def get_assessment_section(self):
-        """
-        Needs to implement this method to return the section of the assessment
-        """
-
-    def form_valid(self, form):
-        assessment = self.get_assessment()
-        assessment.assessments_data[self.get_assessment_section()] = form.cleaned_data
-        assessment.save()
-        return cast(FormView, super()).form_valid(form)
+class BaseAssessmentMixin:
+    """Mixin to eliminate code duplication across assessment views."""
 
     def get_assessment(self):
+        """Retrieve assessment with shared logic."""
         id_ = self.request.session["draft_assessment"]["assessment_id"]
         user_profile_id = self.request.session["current_profile_id"]
         user_profile = UserProfile.objects.get(id=user_profile_id)
@@ -43,28 +38,28 @@ class OutcomeHandlerView(LoginRequiredMixin, FormView):
         )
         return assessment
 
-    def form_invalid(self, form):
-        return cast(FormView, super()).form_invalid(form)
-
-    def get_context_data(self, **kwargs):
-        from webcaf import settings
-
-        data = super().get_context_data(**kwargs)
-        indicator_id = self.kwargs["indicator_id"]
+    def _extract_framework_ids(self, indicator_id):
+        """Extract framework IDs from indicator_id."""
         outcome_id = indicator_id.replace("indicators_", "")
         objective_id = outcome_id[0]
         principle_id = outcome_id.split(".")[0]
-        indicators_stage = settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id][
-            "outcomes"
-        ][outcome_id]
-        data["objective"] = settings.framework_router.framework["objectives"][objective_id]
-        data["principle"] = settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id]
-        data["outcome"] = indicators_stage
-        data["achieved"] = indicators_stage["indicators"]["achieved"]
-        data["not_achieved"] = indicators_stage["indicators"]["not-achieved"]
-        data["partially_achieved"] = indicators_stage["indicators"]["partially-achieved"]
+        return outcome_id, objective_id, principle_id
+
+    def _get_framework_stage(self, indicator_id):
+        """Get framework stage data."""
+        from webcaf import settings
+
+        outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
+        return settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id]["outcomes"][
+            outcome_id
+        ]
+
+    def _build_breadcrumbs(self, indicator_id, objective_data, outcome_data):
+        """Build breadcrumb navigation."""
         assessment_id = self.request.session["draft_assessment"]["assessment_id"]
-        data["breadcrumbs"] = [
+        _, objective_id, _ = self._extract_framework_ids(indicator_id)
+
+        return [
             {
                 "url": reverse("my-account", kwargs={}),
                 "text": "Home",
@@ -77,50 +72,68 @@ class OutcomeHandlerView(LoginRequiredMixin, FormView):
                 "url": reverse(
                     "objective-overview", kwargs={"version": "v3.2", "objective_id": f"objective_{objective_id}"}
                 ),
-                "text": f"Objective {data['objective']['code']} -  {data['objective']['title']}",
+                "text": f"Objective {objective_data['code']} -  {objective_data['title']}",
             },
-            {"text": f"Objective {indicators_stage['code']} -  {indicators_stage['title']}"},
+            {"text": f"Objective {outcome_data['code']} -  {outcome_data['title']}"},
         ]
+
+
+class OutcomeHandlerView(LoginRequiredMixin, FormView, BaseAssessmentMixin):
+    @abstractmethod
+    def get_assessment_section(self):
+        """
+        Needs to implement this method to return the section of the assessment
+        """
+
+    def form_valid(self, form):
+        assessment = self.get_assessment()
+        assessment.assessments_data[self.get_assessment_section()] = form.cleaned_data
+        assessment.save()
+        return cast(FormView, super()).form_valid(form)
+
+    def form_invalid(self, form):
+        return cast(FormView, super()).form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        from webcaf import settings
+
+        data = super().get_context_data(**kwargs)
+        indicator_id = self.kwargs["indicator_id"]
+        outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
+        indicators_stage = self._get_framework_stage(indicator_id)
+
+        objective_data = settings.framework_router.framework["objectives"][objective_id]
+        principle_data = objective_data["principles"][principle_id]
+
+        data.update(
+            {
+                "objective": objective_data,
+                "principle": principle_data,
+                "outcome": indicators_stage,
+                "achieved": indicators_stage["indicators"]["achieved"],
+                "not_achieved": indicators_stage["indicators"]["not-achieved"],
+                "partially_achieved": indicators_stage["indicators"]["partially-achieved"],
+                "breadcrumbs": self._build_breadcrumbs(indicator_id, objective_data, indicators_stage),
+            }
+        )
         return data
 
 
 class OutcomeIndicatorsHandlerView(OutcomeHandlerView):
-    """ """
+    """Handler for outcome indicators forms."""
 
     template_name = "assessment/indicator-overview.html"
 
     def get_form_class(self) -> type[BaseForm]:
-        from webcaf import settings
-
         indicator_id = self.kwargs["indicator_id"]
-        outcome_id = indicator_id.replace("indicators_", "")
-        objective_id = outcome_id[0]
-        principle_id = outcome_id.split(".")[0]
-        indicators_stage = settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id][
-            "outcomes"
-        ][outcome_id]
-
+        indicators_stage = self._get_framework_stage(indicator_id)
         provider: FieldProvider = OutcomeIndicatorsFieldProvider(indicators_stage)
         form = create_form(provider)
         return form
 
     def get_success_url(self):
-        from webcaf import settings
-
         indicator_id = self.kwargs["indicator_id"]
-        parent = settings.framework_router.parent_map[indicator_id]["parent"]
-        siblings = [
-            entry[0]
-            for entry in settings.framework_router.parent_map.items()
-            if entry[1]["parent"] == parent and entry[0].startswith("indicators")
-        ]
-        current_index = siblings.index(indicator_id)
-
-        if current_index > len(siblings) - 1:
-            # Go to next section
-            pass
-        else:
-            return reverse("indicator-confirmation-view", kwargs={"version": "v3.2", "indicator_id": indicator_id})
+        return reverse("indicator-confirmation-view", kwargs={"version": "v3.2", "indicator_id": indicator_id})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -137,8 +150,9 @@ class OutcomeIndicatorsHandlerView(OutcomeHandlerView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         initial_data = data["form"].cleaned_data if hasattr(data["form"], "cleaned_data") else data["form"].initial
-        for initial_data in initial_data.items():
-            setattr(data["form"].fields[initial_data[0]], "initial", initial_data[1])
+        for field_name, initial_value in initial_data.items():
+            if field_name in data["form"].fields:
+                data["form"].fields[field_name].initial = initial_value
         return data
 
     def get_assessment_section(self):
@@ -146,14 +160,13 @@ class OutcomeIndicatorsHandlerView(OutcomeHandlerView):
 
     def form_valid(self, form):
         assessment = self.get_assessment()
-        needs_confirmation_reset = (
-            assessment.assessments_data.get(self.get_assessment_section(), {}) != form.cleaned_data
-        )
-        assessment.assessments_data[self.get_assessment_section()] = form.cleaned_data
+        current_section = self.get_assessment_section()
+        needs_confirmation_reset = assessment.assessments_data.get(current_section, {}) != form.cleaned_data
+        assessment.assessments_data[current_section] = form.cleaned_data
         if needs_confirmation_reset:
             # OutcomeConfirmationView_A1.a
             # Wipe out the confirmation section as the data may have changed
-            assessment.assessments_data[self.get_assessment_section().replace("indicator_", "confirmation_")] = {}
+            assessment.assessments_data[current_section.replace("indicator_", "confirmation_")] = {}
         assessment.save()
         return cast(FormView, super()).form_valid(form)
 
@@ -184,8 +197,8 @@ class OutcomeConfirmationForm(Form):
     summary_outline = CharField(required=True)
 
 
-class OutcomeConfirmationHandlerView(FormView):
-    """ """
+class OutcomeConfirmationHandlerView(LoginRequiredMixin, FormView, BaseAssessmentMixin):
+    """Handler for outcome confirmation forms."""
 
     view_prefix = "OutcomeConfirmationView_"
     template_name = "assessment/indicator-confirmation.html"
@@ -194,17 +207,9 @@ class OutcomeConfirmationHandlerView(FormView):
     def get_assessment_section(self):
         return "confirmation_" + self.kwargs["indicator_id"]
 
-    def get_assessment(self):
-        id_ = self.request.session["draft_assessment"]["assessment_id"]
-        user_profile_id = self.request.session["current_profile_id"]
-        user_profile = UserProfile.objects.get(id=user_profile_id)
-        assessment = Assessment.objects.get(
-            status="draft", id=id_, system__organisation_id=user_profile.organisation.id
-        )
-        return assessment
-
     def form_valid(self, form):
         assessment = self.get_assessment()
+        # Add the outcome status to the assessment data
         assessment.assessments_data[self.get_assessment_section()] = form.cleaned_data
         assessment.save()
         return cast(FormView, super()).form_valid(form)
@@ -228,17 +233,15 @@ class OutcomeConfirmationHandlerView(FormView):
             ]
             current_parent_index = parent_siblings.index(parent)
             if current_parent_index > len(parent_siblings) - 2:
+                # Flow is complete, go back to the overview page
                 assessment_id = self.request.session["draft_assessment"]["assessment_id"]
                 return reverse("edit-draft-assessment", kwargs={"version": "v3.2", "assessment_id": assessment_id})
             else:
-                next_parent = parent_siblings[current_parent_index + 1]
-                siblings = [
-                    entry[0]
-                    for entry in settings.framework_router.parent_map.items()
-                    if entry[1]["parent"] == next_parent and entry[0].startswith("indicators")
-                ]
-                return reverse("indicator-view", kwargs={"version": "v3.2", "indicator_id": siblings[0]})
-
+                outcome_id = indicator_id.replace("indicators_", "")
+                objective_id = outcome_id[0]
+                return reverse(
+                    "objective-overview", kwargs={"version": "v3.2", "objective_id": f"objective_{objective_id}"}
+                )
         else:
             return reverse("indicator-view", kwargs={"version": "v3.2", "indicator_id": siblings[current_index + 1]})
 
@@ -253,57 +256,28 @@ class OutcomeConfirmationHandlerView(FormView):
         from webcaf import settings
 
         data = super().get_context_data(**kwargs)
-        outcome_status = self.calculate_outcome_status()
-        data["outcome_status"] = outcome_status
-        data["outcome_status_text"] = self.outcome_status_to_text(outcome_status)
-        indicator_id = self.kwargs["indicator_id"]
-        outcome_id = indicator_id.replace("indicators_", "")
-        objective_id = outcome_id[0]
-        principle_id = outcome_id.split(".")[0]
-        indicators_stage = settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id][
-            "outcomes"
-        ][outcome_id]
-        data["objective"] = settings.framework_router.framework["objectives"][objective_id]
-        data["principle"] = settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id]
-        data["outcome"] = indicators_stage
-        data["indicator_id"] = indicator_id
-        data["achieved"] = indicators_stage["indicators"]["achieved"]
-        assessment_id = self.request.session["draft_assessment"]["assessment_id"]
-        data["breadcrumbs"] = [
-            {
-                "url": reverse("my-account", kwargs={}),
-                "text": "Home",
-            },
-            {
-                "url": reverse("edit-draft-assessment", kwargs={"version": "v3.2", "assessment_id": assessment_id}),
-                "text": "Edit draft assessment",
-            },
-            {
-                "url": reverse(
-                    "objective-overview", kwargs={"version": "v3.2", "objective_id": f"objective_{objective_id}"}
-                ),
-                "text": f"Objective {data['objective']['code']} -  {data['objective']['title']}",
-            },
-            {"text": f"Objective {indicators_stage['code']} -  {indicators_stage['title']} outcome"},
-        ]
-        return data
-
-    def calculate_outcome_status(self):
         assessment = self.get_assessment()
+        confirmation = assessment.assessments_data.get(self.get_assessment_section(), {})
         indicators = assessment.assessments_data[self.get_assessment_section().replace("confirmation_", "indicator_")]
-        achieved_responses = set(
-            map(
-                lambda x: x[1],
-                filter(lambda x: not x[0].endswith("_comment") and x[0].startswith("achieved_"), indicators.items()),
-            )
-        )
-        return (
-            "not achieved" if len(achieved_responses) != 1 or "agreed" not in achieved_responses else "achieved"
-        ).capitalize()
+        outcome_status = calculate_outcome_status(confirmation, indicators)
+        indicator_id = self.kwargs["indicator_id"]
+        indicators_stage = self._get_framework_stage(indicator_id)
+        outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
 
-    def outcome_status_to_text(self, outcome_status):
-        return {
-            "Achieved": "Achieved",
-            "Not achieved": """You selected 'not true' to at least one of the achieved or partially achieved statements.
-Please confirm you agree with this status, or you can choose to change the outcome.""",
-        }[outcome_status]
+        objective_data = settings.framework_router.framework["objectives"][objective_id]
+        principle_data = objective_data["principles"][principle_id]
+
+        data.update(
+            {
+                "outcome_status": outcome_status,
+                "outcome_status_text": outcome_status_to_text(outcome_status["outcome_status"]),
+                "indicator_id": indicator_id,
+                "objective": objective_data,
+                "principle": principle_data,
+                "outcome": indicators_stage,
+                "achieved": indicators_stage["indicators"]["achieved"],
+                "breadcrumbs": self._build_breadcrumbs(indicator_id, objective_data, indicators_stage)
+                + [{"text": f"Objective {indicators_stage['code']} -  {indicators_stage['title']} outcome"}],
+            }
+        )
+        return data
