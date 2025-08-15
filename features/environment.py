@@ -30,26 +30,19 @@ def before_scenario(context, scenario):
     context.page.context.add_cookies([])  # Wipe all cookies
 
     def clear_db():
-        from webcaf.webcaf.models import Assessment, Organisation, UserProfile
+        from webcaf.webcaf.models import Organisation
 
-        Assessment.objects.filter(
-            created_by__email__in=[email.strip() for email in context.config.userdata.get("user_emails", "").split(",")]
-        ).delete()
-
-        UserProfile.objects.filter(
-            user__email__in=[email.strip() for email in context.config.userdata.get("user_emails", "").split(",")]
-        ).delete()
-
-        UserProfile.objects.filter(
-            user__email__in=[email.strip() for email in context.config.userdata.get("user_emails", "").split(",")]
-        ).delete()
-
-        Organisation.objects.annotate(normalized_name=Replace(Lower(F("name")), Value(" "), Value(""))).filter(
+        for organisation in Organisation.objects.annotate(
+            normalized_name=Replace(Lower(F("name")), Value(" "), Value(""))
+        ).filter(
             normalized_name__in=[
                 org.lower().replace(" ", "").strip()
                 for org in context.config.userdata.get("organisation_names", "").split(",")
             ]
-        ).delete()
+        ):
+            organisation.systems.all().delete()
+            organisation.members.all().delete()
+            organisation.delete()
 
     run_async_orm(clear_db)
 

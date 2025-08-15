@@ -21,7 +21,7 @@ class OrganisationAdmin(admin.ModelAdmin):
 class SystemAdmin(admin.ModelAdmin):
     model = System
     search_fields = ["name"]
-    list_display = ["name"]
+    list_display = ["name", "organisation__name"]
 
 
 @admin.register(Assessment)

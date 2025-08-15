@@ -19,7 +19,8 @@ from webcaf.webcaf.caf_loader.caf32_field_providers import (
 )
 from webcaf.webcaf.form_factory import create_form
 from webcaf.webcaf.models import Assessment, UserProfile
-from webcaf.webcaf.views.status_calculator import (
+from webcaf.webcaf.router_factory import ROUTE_FACTORY
+from webcaf.webcaf.status_calculator import (
     calculate_outcome_status,
     outcome_status_to_text,
 )
@@ -47,12 +48,11 @@ class BaseAssessmentMixin:
 
     def _get_framework_stage(self, indicator_id):
         """Get framework stage data."""
-        from webcaf import settings
 
         outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
-        return settings.framework_router.framework["objectives"][objective_id]["principles"][principle_id]["outcomes"][
-            outcome_id
-        ]
+        return ROUTE_FACTORY.get_router("v3.2").framework["objectives"][objective_id]["principles"][principle_id][
+            "outcomes"
+        ][outcome_id]
 
     def _build_breadcrumbs(self, indicator_id, objective_data, outcome_data):
         """Build breadcrumb navigation."""
@@ -95,14 +95,12 @@ class OutcomeHandlerView(LoginRequiredMixin, FormView, BaseAssessmentMixin):
         return cast(FormView, super()).form_invalid(form)
 
     def get_context_data(self, **kwargs):
-        from webcaf import settings
-
         data = super().get_context_data(**kwargs)
         indicator_id = self.kwargs["indicator_id"]
         outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
         indicators_stage = self._get_framework_stage(indicator_id)
 
-        objective_data = settings.framework_router.framework["objectives"][objective_id]
+        objective_data = ROUTE_FACTORY.get_router("v3.2").framework["objectives"][objective_id]
         principle_data = objective_data["principles"][principle_id]
 
         data.update(
@@ -215,34 +213,34 @@ class OutcomeConfirmationHandlerView(LoginRequiredMixin, FormView, BaseAssessmen
         return cast(FormView, super()).form_valid(form)
 
     def get_success_url(self):
-        from webcaf import settings
+        """Determine the next URL in the confirmation flow.
 
+        The logic is unchanged; it has been decomposed for clarity.
+        """
         indicator_id = self.kwargs["indicator_id"]
-        parent = settings.framework_router.parent_map[indicator_id]["parent"]
-        siblings = [
-            entry[0]
-            for entry in settings.framework_router.parent_map.items()
-            if entry[1]["parent"] == parent and entry[0].startswith("indicators")
-        ]
+        parent_id = self._get_parent_id(indicator_id)
+
+        siblings = self._get_indicator_siblings(parent_id)
         current_index = siblings.index(indicator_id)
 
-        if current_index > len(siblings) - 2:
-            # Get the next parent indicator and go to next section
-            parent_siblings = [
-                entry[0] for entry in settings.framework_router.parent_map.items() if entry[0].startswith("principle")
-            ]
-            current_parent_index = parent_siblings.index(parent)
-            if current_parent_index > len(parent_siblings) - 2:
+        if self._is_last_index(current_index, siblings):
+            # Move to next parent (principle) or finish the flow
+            parent_siblings = self._get_principle_siblings()
+            current_parent_index = parent_siblings.index(parent_id)
+
+            if self._is_last_index(current_parent_index, parent_siblings):
                 # Flow is complete, go back to the overview page
                 assessment_id = self.request.session["draft_assessment"]["assessment_id"]
                 return reverse("edit-draft-assessment", kwargs={"version": "v3.2", "assessment_id": assessment_id})
             else:
+                # Go to the objective overview for the current indicator's objective
                 outcome_id = indicator_id.replace("indicators_", "")
                 objective_id = outcome_id[0]
                 return reverse(
                     "objective-overview", kwargs={"version": "v3.2", "objective_id": f"objective_{objective_id}"}
                 )
         else:
+            # Proceed to the next indicator within the same parent
             return reverse("indicator-view", kwargs={"version": "v3.2", "indicator_id": siblings[current_index + 1]})
 
     def get_form_kwargs(self):
@@ -253,8 +251,6 @@ class OutcomeConfirmationHandlerView(LoginRequiredMixin, FormView, BaseAssessmen
         return kwargs
 
     def get_context_data(self, **kwargs):
-        from webcaf import settings
-
         data = super().get_context_data(**kwargs)
         assessment = self.get_assessment()
         confirmation = assessment.assessments_data.get(self.get_assessment_section(), {})
@@ -264,7 +260,7 @@ class OutcomeConfirmationHandlerView(LoginRequiredMixin, FormView, BaseAssessmen
         indicators_stage = self._get_framework_stage(indicator_id)
         outcome_id, objective_id, principle_id = self._extract_framework_ids(indicator_id)
 
-        objective_data = settings.framework_router.framework["objectives"][objective_id]
+        objective_data = ROUTE_FACTORY.get_router("v3.2").framework["objectives"][objective_id]
         principle_data = objective_data["principles"][principle_id]
 
         data.update(
@@ -281,3 +277,20 @@ class OutcomeConfirmationHandlerView(LoginRequiredMixin, FormView, BaseAssessmen
             }
         )
         return data
+
+    # Utility methods
+    def _get_parent_id(self, indicator_id):
+        return ROUTE_FACTORY.get_router("v3.2").parent_map[indicator_id]["parent"]
+
+    def _get_indicator_siblings(self, parent_id):
+        return [
+            key
+            for key, meta in ROUTE_FACTORY.get_router("v3.2").parent_map.items()
+            if meta.get("parent") == parent_id and key.startswith("indicators")
+        ]
+
+    def _get_principle_siblings(self):
+        return [key for key in ROUTE_FACTORY.get_router("v3.2").parent_map.keys() if key.startswith("principle")]
+
+    def _is_last_index(self, idx, items):
+        return idx > len(items) - 2

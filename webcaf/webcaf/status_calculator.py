@@ -3,19 +3,28 @@ from typing import Any
 
 def calculate_outcome_status(confirmation: dict[str, Any], indicators: dict[str, Any]) -> dict[str, str | None]:
     """
-     Calculate the outcome status for the given set of indicators.
-    :param confirmation:
-    :param indicators:
-    :return:
+    Determines the outcome status based on confirmation and indicators provided.
+
+    :param confirmation: A dictionary containing confirmation details.
+    :type confirmation: dict[str, Any]
+    :param indicators: A dictionary containing various status indicators.
+    :type indicators: dict[str, Any]
+
+    :return: A dictionary with keys "outcome_status" and "override_status".
+    :rtype: dict[str, str | None]
     """
     override_status: str | None = None
     if confirmation:
         if confirm_outcome := confirmation.get("confirm_outcome"):
+            # Final part of the change_to indicator is the override status
+            # The possible values are: achieved, partially_achieved, not_achieved, confirm
+            # NOTE: Value of confirm indicates that the user has not overridden our calculated value
             override_status = confirm_outcome.replace("change_to_", "").replace("_", " ").capitalize()
             # If the value in the override is 'confirm', then the user has not overridden our calculated value
             if override_status == "Confirm":
                 override_status = None
 
+    # Filter out comment keys and get achieved responses
     achieved_responses = set(
         map(
             lambda x: x[1],

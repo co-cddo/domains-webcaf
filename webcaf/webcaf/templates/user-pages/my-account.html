@@ -96,28 +96,28 @@
                     {{ current_profile.organisation.name }}
                 </span>
             </h2>
-
-            <nav role="navigation" aria-labelledby="subsection-title">
-                <ul class="govuk-list">
-                    <li>
-                        <a href="{% url 'my-organisation' id=current_profile.id %}"
-                           class="govuk-link govuk-link--no-visited-state">
-                            Update your organisation
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav role="navigation" aria-labelledby="subsection-title">
-                <ul class="govuk-list">
-                    <li>
-                        <a href="{% url 'view-profiles' %}"
-                           class="govuk-link govuk-link--no-visited-state">
-                            Manage users
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            {% if current_profile.role == "cyber_advisor" %}
+                <nav role="navigation" aria-labelledby="subsection-title">
+                    <ul class="govuk-list">
+                        <li>
+                            <a href="{% url 'my-organisation' id=current_profile.id %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Update your organisation
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <nav role="navigation" aria-labelledby="subsection-title">
+                    <ul class="govuk-list">
+                        <li>
+                            <a href="{% url 'view-profiles' %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Manage users
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
