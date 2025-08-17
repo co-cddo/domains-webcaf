@@ -43,7 +43,7 @@ poetry run dotenv run ./manage.py runserver
 ### SSO settings
 We use the `SSO_MODE` environment variable to decide which SSO implementation should be used.
 - if set to `dex`, then the application will connect to the [DEX](https://dexidp.io/) instance deployed locally in the docker compose setup.
-- if set to `local`, then it will connect to an instance on `localhost:5556`
+- set it to `local`if you want to the application to connect to a DEX instance running on the host machine (at `localhost:5556`)
 - otherwise it'll take from `OIDC_*` environment variables (see `settings.py`)
 
 This will have two users configured:
