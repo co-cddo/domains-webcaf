@@ -5,13 +5,13 @@ from django.test import RequestFactory
 from django.urls.resolvers import URLPattern
 
 from webcaf import urls
-from webcaf.webcaf.caf32_router import FrameworkRouter
+from webcaf.webcaf.caf32_router import CAF32Router
 
 # Test that when _create_view_and_url is called with an outcome, it has a form class as an argument.
 
 
 # We test for the validity of the CAF YAML elsewhere, so this module assmes the YAML is valid
-class TestFrameworkRouter(unittest.TestCase):
+class TestCAF32Router(unittest.TestCase):
     def setUp(self):
         self.fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
         self._original_urlpatterns = list(urls.urlpatterns)
@@ -21,9 +21,9 @@ class TestFrameworkRouter(unittest.TestCase):
         urls.urlpatterns[:] = self._original_urlpatterns
 
     def test_urlpatterns_expected_count(self):
-        router = FrameworkRouter(self.fixture_path)
+        router = CAF32Router(self.fixture_path)
         original_length = len(urls.urlpatterns)
-        router.all_route()
+        router.execute()
 
         added_patterns = urls.urlpatterns[original_length:]
         expected_count = 20
@@ -31,8 +31,8 @@ class TestFrameworkRouter(unittest.TestCase):
 
     def test_urls_added_to_urlpatterns(self):
         original_length = len(urls.urlpatterns)
-        router = FrameworkRouter(self.fixture_path)
-        router.all_route()
+        router = CAF32Router(self.fixture_path)
+        router.execute()
 
         expected_paths = [
             "a-detecting-cyber-security-events/",
@@ -89,17 +89,17 @@ class TestFrameworkRouter(unittest.TestCase):
             self.assertIn(expected_paths[i], url_pattern.pattern.describe())
 
     def test_urlpatterns_no_duplicates(self):
-        router = FrameworkRouter(self.fixture_path)
+        router = CAF32Router(self.fixture_path)
         original_length = len(urls.urlpatterns)
-        router.all_route()
+        router.execute()
 
         added_patterns = urls.urlpatterns[original_length:]
         names = [pattern.name for pattern in added_patterns if hasattr(pattern, "name")]
         self.assertEqual(len(names), len(set(names)), "Duplicate URL pattern names found")
 
     def test_objective_breadcrumbs(self):
-        router = FrameworkRouter(self.fixture_path)
-        router.all_route()
+        router = CAF32Router(self.fixture_path)
+        router.execute()
         factory = RequestFactory()
         request = factory.get("/")
         for pattern in urls.urlpatterns:
@@ -117,8 +117,8 @@ class TestFrameworkRouter(unittest.TestCase):
         self.assertEqual(breadcrumbs[-1]["text"], "Detecting cyber security events")
 
     def test_principle_breadcrumbs(self):
-        router = FrameworkRouter(self.fixture_path)
-        router.all_route()
+        router = CAF32Router(self.fixture_path)
+        router.execute()
         factory = RequestFactory()
         request = factory.get("/")
         for pattern in urls.urlpatterns:
@@ -135,8 +135,8 @@ class TestFrameworkRouter(unittest.TestCase):
         self.assertEqual(breadcrumbs[-1]["text"], "Security Monitoring")
 
     def test_outcome_breadcrumbs(self):
-        router = FrameworkRouter(self.fixture_path)
-        router.all_route()
+        router = CAF32Router(self.fixture_path)
+        router.execute()
         factory = RequestFactory()
         request = factory.get("/")
         for pattern in urls.urlpatterns:
@@ -155,8 +155,8 @@ class TestFrameworkRouter(unittest.TestCase):
         self.assertEqual(breadcrumbs[3]["text"], "Monitoring Coverage")
 
     def test_breadcrumbs_have_urls(self):
-        router = FrameworkRouter(self.fixture_path)
-        router.all_route()
+        router = CAF32Router(self.fixture_path)
+        router.execute()
         factory = RequestFactory()
         request = factory.get("/")
         for pattern in urls.urlpatterns:
