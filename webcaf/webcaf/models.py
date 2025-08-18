@@ -93,8 +93,13 @@ class Assessment(models.Model):
 
 class UserProfile(models.Model):
     ROLE_ACTIONS = {
-        "govassure_lead": ["View, add and submit assessment", "Add organisation users"],
-        "organisation_user": ["View and edit assessments"],
+        "govassure_lead": [
+            "start a new assessment",
+            "continue a draft assessment",
+            "view assessments already sent for review",
+            "add organisation users",
+        ],
+        "organisation_user": ["continue a draft assessment", "view assessments already sent for review"],
     }
     ROLE_CHOICES = [
         ("cyber_advisor", "Cyber advisor"),

@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import ModelForm
-from django.shortcuts import render
+from django.forms import Form, ModelForm
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
 from webcaf.webcaf.models import UserProfile
@@ -29,7 +30,9 @@ class UserProfileForm(ModelForm):
     first_name = forms.CharField(max_length=150, required=True)
     last_name = forms.CharField(max_length=150, required=True)
     email = forms.CharField(max_length=150, required=True)
-    action_confirmed = forms.BooleanField(required=True)
+    # By default we do not pass the action field in the initial form, which makes the validation failure
+    # and we capture that ant and redirect the user to the confirmation page.
+    action = forms.ChoiceField(choices=[("change", "Change"), ("confirm", "Confirm")], required=True)
 
     class Meta:
         model = UserProfile
@@ -91,13 +94,16 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        if form.cleaned_data["action"] == "change":
+            # Send the user back to edit form
+            return self.form_invalid(form)
         form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
         # Capture the first instance of the user input, where we would get flagged
         # for unconfirmed changes.
-        if len(form.errors) == 1 and "action_confirmed" in form.errors:
+        if len(form.errors) == 1 and "action" in form.errors:
             return render(self.request, "users/user-confirm.html", {"form": form})
         return super().form_invalid(form)
 
@@ -124,3 +130,67 @@ class CreateUserProfileView(UserProfileView):
         form.instance.organisation = current_profile.organisation
 
         return super().form_valid(form)
+
+
+class ActionForm(Form):
+    action = forms.ChoiceField(
+        choices=[("change", "Change"), ("confirm", "Confirm"), ("skip", "Skip")], required=True, initial="confirm"
+    )
+
+
+class CreateOrSkipUserProfileView(UserRoleCheckMixin, FormView):
+    """
+    Utility action to decide to create a new user or go back to the
+    home screen.
+    """
+
+    def get_allowed_roles(self) -> list[str]:
+        return ["cyber_advisor"]
+
+    form_class = ActionForm
+
+    def form_valid(self, form):
+        action = self.request.POST.get("action")
+        if action == "confirm":
+            return redirect(reverse("create-new-profile"))
+
+        return redirect(reverse("my-account"))
+
+    def form_invalid(self, form):
+        return redirect(reverse("view-profiles"))
+
+
+class RemoveUserProfileView(UserRoleCheckMixin, FormView):
+    """
+    View to confirm the user profile deletion and action it.
+    This only removes the profile (user association with the organisation) and not the user from the system
+    """
+
+    form_class = ActionForm
+    template_name = "users/delete-user.html"
+
+    def get_allowed_roles(self) -> list[str]:
+        return ["cyber_advisor"]
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        current_profile_id = self.request.session.get("current_profile_id")
+        user_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
+        user_profile_to_delete = UserProfile.objects.get(
+            id=self.kwargs["user_profile_id"], organisation=user_profile.organisation
+        )
+        data["user_profile_to_delete"] = user_profile_to_delete
+        return data
+
+    def form_valid(self, form):
+        action = self.request.POST.get("action")
+        if action == "confirm":
+            # Delete the given profile
+            UserProfile.objects.get(
+                id=self.kwargs["user_profile_id"],
+            ).delete()
+
+        return redirect(reverse("view-profiles"))
+
+    def form_invalid(self, form):
+        return redirect(reverse("view-profiles"))

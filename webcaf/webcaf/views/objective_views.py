@@ -36,7 +36,6 @@ Notes:
 - The view keeps behavior intentionally aligned with existing logic to avoid
   any functional changes.
 """
-
 from typing import Any, Dict, List, Tuple
 
 from django.contrib.auth.mixins import LoginRequiredMixin
