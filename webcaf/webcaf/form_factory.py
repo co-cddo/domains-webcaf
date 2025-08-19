@@ -41,7 +41,7 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
                 widget=forms.Textarea(attrs=widget_attrs) if widget_attrs else None,
             )
 
-    form_class_name = f"Form_{metadata.get('id', 'dynamic')}"
+    form_class_name = f"Form_{metadata.get('code', '').replace('.', '_')}"
     FormClass = type(form_class_name, (forms.Form,), form_fields)
 
     def form_init(self, *args, **kwargs) -> None:

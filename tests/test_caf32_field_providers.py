@@ -22,7 +22,6 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "A1.a")
         self.assertEqual(metadata["code"], "A1.a")
         self.assertEqual(metadata["title"], "Monitoring Coverage")
         self.assertEqual(
@@ -86,7 +85,6 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
         self.assertIsInstance(metadata, dict)
-        self.assertEqual(metadata["id"], "A1.a")
         self.assertEqual(metadata["code"], "A1.a")
         self.assertEqual(metadata["title"], "Monitoring Coverage")
 
