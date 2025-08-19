@@ -104,7 +104,9 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         # Capture the first instance of the user input, where we would get flagged
         # for unconfirmed changes.
         if len(form.errors) == 1 and "action" in form.errors:
-            return render(self.request, "users/user-confirm.html", {"form": form})
+            current_profile_id = self.request.session.get("current_profile_id")
+            current_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
+            return render(self.request, "users/user-confirm.html", {"form": form, "current_profile": current_profile})
         return super().form_invalid(form)
 
 

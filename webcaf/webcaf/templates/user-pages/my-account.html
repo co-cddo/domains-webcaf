@@ -35,21 +35,19 @@
                 </p>
             </div>
             {% if current_profile.role == "cyber_advisor" %}
-                <div class="govuk-button-group">
-                    <form action="{% url 'create-new-system' %}" method="GET">
-                        {% csrf_token %}
+                <form action="{% url 'create-new-system' %}" method="GET">
+                    {% csrf_token %}
+                    <div class="govuk-button-group">
                         <button type="submit" class="govuk-button govuk-button--primary" data-module="govuk-button">
                             Add new system
                         </button>
-                    </form>
-                    <form action="{% url 'view-systems' %}" method="GET">
-                        {% csrf_token %}
-                        <button type="submit" class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button">
-                            View systems
-                        </button>
-                    </form>
-                </div>
+                        {% if system_count %}
+                            <a href="{% url 'view-systems' %}" class="govuk-link govuk-link--no-visited-state">
+                                View systems
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
             {% else %}
                 <form action="{% url 'create-draft-assessment' %}" method="GET">
                     {% csrf_token %}

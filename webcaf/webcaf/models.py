@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from multiselectfield import MultiSelectField
 
 
 class Organisation(models.Model):
@@ -42,8 +43,56 @@ class Organisation(models.Model):
 
 
 class System(models.Model):
+    INTERNET_FACING = [("yes", "Yes"), ("no", "No")]
+    SYSTEM_TYPES = [
+        (
+            "directly_supports_organisation_mission",
+            """The system directly supports the organisation mission""",
+            """for example, Universal Credit""",
+        ),
+        (
+            "supports_other_critical_systems",
+            """The system is a corporate or enterprise system or network that supports other critical systems""",
+            """for example, hosting platform or network, Active Directory""",
+        ),
+        (
+            "is_critical_for_day_to_day_operations",
+            """The system is a corporate or enterprise system deemed critical for day-to-day operations""",
+            """for example, Microsoft Office 365, telephony, corporate website""",
+        ),
+        (
+            "hosted_externally_or_by_commercial_providers_or_other_departments",
+            """The system is hosted externally, including by commercial providers or other departments""",
+            """for example, shared services""",
+        ),
+    ]
+    OWNER_TYPES = [
+        ("owned_by_organisation_being_assessed", """The organisation being assessed"""),
+        ("owned_by_another_government_organisation", """Another government organisation"""),
+        ("owned_by_third_party_company", """Third-party company"""),
+        ("owned_by_other", """Other"""),
+    ]
+    HOSTING_TYPES = [
+        ("hosted_on_premises", "On premises"),
+        ("hosted_on_cloud", "Cloud hosted"),
+        ("hosted_hybrid", "Hybrid"),
+        ("hosted_by_third_party", "Commercially hosted by third-party"),
+    ]
+    ASSESSED_CHOICES = [
+        ("assessed_in_2324", "Yes, assessed in 2023/24"),
+        ("assessed_in_2425", "Yes, assessed in 2024/25"),
+        ("assessed_in_2324_and_2425", "Yes, assessed in both 2023/24 and 2024/25"),
+        ("assessed_not_done", "No"),
+    ]
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
+    system_type = models.CharField(
+        choices=[(s_type[0], s_type[1]) for s_type in SYSTEM_TYPES], null=True, blank=True, max_length=255
+    )
+    system_owner = MultiSelectField(choices=OWNER_TYPES, null=True, blank=True, max_length=255)
+    hosting_type = MultiSelectField(choices=HOSTING_TYPES, null=True, blank=True, max_length=255)
+    internet_facing = models.CharField(choices=INTERNET_FACING, null=True, blank=True)
+    last_assessed = models.CharField(choices=ASSESSED_CHOICES, max_length=255, null=True, blank=True)
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
 
     class Meta:
@@ -103,7 +152,7 @@ class UserProfile(models.Model):
     }
     ROLE_CHOICES = [
         ("cyber_advisor", "Cyber advisor"),
-        ("govassure_lead", "GovAssure Lead"),
+        ("govassure_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
     ]
     # Do this rather than add a foreign key to Organisation, in case we need a many-to-many relationship later
@@ -111,7 +160,7 @@ class UserProfile(models.Model):
     organisation = models.ForeignKey(
         Organisation, on_delete=models.CASCADE, related_name="members", null=True, blank=True
     )
-    role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES, default="User")
+    role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES)
 
     @classmethod
     def get_role_id(cls, role_name):

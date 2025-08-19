@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block title %}Check system details{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action_confirmed" value="true">
+                <input type="hidden" name="name" value="{{ form.name.value }}">
+                <input type="hidden" name="description" value="{{ form.description.value }}">
+                {% for owner in form.system_owner.value %}
+                    <input type="hidden" name="system_owner" value="{{ owner }}">
+                {% endfor %}
+                <input type="hidden" name="system_type" value="{{ form.system_type.value }}">
+                {% for hosting_type in form.hosting_type.value %}
+                    <input type="hidden" name="hosting_type" value="{{ hosting_type }}">
+                {% endfor %}
+                <input type="hidden" name="internet_facing" value="{{ form.internet_facing.value }}">
+                <input type="hidden" name="last_assessed" value="{{ form.last_assessed.value }}">
+
+                <h1 class="govuk-heading-l">Check your system details</h1>
+                <div class="govuk-summary-card">
+                    <div class="govuk-summary-card__title-wrapper">
+                        <h2 class="govuk-summary-card__title">
+                            {{ current_profile.organisation.name }}
+                        </h2>
+                        <ul class="govuk-summary-card__actions">
+                            <li class="govuk-summary-card__action">
+                                <button type="submit" name="action" value="change" class="govuk-link govuk-button--text"
+                                        data-module="govuk-button">
+                                    Change <span class="govuk-visually-hidden">system information</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="govuk-summary-card__content">
+                        <dl class="govuk-summary-list">
+                            {% for field in form %}
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        {{ field.label }}
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {% if field.name == 'system_owner' or field.name == 'hosting_type' %}
+                                            <ul class="govuk-list">
+                                            {% for item in field.value %}
+                                                <li class="item">{{ item }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            {{ field.value }}
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            {% endfor %}
+                        </dl>
+                    </div>
+                </div>
+                <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

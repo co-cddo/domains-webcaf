@@ -34,7 +34,12 @@ from webcaf.webcaf.views import (
 )
 from webcaf.webcaf.views.general_views import logout_view
 from webcaf.webcaf.views.objective_views import ObjectiveView
-from webcaf.webcaf.views.system_views import EditSystemView, SystemView, ViewSystemsView
+from webcaf.webcaf.views.system_views import (
+    CreateOrSkipSystemView,
+    EditSystemView,
+    SystemView,
+    ViewSystemsView,
+)
 from webcaf.webcaf.views.users_profiles_view import (
     CreateOrSkipUserProfileView,
     CreateUserProfileView,
@@ -93,6 +98,7 @@ urlpatterns = [
     path("create-new-system/", SystemView.as_view(), name="create-new-system"),
     path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),
     path("view-systems/", ViewSystemsView.as_view(), name="view-systems"),
+    path("create-or-skip-new-system/", CreateOrSkipSystemView.as_view(), name="create-or-skip-new-system"),
     #     User management paths
     path("create-new-profile/", CreateUserProfileView.as_view(), name="create-new-profile"),
     path("create-or-skip-new-profile/", CreateOrSkipUserProfileView.as_view(), name="create-or-skip-new-profile"),
