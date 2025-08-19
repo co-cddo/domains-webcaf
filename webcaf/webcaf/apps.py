@@ -9,8 +9,8 @@ class WebcafConfig(AppConfig):
     def ready(self) -> None:
         from django.conf import settings
 
-        from .caf32_router import FrameworkRouter
+        from .caf32_router import CAF32Router
 
         framework_path = getattr(settings, "FRAMEWORK_PATH")
-        self.framework_router = FrameworkRouter(framework_path)
-        self.framework_router.all_route()
+        self.framework_router = CAF32Router(framework_path)
+        self.framework_router.execute()

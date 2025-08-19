@@ -33,7 +33,6 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
             "code": self.outcome_data.get("code", ""),
             "title": self.outcome_data.get("title", ""),
             "description": self.outcome_data.get("description", ""),
-            "id": self.outcome_data.get("id", ""),
         }
 
     def get_field_definitions(self) -> list[dict]:
@@ -81,11 +80,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         self.outcome_data = outcome_data
 
     def get_metadata(self) -> dict:
-        return {
-            "code": self.outcome_data.get("code", ""),
-            "title": self.outcome_data.get("title", ""),
-            "id": self.outcome_data.get("id", ""),
-        }
+        return {"code": self.outcome_data.get("code", ""), "title": self.outcome_data.get("title", "")}
 
     def get_field_definitions(self) -> list[dict]:
         status_choices = [
