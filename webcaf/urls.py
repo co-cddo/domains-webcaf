@@ -33,7 +33,7 @@ from webcaf.webcaf.views import (
     OrganisationTypeView,
 )
 from webcaf.webcaf.views.general_views import logout_view
-from webcaf.webcaf.views.objective_views import ObjectiveView
+from webcaf.webcaf.views.objective_views import ObjectiveConfirmationView, ObjectiveView
 from webcaf.webcaf.views.system_views import (
     CreateOrSkipSystemView,
     EditSystemView,
@@ -88,6 +88,7 @@ urlpatterns = [
     ),
     #     Objective overview paths
     path("<str:version>/objective-overview/<str:objective_id>/", ObjectiveView.as_view(), name="objective-overview"),
+    path("<str:version>/objective-confirmation/", ObjectiveConfirmationView.as_view(), name="objective-confirmation"),
     path("<str:version>/indicator/<str:indicator_id>/", OutcomeIndicatorsHandlerView.as_view(), name="indicator-view"),
     path(
         "<str:version>/indicator/<str:indicator_id>/confirmation",

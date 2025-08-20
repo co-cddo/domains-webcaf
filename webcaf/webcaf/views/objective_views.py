@@ -36,19 +36,85 @@ Notes:
 - The view keeps behavior intentionally aligned with existing logic to avoid
   any functional changes.
 """
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Protocol, Tuple
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.views.generic import TemplateView
 
 from webcaf.webcaf.models import Assessment, UserProfile
 from webcaf.webcaf.status_calculator import calculate_outcome_status
-from webcaf.webcaf.views.util import get_parent_map
+from webcaf.webcaf.views.util import (
+    format_indicator_title,
+    format_objective_heading,
+    format_principle_name,
+    get_parent_map,
+    indicators_for_principle,
+    principles_for_objective,
+)
 
 
-class ObjectiveView(LoginRequiredMixin, TemplateView):
+class RequestView(Protocol):
+    """Protocol for views that accept a request."""
+
+    request: HttpRequest
+    # Constants to avoid magic strings while keeping behavior identical
+    _SESSION_DRAFT_ASSESSMENT: str = "draft_assessment"
+    _SESSION_ASSESSMENT_ID: str = "assessment_id"
+    _SESSION_CURRENT_PROFILE_ID: str = "current_profile_id"
+
+
+class OutcomeCalculationMixin(RequestView):
+    """Mixin to provide outcome calculation for a given indicator."""
+
+    def calculate_outcome_status(self: RequestView, indicator_id: str, assessment: Assessment) -> Any:
+        """Calculate the derived outcome status for a given indicator.
+
+        Parameters:
+            indicator_id: The key used in assessments_data for the indicator
+                responses (e.g., "indicator_indicators_A1.a"). The corresponding
+                confirmation key is computed by replacing the "indicator_" prefix
+                with "confirmation_".
+
+        Returns:
+            Whatever value is produced by webcaf.webcaf.views.status_calculator
+            calculate_outcome_status(confirmation, indicators). Typically a
+            status token/label consumed by templates.
+
+        Notes:
+            Accesses the cached Assessment instance to avoid repeated DB hits.
+        """
+        indicators = assessment.assessments_data.get(indicator_id, {})
+        confirmation = assessment.assessments_data.get(
+            indicator_id.replace("indicator_", "confirmation_"),
+            {},
+        )
+        return calculate_outcome_status(confirmation, indicators)
+
+    def get_assessment(self: RequestView) -> Assessment:
+        """Fetch the current draft Assessment for the user's organisation.
+
+        Reads the assessment_id and current_profile_id from the session and then
+        retrieves the Assessment scoped by the user's organisation.
+
+        Returns:
+            The draft Assessment instance.
+
+        Raises:
+            KeyError: If required session keys are missing.
+            UserProfile.DoesNotExist: If the stored profile id is invalid.
+            Assessment.DoesNotExist: If a matching draft assessment is not found.
+        """
+        id_: int = self.request.session[self._SESSION_DRAFT_ASSESSMENT][self._SESSION_ASSESSMENT_ID]
+        user_profile_id = self.request.session[self._SESSION_CURRENT_PROFILE_ID]
+        user_profile = UserProfile.objects.get(id=user_profile_id)
+        assessment = Assessment.objects.get(status="draft", id=id_, system__organisation=user_profile.organisation)
+        return assessment
+
+
+class ObjectiveView(LoginRequiredMixin, OutcomeCalculationMixin, TemplateView):
     """Render the Objective overview page for a given objective.
 
     Combines router metadata and persisted assessment data to produce the
@@ -67,11 +133,6 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
 
     template_name = "assessment/objective-overview.html"
     login_url = "/oidc/authenticate/"
-
-    # Constants to avoid magic strings while keeping behavior identical
-    _SESSION_DRAFT_ASSESSMENT = "draft_assessment"
-    _SESSION_ASSESSMENT_ID = "assessment_id"
-    _SESSION_CURRENT_PROFILE_ID = "current_profile_id"
 
     # Use a cached_property to avoid repeated DB lookups within the same request
     @cached_property
@@ -94,7 +155,7 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
         objective_id: str = kwargs["objective_id"]
 
         # Breadcrumbs
-        objective_title = self._format_objective_heading(objective_id, parent_map)
+        objective_title = format_objective_heading(objective_id, parent_map)
         data["breadcrumbs"] = self._build_breadcrumbs(assessment_id, objective_title)
 
         # Objective heading
@@ -114,20 +175,20 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
         data["principles"] = []
 
         # Select principles where parent == objective_id
-        principles: List[Tuple[str, Dict[str, Any]]] = self._principles_for_objective(parent_map, objective_id)
+        principles: List[Tuple[str, Dict[str, Any]]] = principles_for_objective(parent_map, objective_id)
 
         for principle_key, principle_val in principles:
-            indicators: List[Tuple[str, Dict[str, Any]]] = self._indicators_for_principle(parent_map, principle_key)
+            indicators: List[Tuple[str, Dict[str, Any]]] = indicators_for_principle(parent_map, principle_key)
 
             data["principles"].append(
                 {
-                    "name": self._format_principle_name(principle_key, principle_val["text"]),
+                    "name": format_principle_name(principle_key, principle_val["text"]),
                     "indicators": [
                         {
                             "id": indicator_key,
-                            "title": self._format_indicator_title(indicator_key, indicator_val["text"]),
+                            "title": format_indicator_title(indicator_key, indicator_val["text"]),
                             "complete": assessment.assessments_data.get(f"indicator_{indicator_key}") is not None,
-                            "outcome": self.calculate_outcome_status(f"indicator_{indicator_key}"),
+                            "outcome": self.calculate_outcome_status(f"indicator_{indicator_key}", self.assessment),
                         }
                         for indicator_key, indicator_val in indicators
                     ],
@@ -184,95 +245,38 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
 
         return False, f"objective_{chr(ord(objective_key) + 1)}"
 
-    def _principles_for_objective(
-        self, parent_map: Dict[str, Any], objective_id: str
-    ) -> List[Tuple[str, Dict[str, Any]]]:
-        """Filter principles that have the given objective as their parent.
 
-        Returns:
-            List of (principle_key, principle_value) tuples.
-        """
-        return [item for item in parent_map.items() if item[1].get("parent") == objective_id]
+class ObjectiveConfirmationView(OutcomeCalculationMixin, TemplateView):
+    """
+    Present the summary view of the completed stages for the user
+    to review.
 
-    def _indicators_for_principle(
-        self, parent_map: Dict[str, Any], principle_key: str
-    ) -> List[Tuple[str, Dict[str, Any]]]:
-        """Return indicator entries that belong to the given principle.
+    :ivar template_name: Path to the template that renders the objective confirmation page.
+    :type template_name: str
+    """
 
-        Only keys that start with "indicators" are included.
-        """
-        return [
-            item
-            for item in parent_map.items()
-            if item[1].get("parent") == principle_key and item[0].startswith("indicators")
-        ]
+    template_name = "assessment/objective-confirmation.html"
 
-    @staticmethod
-    def _format_objective_heading(objective_id: str, parent_map: Dict[str, Any]) -> str:
-        """Format the objective heading combining ID and human text.
-
-        Example: "objective_A" + "Some title" -> "Objective A - Some title"
-        """
-        return objective_id.replace("_", " ").title() + " - " + parent_map[objective_id]["text"]
-
-    @staticmethod
-    def _format_principle_name(principle_key: str, text: str) -> str:
-        """Format a principle label: replace first underscore with colon and title-case.
-
-        Example: "principle_A1" + "Text" -> "Principle:A1 Text"
-        """
-        return principle_key.replace("_", ":").title() + " " + text
-
-    @staticmethod
-    def _format_indicator_title(indicator_key: str, text: str) -> str:
-        """Format the indicator title by stripping "indicators_" prefix.
-
-        Example: "indicators_A1.a" + "Text" -> "A1.a Text"
-        """
-        return indicator_key.replace("indicators_", "") + " " + text
-
-    # ----- Data access -----
-    def get_assessment(self) -> Assessment:
-        """Fetch the current draft Assessment for the user's organisation.
-
-        Reads the assessment_id and current_profile_id from the session and then
-        retrieves the Assessment scoped by the user's organisation.
-
-        Returns:
-            The draft Assessment instance.
-
-        Raises:
-            KeyError: If required session keys are missing.
-            UserProfile.DoesNotExist: If the stored profile id is invalid.
-            Assessment.DoesNotExist: If a matching draft assessment is not found.
-        """
-        id_: int = self.request.session[self._SESSION_DRAFT_ASSESSMENT][self._SESSION_ASSESSMENT_ID]
-        user_profile_id = self.request.session[self._SESSION_CURRENT_PROFILE_ID]
-        user_profile = UserProfile.objects.get(id=user_profile_id)
-        assessment = Assessment.objects.get(status="draft", id=id_, system__organisation=user_profile.organisation)
-        return assessment
-
-    def calculate_outcome_status(self, indicator_id: str) -> Any:
-        """Calculate the derived outcome status for a given indicator.
-
-        Parameters:
-            indicator_id: The key used in assessments_data for the indicator
-                responses (e.g., "indicator_indicators_A1.a"). The corresponding
-                confirmation key is computed by replacing the "indicator_" prefix
-                with "confirmation_".
-
-        Returns:
-            Whatever value is produced by webcaf.webcaf.views.status_calculator
-            calculate_outcome_status(confirmation, indicators). Typically a
-            status token/label consumed by templates.
-
-        Notes:
-            Accesses the cached Assessment instance to avoid repeated DB hits.
-        """
-        assessment = self.assessment
-        indicators = assessment.assessments_data.get(indicator_id, {})
-        confirmation = assessment.assessments_data.get(
-            indicator_id.replace("indicator_", "confirmation_"),
-            {},
-        )
-        return calculate_outcome_status(confirmation, indicators)
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        parent_map: Dict[str, Any] = get_parent_map()
+        data = super().get_context_data(**kwargs)
+        assessment = self.get_assessment()
+        objectives: dict[str, Any] = dict()
+        for key, value in filter(lambda entry: entry[0].startswith("objective_"), parent_map.items()):
+            objectives[key] = {
+                "title": format_objective_heading(key, parent_map),
+                "principles": dict(),
+            }
+            for principal_id, principal_data in principles_for_objective(parent_map, key):
+                objectives[key]["principles"][principal_id] = {
+                    "title": format_principle_name(principal_id, principal_data["text"]),
+                    "indicators": dict(),
+                }
+                for indicator_id, indicator_data in indicators_for_principle(parent_map, principal_id):
+                    objectives[key]["principles"][principal_id]["indicators"][indicator_id] = {
+                        "id": indicator_id,
+                        "title": format_indicator_title(indicator_id, indicator_data["text"]),
+                        "outcome": self.calculate_outcome_status(f"indicator_{indicator_id}", assessment),
+                    }
+        data["objectives"] = objectives
+        return data

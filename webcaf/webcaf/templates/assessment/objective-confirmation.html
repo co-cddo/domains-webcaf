@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Complete the full assessment{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                Send your self-assessment for review
+            </h1>
+            <p class="govuk-body">Based on your answers, you can review the status of individual outcomes below for each
+                principle. You can go back and change your answers.</p>
+            {% for objective in objectives.values %}
+                <h1 class="govuk-heading-l">
+                    {{ objective.title }}
+                </h1>
+                {% for principal in objective.principles.values %}
+                    <h2 class="govuk-heading-m">
+                        {{ principal.title }}
+                    </h2>
+                    <dl class="govuk-summary-list">
+                        {% for indicator in principal.indicators.values %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    {{ indicator.title }}
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {% if indicator.outcome.override_status %}
+                                        {% if indicator.outcome.override_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.override_status }}</strong>
+                                        {% elif indicator.outcome.override_status == 'Partially Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--yellow">{{ indicator.outcome.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.override_status }}</strong>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                            overridden
+                                        </span>
+                                    {% else %}
+                                        {% if indicator.outcome.outcome_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% elif indicator.outcome.override_status == 'Partially Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--yellow">{{ indicator.outcome.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ indicator.outcome.outcome_status }}</strong>
+                                        {% endif %}
+                                    {% endif %}
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link"
+                                       href="{% url 'indicator-view' indicator_id=indicator.id version='v3.2' %}">
+                                        Change<span class="govuk-visually-hidden">  {{ indicator.title }} answers</span></a>
+                                </dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

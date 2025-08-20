@@ -42,3 +42,48 @@ def get_parent_map() -> Dict[str, Any]:
     from webcaf.webcaf.router_factory import ROUTE_FACTORY
 
     return ROUTE_FACTORY.get_router("v3.2").parent_map
+
+
+def principles_for_objective(parent_map: Dict[str, Any], objective_id: str) -> list[tuple[str, dict[str, Any]]]:
+    """Filter principles that have the given objective as their parent.
+
+    Returns:
+        List of (principle_key, principle_value) tuples.
+    """
+    return [item for item in parent_map.items() if item[1].get("parent") == objective_id]
+
+
+def indicators_for_principle(parent_map: dict[str, Any], principle_key: str) -> list[tuple[str, dict[str, Any]]]:
+    """Return indicator entries that belong to the given principle.
+
+    Only keys that start with "indicators" are included.
+    """
+    return [
+        item
+        for item in parent_map.items()
+        if item[1].get("parent") == principle_key and item[0].startswith("indicators")
+    ]
+
+
+def format_objective_heading(objective_id: str, parent_map: dict[str, Any]) -> str:
+    """Format the objective heading combining ID and human text.
+
+    Example: "objective_A" + "Some title" -> "Objective A - Some title"
+    """
+    return objective_id.replace("_", " ").title() + " - " + parent_map[objective_id]["text"]
+
+
+def format_principle_name(principle_key: str, text: str) -> str:
+    """Format a principle label: replace first underscore with colon and title-case.
+
+    Example: "principle_A1" + "Text" -> "Principle:A1 Text"
+    """
+    return principle_key.replace("_", ":").title() + " " + text
+
+
+def format_indicator_title(indicator_key: str, text: str) -> str:
+    """Format the indicator title by stripping "indicators_" prefix.
+
+    Example: "indicators_A1.a" + "Text" -> "A1.a Text"
+    """
+    return indicator_key.replace("indicators_", "") + " " + text

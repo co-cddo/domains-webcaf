@@ -163,6 +163,10 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                 ObjectiveRecord("objective_C", objective_c_complete, parent_map["objective_C"]["text"]),
                 ObjectiveRecord("objective_D", objective_d_complete, parent_map["objective_D"]["text"]),
             ],
+            "all_complete": objective_a_complete
+            and objective_b_complete
+            and objective_c_complete
+            and objective_d_complete,
             "draft_assessment": draft_assessment,
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},

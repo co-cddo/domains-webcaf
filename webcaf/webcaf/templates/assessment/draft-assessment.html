@@ -77,7 +77,15 @@
                     </div>
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="first-section-1-status">
-                        Cannot start yet
+                        {% if all_complete %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href={% url 'objective-confirmation' version='v3.2' %}
+                            >
+                                View and submit
+                            </a>
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
                     </div>
                 </li>
             </ul>
