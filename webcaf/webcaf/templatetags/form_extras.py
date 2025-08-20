@@ -111,6 +111,16 @@ def get_field_value(form, field_name):
     return form.initial.get(field_name, "")
 
 
+@register.filter
+def replace_underscores(value):
+    """
+
+    :param value:
+    :return:
+    """
+    return value.replace("_", " ").title()
+
+
 @register.simple_tag
 def get_role_name(role):
     return next(filter(lambda x: x[0] == role, UserProfile.ROLE_CHOICES))[1]

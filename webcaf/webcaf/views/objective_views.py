@@ -44,8 +44,8 @@ from django.utils.functional import cached_property
 from django.views.generic import TemplateView
 
 from webcaf.webcaf.models import Assessment, UserProfile
-from webcaf.webcaf.router_factory import ROUTE_FACTORY
 from webcaf.webcaf.status_calculator import calculate_outcome_status
+from webcaf.webcaf.views.util import get_parent_map
 
 
 class ObjectiveView(LoginRequiredMixin, TemplateView):
@@ -89,7 +89,7 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
               final_objective, assessment_id, and next_objective when relevant.
         """
         data = super().get_context_data(**kwargs)
-        parent_map: Dict[str, Any] = self._get_parent_map()
+        parent_map: Dict[str, Any] = get_parent_map()
         assessment_id = self.request.session[self._SESSION_DRAFT_ASSESSMENT][self._SESSION_ASSESSMENT_ID]
         objective_id: str = kwargs["objective_id"]
 
@@ -136,17 +136,6 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
 
         return data
 
-    # ----- Helpers -----
-    def _get_parent_map(self) -> Dict[str, Any]:
-        """Return the framework routing map for version v3.2.
-
-        The parent_map defines relationships between objectives, principles, and
-        indicators, e.g.:
-        - objective_X -> principle_Xn
-        - principle_Xn -> indicators_Xn.*
-        """
-        return ROUTE_FACTORY.get_router("v3.2").parent_map
-
     def _build_breadcrumbs(self, assessment_id: str, objective_title: str) -> List[Dict[str, Any]]:
         """Construct the breadcrumb trail for the objective overview page.
 
@@ -189,9 +178,10 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
         is_last = (
             all_objectives.index(objective_id) == len(all_objectives) - 1 if objective_id in all_objectives else True
         )
-        if is_last:
-            return True, None
         objective_key = objective_id.split("_")[1]
+        if is_last or objective_key in ["z", "Z"]:
+            return True, None
+
         return False, f"objective_{chr(ord(objective_key) + 1)}"
 
     def _principles_for_objective(

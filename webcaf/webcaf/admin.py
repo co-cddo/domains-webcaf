@@ -29,5 +29,6 @@ class AssessmentAdmin(admin.ModelAdmin):
     model = Assessment
     search_fields = ["status", "system__name"]
     list_display = ["status", "system__name", "system__organisation__name", "created_on", "last_updated"]
-    list_filter = ["status", "system__organisation"]
+    list_filter = ["status", "system__organisation__name", "system__name"]
     ordering = ["-created_on"]
+    list_select_related = ["system", "system__organisation"]

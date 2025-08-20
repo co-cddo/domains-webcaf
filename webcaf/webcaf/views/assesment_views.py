@@ -1,4 +1,6 @@
 import re
+from collections import namedtuple
+from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
@@ -100,6 +102,8 @@ OBJECTIVE_D_KEYS = {
     "indicator_indicators_D2.b",
 }
 
+ObjectiveRecord = namedtuple("ObjectiveRecord", ["id", "is_complete", "label"])
+
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
     """
@@ -148,11 +152,17 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         }
         # We need to access this information later in the assessment editing stages.
         self.request.session["draft_assessment"] = draft_assessment
+        from webcaf.webcaf.views.util import get_parent_map
+
+        parent_map: Dict[str, Any] = get_parent_map()
+
         data = {
-            "objective_a_complete": objective_a_complete,
-            "objective_b_complete": objective_b_complete,
-            "objective_c_complete": objective_c_complete,
-            "objective_d_complete": objective_d_complete,
+            "objectives": [
+                ObjectiveRecord("objective_A", objective_a_complete, parent_map["objective_A"]["text"]),
+                ObjectiveRecord("objective_B", objective_b_complete, parent_map["objective_B"]["text"]),
+                ObjectiveRecord("objective_C", objective_c_complete, parent_map["objective_C"]["text"]),
+                ObjectiveRecord("objective_D", objective_d_complete, parent_map["objective_D"]["text"]),
+            ],
             "draft_assessment": draft_assessment,
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},

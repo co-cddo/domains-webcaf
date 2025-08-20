@@ -72,7 +72,7 @@
                 {% else %}
                     <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_systems| length }} draft assessment(s)
+                            View {{ draft_systems| length }} draft assessment{{ draft_systems | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
