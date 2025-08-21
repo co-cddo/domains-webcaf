@@ -5,45 +5,190 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% include 'partials/error_message.html' %}
-            <h4 class="grey">{{ current_profile.organisation.name }}</h4>
+            <span class="govuk-caption-l">{{ current_profile.organisation.name }}</span>
             {% if form.instance.id %}
-                <h2>Edit system description</h2>
+                <h1 class="govuk-heading-l">Edit {{ form.name.value|default:'' }} system</h1>
             {% else %}
-                <h2>Add a new government system</h2>
+                <h1 class="govuk-heading-l">Add a new government system</h1>
             {% endif %}
 
             <form class="form" method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
                     <label class="govuk-label" for="name">
-                        System name
+                        <span class="govuk-heading-m">System name</span>
                     </label>
-                    <input class="govuk-input govuk-input--width-30" id="name" name="name" type="text"
+                    <div id="govsysmanual-hint" class="govuk-hint">
+                        System name
+                    </div>
+                    <input class="govuk-input govuk-input--width-30" id="id_name" name="name" type="text"
                            spellcheck="false"
-                            {% if form.instance.id %}
-                           readonly
-                            {% endif %}
                            value="{{ form.name.value|default:'' }}">
                 </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="description">
-                        System description
-                    </label>
-                    <p class="govuk-hint">Describe what the system does and why you need to submit a self-assessment
-                        CAF.</p>
-                    {% if form.description.errors %}
-                        <ul class="errors">
-                            {% for error in form.description.errors %}
-                                <li class="govuk-textarea--error">{{ error }}</li>
+                <h2 class="govuk-heading-m">
+                    System type
+                </h2>
+                <div class="govuk-form-group" id="id_system_type">
+                    <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">
+                        <legend class="govuk-fieldset__legend govuk-body">
+                            <h1 class="govuk-fieldset__heading">
+                                What best describes this system?
+                            </h1>
+                        </legend>
+                        <div id="system_type-hint" class="govuk-hint">
+                            Select one option
+                        </div>
+                        <div class="govuk-radios govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+                            {% for system_type in system_types %}
+                                <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="system_type_{{ forloop.counter }}"
+                                       name="system_type" type="radio"
+                                       value="{{ system_type.0 }}"
+                                       {% if system_type.0 == form.system_type.value %}checked{% endif %}
+                                       aria-describedby="system_type-item-hint_{{ forloop.counter }}">
+                                <label class="govuk-label govuk-radios__label" for="system_type_{{ forloop.counter }}">
+                                    {{ system_type.1 }}
+                                </label>
+                                <div id="system_type-item-hint_{{ forloop.counter }}"
+                                     class="govuk-hint govuk-radios__hint">
+                                    {{ system_type.2 }}
+                                </div>
                             {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <textarea id="description"
-                              cols="68" rows="10"
-                              name="description"
-                              spellcheck="false" autocomplete="name"
-                              class="govuk-textarea"
-                    >{{ form.description.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="govuk-form-group">
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label govuk-heading-s" for="id_description">
+                            What essential service does this system support?
+                        </label>
+                    </h1>
+                    <div id="id_description-hint" class="govuk-hint">
+                        Describe what essential service this system supports.
+                    </div>
+                    <textarea class="govuk-textarea" id="id_description" name="description" rows="5"
+                              aria-describedby="id_description-hint"
+                              autocomplete="string">{{ form.description.value|default:'' }}</textarea>
+
+                </div>
+                <h2 class="govuk-heading-m">
+                    System owner
+                </h2>
+                <div class="govuk-form-group" id="id_system_owner">
+                    <fieldset class="govuk-fieldset" aria-describedby="system_owner-hint">
+                        <legend class="govuk-fieldset__legend govuk-body">
+                            <h1 class="govuk-fieldset__heading">
+                                Who owns this system?
+                            </h1>
+                        </legend>
+                        <div id="system_owner-hint" class="govuk-hint">
+                            Select all that apply
+                        </div>
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                            {% for owner in owner_types %}
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="system_owner_{{ forloop.counter }}"
+                                           name="system_owner"
+                                           type="checkbox"
+                                           {% if owner.0 in form.system_owner.value %}checked{% endif %}
+                                           value="{{ owner.0 }}">
+                                    <label class="govuk-label govuk-checkboxes__label"
+                                           for="system_owner_{{ forloop.counter }}">
+                                        {{ owner.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h2 class="govuk-heading-m">
+                    System hosting type and connectivity
+                </h2>
+                <div class="govuk-form-group" id="id_hosting_type">
+                    <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">
+                        <legend class="govuk-fieldset__legend govuk-body">
+                            <h1 class="govuk-fieldset__heading">
+                                How is the system hosted?
+                            </h1>
+                        </legend>
+                        <div id="hosting_type-hint" class="govuk-hint">
+                            Select all that apply
+                        </div>
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                            {% for hosting_type in hosting_types %}
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="hosting_type_{{ forloop.counter }}"
+                                           name="hosting_type"
+                                           type="checkbox"
+                                           {% if hosting_type.0 in form.hosting_type.value %}checked{% endif %}
+                                           value="{{ hosting_type.0 }}">
+                                    <label class="govuk-label govuk-checkboxes__label"
+                                           for="hosting_type_{{ forloop.counter }}">
+                                        {{ hosting_type.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+
+                </div>
+                <div id="id_internet_facing" class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="internet_facing-hint">
+                        <legend class="govuk-fieldset__legend govuk-body">
+                            <h1 class="govuk-fieldset__heading">
+                                Is the system internet-facing?
+                            </h1>
+                        </legend>
+                        <div id="internet_facing-hint" class="govuk-hint">
+                            Select one option
+                        </div>
+                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                             data-govuk-radios-init="">
+                            {% for option in internet_facing %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="internet_facing_{{ forloop.counter }}"
+                                           name="internet_facing"
+                                           {% if option.0 == form.internet_facing.value %}checked{% endif %}
+                                           type="radio" value="{{ option.0 }}">
+                                    <label class="govuk-label govuk-radios__label"
+                                           for="internet_facing_{{ forloop.counter }}">
+                                        {{ option.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h2 class="govuk-heading-m">
+                    Year when system was last GovAssure assessed
+                </h2>
+                <div class="govuk-form-group" id="id_last_assessed">
+                    <fieldset class="govuk-fieldset" aria-describedby="govassure_year-hint">
+                        <legend class="govuk-fieldset__legend govuk-body">
+                            <h1 class="govuk-fieldset__heading">
+                                Has this system been assessed before 2025/26?
+                            </h1>
+                        </legend>
+                        <div id="govassure_year-hint" class="govuk-hint">
+                            Select one option
+                        </div>
+                        <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+                            {% for assessed_period in assessed_periods %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="govassure_year_{{ forloop.counter }}"
+                                           name="last_assessed"
+                                           type="radio"
+                                           {% if assessed_period.0 == form.last_assessed.value %}checked{% endif %}
+                                           value="{{ assessed_period.0 }}">
+                                    <label class="govuk-label govuk-radios__label"
+                                           for="govassure_year_{{ forloop.counter }}">
+                                        {{ assessed_period.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="govuk-button-group">
                         <span class="govuk-body govuk-!-font-size-24">

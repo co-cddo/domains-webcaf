@@ -24,11 +24,11 @@
                     </div>
                 </div>
             {% endif %}
-            <h4 class="grey">{{ current_profile.organisation.name }}</h4>
+            <span class="govuk-caption-l">{{ current_profile.organisation.name }}</span>
             {% if form.instance.id %}
-                <h2>Edit user</h2>
+                <h1 class="govuk-heading-l">Edit user</h1>
             {% else %}
-                <h2>Add a user</h2>
+                <h1 class="govuk-heading-l">Add a user</h1>
             {% endif %}
 
             <form class="form" method="post">
@@ -37,7 +37,7 @@
                     <label class="govuk-label" for="system_name">
                         First name
                     </label>
-                    <input class="govuk-input govuk-input--width-30" id="first_name" name="first_name" type="text"
+                    <input class="govuk-input govuk-input--width-20" id="first_name" name="first_name" type="text"
                            spellcheck="false"
                            value="{{ form.first_name.value|default:'' }}">
                 </div>
@@ -45,7 +45,7 @@
                     <label class="govuk-label" for="last_name">
                         Last name
                     </label>
-                    <input class="govuk-input govuk-input--width-30" id="last_name" name="last_name" type="text"
+                    <input class="govuk-input govuk-input--width-20" id="last_name" name="last_name" type="text"
                            spellcheck="false"
                            value="{{ form.last_name.value|default:'' }}">
                 </div>
@@ -53,7 +53,7 @@
                     <label class="govuk-label" for="email">
                         Email address
                     </label>
-                    <input class="govuk-input govuk-input--width-30" id="email" name="email" type="text"
+                    <input class="govuk-input govuk-input--width-20" id="email" name="email" type="text"
                            spellcheck="false"
                            value="{{ form.email.value|default:'' }}">
                 </div>
@@ -61,7 +61,7 @@
                     <h3 class="govuk-heading-m">
                         Select a user role
                     </h3>
-                    <p class="govuk-hint">Select the role you want to give for this system</p>
+                    <p class="govuk-hint">Select one that applies</p>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <ul id="role" class="govuk-list">
                             {% for role in roles %}
@@ -74,6 +74,22 @@
                                     <label class="govuk-label govuk-radios__label" for="role{{ forloop.counter }}">
                                         {{ role.1 }}
                                     </label>
+                                    <div id="userRole-item-hint" class="govuk-hint govuk-radios__hint">
+                                        <details class="govuk-details govuk-!-margin-bottom-0">
+                                            <summary class="govuk-details__summary">
+                                            <span class="govuk-details__summary-text">
+                                              What {{ role.1 }} can do
+                                            </span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                <ul class="govuk-list govuk-list--bullet">
+                                                    {% for action_available in  role.2 %}
+                                                        <li>{{ action_available }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </details>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </ul>

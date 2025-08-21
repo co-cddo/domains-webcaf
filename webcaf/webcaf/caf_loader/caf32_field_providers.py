@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
 
 
 class FieldProvider(ABC):
@@ -19,6 +20,9 @@ class FieldProvider(ABC):
         pass
 
 
+Choice = namedtuple("Choice", ["value", "label", "needs_justification_text"])
+
+
 class OutcomeIndicatorsFieldProvider(FieldProvider):
     def __init__(self, outcome_data: dict):
         self.outcome_data = outcome_data
@@ -35,23 +39,23 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         fields = []
         justifications = {
             "not-achieved": [
-                ("agreed", "This does apply to my system or organisation and I have justifications", True),
-                (
+                Choice("agreed", "This does apply to my system or organisation and I have justifications", True),
+                Choice(
                     "not_true_have_justification",
                     "This does apply to my system or organisation, but I have no justifications",
                     False,
                 ),
-                ("not_true_no_justification", "This does not apply to my system or organisation", False),
+                Choice("not_true_no_justification", "This does not apply to my system or organisation", False),
             ],
             "achieved": [
-                ("agreed", "True", False),
-                ("not_true_have_justification", "Not true, but I do have justifications", True),
-                ("not_true_no_justification", "Not true, and I have no justifications", False),
+                Choice("agreed", "True", False),
+                Choice("not_true_have_justification", "Not true, but I do have justifications", True),
+                Choice("not_true_no_justification", "Not true, and I have no justifications", False),
             ],
             "partially-achieved": [
-                ("agreed", "True", False),
-                ("not_true_have_justification", "Not true, but I do have justifications", True),
-                ("not_true_no_justification", "Not true, and I have no justifications", False),
+                Choice("agreed", "True", False),
+                Choice("not_true_have_justification", "Not true, but I do have justifications", True),
+                Choice("not_true_no_justification", "Not true, and I have no justifications", False),
             ],
         }
         for level in ["not-achieved", "partially-achieved", "achieved"]:

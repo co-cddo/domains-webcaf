@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-from webcaf.webcaf.models import Assessment, UserProfile
+from webcaf.webcaf.models import Assessment, System, UserProfile
 
 
 class Index(TemplateView):
@@ -49,6 +49,7 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
             # Data used by the page.
             data["current_profile"] = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
             data["profile_count"] = self.request.session.get("profile_count", 1)
+            data["system_count"] = System.objects.filter(organisation=data["current_profile"].organisation).count()
             data["draft_systems"] = list(
                 Assessment.objects.filter(system__organisation=data["current_profile"].organisation, status="draft")
                 .values(

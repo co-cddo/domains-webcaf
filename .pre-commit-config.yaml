@@ -55,3 +55,4 @@ repos:
         -    django-csp
         -    pyyaml
         -    mozilla_django_oidc
+        -    django-multiselectfield

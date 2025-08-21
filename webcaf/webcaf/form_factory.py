@@ -33,14 +33,14 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
         elif field_def["type"] == "choice_with_justifications":
             form_fields[field_def["name"]] = forms.ChoiceField(  # type: ignore
                 label=field_def["label"],
-                choices=[(choice[0], choice[1]) for choice in field_def["choices"]],
+                choices=[(choice.value, choice.label) for choice in field_def["choices"]],
                 required=field_def.get("required", True),
                 initial=field_def.get("initial"),
             )
             for choice in field_def["choices"]:
                 # Needs justification field
-                if choice[2]:
-                    form_fields[field_def["name"] + f"_{choice[0]}_comment"] = forms.CharField(  # type: ignore
+                if choice.needs_justification_text:
+                    form_fields[f"{field_def['name']}_{choice.value}_comment"] = forms.CharField(  # type: ignore
                         label="Extra information",
                         # This will be validated in the form's clean method'
                         required=False,

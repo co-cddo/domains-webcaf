@@ -274,7 +274,7 @@ if not DEBUG:
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
 
-framework_router = FrameworkRouter(FRAMEWORK_PATH)
+
 CAF_FRAMEWORKS = {
-    "v3.2": framework_router.parent_map,
+    "v3.2": FrameworkRouter(FRAMEWORK_PATH),
 }

@@ -18,6 +18,7 @@ span.govuk-header__logotype-text {
     border: none;
     padding: 0;
     font: inherit; /* inherit GOV.UK typography */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #1d70b8; /* GOV.UK link colour */
     text-decoration: underline;
     cursor: pointer;

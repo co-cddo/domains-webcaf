@@ -532,6 +532,21 @@ docs = ["furo (>=2024.8.6)", "sphinx (>=5.0)", "sphinx-notfound-page"]
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)", "setuptools (>=71.0.0)"]
 
 [[package]]
+name = "django-multiselectfield"
+version = "1.0.1"
+description = "Django multiple select field"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django_multiselectfield-1.0.1-py3-none-any.whl", hash = "sha256:18dc14801f7eca844a48e21cba6d8ec35b9b581f2373bbb2cb75e6994518259a"},
+    {file = "django_multiselectfield-1.0.1.tar.gz", hash = "sha256:3f8b4fff3e07d4a91c8bb4b809bc35caeb22b41769b606f4c9edc53b8d72a667"},
+]
+
+[package.dependencies]
+django = ">=3.2"
+
+[[package]]
 name = "django-stubs"
 version = "5.2.0"
 description = "Mypy stubs for Django"
@@ -1890,4 +1905,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "d5a0d444ba5b594185399a31998c5750426cd06cbb682759c485e84162f54df2"
+content-hash = "2577cbe2d2e7300ca108dac630f60d249587215a551e980a25a548dfdeae676c"
