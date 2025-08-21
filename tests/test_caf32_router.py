@@ -1,11 +1,14 @@
 import os
 import unittest
+from unittest.mock import Mock, patch
 
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 from django.urls.resolvers import URLPattern
 
 from webcaf import urls
 from webcaf.webcaf.caf32_router import CAF32Router
+from webcaf.webcaf.models import Assessment, UserProfile
 
 # Test that when _create_view_and_url is called with an outcome, it has a form class as an argument.
 
@@ -146,8 +149,14 @@ class TestCAF32Router(unittest.TestCase):
         else:
             self.fail("indicators_A1.a not found in urlpatterns")
         view = view_class()
-        view.request = request
-        context = view.get_context_data()
+        view.request = self.add_session_to_request(request)
+        with patch("webcaf.webcaf.models.UserProfile.objects.get") as mock_profile_get:
+            with patch("webcaf.webcaf.models.Assessment.objects.get") as mock_assessment_get:
+                mock_profile = Mock(UserProfile)
+                mock_assessment = Mock(Assessment)
+                mock_profile_get.return_value = mock_profile
+                mock_assessment_get.return_value = mock_assessment
+                context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertEqual(breadcrumbs[0]["text"], "Root")
         self.assertEqual(breadcrumbs[1]["text"], "Detecting cyber security events")
@@ -166,12 +175,29 @@ class TestCAF32Router(unittest.TestCase):
         else:
             self.fail("confirmation_B2.a not found in urlpatterns")
         view = view_class()
-        view.request = request
-        context = view.get_context_data()
+        view.request = self.add_session_to_request(request)
+        with patch("webcaf.webcaf.models.UserProfile.objects.get") as mock_profile_get:
+            with patch("webcaf.webcaf.models.Assessment.objects.get") as mock_assessment_get:
+                mock_profile = Mock(UserProfile)
+                mock_assessment = Mock(Assessment, assessments_data={"OutcomeIndicatorsView_B2.a": {}})
+                mock_profile_get.return_value = mock_profile
+                mock_assessment_get.return_value = mock_assessment
+                context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         for crumb in breadcrumbs:
             self.assertIn("url", crumb)
             self.assertTrue(isinstance(crumb["url"], str) or hasattr(crumb["url"], "__class__"))
+
+    def add_session_to_request(self, request):
+        """Attach a session to a request (for RequestFactory)."""
+        middleware = SessionMiddleware(lambda req: None)
+        middleware.process_request(request)
+        request.session["draft_assessment"] = {
+            "assessment_id": 1,
+        }
+        request.session["current_profile_id"] = 1
+        request.session.save()
+        return request
 
 
 if __name__ == "__main__":

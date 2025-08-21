@@ -113,11 +113,11 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
                 self.fields["status"].choices = [(k, v) for k, v in choices_clone.items()]
 
             if group_fields:
-                if layout_structure["tabbed"]:
+                if layout_structure.get("tabbed"):
                     tabs[group["title"]] = Fieldset(*group_fields)
                 else:
                     fieldsets.append(Fieldset(*group_fields))
-        if layout_structure["tabbed"]:
+        if layout_structure.get("tabbed"):
             panels = [("Achieved", tabs["Achieved"])]
             if "Partially Achieved" in tabs:
                 panels.append(("Partially Achieved", tabs["Partially Achieved"]))
