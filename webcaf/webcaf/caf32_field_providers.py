@@ -59,6 +59,7 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                 "description": self.outcome_data.get("description", ""),
             },
             "groups": [],
+            "tabbed": True,
         }
 
         for level, display_name in [
@@ -83,10 +84,11 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         return {"code": self.outcome_data.get("code", ""), "title": self.outcome_data.get("title", "")}
 
     def get_field_definitions(self) -> list[dict]:
-        status_choices = [
-            ("confirm", "Confirm"),
-            ("not_achieved", "Change to Not achieved"),
-        ]
+        # Choices will be updated dynamically on form init
+        # This is needed so that we can change the label of the override value
+        # depending on the current values given by the user
+        # But the keys for the status will still remain the same as "confirm" and "override"
+        status_choices = [("confirm", ""), ("override", "")]
 
         if (
             "partially-achieved" in self.outcome_data.get("indicators", {})
@@ -98,16 +100,38 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
             {
                 "name": "status",
                 "type": "choice",
-                "choices": status_choices,
+                "choices": status_choices.copy(),
                 "required": True,
                 "initial": "confirm",
                 "label": "",
                 "widget": "radio",
             },
             {
+                "name": "override_comments",
+                "type": "text",
+                "label": "Explain why you've changed the outcome.",
+                "required": False,
+                "widget_attrs": {
+                    "rows": 5,
+                    "class": "govuk-textarea overriding_comments",
+                    "maxlength": 200,
+                },
+            },
+            {
+                "name": "partially_achieved_comments",
+                "type": "text",
+                "label": "Explain why you've changed the outcome.",
+                "required": False,
+                "widget_attrs": {
+                    "rows": 5,
+                    "class": "govuk-textarea partially_achieved_comments",
+                    "maxlength": 200,
+                },
+            },
+            {
                 "name": "supporting_comments",
                 "type": "text",
-                "label": "You must provide here comments that support your outcome.",
+                "label": "Please write a short summary outlining how you worked towards achieving this outcome.",
                 "required": True,
                 "widget_attrs": {
                     "rows": 5,
@@ -120,9 +144,13 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
     def get_layout_structure(self) -> dict:
         return {
             "header": {
-                "title": f"{self.outcome_data.get('code', '')} Outcome",
-                "status_message": "<p class='govuk-body'><strong>Status: Achieved</strong></p>",
-                "help_text": "<p class='govuk-body'>Message to be changed</p>",
+                "title": f"{self.outcome_data.get('code', '')} {self.outcome_data.get('title', '')} Outcome",
+                "status_message": "<p class='govuk-body'><strong>Status: {{ outcome_status }}</strong></p>",
+                "help_text": "<p class='govuk-body'>{{outcome_message}}</p>",
             },
-            "groups": [{"fields": ["status"]}, {"title": "Supporting comments", "fields": ["supporting_comments"]}],
+            "groups": [
+                {"fields": ["status", "overriding_comments"]},
+                {"title": "Supporting comments", "fields": ["supporting_comments"]},
+            ],
+            "tabbed": False,
         }

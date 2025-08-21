@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage System - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if form.errors %}
+                <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1"
+                     data-module="govuk-error-summary">
+                    <h2 class="govuk-error-summary__title" id="error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div class="govuk-error-summary__body">
+                        <ul class="govuk-list govuk-error-summary__list">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><a href="#{{ field.name }}">{{ field.name }} : {{ error }}</a></li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            <h4 class="grey">{{ current_profile.organisation.name }}</h4>
+            {% if form.instance.id %}
+                <h2>Edit system description</h2>
+            {% else %}
+                <h2>Add a new government system</h2>
+            {% endif %}
+
+            <form class="form" method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="name">
+                        System name
+                    </label>
+                    <input class="govuk-input govuk-input--width-30" id="name" name="name" type="text"
+                           spellcheck="false"
+                            {% if form.instance.id %}
+                           readonly
+                            {% endif %}
+                           value="{{ form.name.value|default:'' }}">
+                </div>
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="description">
+                        System description
+                    </label>
+                    <p class="govuk-hint">Describe what the system does and why you need to submit a self-assessment
+                        CAF.</p>
+                    {% if form.description.errors %}
+                        <ul class="errors">
+                            {% for error in form.description.errors %}
+                                <li class="govuk-textarea--error">{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <textarea id="description"
+                              cols="68" rows="10"
+                              name="description"
+                              spellcheck="false" autocomplete="name"
+                              class="govuk-textarea"
+                    >{{ form.description.value|default:'' }}</textarea>
+                </div>
+                <div class="govuk-button-group">
+                        <span class="govuk-body govuk-!-font-size-24">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Save and continue
+                            </button>
+                        </span>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Any, Generator
 
@@ -26,19 +27,27 @@ CAF32Element = dict[str, Any]
 # This is really just a placeholder for now. Until we add in new frameworks we can't know what makes sense
 # to be included in a common interface.
 class FrameworkRouter(ABC):
+    """
+    This class is the primary interface between the YAML CAF and the rest of the application. It's declared
+    as a class partly in case we later want to use an ABC to declare a common interface for different types
+    of router.
+
+    It reads the YAML and from there can produce a route based on all the outcomes, only those associated with
+    organisations or only those associated with systems. This is done by creating a class for each view and form
+    element in the CAF then updating Django's url patterns with paths to the views. Each form is provided the
+    success_url for the next page in the route.
+    """
+
+    all_url_names: list[str] = []
+    parent_map: dict[str, Any] = {}
+
     @abstractmethod
     def execute(self) -> None:
         pass
 
 
 class CAF32Router(FrameworkRouter):
-    """
-    This class is the primary interface between the YAML CAF and the rest of the application. It reads the YAML
-    and from there can produce a route based on all the outcomes, only those associated with organisations or
-    only those associated with systems. This is done by creating a class for each view and form element in the
-    CAF then updating Django's url patterns with paths to the views. Each form is provided the success_url for
-    the next page in the route.
-    """
+    logger = logging.getLogger("FrameworkRouter")
 
     @staticmethod
     def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
