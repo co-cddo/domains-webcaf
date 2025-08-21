@@ -54,6 +54,43 @@
                     </dl>
                 {% endfor %}
             {% endfor %}
+            <form method="post">
+                <h2 class="govuk-heading-l">Confirm your self-assessment submission date</h2>
+                <p class="govuk-body">Submissions close for GovAssure Year 3 2025/26 at 11:59pm on 31 March 2026. If you
+                    provide your
+                    self-assessment after this date, it will be filed for Year 4 2025/26.
+                </p>
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                            <h1 class="govuk-fieldset__heading">
+                                Are you submitting your self-assessment before the closing date of 11:59pm on 31 March
+                                2026?
+                            </h1>
+                        </legend>
+                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                             data-govuk-radios-init="">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="sectioncompleted" name="sectioncompleted"
+                                       type="radio" value="yes">
+                                <label class="govuk-label govuk-radios__label" for="sectioncompleted">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="sectioncompleted-2" name="sectioncompleted"
+                                       type="radio" value="no">
+                                <label class="govuk-label govuk-radios__label" for="sectioncompleted-2">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    Save and continue
+                </button>
+            </form>
         </div>
     </div>
 {% endblock %}
