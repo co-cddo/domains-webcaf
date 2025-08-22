@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% load govuk_frontend_django %}
+{% load csp %}
+{% load form_extras %}
+{% block title %} {{ title }}{% endblock %}
+
+{% block content %}
+    <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }} Outcome</h3>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form method="post">
+                {% csrf_token %}
+                <p class="govuk-body"><strong>Status: </strong></p>
+                <p class="govuk-body"></p>
+                <fieldset class="govuk-fieldset">
+                    <div id="div_id_status" class="govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <div class="govuk-radios">
+                                {% for choice in form.fields.status.choices %}
+                                    <div class="govuk-radios__item override-item">
+                                        <input type="radio" name="status"
+                                               class="govuk-radios__input"
+                                               id="id_status_{{ forloop.counter }}" value="{{ choice.0 }}"
+                                               {% if choice.0 == form.fields.status.value %}checked="checked"{% endif %}
+                                        >
+                                        <label
+                                                class="govuk-label govuk-radios__label"
+                                                for="id_status_{{ forloop.counter }}">{{ choice.1 }} </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                    </div>
+                </fieldset>
+                <fieldset class="govuk-fieldset"><h3 class="govuk-heading-m">Supporting comments</h3>
+                    <div id="div_id_supporting_comments" class="govuk-form-group"><label for="id_supporting_comments"
+                                                                                         class="govuk-label">
+                        Please write a short summary outlining how you worked towards achieving this outcome.
+                    </label> <textarea name="supporting_comments" cols="40" rows="5" class="govuk-textarea"
+                                       maxlength="200" id="id_supporting_comments"></textarea></div>
+                </fieldset>
+                <button name="submit" class="govuk-button govuk-button" id="id_submit" data-module="govuk-button"
+                        data-govuk-button-init="">Save and Continue
+                </button>
+            </form>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block bottomjs %}
+
+{% endblock %}
+
+{% block extra_stylesheets %}
+{% endblock %}

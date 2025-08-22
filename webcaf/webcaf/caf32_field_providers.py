@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class FieldProvider(ABC):
@@ -17,10 +16,6 @@ class FieldProvider(ABC):
 
     @abstractmethod
     def get_field_definitions(self) -> list[dict]:
-        pass
-
-    @abstractmethod
-    def get_layout_structure(self) -> dict:
         pass
 
 
@@ -52,29 +47,6 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
 
         return fields
 
-    def get_layout_structure(self) -> dict:
-        layout: dict[str, Any] = {
-            "header": {
-                "title": f"{self.outcome_data.get('code', '')} {self.outcome_data.get('title', '')}",
-                "description": self.outcome_data.get("description", ""),
-            },
-            "groups": [],
-            "tabbed": True,
-        }
-
-        for level, display_name in [
-            ("not-achieved", "Not Achieved"),
-            ("partially-achieved", "Partially Achieved"),
-            ("achieved", "Achieved"),
-        ]:
-            if level in self.outcome_data.get("indicators", {}) and self.outcome_data["indicators"][level]:
-                field_names = [f"{level}_{id}" for id in self.outcome_data["indicators"][level].keys()]
-
-                if field_names:
-                    layout["groups"].append({"title": display_name, "fields": field_names})
-
-        return layout
-
 
 class OutcomeConfirmationFieldProvider(FieldProvider):
     def __init__(self, outcome_data: dict):
@@ -84,12 +56,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         return {"code": self.outcome_data.get("code", ""), "title": self.outcome_data.get("title", "")}
 
     def get_field_definitions(self) -> list[dict]:
-        # Choices will be updated dynamically on form init
-        # This is needed so that we can change the label of the override value
-        # depending on the current values given by the user
-        # But the keys for the status will still remain the same as "confirm" and "override"
-        status_choices = [("confirm", ""), ("override", "")]
-
+        status_choices = [("confirm", "Confirm"), ("override", "Override")]
         if (
             "partially-achieved" in self.outcome_data.get("indicators", {})
             and self.outcome_data["indicators"]["partially-achieved"]
@@ -140,17 +107,3 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 },
             },
         ]
-
-    def get_layout_structure(self) -> dict:
-        return {
-            "header": {
-                "title": f"{self.outcome_data.get('code', '')} {self.outcome_data.get('title', '')} Outcome",
-                "status_message": "<p class='govuk-body'><strong>Status: {{ outcome_status }}</strong></p>",
-                "help_text": "<p class='govuk-body'>{{outcome_message}}</p>",
-            },
-            "groups": [
-                {"fields": ["status", "overriding_comments"]},
-                {"title": "Supporting comments", "fields": ["supporting_comments"]},
-            ],
-            "tabbed": False,
-        }

@@ -51,36 +51,6 @@ class FormProvidersTestCase(TestCase):
         self.assertEqual(field_labels["not-achieved_A1.a.1"], "Security operation data is not collected.")
         self.assertEqual(field_labels["achieved_A1.a.14"], "New systems are evaluated as monitoring data sources.")
 
-    def test_indicators_provider_layout_structure(self):
-        provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
-        layout = provider.get_layout_structure()
-        self.assertIsInstance(layout, dict)
-        self.assertIn("header", layout)
-        self.assertIn("groups", layout)
-        self.assertEqual(layout["header"]["title"], "A1.a Monitoring Coverage")
-        self.assertEqual(
-            layout["header"]["description"],
-            "Monitoring data sources allow for timely identification of security events.",
-        )
-        self.assertEqual(len(layout["groups"]), 3)
-        group_titles = [group["title"] for group in layout["groups"]]
-        self.assertIn("Not Achieved", group_titles)
-        self.assertIn("Partially Achieved", group_titles)
-        self.assertIn("Achieved", group_titles)
-        for group in layout["groups"]:
-            if group["title"] == "Not Achieved":
-                self.assertEqual(len(group["fields"]), 4)
-                self.assertIn("not-achieved_A1.a.1", group["fields"])
-                self.assertIn("not-achieved_A1.a.4", group["fields"])
-            elif group["title"] == "Partially Achieved":
-                self.assertEqual(len(group["fields"]), 4)
-                self.assertIn("partially-achieved_A1.a.5", group["fields"])
-                self.assertIn("partially-achieved_A1.a.8", group["fields"])
-            elif group["title"] == "Achieved":
-                self.assertEqual(len(group["fields"]), 6)
-                self.assertIn("achieved_A1.a.9", group["fields"])
-                self.assertIn("achieved_A1.a.14", group["fields"])
-
     def test_outcome_provider_metadata(self):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         metadata = provider.get_metadata()
@@ -108,21 +78,6 @@ class FormProvidersTestCase(TestCase):
         self.assertIn("widget_attrs", comments_field)
         self.assertEqual(comments_field["widget_attrs"]["rows"], 5)
         self.assertEqual(comments_field["widget_attrs"]["maxlength"], 200)
-
-    def test_outcome_provider_layout_structure(self):
-        provider = OutcomeConfirmationFieldProvider(self.outcome_data)
-        layout = provider.get_layout_structure()
-        self.assertIsInstance(layout, dict)
-        self.assertIn("header", layout)
-        self.assertIn("groups", layout)
-        self.assertEqual(layout["header"]["title"], "A1.a Monitoring Coverage Outcome")
-        self.assertIn("status_message", layout["header"])
-        self.assertIn("help_text", layout["header"])
-        self.assertEqual(len(layout["groups"]), 2)
-        self.assertIn("fields", layout["groups"][0])
-        self.assertEqual(layout["groups"][0]["fields"], ["status", "overriding_comments"])
-        self.assertEqual(layout["groups"][1]["title"], "Supporting comments")
-        self.assertEqual(layout["groups"][1]["fields"], ["supporting_comments"])
 
     def test_outcome_provider_without_partially_achieved(self):
         outcome_without_partial = self.outcome_data.copy()

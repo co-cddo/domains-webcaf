@@ -357,22 +357,6 @@ files = [
 ]
 
 [[package]]
-name = "crispy-forms-gds"
-version = "2.0.1"
-description = "Django application to add 'django-crispy-forms' layout objects for the GOV.UK Design System."
-optional = false
-python-versions = ">=3.10"
-groups = ["main"]
-files = [
-    {file = "crispy_forms_gds-2.0.1-py3-none-any.whl", hash = "sha256:485158d5cb4a3a04553d50532b6ba3db0e3dd809d3bda46b30f43b8f9274119f"},
-    {file = "crispy_forms_gds-2.0.1.tar.gz", hash = "sha256:703a91474206684f286c27351bd504f22605b346ce4e5e54af33873f27ca316d"},
-]
-
-[package.dependencies]
-django = ">=5.0"
-django-crispy-forms = ">=2.0,<2.4"
-
-[[package]]
 name = "cryptography"
 version = "45.0.5"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
@@ -476,21 +460,6 @@ tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 [package.extras]
 argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
-
-[[package]]
-name = "django-crispy-forms"
-version = "2.3"
-description = "Best way to have Django DRY forms"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "django_crispy_forms-2.3-py3-none-any.whl", hash = "sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20"},
-    {file = "django_crispy_forms-2.3.tar.gz", hash = "sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38"},
-]
-
-[package.dependencies]
-django = ">=4.2"
 
 [[package]]
 name = "django-csp"
@@ -1890,4 +1859,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "d5a0d444ba5b594185399a31998c5750426cd06cbb682759c485e84162f54df2"
+content-hash = "f190a9b7f8a1155916d78aeaafe4f3376b697469b586b8cf83c6ad996e4ab564"

@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-{% load crispy_forms_tags crispy_forms_gds %}
 {% load govuk_frontend_django %}
 {% load csp %}
 
@@ -19,8 +18,13 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-            {% crispy form %}
+            <form method="post">
+                {% csrf_token %}
+                <button name="submit" class="govuk-button govuk-button" id="id_submit" data-module="govuk-button"
+                        data-govuk-button-init="">Continue
+                </button>
+            </form>
+
         </div>
     </div>
 {% endblock %}

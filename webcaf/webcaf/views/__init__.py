@@ -14,7 +14,6 @@ from .my_organisation import (
     OrganisationContactView,
     OrganisationTypeView,
 )
-from .workflow_views import OutcomeIndicatorsHandlerView
 
 __all__ = [
     # Assessment views
@@ -36,5 +35,4 @@ __all__ = [
     "OrganisationTypeView",
     "ChangeActiveProfileView",
     # Workflow views
-    "OutcomeIndicatorsHandlerView",
 ]
