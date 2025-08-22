@@ -1,6 +1,5 @@
 import os
 import unittest
-from unittest.mock import Mock, patch
 
 from webcaf import urls
 
