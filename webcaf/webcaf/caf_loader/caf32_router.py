@@ -1,12 +1,19 @@
-import logging
-from typing import Any
+from abc import ABC, abstractmethod
+from typing import Any, Generator
 
 import yaml
+from django.views.generic import FormView
 
 FrameworkValue = str | dict | int | None
 
+FormViewClass = type[FormView]
 
-class FrameworkRouter:
+CAF32Element = dict[str, Any]
+
+
+# This is really just a placeholder for now. Until we add in new frameworks we can't know what makes sense
+# to be included in a common interface.
+class FrameworkRouter(ABC):
     """
     This class is the primary interface between the YAML CAF and the rest of the application. It's declared
     as a class partly in case we later want to use an ABC to declare a common interface for different types
@@ -18,48 +25,71 @@ class FrameworkRouter:
     success_url for the next page in the route.
     """
 
-    logger = logging.getLogger(__name__)
-    all_url_names: list[str] = []
-    parent_map: dict[str, Any] = {}
+    @abstractmethod
+    def execute(self) -> None:
+        pass
 
-    @staticmethod
-    def _build_url_names(framework: dict):
-        """
-        Each page in the route has a form button that points to the next page. This means we need the name
-        of the next url in the sequence each time we generate a view class and form class. This builds a
-        list of all the url names for this purpose.
-        """
-        all_url_names = []
-        parent_map = {}
-        for obj_key, objective in framework.get("objectives", {}).items():
-            obj_url_name = f"objective_{obj_key}"
-            all_url_names.append(obj_url_name)
-            parent_map[obj_url_name] = {"parent": "root", "text": objective.get("title", obj_key)}
-            for principle_key, principle in objective.get("principles", {}).items():
-                principle_url_name = f"principle_{principle_key}"
-                all_url_names.append(principle_url_name)
-                parent_map[principle_url_name] = {"parent": obj_url_name, "text": principle.get("title", principle_key)}
-                for outcome_key, outcome in principle.get("outcomes", {}).items():
-                    indicators_url_name = f"indicators_{outcome_key}"
-                    outcome_url_name = f"confirmation_{outcome_key}"
-                    all_url_names.append(indicators_url_name)
-                    all_url_names.append(outcome_url_name)
-                    parent_map[indicators_url_name] = {
-                        "parent": principle_url_name,
-                        "text": outcome.get("title", outcome_key),
-                    }
-                    parent_map[outcome_url_name] = {
-                        "parent": principle_url_name,
-                        "text": outcome.get("title", outcome_key),
-                    }
-        return all_url_names, parent_map
 
-    def __init__(self, framework_path) -> None:
+class CAF32Router(FrameworkRouter):
+    def __init__(self, framework_path, exit_url: str = "index") -> None:
         self.file_path = framework_path
-        self.framework: dict = {}
+        self.exit_url = exit_url
+        self.framework: CAF32Element = {}
+        self.elements: list[CAF32Element] = []
         self._read()
-        self.all_url_names, self.parent_map = self._build_url_names(self.framework)
+
+    def traverse_framework(self) -> Generator[CAF32Element, None, None]:
+        """
+        Traverse the framework structure and yield those elements requiring their own
+        page in a single sequence.
+        """
+        for objective_code, objective in self.framework.get("objectives", {}).items():
+            objective_ = {
+                # Add the dictionary taken from the YAML first so that our code value
+                # is set from the dict key and not the value *within* the dict. We
+                # can probably remove the code attributes from the YAML
+                **objective,
+                "type": "objective",
+                "code": objective_code,
+                "short_name": f"objective_{objective_code}",
+                "parent": None,
+            }
+            yield objective_
+            for principle_code, principle in objective.get("principles", {}).items():
+                principle_ = {
+                    **principle,
+                    "type": "principle",
+                    "code": principle_code,
+                    "short_name": f"principle_{principle_code}",
+                    "parent": objective_,
+                }
+                yield principle_
+                for outcome_code, outcome in principle.get("outcomes", {}).items():
+                    outcome_ = {
+                        **outcome,
+                        "type": "outcome",
+                        "code": outcome_code,
+                        "short_name": f"indicators_{outcome_code}",
+                        "parent": principle_,
+                        "stage": "indicators",
+                    }
+                    yield outcome_
+                    outcome_ = {
+                        **outcome,
+                        "type": "outcome",
+                        "code": outcome_code,
+                        "short_name": f"confirmation_{outcome_code}",
+                        "parent": principle_,
+                        "stage": "confirmation",
+                    }
+                    yield outcome_
 
     def _read(self) -> None:
         with open(self.file_path, "r") as file:
             self.framework = yaml.safe_load(file)
+            self.elements = list(self.traverse_framework())
+
+    # Keeping this interface so we can separate generating the order of the elements
+    # from creating the Django urls
+    def execute(self) -> None:
+        self._read()

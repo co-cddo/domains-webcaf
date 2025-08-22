@@ -46,7 +46,6 @@ repos:
         -    django-environ
         -    psycopg2-binary
         -    govuk-frontend-django
-        -    crispy-forms-gds
         -    django-storages
         -    django-cors-headers
         -    notifications-python-client

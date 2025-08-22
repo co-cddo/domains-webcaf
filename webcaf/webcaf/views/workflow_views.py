@@ -28,6 +28,16 @@ class OutcomeHandlerView(LoginRequiredMixin, FormView):
         Needs to implement this method to return the section of the assessment
         """
 
+    def get_hierarchy_from_indicator(self):
+        indicator_id = self.kwargs["indicator_id"]
+        principle_id = (
+            indicator_id.split("_")[1].split(".")[0]
+            if indicator_id.startswith("indicators_")
+            else indicator_id.split(".")[0]
+        )
+        objective_id = principle_id.rstrip("0123456789")
+        return indicator_id, objective_id, principle_id
+
     def form_valid(self, form):
         assessment = self.get_assessment()
         assessment.assessments_data[self.get_assessment_section()] = form.cleaned_data
@@ -107,14 +117,14 @@ class OutcomeIndicatorsHandlerView(OutcomeHandlerView):
     def get_success_url(self):
         from webcaf import settings
 
-        indicator_id = self.kwargs["indicator_id"]
-        parent = settings.framework_router.parent_map[indicator_id]["parent"]
+        indicator_id, objective_id, principle_id = self.get_hierarchy_from_indicator()
         siblings = [
-            entry[0]
-            for entry in settings.framework_router.parent_map.items()
-            if entry[1]["parent"] == parent and entry[0].startswith("indicators")
+            key
+            for key in settings.CAF_FRAMEWORKS["v3.2"]
+            .framework["objectives"][objective_id]["principles"][principle_id]["outcomes"]
+            .keys()
         ]
-        current_index = siblings.index(indicator_id)
+        current_index = siblings.index(indicator_id.split("_")[1])
 
         if current_index > len(siblings) - 1:
             # Go to next section
@@ -209,38 +219,52 @@ class OutcomeConfirmationHandlerView(FormView):
         assessment.save()
         return cast(FormView, super()).form_valid(form)
 
+    def get_hierarchy_from_indicator(self):
+        indicator_id = self.kwargs["indicator_id"]
+        principle_id = indicator_id.split("_")[1].split(".")[0]
+        objective_id = principle_id.rstrip("0123456789")
+        return indicator_id, objective_id, principle_id
+
     def get_success_url(self):
         from webcaf import settings
 
-        indicator_id = self.kwargs["indicator_id"]
-        parent = settings.framework_router.parent_map[indicator_id]["parent"]
+        indicator_id, objective_id, principle_id = self.get_hierarchy_from_indicator()
         siblings = [
-            entry[0]
-            for entry in settings.framework_router.parent_map.items()
-            if entry[1]["parent"] == parent and entry[0].startswith("indicators")
+            key
+            for key in settings.CAF_FRAMEWORKS["v3.2"]
+            .framework["objectives"][objective_id]["principles"][principle_id]["outcomes"]
+            .keys()
         ]
-        current_index = siblings.index(indicator_id)
+        current_index = siblings.index(indicator_id.split("_")[1])
 
         if current_index > len(siblings) - 2:
             # Get the next parent indicator and go to next section
             parent_siblings = [
-                entry[0] for entry in settings.framework_router.parent_map.items() if entry[0].startswith("principle")
+                key
+                for key in settings.CAF_FRAMEWORKS["v3.2"].framework["objectives"][objective_id]["principles"].keys()
             ]
-            current_parent_index = parent_siblings.index(parent)
+
+            current_parent_index = parent_siblings.index(principle_id)
             if current_parent_index > len(parent_siblings) - 2:
                 assessment_id = self.request.session["draft_assessment"]["assessment_id"]
                 return reverse("edit-draft-assessment", kwargs={"version": "v3.2", "assessment_id": assessment_id})
             else:
                 next_parent = parent_siblings[current_parent_index + 1]
                 siblings = [
-                    entry[0]
-                    for entry in settings.framework_router.parent_map.items()
-                    if entry[1]["parent"] == next_parent and entry[0].startswith("indicators")
+                    key
+                    for key in settings.CAF_FRAMEWORKS["v3.2"]
+                    .framework["objectives"][objective_id]["principles"][next_parent]["outcomes"]
+                    .keys()
                 ]
-                return reverse("indicator-view", kwargs={"version": "v3.2", "indicator_id": siblings[0]})
+                return reverse(
+                    "indicator-view", kwargs={"version": "v3.2", "indicator_id": "indicators_" + siblings[0]}
+                )
 
         else:
-            return reverse("indicator-view", kwargs={"version": "v3.2", "indicator_id": siblings[current_index + 1]})
+            return reverse(
+                "indicator-view",
+                kwargs={"version": "v3.2", "indicator_id": "indicators_" + siblings[current_index + 1]},
+            )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

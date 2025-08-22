@@ -17,7 +17,7 @@ from pathlib import Path
 from csp.constants import NONCE, SELF
 from environ import Env
 
-from webcaf.webcaf.caf_loader.caf32_router import FrameworkRouter
+from webcaf.webcaf.caf_loader.caf32_router import CAF32Router
 
 env = Env(
     # set casting, default value
@@ -58,8 +58,6 @@ INSTALLED_APPS = [
     "govuk_frontend_django",
     "webcaf.webcaf.apps.WebcafConfig",
     "csp",
-    "crispy_forms",
-    "crispy_forms_gds",
     "mozilla_django_oidc",
 ]
 
@@ -170,9 +168,6 @@ CONTENT_SECURITY_POLICY = {
 if "TEST_CSP" in os.environ:
     CSP_REPORT_URI = "/csp-report"  # The URI doesn't exist but is intercepted by the test suite
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["gds"]
-CRISPY_TEMPLATE_PACK = "gds"
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -274,7 +269,7 @@ if not DEBUG:
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
 
-framework_router = FrameworkRouter(FRAMEWORK_PATH)
+framework_router = CAF32Router(FRAMEWORK_PATH)
 CAF_FRAMEWORKS = {
-    "v3.2": framework_router.parent_map,
+    "v3.2": framework_router,
 }

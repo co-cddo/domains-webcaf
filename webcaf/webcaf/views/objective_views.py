@@ -14,8 +14,9 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         from webcaf import settings
 
+        objective_id = kwargs["objective_id"]
         data = super().get_context_data(**kwargs)
-        parent_map: dict[str, Any] = settings.CAF_FRAMEWORKS["v3.2"]
+        parent_map: dict[str, Any] = settings.CAF_FRAMEWORKS["v3.2"].framework["objectives"][objective_id.split("_")[1]]
         assessment_id = self.request.session["draft_assessment"]["assessment_id"]
         data["breadcrumbs"] = [
             {
@@ -27,35 +28,27 @@ class ObjectiveView(LoginRequiredMixin, TemplateView):
                 "text": "Edit draft assessment",
             },
             {
-                "text": kwargs["objective_id"].replace("_", " ").title()
-                + " - "
-                + parent_map[kwargs["objective_id"]]["text"],
+                "text": kwargs["objective_id"].replace("_", " ").title() + " - " + parent_map["title"],
             },
         ]
-        data["objective_heading"] = (
-            kwargs["objective_id"].replace("_", " ").title() + " - " + parent_map[kwargs["objective_id"]]["text"]
-        )
+        data["objective_heading"] = kwargs["objective_id"].replace("_", " ").title() + " - " + parent_map["title"]
         data["principles"] = []
         # Build the list of principles based on the parent map. This will be used to display in the table with
         # the links to the indicators.
         assessment = self.get_assessment()
-        for principle in list(filter(lambda x: x[1]["parent"] == kwargs["objective_id"], parent_map.items())):
+        for principle in parent_map["principles"].values():
             data["principles"].append(
                 {
-                    "name": principle[0].replace("_", ":").title() + " " + principle[1]["text"],
+                    "name": f"Principal : {principle['code']} {principle['title']}",
                     "indicators": [
                         {
-                            "id": x[0],
-                            "title": x[0].replace("indicators_", "") + " " + x[1]["text"],
-                            "complete": assessment.assessments_data.get("indicator_" + x[0]) is not None,
-                            "outcome": self.calculate_outcome_status("indicator_" + x[0]),
+                            "id": f"indicators_{x['code']}",
+                            "title": f'{x["code"]}  {x["title"]}',
+                            "complete": assessment.assessments_data.get("indicator_indicators_" + x["code"])
+                            is not None,
+                            "outcome": self.calculate_outcome_status("indicator_indicators_" + x["code"]),
                         }
-                        for x in list(
-                            filter(
-                                lambda x: x[1]["parent"] == principle[0] and x[0].startswith("indicators"),
-                                parent_map.items(),
-                            )
-                        )
+                        for x in principle["outcomes"].values()
                     ],
                 }
             )
