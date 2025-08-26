@@ -103,9 +103,10 @@ class CAF32Router(FrameworkRouter):
                 class_id=element["code"],
                 extra_context=extra_context,
             )
-            urls.urlpatterns.append(path(f"{url_path}/", element["view_class"].as_view(), name=element["short_name"]))
+            url_path_to_add = path(f"{url_path}/", element["view_class"].as_view(), name=element["short_name"])
+            urls.urlpatterns.append(url_path_to_add)
         else:
-            template_name = "outcome.html"
+            template_name = f"{element['stage']}.html"
             class_prefix = f"Outcome{element['stage'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
@@ -115,9 +116,11 @@ class CAF32Router(FrameworkRouter):
                 class_id=element["code"],
                 extra_context=extra_context,
             )
-            urls.urlpatterns.append(
-                path(f"{url_path}/{element['stage']}/", element["view_class"].as_view(), name=element["short_name"])
+            url_path_to_add = path(
+                f"{url_path}/{element['stage']}/", element["view_class"].as_view(), name=element["short_name"]
             )
+            urls.urlpatterns.append(url_path_to_add)
+        self.logger.info(f"Added {url_path_to_add}")
 
     def traverse_framework(self) -> Generator[CAF32Element, None, None]:
         """

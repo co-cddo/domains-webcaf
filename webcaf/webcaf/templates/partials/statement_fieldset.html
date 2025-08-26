@@ -1,0 +1,21 @@
+{% load form_extras %}
+<div class="govuk-form-group">
+    <fieldset class="govuk-fieldset" aria-describedby="outcome{{ item.auto_id }}-hint">
+        <div id="outcome{{ item.auto_id }}-hint" class="govuk-hint">
+        </div>
+        <div id="div_{{ item.auto_id }}" class="govuk-form-group">
+            <div class="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                    <input type="checkbox" name="{{ item.name }}"
+                           value="{{ item.value }}"
+                           {% if item.value in item.value_selected %}
+                                checked
+                            {% endif %}
+                           class="govuk-checkboxes__input" id="{{ item.auto_id }}">
+                    <label class="govuk-label govuk-checkboxes__label" for="{{ item.auto_id }}">
+                        {{ item.label }}
+                    </label></div>
+            </div>
+        </div>
+    </fieldset>
+</div>

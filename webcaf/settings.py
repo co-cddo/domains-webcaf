@@ -56,8 +56,6 @@ INSTALLED_APPS = [
     "govuk_frontend_django",
     "webcaf.webcaf.apps.WebcafConfig",
     "csp",
-    "crispy_forms",
-    "crispy_forms_gds",
     "mozilla_django_oidc",
 ]
 
@@ -168,9 +166,6 @@ CONTENT_SECURITY_POLICY = {
 if "TEST_CSP" in os.environ:
     CSP_REPORT_URI = "/csp-report"  # The URI doesn't exist but is intercepted by the test suite
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["gds"]
-CRISPY_TEMPLATE_PACK = "gds"
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -256,7 +251,6 @@ else:
     OIDC_OP_USER_ENDPOINT = f"http://{sso_host}:5556/userinfo"
     OIDC_OP_JWKS_ENDPOINT = f"http://{sso_host}:5556/keys"
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
-
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")
