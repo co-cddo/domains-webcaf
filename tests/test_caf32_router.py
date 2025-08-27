@@ -112,7 +112,7 @@ class TestCAF32Router(unittest.TestCase):
         else:
             self.fail("objective_A not found in urlpatterns")
         view = view_class()
-        view.request = request
+        view.request = self.add_session_to_request(request)
         context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertIsInstance(breadcrumbs, list)
@@ -131,7 +131,7 @@ class TestCAF32Router(unittest.TestCase):
         else:
             self.fail("principle_A1 not found in urlpatterns")
         view = view_class()
-        view.request = request
+        view.request = self.add_session_to_request(request)
         context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertEqual(breadcrumbs[-2]["text"], "Detecting cyber security events")
@@ -154,6 +154,7 @@ class TestCAF32Router(unittest.TestCase):
             with patch("webcaf.webcaf.models.Assessment.objects.get") as mock_assessment_get:
                 mock_profile = Mock(UserProfile)
                 mock_assessment = Mock(Assessment)
+                mock_assessment.assessments_data.get.return_value = {}
                 mock_profile_get.return_value = mock_profile
                 mock_assessment_get.return_value = mock_assessment
                 context = view.get_context_data()

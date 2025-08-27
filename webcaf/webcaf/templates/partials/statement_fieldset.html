@@ -7,9 +7,8 @@
             <div class="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
                     <input type="checkbox" name="{{ item.name }}"
-                           value="{{ item.value }}"
-                           {% if item.value in item.value_selected %}
-                                checked
+                            {% if item.value %}
+                           checked
                             {% endif %}
                            class="govuk-checkboxes__input" id="{{ item.auto_id }}">
                     <label class="govuk-label govuk-checkboxes__label" for="{{ item.auto_id }}">
