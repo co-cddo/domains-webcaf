@@ -1,0 +1,2101 @@
+assessment-rules: &standard-rules
+  1:
+  - achieved
+  - all
+  2:
+  - partially-achieved
+  - all
+  3:
+  - not-achieved
+  - any
+objectives:
+  A:
+    code: A
+    title: Managing security risk
+    description: Appropriate organisational structures, policies, processes and
+      procedures in place to understand, assess and systematically manage
+      security risks to network and information systems supporting essential
+      functions.
+    principles:
+      A1:
+        code: A1
+        title: Governance
+        description: The organisation has appropriate management policies,
+          processes and procedures in place to govern its approach to the
+          security of network and information systems.
+        outcomes:
+          A1.a:
+            code: A1.a
+            title: Board Direction
+            description: You have effective organisational security management
+              led at board level and articulated clearly in corresponding
+              policies.
+            indicators:
+              partially-achieved: {}
+              not-achieved:
+                A1.a.1:
+                  description: The security of network and information systems
+                    related to the operation of essential function(s) is not
+                    discussed or reported on regularly at board-level.
+                A1.a.2:
+                  description: Board-level discussions on the security of
+                    network and information systems are based on partial or
+                    out-of-date information, without the benefit of expert
+                    guidance.
+                A1.a.3:
+                  description: The security of network and information systems
+                    supporting your essential function(s) are not driven
+                    effectively by the direction set at board-level.
+                A1.a.4:
+                  description: Senior management or other pockets of the
+                    organisation consider themselves exempt from some policies
+                    or expect special accommodations to be made.
+              achieved:
+                A1.a.5:
+                  description: Your organisation's approach and policy relating
+                    to the security of network and information systems
+                    supporting the operation of your essential function(s) are
+                    owned and managed at board-level.
+                A1.a.6:
+                  description: These are communicated, in a meaningful way, to
+                    risk management decision-makers across the organisation.
+                A1.a.7:
+                  description: Regular board-level discussions on the security
+                    of network and information systems supporting the operation
+                    of your essential function(s) take place, based on timely
+                    and accurate information and informed by expert guidance.
+                A1.a.8:
+                  description: There is a board-level individual who has overall
+                    accountability for the security of network and information
+                    systems and drives regular discussion at board-level.
+                A1.a.9:
+                  description: Direction set at board-level is translated into
+                    effective organisational practices that direct and control
+                    the security of network and information systems supporting
+                    your essential function(s).
+                A1.a.10:
+                  description: The board has the information and understanding
+                    needed in order to effectively discuss how the security and
+                    resilience of network and information systems contributes to
+                    the delivery of essential function(s) and what the potential
+                    impact from compromise of those systems would be.
+                A1.a.11:
+                  description: Security is recognised as an important enabler
+                    for the resilience of your essential function(s) and
+                    considered in all relevant discussions.
+            assessment-rules: *standard-rules
+          A1.b:
+            code: A1.b
+            title: Roles and Responsibilities
+            description: Your organisation has established roles and
+              responsibilities for the security of network and information
+              systems at all levels, with clear and well-understood channels for
+              communicating and escalating risks.
+            indicators:
+              partially-achieved: {}
+              not-achieved:
+                A1.b.1:
+                  description: Key roles are missing, left vacant, or fulfilled
+                    on an ad-hoc or informal basis.
+                A1.b.2:
+                  description: Staff are assigned security responsibilities but
+                    without adequate authority or resources to fulfil them.
+                A1.b.3:
+                  description: Staff are unsure what their responsibilities are
+                    for the security of the essential function(s).
+              achieved:
+                A1.b.4:
+                  description: Key roles and responsibilities for the security
+                    of network and information systems supporting your essential
+                    function(s) have been identified and are reviewed regularly
+                    to ensure they remain fit for purpose.
+                A1.b.5:
+                  description: Appropriately capable and knowledgeable staff
+                    fill those roles and are given the time, authority, and
+                    resources to carry out their duties.
+                A1.b.6:
+                  description: There is clarity on who in your organisation has
+                    overall accountability for the security of network and
+                    information systems supporting your essential function(s).
+            assessment-rules: *standard-rules
+          A1.c:
+            code: A1.c
+            title: Decision-making
+            description: You have senior-level accountability for the security
+              of network and information systems, and delegate decision-making
+              authority appropriately and effectively. Risks to network and
+              information systems related to the operation of your essential
+              function(s) are considered in the context of other organisational
+              risks.
+            indicators:
+              partially-achieved: {}
+              not-achieved:
+                A1.c.1:
+                  description: What should be relatively straightforward risk
+                    decisions are constantly referred up the chain, or not made.
+                A1.c.2:
+                  description: Risks are resolved informally (or ignored) at a
+                    local level when the use of a more formal risk reporting
+                    mechanism would be more appropriate.
+                A1.c.3:
+                  description: Decision-makers are unsure of what senior
+                    management's risk appetite is, or only understand it in
+                    vague terms such as "averse" or "cautious".
+                A1.c.4:
+                  description: Organisational structure causes risk decisions to
+                    be made in isolation. (e.g. engineering and IT do not talk
+                    to each other about risk).
+                A1.c.5:
+                  description: Risk priorities are too vague to make meaningful
+                    distinctions between them. (e.g. almost all risks are rated
+                    'medium' or 'amber').
+              achieved:
+                A1.c.6:
+                  description: Senior management have visibility of key risk
+                    decisions made throughout the organisation.
+                A1.c.7:
+                  description: Risk management decision-makers understand their
+                    responsibilities for making effective and timely decisions
+                    in the context of the risk appetite regarding the essential
+                    function(s), as set by senior management.
+                A1.c.8:
+                  description: Risk management decision-making is delegated and
+                    escalated where necessary, across the organisation, to
+                    people who have the skills, knowledge, tools and authority
+                    they need.
+                A1.c.9:
+                  description: Risk management decisions are regularly reviewed
+                    to ensure their continued relevance and validity.
+            assessment-rules: *standard-rules
+      A2:
+        code: A2
+        title: Risk Management
+        description: The organisation takes appropriate steps to identify,
+          assess and understand security risks to network and information
+          systems supporting the operation of essential functions. This includes
+          an overall organisational approach to risk management.
+        outcomes:
+          A2.a:
+            code: A2.a
+            title: Risk Management Process
+            description: Your organisation has effective internal processes for
+              managing risks to the security and resilience of network and
+              information systems related to the operation of your essential
+              function(s) and communicating associated activities.
+            indicators:
+              not-achieved:
+                A2.a.1:
+                  description: Risk assessments are not based on a clearly
+                    defined set of threat assumptions.
+                A2.a.2:
+                  description: Risk assessment outputs are too complex or
+                    unwieldy to be consumed by decision-makers and are not
+                    effectively communicated in a clear and timely manner.
+                A2.a.3:
+                  description: Risk assessments for network and information
+                    systems supporting your essential function(s) are a
+                    "one-off" activity or not done at all.
+                A2.a.4:
+                  description: The security elements of projects or programmes
+                    are solely dependent on the completion of a risk management
+                    assessment without any regard to the outcomes.
+                A2.a.5:
+                  description: There is no systematic process in place to ensure
+                    that identified security risks are managed effectively.
+                A2.a.6:
+                  description: Systems are assessed in isolation, without
+                    consideration of dependencies and interactions with other
+                    systems. (e.g. interactions between IT and OT environments).
+                A2.a.7:
+                  description: Security requirements and mitigations are
+                    arbitrary or are applied from a control catalogue without
+                    consideration of how they contribute to the security of
+                    network and information systems supporting your essential
+                    function(s).
+              partially-achieved:
+                A2.a.8:
+                  description: Your organisational process ensures that security
+                    risks to network and information systems relevant to
+                    essential function(s) are identified, analysed, prioritised,
+                    and managed.
+                A2.a.9:
+                  description: Your risk assessments are informed by an
+                    understanding of known and well understood threats and
+                    vulnerabilities in network and information systems
+                    supporting your essential function(s).
+                A2.a.10:
+                  description: The output from your risk management process is a
+                    clear set of security requirements that will address the
+                    risks in line with your organisational approach to security.
+                A2.a.11:
+                  description: Significant conclusions reached in the course of
+                    your risk management process are communicated to key
+                    security decision-makers and accountable individuals.
+                A2.a.12:
+                  description: You conduct risk assessments when significant
+                    events potentially affect the essential function(s), such as
+                    replacing a system, introducing new or emergent technologies
+                    or a change in the cyber security threat.
+              achieved:
+                A2.a.13:
+                  description: Your organisational process ensures that security
+                    risks to network and information systems relevant to
+                    essential function(s) are identified, analysed, prioritised,
+                    and managed.
+                A2.a.14:
+                  description: Your approach to risk is focused on the
+                    possibility of adverse impact to your essential function(s),
+                    leading to a detailed understanding of how such impact might
+                    arise as a consequence of possible threat actor actions and
+                    the security properties of network and information systems
+                    supporting your essential function(s).
+                A2.a.15:
+                  description: Your risk assessments are based on a clearly
+                    understood set of threat assumptions, informed by an
+                    up-to-date understanding of threats to network and
+                    information systems supporting your essential function(s),
+                    your sector and wider national infrastructure.
+                A2.a.16:
+                  description: Your risk assessments are informed by an
+                    understanding of the vulnerabilities in network and
+                    information systems supporting your essential function(s).
+                A2.a.17:
+                  description: The output from your risk management process is a
+                    clear set of traceable and prioritised security requirements
+                    that will address the risks in line with your organisational
+                    approach to security.
+                A2.a.18:
+                  description: Significant conclusions reached in the course of
+                    your risk management process are communicated to key
+                    security decision-makers and accountable individuals.
+                A2.a.19:
+                  description: Your risk assessments are dynamic and readily
+                    updated in the light of relevant changes which may include
+                    technical changes to network and information systems
+                    supporting your essential function(s), change of use, the
+                    introduction of new or emergent technologies or new threat
+                    information.
+                A2.a.20:
+                  description: The effectiveness of your risk management process
+                    is reviewed regularly, and improvements made as required.
+                A2.a.21:
+                  description: You anticipate technological developments that
+                    could be used to adversely impact network and information
+                    systems supporting your essential function(s).
+            assessment-rules: *standard-rules
+          A2.b:
+            code: A2.b
+            title: Understanding Threat
+            description: You understand the capabilities, methods and techniques
+              of threat actors and what network and information systems they may
+              compromise to adversely impact your essential function(s). This
+              information is used to inform security and resilience risk
+              management decisions, adjusting, enhancing or adding security
+              measures to better defend against threats.
+            indicators:
+              not-achieved:
+                A2.b.1:
+                  description: You are unable to perform threat analysis.
+                A2.b.2:
+                  description: You do not understand the threats to network and
+                    information systems supporting your essential function(s).
+                A2.b.3:
+                  description: You do not have a clearly defined set of threat
+                    assumptions.
+                A2.b.4:
+                  description: You do not use your understanding of threat to
+                    inform your risk management decisions.
+              partially-achieved:
+                A2.b.5:
+                  description: You perform threat analysis and understand how
+                    common threats apply to network and information systems
+                    supporting your essential function(s).
+                A2.b.6:
+                  description: You understand common types of cyber attacks,
+                    including the methods and techniques, and how these might
+                    apply to network and information systems supporting your
+                    essential function(s). This understanding is kept up to
+                    date.
+                A2.b.7:
+                  description: You anticipate what threat actors might target in
+                    network and information systems to cause an adverse impact
+                    to your essential function(s).
+                A2.b.8:
+                  description: Your understanding of threat is informed by
+                    common incidents.
+                A2.b.9:
+                  description: You apply your understanding of threat to inform
+                    your risk management decision-making.
+              achieved:
+                A2.b.10:
+                  description: You perform detailed threat analysis and
+                    understand how this applies to network and information
+                    systems supporting your essential function(s), in the
+                    context of your sector and wider national infrastructure.
+                A2.b.11:
+                  description: Your detailed understanding of threat includes
+                    the methods and techniques available to capable and
+                    well-resourced threat actors and how they could be used
+                    systematically against network and information systems
+                    supporting your essential function(s).
+                A2.b.12:
+                  description: You use appropriate techniques to develop an
+                    understanding of network and information systems supporting
+                    your essential function(s) from a threat actor's
+                    perspective, anticipating probable attack methods and
+                    techniques, targets and objectives, and developing plausible
+                    scenarios.
+                A2.b.13:
+                  description: You understand the different steps a capable and
+                    well-resourced threat actor would need to take to reach the
+                    probable target(s).
+                A2.b.14:
+                  description: You identify and justify what measures can be
+                    used at each step to reduce the likelihood of the threat
+                    actor reaching the probable target(s) or achieving their
+                    objective(s).
+                A2.b.15:
+                  description: You maintain a detailed understanding of current
+                    threats (e.g. by threat intelligence and proactive research)
+                    and apply this understanding to inform your risk management
+                    decision-making.
+                A2.b.16:
+                  description: You have documented the steps required to
+                    undertake detailed threat analysis.
+            assessment-rules: *standard-rules
+          A2.c:
+            code: A2.c
+            title: Assurance
+            description: You have gained confidence in the effectiveness of the
+              security of your technology, people, and processes relevant to the
+              operation of network and information systems supporting your
+              essential function(s).
+            indicators:
+              partially-achieved: {}
+              not-achieved:
+                A2.c.1:
+                  description: A particular product or service is seen as a
+                    "silver bullet" and vendor claims are taken at face value.
+                A2.c.2:
+                  description: Assurance methods are applied without
+                    appreciation of their strengths and limitations.
+                A2.c.3:
+                  description: Assurance is assumed because there have been no
+                    known problems to date.
+              achieved:
+                A2.c.4:
+                  description: You validate that the security measures in place
+                    to protect network and information systems supporting your
+                    essential function(s) are effective and remain effective for
+                    the lifetime over which they are needed.
+                A2.c.5:
+                  description: You understand the assurance methods available to
+                    you and choose appropriate methods to gain confidence in the
+                    security of network and information systems supporting your
+                    essential function(s).
+                A2.c.6:
+                  description: Your confidence in the security as it relates to
+                    your technology, people, and processes can be justified to,
+                    and verified by, a third party.
+                A2.c.7:
+                  description: Security deficiencies uncovered by assurance
+                    activities are assessed, prioritised and remedied when
+                    necessary in a timely and effective way.
+                A2.c.8:
+                  description: The methods used for assurance are reviewed to
+                    ensure they are working as intended and remain the most
+                    appropriate method to use.
+            assessment-rules: *standard-rules
+      A3:
+        code: A3
+        title: Asset Management
+        description: Everything required to deliver, maintain or support network
+          and information systems necessary for the operation of essential
+          functions is determined and understood. This includes data, people and
+          systems, as well as any supporting infrastructure (such as power or
+          cooling).
+        outcomes:
+          A3.a:
+            code: A3.a
+            title: Asset Management
+            description: ''
+            indicators:
+              partially-achieved: {}
+              not-achieved:
+                A3.a.1:
+                  description: Inventories of assets relevant to network and
+                    information systems supporting your essential function(s)
+                    are incomplete, non-existent or inadequately detailed.
+                A3.a.2:
+                  description: Only certain domains or types of asset are
+                    documented and understood.
+                A3.a.3:
+                  description: Dependencies between assets are not understood
+                    (such as the dependencies between IT and OT).
+                A3.a.4:
+                  description: Information assets, which could include
+                    personally identifiable information and / or important /
+                    critical data, are stored for long periods of time with no
+                    clear business need or retention policy.
+                A3.a.5:
+                  description: Knowledge critical to the management, operation,
+                    or recovery of network and information systems supporting
+                    your essential function(s) is held by one or two key
+                    individuals with no succession plan.
+              achieved:
+                A3.a.6:
+                  description: All assets relevant to the secure operation of
+                    network and information systems supporting your essential
+                    function(s) are identified and inventoried (at a suitable
+                    level of detail). The inventory is kept up-to-date.
+                A3.a.7:
+                  description: Dependencies on supporting infrastructure (e.g.
+                    power, cooling etc) are recognised and recorded.
+                A3.a.8:
+                  description: You have prioritised your assets according to
+                    their importance to the operation of network and information
+                    systems supporting your essential function(s).
+                A3.a.9:
+                  description: You have assigned responsibility for managing all
+                    assets, including physical assets, relevant to the operation
+                    of network and information systems supporting your essential
+                    function(s).
+                A3.a.10:
+                  description: Assets relevant to network and information
+                    systems supporting your essential function(s) are managed
+                    with cyber security in mind throughout their lifecycle, from
+                    creation through to eventual decommissioning or disposal.
+            assessment-rules: *standard-rules
+      A4:
+        code: A4
+        title: Supply Chain
+        description: The organisation understands and manages security risks to
+          network and information systems supporting the operation of essential
+          functions that arise as a result of dependencies on suppliers. This
+          includes ensuring that appropriate measures are employed where third
+          party services are used.
+        outcomes:
+          A4.a:
+            code: A4.a
+            title: Supply Chain
+            description: You understand and effectively manage the risks
+              associated with suppliers to the security of network and
+              information systems supporting the operation of your essential
+              function(s).
+            indicators:
+              not-achieved:
+                A4.a.1:
+                  description: You do not know what data belonging to you is
+                    held by suppliers, or how it is managed.
+                A4.a.2:
+                  description: Elements of the supply chain for network and
+                    information systems supporting your essential function(s)
+                    are subcontracted and you have little or no visibility of
+                    the sub-contractors.
+                A4.a.3:
+                  description: You have no understanding of which contracts are
+                    relevant and / or relevant contracts do not specify
+                    appropriate security obligations.
+                A4.a.4:
+                  description: Suppliers have access to network and information
+                    systems that support your essential function(s) that is
+                    unrestricted, not monitored or bypasses your own security
+                    controls.
+              partially-achieved:
+                A4.a.5:
+                  description: You understand the general risks suppliers may
+                    pose to network and information systems supporting your
+                    essential function(s).
+                A4.a.6:
+                  description: You know the extent of your supply chain that
+                    supports network and information systems supporting your
+                    essential function(s), including sub-contractors.
+                A4.a.7:
+                  description: You understand which contracts are relevant and
+                    you include appropriate security obligations, in relevant
+                    contracts.
+                A4.a.8:
+                  description: You are aware of all third-party connections and
+                    have assurance that they meet your organisation's security
+                    requirements.
+                A4.a.9:
+                  description: Your approach to security incident management
+                    considers incidents that might arise in your supply chain.
+                A4.a.10:
+                  description: You have confidence that information held by
+                    suppliers that is necessary for the operation of network and
+                    information systems supporting your essential function(s) is
+                    appropriately protected from common threats.
+              achieved:
+                A4.a.11:
+                  description: You have a deep understanding of your supply
+                    chain, including sub-contractors, and the wider risks it
+                    faces.
+                A4.a.12:
+                  description: You consider factors such as your supplier's
+                    ownership, nationality, partnerships, competitors, other
+                    organisations with which they sub-contract and their
+                    approach to cyber security; these factors inform your risk
+                    assessment and are fully considered in your procurement
+                    lifecycle processes and purchasing decisions.
+                A4.a.13:
+                  description: Your approach to supply chain risk management
+                    considers the risks to network and information systems
+                    supporting your essential function(s) arising from supply
+                    chain subversion by capable and well-resourced threat
+                    actors.
+                A4.a.14:
+                  description: Critical suppliers to network and information
+                    systems supporting your essential functions(s) can
+                    demonstrate appropriate and proportionate levels of cyber
+                    security within the context of capable and well-resourced
+                    threat actors.
+                A4.a.15:
+                  description: You have confidence that information held by
+                    suppliers that is essential to the operation of network and
+                    information systems supporting your essential function(s) is
+                    appropriately protected from capable and well-resourced
+                    threat actors.
+                A4.a.16:
+                  description: You have a proactive approach to contract
+                    management which may include a contract management plan for
+                    relevant contracts.
+                A4.a.17:
+                  description: Customer / supplier ownership of responsibilities
+                    is defined in contracts.
+                A4.a.18:
+                  description: All network connections and data sharing with
+                    third parties are managed effectively and proportionately.
+                A4.a.19:
+                  description: When appropriate, your incident management
+                    process and that of your suppliers provide mutual support in
+                    the resolution of incidents.
+            assessment-rules: *standard-rules
+          A4.b:
+            code: A4.b
+            title: Secure Software Development and Support
+            description: You actively maximise the use of secure and supported
+              software, whether developed internally or sourced externally,
+              within network and information systems supporting the operation of
+              your essential function(s).
+            indicators:
+              not-achieved:
+                A4.b.1:
+                  description: Your software supplier(s) is unaware of the
+                    composition and provenance of software provided to you.
+                A4.b.2:
+                  description: Software, including updates and patches,
+                    undergoes little to no testing.
+                A4.b.3:
+                  description: Updates and patches often introduce new problems
+                    or fail to address existing issues.
+                A4.b.4:
+                  description: Vulnerabilities are discovered in software
+                    despite the negligible difficulty of implementing
+                    mitigations.
+              partially-achieved:
+                A4.b.5:
+                  description: Your software supplier leverages secure
+                    development principles and practices.
+                A4.b.6:
+                  description: Your software supplier(s) can demonstrate a
+                    limited understanding of the composition and provenance of
+                    software provided to you.
+                A4.b.7:
+                  description: You consider the security of environments (e.g.
+                    development, test and production), including source code and
+                    repositories, used in the production of software to be
+                    appropriate and proportionate within the context of common
+                    threats.
+                A4.b.8:
+                  description: The testing regime uses a range of different
+                    approaches (e.g. static and dynamic analysis, unit and
+                    integration testing and point in time assessments) that
+                    verify all aspects of the development lifecycle covering
+                    both functional and non-functional testing.
+                A4.b.9:
+                  description: You have arrangements in place with your software
+                    supplier to receive timely security updates, patches and
+                    notifications.
+                A4.b.10:
+                  description: Software, including updates and patches, is
+                    obtained from your supplier(s) via secure channels.
+                A4.b.11:
+                  description: Your software supplier(s) has processes in place
+                    to identify, report and mitigate security vulnerabilities.
+                A4.b.12:
+                  description: You have arrangements in place with your software
+                    supplier to be notified of any significant events that may
+                    adversely impact network and information systems supporting
+                    your essential function(s).
+                A4.b.13:
+                  description: If open-source software is used, you have taken
+                    appropriate and proportionate steps to establish and
+                    maintain sufficient confidence in its security for its use.
+                A4.b.14:
+                  description: You have appropriate support and maintenance
+                    arrangements in place.
+              achieved:
+                A4.b.15:
+                  description: Your software supplier(s) leverages an
+                    established secure software development framework (e.g. NIST
+                    Secure Software Development Framework (SSDF), Microsoft
+                    Secure Development Lifecycle (SDL)).
+                A4.b.16:
+                  description: Your software supplier can demonstrate a thorough
+                    understanding of the composition and provenance of software
+                    provided to you, including any third-party components used
+                    in the development of that software, and those components
+                    are being monitored for new vulnerabilities throughout the
+                    lifespan of the product.
+                A4.b.17:
+                  description: You consider the security of environments (e.g.
+                    development, test, and production), including source code
+                    and repositories, used in the production of software to be
+                    appropriate and proportionate within the context of capable
+                    and well-resourced threat actors.
+                A4.b.18:
+                  description: The software development lifecycle is informed by
+                    a detailed and up to date understanding of threat and
+                    applies appropriate techniques, such as threat modelling, to
+                    identify and assess potential vulnerabilities and attack
+                    vectors.
+                A4.b.19:
+                  description: You can attest to the authenticity and integrity
+                    of software, including updates and patches.
+                A4.b.20:
+                  description:
+            assessment-rules: *standard-rules
+  B:
+    code: B
+    title: Protecting against cyber attack
+    description: Proportionate security measures are in place to protect network
+      and information systems supporting essential functions from cyber attack.
+    principles:
+      B1:
+        code: B1
+        title: Service Protection Policies, Processes and Procedures
+        description: The organisation defines, implements, communicates and
+          enforces appropriate policies, processes and procedures that direct
+          its overall approach to securing systems and data that support
+          operation of essential functions.
+        outcomes:
+          B1.a:
+            code: B1.a
+            title: Policy, Process and Procedure Development
+            description: You have developed and continue to improve a set of
+              cyber security and resilience policies, processes and procedures
+              that manage and mitigate the risk of adverse impact to network and
+              information systems supporting your essential function(s).
+            indicators:
+              not-achieved:
+                B1.a.1:
+                  description: Your policies, processes and procedures are
+                    absent or incomplete.
+                B1.a.2:
+                  description: Policies, processes and procedures are not
+                    applied universally or consistently.
+                B1.a.3:
+                  description: People often or routinely circumvent policies,
+                    processes and procedures to achieve business objectives.
+                B1.a.4:
+                  description: Your organisation's security governance and risk
+                    management approach has no bearing on your policies,
+                    processes and procedures.
+                B1.a.5:
+                  description: System security is totally reliant on users'
+                    careful and consistent application of manual security
+                    processes.
+                B1.a.6:
+                  description: Policies, processes and procedures have not been
+                    reviewed in response to major changes (e.g. technology or
+                    regulatory framework), or within a suitable period.
+                B1.a.7:
+                  description: Policies, processes and procedures are not
+                    readily available to staff, too detailed to remember, or too
+                    hard to understand.
+              partially-achieved:
+                B1.a.8:
+                  description: Your policies, processes and procedures document
+                    your overarching security governance and risk management
+                    approach, technical security practice and specific
+                    regulatory compliance.
+                B1.a.9:
+                  description: You review and update policies, processes and
+                    procedures in response to major cyber security incidents.
+              achieved:
+                B1.a.10:
+                  description: You fully document your overarching security
+                    governance and risk management approach, technical security
+                    practice and specific regulatory compliance. Cyber security
+                    is integrated and embedded throughout policies, processes
+                    and procedures and key performance indicators are reported
+                    to your executive management.
+                B1.a.11:
+                  description: Your organisation's policies, processes and
+                    procedures are developed to be practical, usable and
+                    appropriate for your essential function(s) and your
+                    technologies.
+                B1.a.12:
+                  description: Policies, processes and procedures that rely on
+                    user behaviour are practical, appropriate and achievable.
+                B1.a.13:
+                  description: You review and update policies, processes and
+                    procedures at suitably regular intervals to ensure they
+                    remain relevant. This is in addition to reviews following a
+                    major cyber security incident.
+                B1.a.14:
+                  description: Any changes to the essential function(s) or the
+                    threat it faces triggers a review of policies, processes and
+                    procedures.
+                B1.a.15:
+                  description: Your systems are designed so that they remain
+                    secure even when user security policies, processes and
+                    procedures are not always followed.
+            assessment-rules: *standard-rules
+          B1.b:
+            code: B1.b
+            title: Policy, Process and Procedure Implementation
+            description: You have successfully implemented your security
+              policies, processes and procedures and can demonstrate the
+              security benefits achieved.
+            indicators:
+              not-achieved:
+                B1.b.1:
+                  description: Policies, processes and procedures are ignored or
+                    only partially followed.
+                B1.b.2:
+                  description: How your policies, processes and procedures
+                    support the resilience of your essential function(s) is not
+                    well understood.
+                B1.b.3:
+                  description: Staff are unaware of their responsibilities under
+                    your policies, processes and procedures.
+                B1.b.4:
+                  description: You do not attempt to detect breaches of
+                    policies, processes and procedures.
+                B1.b.5:
+                  description: Policies, processes and procedures lack
+                    integration with other organisational policies, processes
+                    and procedures.
+              partially-achieved:
+                B1.b.6:
+                  description: Most of your policies, processes and procedures
+                    are followed and their application is monitored.
+                B1.b.7:
+                  description: Your policies, processes and procedures are
+                    integrated with other organisational policies, processes and
+                    procedures, including HR assessments of individuals'
+                    trustworthiness.
+                B1.b.8:
+                  description: All staff are aware of their responsibilities
+                    under your policies, processes and procedures.
+                B1.b.9:
+                  description: All breaches of policies, processes and
+                    procedures with the potential to adversely impact the
+                    essential function(s) are fully investigated. Other breaches
+                    are tracked, assessed for trends and action is taken to
+                    understand and address.
+              achieved:
+                B1.b.10:
+                  description: All your policies, processes and procedures are
+                    followed, their correct application and security
+                    effectiveness is evaluated.
+                B1.b.11:
+                  description: Your policies, processes and procedures are
+                    effectively and appropriately communicated across all levels
+                    of the organisation resulting in good staff awareness of
+                    their responsibilities.
+                B1.b.12:
+                  description: Appropriate action is taken to address all
+                    breaches of policies, processes and procedures with
+                    potential to adversely impact the essential function(s)
+                    including aggregated breaches.
+            assessment-rules: *standard-rules
+      B2:
+        code: B2
+        title: Identity and Access Control
+        description: The organisation understands, documents and manages access
+          to network and information systems supporting the operation of
+          essential functions. Users (or automated functions) that can access
+          data or systems are appropriately verified, authenticated and
+          authorised.
+        outcomes:
+          B2.a:
+            code: B2.a
+            title: Identity Verification, Authentication and Authorisation
+            description: You robustly verify, authenticate and authorise access
+              to network and information systems supporting your essential
+              function(s).
+            indicators:
+              not-achieved:
+                B2.a.1:
+                  description: Initial identity verification is not robust
+                    enough to provide an acceptable level of confidence of a
+                    user's identity profile.
+                B2.a.2:
+                  description: Authorised users and systems with access to
+                    networks or information systems on which your essential
+                    function(s) depends cannot be individually identified.
+                B2.a.3:
+                  description: Unauthorised individuals or devices can access
+                    your network or information systems on which your essential
+                    function(s) depends.
+                B2.a.4:
+                  description: The number of authorised users and systems that
+                    have access to network and information systems is not
+                    limited to the minimum necessary to support your essential
+                    function(s).
+                B2.a.5:
+                  description: Your approach to authenticating users, devices
+                    and systems does not follow up to date best practice.
+              partially-achieved:
+                B2.a.6:
+                  description: Your process of initial identity verification is
+                    robust enough to provide a reasonable level of confidence of
+                    a user's identity profile before allowing an authorised user
+                    access to network and information systems that support your
+                    essential function(s).
+                B2.a.7:
+                  description: All authorised users and systems with access to
+                    network and information systems supporting your essential
+                    function(s) are individually identified and authenticated.
+                B2.a.8:
+                  description: The number of authorised users and systems that
+                    have access to network and information systems is limited to
+                    the minimum necessary to support your essential function(s).
+                B2.a.9:
+                  description: You use additional strong authentication
+                    mechanisms, such as multi-factor authentication (MFA), for
+                    privileged access to all network and information systems
+                    that operate or support your essential function(s).
+                B2.a.10:
+                  description: You individually authenticate and authorise all
+                    remote access to all network and information systems that
+                    support your essential function(s).
+                B2.a.11:
+                  description: The list of users and systems with access to
+                    network and information systems supporting and delivering
+                    the essential function(s) is reviewed on a regular basis, at
+                    least annually.
+                B2.a.12:
+                  description: Your approach to authenticating users, devices
+                    and systems follows up to date best practice.
+              achieved:
+                B2.a.13:
+                  description: Your process of initial identity verification is
+                    robust enough to provide a high level of confidence of a
+                    user's identity profile before allowing an authorised user
+                    access to network and information systems that support your
+                    essential function(s).
+                B2.a.14:
+                  description: Only authorised and individually authenticated
+                    users can physically access and logically connect to your
+                    network or information systems on which your essential
+                    function(s) depends.
+                B2.a.15:
+                  description: The number of authorised users and systems that
+                    have access to network and information systems is limited to
+                    the minimum necessary to support your essential function(s).
+                B2.a.16:
+                  description: You use additional strong authentication
+                    mechanisms, such as multi-factor authentication (MFA), for
+                    all user access, including remote access, to all network and
+                    information systems that operate or support your essential
+                    function(s).
+                B2.a.17:
+                  description: The list of users and systems with access to
+                    network and information systems supporting and delivering
+                    the essential function(s) is reviewed on a regular basis, at
+                    least every six months.
+                B2.a.18:
+                  description: Your approach to authenticating users, devices
+                    and systems follows up to date best practice.
+            assessment-rules: *standard-rules
+          B2.b:
+            code: B2.b
+            title: Device Management
+            description: You fully know and have trust in the devices that are
+              used to access your networks, information systems and data that
+              support your essential function(s).
+            indicators:
+              not-achieved:
+                B2.b.1:
+                  description: Users can connect to network and information
+                    systems supporting your essential function(s) using devices
+                    that are not corporately owned and managed.
+                B2.b.2:
+                  description: Privileged users can perform privileged
+                    operations from devices that are not corporately owned and
+                    managed.
+                B2.b.3:
+                  description: You have not gained assurance in the security of
+                    any third-party devices or networks connected to your
+                    systems.
+                B2.b.4:
+                  description: Physically connecting a device to network and
+                    information systems gives that device access without device
+                    or user authentication.
+              partially-achieved:
+                B2.b.5:
+                  description: Only corporately owned and managed devices can
+                    access your essential function(s) network and information
+                    systems.
+                B2.b.6:
+                  description: All privileged operations are performed from
+                    corporately owned and managed devices. These devices provide
+                    sufficient separation, using a risk-based approach, from the
+                    activities of standard users.
+                B2.b.7:
+                  description: You have sought to understand the security
+                    properties of third-party devices and networks before they
+                    can be connected to your systems. You have taken appropriate
+                    steps to mitigate any risks identified.
+                B2.b.8:
+                  description: You are able to detect unknown devices being
+                    connected to network and information systems and investigate
+                    such incidents.
+              achieved:
+                B2.b.9:
+                  description: All privileged operations performed on network
+                    and information systems supporting your essential
+                    function(s) are conducted from highly trusted devices, such
+                    as Privileged Access Workstations, dedicated solely to those
+                    operations.
+                B2.b.10:
+                  description: You either obtain independent and professional
+                    assurance of the security of third-party devices or networks
+                    before they connect to network and information systems, or
+                    you only allow third-party devices or networks that are
+                    dedicated to supporting network and information systems to
+                    connect.
+                B2.b.11:
+                  description: You perform certificate-based device identity
+                    management and only allow known devices to access systems
+                    necessary for the operation of your essential function(s).
+                B2.b.12:
+                  description: You perform regular scans to detect unknown
+                    devices and investigate any findings.
+            assessment-rules: *standard-rules
+          B2.c:
+            code: B2.c
+            title: Privileged User Management
+            description: You closely manage privileged user access to network
+              and information systems supporting your essential function(s).
+            indicators:
+              not-achieved:
+                B2.c.1:
+                  description: The identities of the individuals with privileged
+                    access to network and information systems (infrastructure,
+                    platforms, software, configuration etc) supporting your
+                    essential function(s) are not known or not managed.
+                B2.c.2:
+                  description: Privileged user access to network and information
+                    systems supporting your essential function(s) is via weak
+                    authentication mechanisms (e.g. only simple passwords).
+                B2.c.3:
+                  description: The list of privileged users has not been
+                    reviewed recently (e.g. within the last 12 months).
+                B2.c.4:
+                  description: Privileged user access is granted on a
+                    system-wide basis rather than by role or function(s).
+                B2.c.5:
+                  description: Privileged user access to network and information
+                    systems supporting your essential function(s) is via
+                    generic, shared or default name accounts.
+                B2.c.6:
+                  description: Where there are "always on" terminals which can
+                    perform privileged actions (such as in a control room),
+                    there are no additional controls (e.g. physical controls) to
+                    ensure access is appropriately restricted.
+                B2.c.7:
+                  description: There is no logical separation between roles that
+                    an individual may have and hence the actions they perform
+                    (e.g. access to corporate email and privilege user actions).
+              partially-achieved:
+                B2.c.8:
+                  description: All privileged user access to network and
+                    information systems supporting your essential function(s)
+                    requires strong authentication, such as multi-factor
+                    authentication (MFA).
+                B2.c.9:
+                  description: The identities of the individuals with privileged
+                    access to network and information systems (infrastructure,
+                    platforms, software, configuration etc) supporting your
+                    essential function(s) are known and managed. This includes
+                    third parties.
+                B2.c.10:
+                  description: Activity by privileged users is routinely
+                    reviewed and validated (e.g. at least annually).
+                B2.c.11:
+                  description: Privileged users are only granted specific
+                    privileged user access rights which are essential to their
+                    business role or function.
+                B2.c.12:
+                  description: Privileged user access to network and information
+                    systems supporting your essential function(s) is carried out
+                    from dedicated separate accounts that are closely monitored
+                    and managed.
+              achieved:
+                B2.c.13:
+                  description: The issuing of temporary, time-bound rights for
+                    privileged user access and / or external third-party support
+                    access is in place.
+                B2.c.14:
+                  description: Privileged user access rights are regularly
+                    reviewed and always updated as part of your joiners, movers
+                    and leavers process.
+                B2.c.15:
+                  description: All privileged user activity is routinely
+                    reviewed, validated and recorded for offline analysis and
+                    investigation.
+            assessment-rules: *standard-rules
+          B2.d:
+            code: B2.d
+            title: Identity and Access Management (IdAM)
+            description: You closely manage and maintain identity and access
+              control for users, devices and systems accessing network and
+              information systems supporting your essential function(s).
+            indicators:
+              not-achieved:
+                B2.d.1:
+                  description: Greater access rights are granted than necessary.
+                B2.d.2:
+                  description: Identity validation and requirement for access of
+                    a user, device or systems is not carried out.
+                B2.d.3:
+                  description: User access rights are not reviewed when users
+                    change roles.
+                B2.d.4:
+                  description: User access rights remain active when users leave
+                    your organisation.
+                B2.d.5:
+                  description: Access rights granted to devices or systems to
+                    access other devices and systems are not reviewed on a
+                    regular basis (at least annually).
+              partially-achieved:
+                B2.d.6:
+                  description: You follow a robust procedure to verify each user
+                    and issue the minimum required access rights.
+                B2.d.7:
+                  description: You regularly review access rights and those no
+                    longer needed are revoked.
+                B2.d.8:
+                  description: User access rights are reviewed when users change
+                    roles via your joiners, leavers and movers process.
+                B2.d.9:
+                  description: All user, device and systems access to the
+                    systems supporting the essential function(s) is logged and
+                    monitored, but it is not compared to other log data or
+                    access records.
+              achieved:
+                B2.d.10:
+                  description: You follow a robust procedure to verify each user
+                    and issue the minimum required access rights, and the
+                    application of the procedure is regularly audited.
+                B2.d.11:
+                  description: User access rights are reviewed both when people
+                    change roles via your joiners, leavers and movers process
+                    and at regular intervals - at least annually.
+                B2.d.12:
+                  description: All user, device and systems access to network
+                    and information systems supporting your essential
+                    function(s) is logged and monitored.
+                B2.d.13:
+                  description: You regularly review access logs and correlate
+                    this data with other access records and expected activity.
+                B2.d.14:
+                  description: Attempts by unauthorised users, devices or
+                    systems to connect to network and information systems
+                    supporting your essential function(s) are alerted, promptly
+                    assessed and investigated.
+            assessment-rules: *standard-rules
+      B3:
+        code: B3
+        title: Data Security
+        description: Data stored or transmitted electronically is protected from
+          actions such as unauthorised access, modification, or deletion that
+          may cause an adverse impact on essential functions.
+        outcomes:
+          B3.a:
+            code: B3.a
+            title: Understanding Data
+            description: You have a good understanding of data important to the
+              operation of network and information systems supporting your
+              essential function(s), where it is stored, where it travels and
+              how unavailability or unauthorised access, uncontrolled release,
+              modification or deletion would adversely impact the essential
+              function(s).
+            indicators:
+              not-achieved:
+                B3.a.1:
+                  description: You have incomplete knowledge of what data is
+                    used by and produced in the operation of network and
+                    information systems supporting your essential function(s).
+                B3.a.2:
+                  description: You have not identified the important data on
+                    which network and information systems supporting your
+                    essential function(s) relies.
+                B3.a.3:
+                  description: You have not identified who has access to data
+                    important to the operation of network and information
+                    systems supporting your essential function(s).
+                B3.a.4:
+                  description: You have not clearly articulated the impact of
+                    data compromise or lack of availability.
+              partially-achieved:
+                B3.a.5:
+                  description: You have identified and catalogued all the data
+                    important to the operation of network and information
+                    systems supporting your essential function(s), or that would
+                    assist a threat actor.
+                B3.a.6:
+                  description: You have identified and catalogued who has access
+                    to the data important to the operation of network and
+                    information systems supporting your essential function(s).
+                B3.a.7:
+                  description: You regularly review location, transmission,
+                    quantity and quality of data important to the operation of
+                    network and information systems supporting your essential
+                    function(s).
+                B3.a.8:
+                  description: You have identified all mobile devices and media
+                    that hold data important to the operation of network and
+                    information systems supporting your essential function(s).
+                B3.a.9:
+                  description: You occasionally validate these documented impact
+                    statements.
+              achieved:
+                B3.a.10:
+                  description: You have identified and catalogued all the data
+                    important to the operation of network and information
+                    systems supporting your essential function(s), or that would
+                    assist a threat actor.
+                B3.a.11:
+                  description: You have identified and catalogued who has access
+                    to the data important to the operation of network and
+                    information systems supporting your essential function(s).
+                B3.a.12:
+                  description: You maintain a current understanding of the
+                    location, quantity and quality of data important to the
+                    operation of network and information systems supporting your
+                    essential function(s).
+                B3.a.13:
+                  description: You take steps to remove or minimise unnecessary
+                    copies or unneeded historic data.
+                B3.a.14:
+                  description: You have identified all mobile devices and media
+                    that may hold data important to the operation of network and
+                    information systems supporting your essential function(s).
+                B3.a.15:
+                  description: You maintain a current understanding of the data
+                    links used to transmit data that is important to network and
+                    information systems supporting your essential function(s).
+                B3.a.16:
+                  description: You understand the context, limitations and
+                    dependencies of your important data.
+                B3.a.17:
+                  description: You understand and document the impact on your
+                    essential function(s) of all relevant scenarios, including
+                    unauthorised data access, uncontrolled release, modification
+                    or deletion, or when authorised users are unable to
+                    appropriately access this data.
+                B3.a.18:
+                  description: You validate these documented impact statements
+                    regularly, at least annually.
+            assessment-rules: *standard-rules
+          B3.b:
+            code: B3.b
+            title: Data in Transit
+            description: You have protected the transit of data important to the
+              operation of network and information systems supporting your
+              essential function(s). This includes the transfer of data to third
+              parties.
+            indicators:
+              not-achieved:
+                B3.b.1:
+                  description: You do not know what all your data links are, or
+                    which carry data important to the operation of the essential
+                    function(s).
+                B3.b.2:
+                  description: Data important to the operation of the essential
+                    function(s) travels without technical protection over
+                    non-trusted or openly accessible carriers.
+                B3.b.3:
+                  description: Critical data paths that could fail, be jammed,
+                    be overloaded, etc. have no alternative path.
+              partially-achieved:
+                B3.b.4:
+                  description: You have identified and protected (effectively
+                    and proportionately) all the data links that carry data
+                    important to the operation of your essential function(s).
+                B3.b.5:
+                  description: You apply appropriate physical and / or technical
+                    means (e.g. cryptography) to protect data that travels over
+                    non-trusted or openly accessible carriers, but you have
+                    limited or no confidence in the robustness of the protection
+                    applied.
+              achieved:
+                B3.b.6:
+                  description: You have identified and protected (effectively
+                    and proportionately) all the data links that carry data
+                    important to the operation of your essential function(s).
+                B3.b.7:
+                  description: You apply appropriate physical and / or technical
+                    means (e.g. cryptography) to protect data that travels over
+                    non-trusted or openly accessible carriers, with justified
+                    confidence in the robustness of the protection applied.
+                B3.b.8:
+                  description: Suitable alternative transmission paths are
+                    available where there is a significant risk of impact on the
+                    operation of the essential function(s) due to resource
+                    limitation (e.g. transmission equipment or function failure,
+                    or important data being blocked or jammed).
+            assessment-rules: *standard-rules
+          B3.c:
+            code: B3.c
+            title: Stored Data
+            description: You have protected stored soft and hard copy data
+              important to the operation of network and information systems
+              supporting your essential function(s).
+            indicators:
+              not-achieved:
+                B3.c.1:
+                  description: You have no, or limited, knowledge of where data
+                    important to the operation of network and information
+                    systems supporting your essential function(s) is stored.
+                B3.c.2:
+                  description: You have not protected vulnerable stored data
+                    important to the operation of network and information
+                    systems supporting your essential function(s) in a suitable
+                    way.
+                B3.c.3:
+                  description: Backups are incomplete, untested, not adequately
+                    secured or could be inaccessible in a disaster recovery or
+                    business continuity situation.
+              partially-achieved:
+                B3.c.4:
+                  description: All copies of data important to the operation of
+                    network and information systems supporting your essential
+                    function(s) are necessary. Where this important data is
+                    transferred to less secure systems, the data is provided
+                    with limited detail and / or as a read-only copy.
+                B3.c.5:
+                  description: If cryptographic protections are used you apply
+                    suitable technical and procedural means, but you have
+                    limited or no confidence in the robustness of the protection
+                    applied.
+                B3.c.6:
+                  description: You have applied suitable physical and / or
+                    technical means to protect this important stored data from
+                    unauthorised access, modification or deletion.
+              achieved:
+                B3.c.7:
+                  description: All copies of data important to the operation of
+                    network and information systems supporting your essential
+                    function(s) are necessary. Where this important data is
+                    transferred to less secure systems, the data is provided
+                    with limited detail and / or as a read-only copy.
+                B3.c.8:
+                  description: If cryptographic protections are used you apply
+                    suitable technical and procedural means, and you have
+                    justified confidence in the robustness of the protection
+                    applied.
+                B3.c.9:
+                  description: You have applied suitable physical and / or
+                    technical means to protect this important stored data from
+                    unauthorised access, modification or deletion.
+            assessment-rules: *standard-rules
+  C:
+    code: C
+    title: Detecting Cyber Security Events
+    description: Capabilities exist to ensure security defences remain effective
+      and to detect cyber security events and incidents adversely affecting, or
+      with the potential to adversely affect, essential function(s).
+    principles:
+      C1:
+        code: C1
+        title: Security Monitoring
+        description: The organisation monitors the security status of network
+          and information systems supporting the operation of essential
+          function(s) in order to detect security events indicative of a
+          security incident.
+        outcomes:
+          C1.a:
+            code: C1.a
+            title: Sources and Tools for Logging and Monitoring
+            description: The data sources and tools that you include in your
+              logging and monitoring allow for timely identification of events
+              which might adversely affect the security or resiliency of network
+              and information system(s) supporting the operation of your
+              essential function(s).
+            indicators:
+              not-achieved:
+                C1.a.1:
+                  description: Data relating to the security and operation of
+                    network and information systems supporting your essential
+                    function(s) is not collected.
+                C1.a.2:
+                  description: You are not able to audit the activities of users
+                    and systems in relation to network and information systems
+                    supporting your essential function(s).
+                C1.a.3:
+                  description: You do not monitor traffic crossing your network
+                    boundary.
+                C1.a.4:
+                  description: Log data cannot be synchronised using an accurate
+                    common time source.
+                C1.a.5:
+                  description: Logs are stored in locations where they are not
+                    readily available to authorised users and systems.
+                C1.a.6:
+                  description: Your monitoring tools cannot be configured to
+                    make use of new log streams as they come online.
+                C1.a.7:
+                  description: Your monitoring tools are only able to make use
+                    of a fraction of the log data being collected.
+                C1.a.8:
+                  description: You do not understand where log data is stored or
+                    how long it should be stored for.
+                C1.a.9:
+                  description: You have no way of ensuring log data is being
+                    captured as expected and available when needed.
+              partially-achieved:
+                C1.a.10:
+                  description: Data relating to the security and operation of
+                    some areas of network and information systems supporting
+                    your essential function(s) is collected but coverage is not
+                    comprehensive.
+                C1.a.11:
+                  description: Some user and system monitoring is done, but not
+                    covering a fully agreed list of suspicious or undesirable
+                    behaviour.
+                C1.a.12:
+                  description: You monitor traffic crossing your network
+                    boundary (including IP address connections as a minimum).
+                C1.a.13:
+                  description: Some but not all log datasets can be easily
+                    queried with search tools to aid in investigations.
+                C1.a.14:
+                  description: Your monitoring tools work with most log data,
+                    with some configuration.
+                C1.a.15:
+                  description: Your monitoring tools can make use of log data
+                    that would capture all common threats.
+                C1.a.16:
+                  description: You ensure log data is available for analysis
+                    when needed.
+              achieved:
+                C1.a.17:
+                  description: Monitoring is based on a thorough understanding
+                    of network and information systems supporting your essential
+                    function(s), techniques used by threat actors, and awareness
+                    of what logging and monitoring is required to detect events
+                    and incidents that could affect the operation of your
+                    essential function(s).
+                C1.a.18:
+                  description: Your monitoring data provides enough detail to
+                    promptly and reliably detect security events, incidents and
+                    support investigations. This is reviewed regularly and after
+                    a significant security event.
+                C1.a.19:
+                  description: Extensive monitoring of user and system activity
+                    enables you to promptly detect policy violations, suspicious
+                    or undesirable user and system behaviour, deviations from
+                    normal behaviour or abnormalities indicative of adverse
+                    activity.
+                C1.a.20:
+                  description: Your logging and monitoring capability includes
+                    host-based and network monitoring.
+                C1.a.21:
+                  description: All new network and information systems
+                    supporting your essential function(s) are considered as
+                    potential logging and monitoring data sources to maintain a
+                    comprehensive monitoring capability.
+                C1.a.22:
+                  description: Log datasets are synchronised including using an
+                    accurate common time source so that separate datasets can be
+                    correlated in appropriate ways.
+                C1.a.23:
+                  description: You enrich log data with other network and
+                    information systems data to provide a more comprehensive
+                    picture of actions and behaviours.
+                C1.a.24:
+                  description: Your monitoring tools make use of log data to
+                    pinpoint activity.
+                C1.a.25:
+                  description: You regularly review the data sources and tools
+                    included in your logging and monitoring strategy to ensure
+                    it remains effective.
+            assessment-rules: *standard-rules
+          C1.b:
+            code: C1.b
+            title: Securing Logs
+            description: You hold log data securely and grant appropriate user
+              and system access only to accounts with a business need. Log data
+              is held for a suitable retention period, after which it is
+              deleted.
+            indicators:
+              not-achieved:
+                C1.b.1:
+                  description: It is possible for log data to be easily edited
+                    or deleted by unauthorised users / systems or attackers.
+                C1.b.2:
+                  description: There is no control of the users and systems that
+                    can access log data.
+                C1.b.3:
+                  description: There is no monitoring of the access to log data.
+                C1.b.4:
+                  description: There are no policies covering access to log
+                    data.
+              partially-achieved:
+                C1.b.5:
+                  description: Only authorised users and systems can access log
+                    data.
+                C1.b.6:
+                  description: There is some monitoring of access to log data
+                    (e.g. copying, deleting or modification, or even viewing).
+                C1.b.7:
+                  description: You have defined and implemented retention
+                    periods for log data.
+                C1.b.8:
+                  description: You have given legitimate reasons for accessing
+                    log data in your policies.
+              achieved:
+                C1.b.9:
+                  description: Appropriate access to log data is limited to
+                    those users and systems with a business need.
+                C1.b.10:
+                  description: The logging architecture has mechanisms,
+                    policies, processes and procedures to ensure that it can
+                    protect itself from threats comparable to those that it is
+                    trying to identify.
+                C1.b.11:
+                  description: Log data analysis and normalisation is only
+                    performed on copies of the log data keeping the master copy
+                    unaltered.
+                C1.b.12:
+                  description: All actions involving log data (e.g. copying,
+                    deleting, modification, or even viewing) can be traced back
+                    to a unique user or system.
+                C1.b.13:
+                  description: The integrity of log data is protected, verified
+                    and any modification, including deletion, is detected and
+                    attributed.
+            assessment-rules: *standard-rules
+          C1.c:
+            code: C1.c
+            title: Generating Alerts
+            description: Evidence of potential security incidents contained in
+              your monitoring data is reliably identified and where appropriate
+              triggers alerts.
+            indicators:
+              not-achieved:
+                C1.c.1:
+                  description: You do not apply updates to your detection
+                    security technologies in a timely way, after receiving them.
+                C1.c.2:
+                  description: Security alerts relating to network and
+                    information systems supporting your essential function(s)
+                    are not prioritised.
+                C1.c.3:
+                  description: The enrichment of security alerts cannot be
+                    performed.
+                C1.c.4:
+                  description: You do not confidently detect the presence of
+                    Indicators of Compromise (IoCs) on network and information
+                    systems supporting your essential function(s).
+                C1.c.5:
+                  description: You do not monitor for user or system
+                    abnormalities indicative of adverse activity.
+                C1.c.6:
+                  description: Detections and alerting rely on off the shelf
+                    tooling without customisation or users reporting events and
+                    potential incidents.
+                C1.c.7:
+                  description: Logs are monitored infrequently.
+              partially-achieved:
+                C1.c.8:
+                  description: You easily detect the presence of IoCs, such as
+                    known malicious command and control signatures, on relevant
+                    systems.
+                C1.c.9:
+                  description: You apply some updates, new signatures and IoCs
+                    in a timely way.
+                C1.c.10:
+                  description: Security alerts relating to network and
+                    information systems that support your essential function(s)
+                    are prioritised.
+                C1.c.11:
+                  description: The enrichment of alerts is performed but not as
+                    part of the original alert.
+                C1.c.12:
+                  description: Detections and alerting rely on off the shelf
+                    tooling without customisation or users reporting events and
+                    potential incidents.
+                C1.c.13:
+                  description: Where appropriate, detections and alerting result
+                    in automated actions being taken.
+                C1.c.14:
+                  description: You monitor on an irregular basis for user or
+                    system abnormalities indicative of adverse activity.
+                C1.c.15:
+                  description: Logs are monitored at regular intervals.
+              achieved:
+                C1.c.16:
+                  description: You easily detect the presence of IoCs as well as
+                    abnormalities or behaviours indicative of adverse activity.
+                C1.c.17:
+                  description: You apply all updates, new signatures and IoCs
+                    promptly.
+                C1.c.18:
+                  description: Security alerts relating to all network and
+                    information systems supporting your essential function(s)
+                    are prioritised and this information is used to support
+                    incident management.
+                C1.c.19:
+                  description: Alerts are routinely enriched in almost real time
+                    and as part of the original alert.
+                C1.c.20:
+                  description: Alerts and the underlying detections are
+                    regularly reviewed and tested to ensure they are generated
+                    promptly and reliably, distinguishing genuine incidents from
+                    false alarms.
+                C1.c.21:
+                  description: Alerts and detection rules are customisable and
+                    tuned to reduce false positives and optimise responses.
+                C1.c.22:
+                  description: Detections and alerting may use off the shelf
+                    tooling and rules as well as custom tooling and / or rules.
+                C1.c.23:
+                  description: You continuously monitor for user and system
+                    abnormalities indicative of adverse activity generating
+                    alerts based on the results of such monitoring.
+                C1.c.24:
+                  description: Logs are monitored continuously in near real
+                    time.
+            assessment-rules: *standard-rules
+          C1.d:
+            code: C1.d
+            title: Triage of Security Alerts
+            description: You contextualise alerts with knowledge of the threat
+              and your systems, to identify security incidents as well as
+              responding to all alerts appropriately.
+            indicators:
+              not-achieved:
+                C1.d.1:
+                  description: You do not triage alerts from your detection
+                    security technologies.
+                C1.d.2:
+                  description: You do not categorise alerts and incidents by
+                    type and priority / severity level.
+                C1.d.3:
+                  description: You do not have Standard Operating Procedures
+                    (SOPs) / Playbooks / Runbooks available for use during
+                    triage.
+                C1.d.4:
+                  description: You do not keep records of triage performed.
+                C1.d.5:
+                  description: You do not have a sufficient understanding of
+                    normal user or system behaviour to make effective decisions
+                    within triage.
+              partially-achieved:
+                C1.d.6:
+                  description: You investigate and triage alerts from some
+                    security tools and take action.
+                C1.d.7:
+                  description: You have created and use SOPs / Playbooks /
+                    Runbooks covering the most common use cases; these are
+                    regularly reviewed.
+                C1.d.8:
+                  description: You perform some triage and actions taken by
+                    monitoring and detection personnel are recorded.
+                C1.d.9:
+                  description: You categorise alerts and incidents by type and
+                    priority / severity level.
+                C1.d.10:
+                  description: Your understanding of normal user or system
+                    behaviour informs your decision making within triage.
+              achieved:
+                C1.d.11:
+                  description: You investigate and triage alerts from all
+                    security tools and take action.
+                C1.d.12:
+                  description: You have SOPs / Playbooks / Runbooks covering all
+                    plausible use cases which are regularly reviewed.
+                C1.d.13:
+                  description: You document all triage related activities and
+                    use them to drive improvements.
+                C1.d.14:
+                  description: You categorise alerts and incidents by type and
+                    priority / severity level.
+                C1.d.15:
+                  description: Triage provides enough information for subsequent
+                    activities to be prioritised.
+                C1.d.16:
+                  description: Your understanding of normal user and system
+                    behaviour, and threats, is sufficient for effective decision
+                    making within triage.
+            assessment-rules: *standard-rules
+          C1.e:
+            code: C1.e
+            title: Personnel Skills for Monitoring and Detection
+            description: Monitoring and detection personnel skills and roles,
+              including those outsourced, reflect governance and reporting
+              requirements, expected threats and the complexities of the network
+              or system data they need to use.
+            indicators:
+              not-achieved:
+                C1.e.1:
+                  description: There are no personnel who perform a monitoring
+                    and detection function.
+                C1.e.2:
+                  description: Monitoring and detection personnel do not have
+                    the correct specialist skills.
+                C1.e.3:
+                  description: Monitoring and detection personnel are not
+                    capable of reporting against governance requirements.
+                C1.e.4:
+                  description: Monitoring and detection personnel have a lack of
+                    awareness of the essential function(s) and related assets.
+                C1.e.5:
+                  description: Monitoring and detection personnel are
+                    overwhelmed with the amount of data and alerts they have to
+                    work with.
+              partially-achieved:
+                C1.e.6:
+                  description: Monitoring and detection personnel have some
+                    investigative skills and a basic understanding of the data
+                    they need to work with.
+                C1.e.7:
+                  description: Monitoring and detection personnel can report to
+                    other parts of the organisation.
+                C1.e.8:
+                  description: Monitoring and detection personnel are capable of
+                    following most of the required workflow(s).
+                C1.e.9:
+                  description: Monitoring and detection personnel have some
+                    understanding of the operational context to enhance the
+                    security monitoring function.
+                C1.e.10:
+                  description: Monitoring and detection personnel deal with
+                    their workload and cases effectively.
+              achieved:
+                C1.e.11:
+                  description: You have monitoring and detection personnel
+                    responsible for proactive and reactive analysis,
+                    investigation and reporting of monitoring alerts including
+                    both security and performance.
+                C1.e.12:
+                  description: Monitoring and detection personnel have defined
+                    roles and skills that cover all parts of the monitoring and
+                    investigation process.
+                C1.e.13:
+                  description: Monitoring and detection personnel follow
+                    policies, processes and procedures that address all
+                    governance reporting requirements.
+                C1.e.14:
+                  description: Monitoring and detection personnel are aware of
+                    the network and information systems and essential
+                    function(s), related assets and can identify and prioritise
+                    alerts and investigations that relate to them.
+                C1.e.15:
+                  description: Monitoring and detection personnel drive and
+                    shape new log data collection and can make effective use of
+                    it.
+                C1.e.16:
+                  description: Monitoring and detection personnel deal with
+                    their workload and cases effectively as well as identifying
+                    areas for improvement.
+            assessment-rules: *standard-rules
+          C1.f:
+            code: C1.f
+            title: Understanding User's and System's Behaviour, and Threat
+              Intelligence
+            description: Threats to the operation of network and information
+              systems, and corresponding user and system behaviour, are
+              sufficiently understood and used to detect cyber security
+              incidents.
+            indicators:
+              not-achieved:
+                C1.f.1:
+                  description: Your organisation has no sources of threat
+                    intelligence.
+                C1.f.2:
+                  description: You do not evaluate the usefulness of your threat
+                    intelligence or share feedback with providers or other
+                    users.
+                C1.f.3:
+                  description: You have no awareness of the steps necessary to
+                    make best use of threat intelligence for security
+                    monitoring.
+                C1.f.4:
+                  description: Threat intelligence is unreliable and / or is not
+                    actioned by the appropriate users or systems in a timely
+                    manner.
+                C1.f.5:
+                  description: You have no established understanding of what
+                    abnormalities to look for that might signify adverse
+                    activities.
+                C1.f.6:
+                  description: You do not receive updates for all your detection
+                    security technologies.
+                C1.f.7:
+                  description: You do not understand normal user and system
+                    behaviour sufficiently to be able to use abnormalities to
+                    detect adverse activity.
+              partially-achieved:
+                C1.f.8:
+                  description: You know how effective your threat intelligence
+                    is.
+                C1.f.9:
+                  description: Your organisation may use threat intelligence
+                    services, but you do not necessarily choose sources
+                    specifically because of your business needs.
+                C1.f.10:
+                  description: The user and system abnormalities from past
+                    attacks and threat intelligence are used to signify adverse
+                    activity.
+                C1.f.11:
+                  description: You receive regular updates for all of your
+                    detection security technologies.
+                C1.f.12:
+                  description: You understand normal user and system
+                    abnormalities sufficiently that searching for system
+                    abnormalities is an effective way of detecting adverse
+                    activity.
+              achieved:
+                C1.f.13:
+                  description: You track the effectiveness of your threat
+                    intelligence and actively share feedback on the usefulness
+                    of IoCs and other intelligence with the threat community.
+                C1.f.14:
+                  description: When using threat intelligence feeds, these have
+                    been selected using risk-based and threat-informed decisions
+                    based on your business needs and sector.
+                C1.f.15:
+                  description: You make relevant, reliable and actionable threat
+                    intelligence available to the necessary users and systems
+                    promptly.
+                C1.f.16:
+                  description: You contextualise threat intelligence and link it
+                    to the why and / or how attacks take place for security
+                    monitoring.
+                C1.f.17:
+                  description: The user and system abnormalities you monitor for
+                    are based on the nature of adverse activities likely to
+                    impact your essential function(s).
+                C1.f.18:
+                  description: The user and system abnormalities indicative of
+                    adverse activity you use are regularly updated to reflect
+                    changes in systems and current threat intelligence.
+                C1.f.19:
+                  description: You possess the capability to share threat
+                    intelligence with the defender community when required.
+            assessment-rules: *standard-rules
+      C2:
+        code: C2
+        title: Threat Hunting
+        description: You proactively search for threats that are not detected by
+          automated monitoring and detection, using structured methods and
+          appropriate resources.
+        outcomes:
+          C2.a:
+            code: C2.a
+            title: Threat Hunting
+            description: Your organisation undertakes structured threat hunting
+              activities proportionate to the risks to network and information
+              systems supporting your essential function(s).
+            indicators:
+              not-achieved:
+                C2.a.1:
+                  description: You do not know the resources required for threat
+                    hunting.
+                C2.a.2:
+                  description: You do not have access to an effective threat
+                    hunting capability.
+                C2.a.3:
+                  description: Your threat hunts do not follow any structure and
+                    few if any records are created.
+              partially-achieved:
+                C2.a.4:
+                  description: You have identified the resources required to
+                    perform threat hunting and are able to deploy these, in a
+                    timely manner, on an occasional basis.
+                C2.a.5:
+                  description: You deploy an effective threat hunting capability
+                    but not frequently enough to match the risks posed to your
+                    essential function(s).
+                C2.a.6:
+                  description: Your threat hunts follow pre-determined and
+                    documented methods and you document details of threat hunts
+                    and post hunt analysis.
+              achieved:
+                C2.a.7:
+                  description: You understand the resources required to perform
+                    threat hunting and these are deployed as part of business as
+                    usual.
+                C2.a.8:
+                  description: You deploy threat hunting resources at a
+                    frequency that matches the risks posed to your essential
+                    function(s).
+                C2.a.9:
+                  description: Your threat hunts follow pre-determined and
+                    documented methods designed to identify adverse activity not
+                    detected by automated detections.
+                C2.a.10:
+                  description: You turn threat hunts into automated detections
+                    and alerting where appropriate.
+                C2.a.11:
+                  description: You routinely record details of previous threat
+                    hunts and post hunt activities and use these to drive
+                    improvements.
+                C2.a.12:
+                  description: You have justified confidence in the
+                    effectiveness of your threat hunts and the process is
+                    reviewed and updated to match the risks posed to your
+                    essential function(s).
+                C2.a.13:
+                  description: You leverage automation to improve threat hunts
+                    where appropriate.
+                C2.a.14:
+                  description: Your threat hunts focus on tactics, techniques
+                    and procedures (TTPs) of threats over atomic IoCs.
+            assessment-rules: *standard-rules
+  D:
+    code: D
+    title: Minimising the impact of cyber security incidents
+    description: Capabilities exist to minimise the impact of cyber security
+      incidents on the operation of essential function(s) and to ensure timely
+      recovery.
+    principles:
+      D1:
+        code: D1
+        title: Response and Recovery
+        description: The organisation can respond to and recover from cyber
+          security incidents that affect network and information systems
+          supporting essential functions.
+        outcomes:
+          D1.a:
+            code: D1.a
+            title: Response Plan
+            description: You have an up-to-date incident response plan that is
+              grounded in a thorough risk assessment that takes account of
+              network and information systems supporting the operation of your
+              essential function(s) and covers a range of incident scenarios.
+            indicators:
+              not-achieved:
+                D1.a.1:
+                  description: Your incident response plan is not documented.
+                D1.a.2:
+                  description: Your incident response plan does not include your
+                    organisations identified essential function(s).
+                D1.a.3:
+                  description: Your incident response plan is not well
+                    understood by relevant staff.
+              partially-achieved:
+                D1.a.4:
+                  description: Your incident response plan covers network and
+                    information systems supporting your essential function(s).
+                D1.a.5:
+                  description: Your incident response plan comprehensively
+                    covers scenarios that are focused on likely impacts of known
+                    and well understood attacks only.
+                D1.a.6:
+                  description: Your incident response plan is documented and
+                    shared with all relevant stakeholders and is readily
+                    accessible.
+                D1.a.7:
+                  description: Your incident response plan is regularly reviewed
+                    to ensure it remains effective.
+              achieved:
+                D1.a.8:
+                  description: Your incident response plan is based on a clear
+                    understanding of the security risks to network and
+                    information systems supporting your essential function(s).
+                D1.a.9:
+                  description: Your incident response plan is comprehensive and
+                    covers the complete lifecycle of an incident, roles and
+                    responsibilities, and reporting, and covers likely impacts
+                    of both known attack patterns and of possible previously
+                    unseen attacks.
+                D1.a.10:
+                  description: Your incident response plan is communicated and
+                    understood by the business areas involved with the operation
+                    of your essential function(s).
+            assessment-rules: *standard-rules
+          D1.b:
+            code: D1.b
+            title: Response and Recovery Capability
+            description: You have the capability to enact your incident response
+              plan, including effective limitation of impact on the operation of
+              your essential function(s). During an incident, you have access to
+              timely information on which to base your response decisions.
+            indicators:
+              not-achieved:
+                D1.b.1:
+                  description: Inadequate arrangements have been made to make
+                    the right resources available to implement your response
+                    plan.
+                D1.b.2:
+                  description: Your response team members are not equipped to
+                    make good response decisions and put them into effect.
+                D1.b.3:
+                  description: Inadequate back-up mechanisms exist to allow the
+                    continued operation of your essential function(s) during an
+                    incident.
+              achieved:
+                D1.b.4:
+                  description: You understand the resources that will likely be
+                    needed to carry out any required response activities, and
+                    arrangements are in place to make these resources available.
+                D1.b.5:
+                  description: You understand the types of information that will
+                    likely be needed to inform response decisions and
+                    arrangements are in place to make this information
+                    available.
+                D1.b.6:
+                  description: Your response team members have the skills and
+                    knowledge required to decide on the response actions
+                    necessary to limit harm, and the authority to carry them
+                    out.
+                D1.b.7:
+                  description: Key roles are duplicated, and operational
+                    delivery knowledge is shared with all individuals involved
+                    in the operations and recovery of the essential function(s).
+                D1.b.8:
+                  description: Back-up mechanisms are available that can be
+                    readily activated to allow continued operation of your
+                    essential function(s).
+                D1.b.9:
+                  description: Arrangements exist to augment your organisation's
+                    incident response capabilities with external support if
+                    necessary.
+            assessment-rules: *standard-rules
+          D1.c:
+            code: D1.c
+            title: Testing and Exercising
+            description: Your organisation carries out exercises to test
+              response plans, using past incidents that affected your (and
+              other) organisations, and scenarios that draw on threat
+              intelligence and your risk assessment.
+            indicators:
+              not-achieved:
+                D1.c.1:
+                  description: Exercises test only a discrete part of the
+                    process and do not consider all areas.
+                D1.c.2:
+                  description: Incident response exercises are not routinely
+                    carried out or are carried out in an ad-hoc way.
+                D1.c.3:
+                  description: Outputs from exercises are not fed into the
+                    organisation's lessons learned process.
+                D1.c.4:
+                  description: Exercises do not test all parts of the response
+                    cycle.
+              achieved:
+                D1.c.5:
+                  description: Exercise scenarios are based on incidents
+                    experienced by your and other organisations or are composed
+                    using experience or threat intelligence.
+                D1.c.6:
+                  description: Exercise scenarios are documented, regularly
+                    reviewed, and validated.
+                D1.c.7:
+                  description: Exercises are routinely run, with findings
+                    documented and used to refine incident response plans and
+                    protective security.
+                D1.c.8:
+                  description: Exercises test all parts of your response cycle
+                    relating to your essential function(s).
+            assessment-rules: *standard-rules
+      D2:
+        code: D2
+        title: Lessons Learned and Improvement
+        description: The organisation learns from incidents and uses this
+          learning to improve security and resilience.
+        outcomes:
+          D2.a:
+            code: D2.a
+            title: Post Incident Analysis
+            description: When an incident occurs, your organisation takes steps
+              to understand its causes, informing appropriate remediating
+              action.
+            indicators:
+              not-achieved:
+                D2.a.1:
+                  description: You are not usually able to resolve incidents to
+                    a root cause or identify the contributing factors within a
+                    broader systems context.
+                D2.a.2:
+                  description: You do not have a formal process for
+                    investigating causes.
+                D2.a.3:
+                  description: Investigators form theories early in the process
+                    and only seek evidence that affirms their belief.
+                D2.a.4:
+                  description: Investigations are solely focused on identifying
+                    the person(s) who can be held responsible for the incident.
+              achieved:
+                D2.a.5:
+                  description: Post incident analysis is conducted routinely as
+                    a key part of your lessons learned activities following an
+                    incident.
+                D2.a.6:
+                  description: Your post incident analysis is comprehensive,
+                    considering organisational, technical and human factors and
+                    any changes to threat.
+                D2.a.7:
+                  description: All relevant incident data is made available to
+                    the analysis team to perform post incident analysis.
+                D2.a.8:
+                  description: Your analysis considers what could have happened
+                    under plausible, alternative circumstances.
+            assessment-rules: *standard-rules
+          D2.b:
+            code: D2.b
+            title: Using Incidents to Drive Improvements
+            description: Your organisation uses lessons learned from incidents
+              to improve your security measures.
+            indicators:
+              not-achieved:
+                D2.b.1:
+                  description: Following incidents, lessons learned are not
+                    captured or are limited in scope.
+                D2.b.2:
+                  description: Improvements arising from lessons learned
+                    following an incident are not implemented or not given
+                    sufficient organisational priority.
+                D2.b.3:
+                  description: Changes are made as a 'knee jerk' reaction to an
+                    incident without proper analysis and testing to ensure the
+                    change is appropriate.
+                D2.b.4:
+                  description: You wait until a severe or high-profile incident
+                    has occurred before you take steps to improve.
+              achieved:
+                D2.b.5:
+                  description: You have a documented incident review process /
+                    policy which ensures that lessons learned from each
+                    incident, including near misses, are identified, captured,
+                    and acted upon.
+                D2.b.6:
+                  description: Lessons learned cover reporting, roles,
+                    governance, skills and organisational policies, processes
+                    and procedures as well as technical aspects.
+                D2.b.7:
+                  description: You use lessons learned to improve security
+                    measures, including updating and retesting response plans
+                    when necessary.
+                D2.b.8:
+                  description: Security improvements identified as a result of
+                    lessons learned are prioritised, with the highest priority
+                    improvements completed promptly.
+                D2.b.9:
+                  description: Analysis is fed to senior management and
+                    incorporated into risk management and continuous
+                    improvement.
+                D2.b.10:
+                  description: Your organisation learns from reported incidents
+                    in your sector and the wider national infrastructure.
+            assessment-rules: *standard-rules
