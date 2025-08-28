@@ -1,20 +1,45 @@
 {% load form_extras %}
 <div class="govuk-form-group">
-    <fieldset class="govuk-fieldset" aria-describedby="outcome{{ item.auto_id }}-hint">
-        <div id="outcome{{ item.auto_id }}-hint" class="govuk-hint">
+    <fieldset class="govuk-fieldset" aria-describedby="outcome{{ forloop.counter }}-{{ section_type }}-hint">
+        <legend class="govuk-fieldset__legend govuk">
+            <h1 class="govuk-fieldset__heading">
+                {{ forloop.counter }}. {{ item.field.label }}
+            </h1>
+        </legend>
+        <div id="outcome{{ forloop.counter }}-{{ section_type }}-hint" class="govuk-hint">
         </div>
-        <div id="div_{{ item.auto_id }}" class="govuk-form-group">
-            <div class="govuk-checkboxes">
-                <div class="govuk-checkboxes__item">
-                    <input type="checkbox" name="{{ item.name }}"
-                            {% if item.value %}
-                           checked
-                            {% endif %}
-                           class="govuk-checkboxes__input" id="{{ item.auto_id }}">
-                    <label class="govuk-label govuk-checkboxes__label" for="{{ item.auto_id }}">
-                        {{ item.label }}
-                    </label></div>
-            </div>
+        <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+            {% for choice in item.field.choices %}
+                <div class="govuk-radios__item override-item" id="div_{{ item.auto_id }}">
+                    <input class="govuk-radios__input"
+                           id="{{ item.auto_id }}-{{ forloop.counter }}"
+                           name="{{ item.name }}"
+                           value="{{ choice.0 }}"
+                           {% if choice.0 == item.initial %}checked{% endif %}
+                           type="radio">
+                    <label class="govuk-label govuk-radios__label"
+                           for="{{ item.auto_id }}-{{ forloop.counter }}">
+                        {{ choice.1 }}
+                    </label>
+                    {% get_comment_field form item.name choice.0 as the_field_comment %}
+                    {% if the_field_comment %}
+                        <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
+                             class="govuk-radios__conditional--hidden">
+                            <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
+                                   for="div_id_{{ item.name }}_comments">
+                                Tell us your justifications
+                            </label>
+                            <!-- @formatter:off -->
+{#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                            <textarea class="govuk-textarea comments_textarea"
+                                      id="div_id_{{ item.name }}_comments"
+                                      name="{{ the_field_comment.name }}"
+                                      rows="5">{{ the_field_comment.initial|default:"" }}</textarea>
+                            <!-- @formatter:on -->
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </fieldset>
 </div>

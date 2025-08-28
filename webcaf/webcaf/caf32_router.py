@@ -113,6 +113,7 @@ class CAF32Router(FrameworkRouter):
                 template_name=template_name,
                 form_class=form_class,
                 class_prefix=class_prefix,
+                stage=element["stage"],
                 class_id=element["code"],
                 extra_context=extra_context,
             )

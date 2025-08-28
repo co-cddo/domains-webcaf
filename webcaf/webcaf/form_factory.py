@@ -30,6 +30,21 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
                 initial=field_def.get("initial"),
                 widget=widget,
             )
+        elif field_def["type"] == "choice_with_justifications":
+            form_fields[field_def["name"]] = forms.ChoiceField(  # type: ignore
+                label=field_def["label"],
+                choices=[(choice.value, choice.label) for choice in field_def["choices"]],
+                required=field_def.get("required", True),
+                initial=field_def.get("initial"),
+            )
+            for choice in field_def["choices"]:
+                # Needs justification field
+                if choice.needs_justification_text:
+                    form_fields[f"{field_def['name']}_{choice.value}_comment"] = forms.CharField(  # type: ignore
+                        label="Extra information",
+                        # This will be validated in the form's clean method'
+                        required=False,
+                    )
         elif field_def["type"] == "text":
             widget_attrs = field_def.get("widget_attrs", {})
             form_fields[field_def["name"]] = forms.CharField(  # type: ignore

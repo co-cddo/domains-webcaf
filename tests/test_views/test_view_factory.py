@@ -63,7 +63,12 @@ class ViewFactoryFormValidTests(SimpleTestCase):
         ) as mock_get_current_user_profile, patch(
             "webcaf.webcaf.views.view_factory.FormView.form_valid", return_value="OK"
         ) as mock_super_form_valid:
-            ViewClass = create_form_view(success_url_name="ignored", class_id=class_id)
+            ViewClass = create_form_view(
+                success_url_name="ignored",
+                class_id=class_id,
+                stage="indicator",
+                class_prefix="OutcomeIndicatorsView.A1",
+            )
             view = ViewClass()
             view.request = request
 
@@ -72,7 +77,7 @@ class ViewFactoryFormValidTests(SimpleTestCase):
 
         # Verify data saved under the correct class_id
         self.assertIn(class_id, fake_assessment.assessments_data)
-        self.assertEqual(fake_assessment.assessments_data[class_id], cleaned_data)
+        self.assertEqual(fake_assessment.assessments_data[class_id], {"indicator": cleaned_data})
 
         # Ensure save called and control passed to parent implementation
         fake_assessment.save.assert_called_once()
