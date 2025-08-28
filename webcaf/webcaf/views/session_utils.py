@@ -1,11 +1,15 @@
 import logging
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from webcaf.webcaf.models import Assessment, UserProfile
 
 
 class SessionUtil:
     logger: logging.Logger = logging.getLogger("SessionUtil")
 
     @staticmethod
-    def get_current_user_profile(request):
+    def get_current_user_profile(request) -> Optional["UserProfile"]:
         """
         Retrieve the current user's profile based on the session information.
 
@@ -28,10 +32,10 @@ class SessionUtil:
             return UserProfile.objects.get(id=user_profile_id)
         except Exception:  # type: ignore[catching-any]
             SessionUtil.logger.error(f"Unable to retrieve user profile with id {user_profile_id}")
-            return None
+        return None
 
     @staticmethod
-    def get_current_assessment(request):
+    def get_current_assessment(request) -> Optional["Assessment"]:
         """
         Retrieve the current draft assessment for the user based on session data.
 
@@ -45,16 +49,16 @@ class SessionUtil:
         :return: A draft Assessment object matching the specified session data.
         :rtype: Assessment
         """
-        from webcaf.webcaf.models import Assessment, UserProfile
+        from webcaf.webcaf.models import Assessment
 
-        id_ = request.session["draft_assessment"]["assessment_id"]
-        user_profile: UserProfile = SessionUtil.get_current_user_profile(request)
+        id_: int = int(request.session["draft_assessment"]["assessment_id"])
+        user_profile = SessionUtil.get_current_user_profile(request)
         try:
-            if user_profile:
+            if user_profile and user_profile.organisation:
                 assessment = Assessment.objects.get(
                     status="draft", id=id_, system__organisation_id=user_profile.organisation.id
                 )
                 return assessment
         except Exception:  # type: ignore[catching-any]
             SessionUtil.logger.error(f"Unable to retrieve assessment with id {id_} for user {user_profile}")
-            return None
+        return None

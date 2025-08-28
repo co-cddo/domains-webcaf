@@ -1,136 +1,49 @@
 from django import template
 
-from webcaf.webcaf.models import UserProfile
-
 register = template.Library()
 
 
 @register.filter
 def filter_fields(form, prefix):
-    return [field for field in form if field.name.startswith(prefix)]
-
-
-@register.filter
-def starts_with(obj, arg):
-    return obj.startswith(arg)
-
-
-@register.filter
-def call_method(obj, arg):
     """
-    Utility method to call a method on an object. USed in the templates.
-    :param obj:
-    :param arg:
-    :return:
+    Filter the fields of a form based on a specific prefix. This function retrieves all fields
+    from the provided form whose names start with the given prefix and do not end with
+    "_comment".
+
+    :param form: The form instance containing the fields to filter.
+    :type form: Any
+    :param prefix: The prefix string used to filter the field names.
+    :type prefix: str
+    :return: A list of filtered fields that match the criteria.
+    :rtype: list
     """
-    return getattr(obj, arg)()  # or obj.my_method(arg) if you hardcode
-
-
-@register.filter
-def get_achieved_field(obj, arg):
-    return obj.fields["achieved_" + arg]
-
-
-@register.filter
-def get_not_achieved_field(obj, arg):
-    return obj.fields["not-achieved_" + arg]
-
-
-@register.filter
-def get_partially_achieved_field(obj, arg):
-    return obj.fields["partially-achieved_" + arg]
-
-
-@register.filter
-def get_achieved_field_comment(obj, arg):
-    return obj.fields.get(arg + "_comment", None)
-
-
-@register.filter
-def get_not_achieved_field_comment(obj, arg):
-    return obj.fields.get(arg + "_comment", None)
-
-
-@register.filter
-def get_partially_achieved_field_comment(obj, arg):
-    return obj.fields.get(arg + "_comment", None)
+    return [field for field in form if field.name.startswith(prefix) and not field.name.endswith("_comment")]
 
 
 @register.simple_tag
-def get_field_for_section(form, field_name, section_type):
-    """Get field based on section type"""
-    if section_type == "achieved":
-        return get_achieved_field(form, field_name)
-    elif section_type == "not-achieved":
-        return get_not_achieved_field(form, field_name)
-    elif section_type == "partially-achieved":
-        return get_partially_achieved_field(form, field_name)
+def get_comment_field(form, field_name, choice):
+    """
+    Retrieve a comment field from the given form based on the specified field name and choice.
+
+    This function searches through the fields in the form for a field whose name
+    matches the pattern of starting with the given field_name and ending with
+    the specified choice and "_comment". If such a field exists, it returns the
+    matching field. If no matching field is found, it returns None.
+
+    :param form: The form object containing multiple fields.
+    :type form: Iterable
+    :param field_name: The base name of the field to search for. All matching
+        fields should start with this base name.
+    :type field_name: str
+    :param choice: The choice identifier to narrow down the field search. All
+        matching fields should end with this choice followed by "_comment".
+    :type choice: str
+    :return: The matched form field if found, otherwise None.
+    :rtype: Optional[Any]
+    """
+    matched_fields = [
+        field for field in form if field.name.startswith(field_name) and field.name.endswith(f"_{choice}_comment")
+    ]
+    if matched_fields:
+        return matched_fields[0]
     return None
-
-
-@register.simple_tag
-def get_field_comment_for_section(form, full_name, section_type):
-    """Get field comment based on section type"""
-    if section_type == "achieved":
-        return get_achieved_field_comment(form, full_name)
-    elif section_type == "not-achieved":
-        return get_not_achieved_field_comment(form, full_name)
-    elif section_type == "partially-achieved":
-        return get_partially_achieved_field_comment(form, full_name)
-    return None
-
-
-@register.simple_tag
-def should_display_details_section(outcome_status, current_choice):
-    if current_choice == "confirm":
-        return False
-    if outcome_status == "Not achieved" and current_choice in ("change_to_achieved", "change_to_partially_achieved"):
-        return True
-    if outcome_status == "Achieved" and current_choice in ("change_to_not_achieved", "change_to_partially_achieved"):
-        return True
-    return False
-
-
-@register.simple_tag
-def should_display_choice(outcome_status, current_choice, indicators):
-    partially_achieved_available = indicators.get("partially-achieved", {}) != {}
-
-    if outcome_status == "Not achieved" and current_choice in (
-        (
-            "confirm",
-            "change_to_achieved",
-        )
-        + (("change_to_partially_achieved",) if partially_achieved_available else ())
-    ):
-        return True
-    if outcome_status == "Achieved" and current_choice in (
-        ("confirm",) + (("change_to_partially_achieved",) if partially_achieved_available else ())
-    ):
-        return True
-    if outcome_status == "Partially achieved" and current_choice in (
-        "confirm",
-        "change_to_not_achieved",
-        "change_to_achieved",
-    ):
-        return True
-    return False
-
-
-@register.simple_tag
-def get_field_value(form, field_name):
-    return form.initial.get(field_name, "")
-
-
-@register.filter
-def replace_underscores(value):
-    """
-
-    :param value:
-    :return:
-    """
-    return value.replace("_", " ").title()
-
-
-@register.simple_tag
-def get_role_name(role):
-    return next(filter(lambda x: x[0] == role, UserProfile.ROLE_CHOICES))[1]
