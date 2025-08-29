@@ -4,7 +4,8 @@ from django.forms import ModelForm
 from django.views.generic import FormView, TemplateView
 
 from webcaf.webcaf.models import UserProfile
-from webcaf.webcaf.views.util import UserRoleCheckMixin, get_current_user_profile
+from webcaf.webcaf.views.session_utils import SessionUtil
+from webcaf.webcaf.views.util import UserRoleCheckMixin
 
 
 class UserProfilesView(UserRoleCheckMixin, TemplateView):
@@ -64,7 +65,7 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         return ["cyber_advisor"]
 
     def get_context_data(self, **kwargs):
-        user_profile = get_current_user_profile(request=self.request)
+        user_profile = SessionUtil.get_current_user_profile(request=self.request)
         data = super().get_context_data(**kwargs)
         data["current_profile"] = user_profile
         # Remove cyber advisor role from the list of roles.
@@ -77,7 +78,7 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         return data
 
     def get_object(self):
-        current_profile = get_current_user_profile(request=self.request)
+        current_profile = SessionUtil.get_current_user_profile(request=self.request)
         user_profile = UserProfile.objects.get(
             id=self.kwargs["user_profile_id"], organisation=current_profile.organisation
         )

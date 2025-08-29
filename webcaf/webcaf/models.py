@@ -89,6 +89,23 @@ class Assessment(models.Model):
     class Meta:
         unique_together = ["assessment_period", "system", "status"]
 
+    def get_section_by_outcome_id(self, outcome_id):
+        """
+        Retrieve a specific section of assessments data based on the provided outcome ID.
+
+        The method looks up the `outcome_id` in the `assessments_data` attribute and
+        returns the corresponding value if it exists. If the `outcome_id` is not found
+        or `assessments_data` is not available, the method returns `None`.
+
+        :param outcome_id: The unique identifier for the outcome to retrieve
+        :type outcome_id: str
+        :return: The section corresponding to the provided outcome_id, or None if not found
+        :rtype: Any
+        """
+        if self.assessments_data:
+            return self.assessments_data.get(outcome_id, None)
+        return None
+
 
 class UserProfile(models.Model):
     ROLE_ACTIONS = {

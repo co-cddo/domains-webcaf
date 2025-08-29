@@ -10,6 +10,7 @@ from django.views.generic import FormView
 
 from webcaf.webcaf.forms import ContinueForm
 from webcaf.webcaf.views.session_utils import SessionUtil
+from webcaf.webcaf.views.util import IndicatorStatusChecker
 
 
 class BaseIndicatorsFormView(FormView):
@@ -112,6 +113,11 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
             form.add_error(None, message)
         return super().form_invalid(form)
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["back_url"] = f"objective_{data['objective_code']}"
+        return data
+
 
 class OutcomeConfirmationView(BaseIndicatorsFormView):
     """
@@ -123,7 +129,14 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
 
     """
 
-    pass
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        current_assessment = SessionUtil.get_current_assessment(self.request)
+        data["outcome_status"] = IndicatorStatusChecker.get_status_for_indicator(
+            current_assessment.assessments_data[self.class_id]
+        )
+        data["back_url"] = f"indicators_{self.class_id}"
+        return data
 
 
 create_form_view_logger = logging.getLogger("create_form_view")

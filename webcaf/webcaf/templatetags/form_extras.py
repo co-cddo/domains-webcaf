@@ -1,5 +1,8 @@
 from django import template
 
+from webcaf.webcaf.models import Assessment
+from webcaf.webcaf.views.util import IndicatorStatusChecker
+
 register = template.Library()
 
 
@@ -47,3 +50,88 @@ def get_comment_field(form, field_name, choice):
     if matched_fields:
         return matched_fields[0]
     return None
+
+
+@register.simple_tag()
+def get_outcome_details(assessment, outcome_id):
+    """
+    Retrieve outcome details for a specific outcome ID within an assessment.
+
+    This function gathers details related to a specific outcome within the provided
+    assessment based on the given outcome ID. It checks if the outcome section contains
+    a confirmation and provides additional status information if the section exists.
+
+    :param assessment: The assessment object containing multiple sections and outcomes.
+    :type assessment: Assessment
+    :param outcome_id: The unique identifier of the outcome for which details are retrieved.
+    :type outcome_id: str
+    :return: A dictionary containing the completion status and additional indicator statuses
+        if the section exists; otherwise, an empty dictionary.
+    :rtype: dict
+    """
+    outcome_details = {}
+    section = assessment.get_section_by_outcome_id(outcome_id)
+    # Confirmation is present in the data
+    outcome_details["complete"] = "confirmation" in section if section else False
+
+    return outcome_details | IndicatorStatusChecker.get_status_for_indicator(section) if section else {}
+
+
+@register.simple_tag()
+def get_assessment(request):
+    """
+    Fetches an assessment object based on the draft assessment ID stored in the
+    session of the given request. If no draft assessment or assessment ID is
+    present, returns None.
+
+    :param request: The HTTP request object containing session data.
+    :type request: HttpRequest
+    :return: The assessment object retrieved from the database based on the
+        draft assessment ID, or None if no valid assessment is found.
+    :rtype: Assessment or None
+    """
+    draft_assessment = request.session.get("draft_assessment", {})
+    if draft_assessment:
+        assessment_id = draft_assessment.get("assessment_id")
+        if assessment_id:
+            return Assessment.objects.get(id=assessment_id)
+    return None
+
+
+@register.simple_tag()
+def is_final_objective(objetive_id):
+    """
+    Determine if the given objective ID corresponds to the final objective.
+
+    This function checks whether the provided `objetive_id` is the final ID
+    in a predefined sequence of objective identifiers. It returns `True`
+    if `objetive_id` is the final objective, and `False` otherwise.
+
+    :param objetive_id: The identifier of the objective to check.
+    :type objetive_id: str
+    :return: A boolean value indicating whether the `objetive_id`
+             corresponds to the final objective.
+    :rtype: bool
+    """
+    # TODO: This will need to updated with the router code access once it is in place
+    idx = ["A", "B", "C", "D"].index(objetive_id)
+    return idx == 3
+
+
+@register.simple_tag()
+def next_objective(objetive_id):
+    """
+    Retrieves the identifier for the next objective based on the current objective ID. The function
+    uses a predefined list of objective IDs to determine the next item in sequence. If the current
+    objective ID is the last in the list, None is returned.
+
+    :param objetive_id: The current objective ID.
+    :type objetive_id: str
+    :return: The identifier for the next objective in sequence or None if the current objective ID
+             is the last in the list.
+    :rtype: str or None
+    """
+    # TODO: This will need to updated with the router code access once it is in place
+    objective_ids = ["A", "B", "C", "D"]
+    idx = objective_ids.index(objetive_id)
+    return f"objective_{objective_ids[idx + 1]}" if idx < 3 else None
