@@ -1,7 +1,7 @@
 import logging
 import uuid
 from textwrap import shorten
-from typing import Any, Optional, Tuple, Type, Union
+from typing import Any, Optional, Tuple, Type
 
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,7 +13,69 @@ from webcaf.webcaf.views.session_utils import SessionUtil
 from webcaf.webcaf.views.util import IndicatorStatusChecker
 
 
-class BaseIndicatorsFormView(FormView):
+class FormViewWithBreadcrumbs(FormView):
+    """
+    Extension of the standard FormView class to include breadcrumb functionality.
+
+    This class provides additional support for dynamically appending breadcrumb
+    links to the context data for rendering in templates. It is particularly useful
+    for enhancing user navigation in views where step-by-step progress or a hierarchy
+    is represented.
+
+    :ivar breadcrumbs: List of breadcrumb dictionaries specifying the navigation
+        links for the view.
+    :type breadcrumbs: list[dict]
+    """
+
+    def get_context_data(self, **kwargs: Any):
+        context_data = FormView.get_context_data(self, **kwargs)
+        context_data["breadcrumbs"] = context_data["breadcrumbs"] + self.build_breadcrumbs()
+        return context_data
+
+    def build_breadcrumbs(self):
+        """
+        Generate breadcrumb links for navigating to the draft assessment edit view.
+
+        This method constructs a list of dictionaries where each dictionary represents
+        a breadcrumb link with its display text and URL. It is primarily used for
+        rendering navigation links in the user interface.
+
+        :return: A list containing breadcrumb dictionaries. Each dictionary includes a
+            'text' key for the display name of the breadcrumb and a 'url' key for the
+            corresponding hyperlink.
+        :rtype: list[dict[str, str]]
+        """
+        return [
+            {
+                "text": "Edit draft assessment",
+                "url": reverse_lazy(
+                    "edit-draft-assessment",
+                    kwargs={"assessment_id": self.request.session["draft_assessment"]["assessment_id"]},
+                ),
+            }
+        ]
+
+
+class ObjectiveView(FormViewWithBreadcrumbs):
+    """
+    Representation of a view with breadcrumbs for an objective.
+
+    This class extends functionality to provide breadcrumb navigation
+    specific to objectives. It integrates additional context data from
+    objective-related information to enhance breadcrumb display.
+
+    """
+
+    def build_breadcrumbs(self):
+        objective_data_ = self.extra_context["objective_data"]
+        return super().build_breadcrumbs() + [
+            {
+                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
+            }
+        ]
+
+
+class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
     """
     BaseIndicatorsFormView class inherits from FormView and provides functionality
     to manage form data for specific class-related assessments with proper handling of initial
@@ -53,8 +115,26 @@ class BaseIndicatorsFormView(FormView):
     def _get_init_data(self, current_assessment):
         return current_assessment.assessments_data.get(self.class_id, {}).get(self.stage, {})
 
-    def get_context_data(self, **kwargs):
-        return FormView.get_context_data(self, **kwargs)
+    def build_breadcrumbs(self):
+        """
+        Builds breadcrumbs with additional information regarding objectives.
+
+        This method extends the breadcrumbs created by the superclass by including
+        an extra breadcrumb entry that contains details about a specific objective.
+        The objective details are accessed from the extra context dictionary provided
+        by the class.
+
+        :return: A list of breadcrumb dictionaries including the additional
+            objective-specific breadcrumb entry.
+        :rtype: list
+        """
+        objective_data_ = self.extra_context["objective_data"]
+        return super().build_breadcrumbs() + [
+            {
+                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
+                "url": reverse_lazy(f"objective_{objective_data_['code']}"),
+            }
+        ]
 
     def form_valid(self, form):
         """
@@ -101,6 +181,28 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
     def form_valid(self, form):
         return super().form_valid(form)
 
+    def build_breadcrumbs(self):
+        """
+        Build breadcrumbs for the context with appended outcome details.
+
+        This method extends the base breadcrumbs by adding an entry that includes
+        the objective code and title extracted from the `outcome` data in
+        `extra_context`. The additional entry provides specific details related to
+        the context being processed.
+
+        :raise KeyError: If ``outcome`` key is missing from the ``extra_context`` dictionary
+        :raise TypeError: If the ``extra_context`` is not subscriptable or unexpected
+        :type context data
+        :return: List of breadcrumb entries with appended objective details.
+        :rtype: list[dict]
+        """
+        outcome = self.extra_context["outcome"]
+        return super().build_breadcrumbs() + [
+            {
+                "text": f'Objective {outcome["code"]} - {outcome["title"]}',
+            }
+        ]
+
     def form_invalid(self, form):
         # Reset the form initial data to the cleaned data
         # This will update any feilds that the user has changed.
@@ -136,7 +238,36 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             current_assessment.assessments_data[self.class_id]
         )
         data["back_url"] = f"indicators_{self.class_id}"
+        # Remove the redundant override option from the choice list for confirmation
+        data["form"].fields["confirm_outcome"].choices = [
+            choice
+            for choice in data["form"].fields["confirm_outcome"].choices
+            if choice[1].lower() != f"Change to {data['outcome_status']['outcome_status']}".lower()
+        ]
         return data
+
+    def build_breadcrumbs(self):
+        outcome = self.extra_context["outcome"]
+        return super().build_breadcrumbs() + [
+            {
+                "text": f'Objective {outcome["code"]} - {outcome["title"]}',
+                "url": reverse_lazy(f"indicators_{self.class_id}"),
+            },
+            {
+                "text": f'Objective {outcome["code"]} - {outcome["title"]} outcome',
+            },
+        ]
+
+    def get_success_url(self):
+        """
+        Generates and returns a URL pointing to a success page based on the given
+        objective code present in the extra context of the instance.
+
+        :raises KeyError: If 'objective_code' is not found in `extra_context`.
+        :return: A lazily reversed URL string built using the objective code.
+        :rtype: str
+        """
+        return reverse_lazy(f"objective_{self.extra_context['objective_code']}")
 
 
 create_form_view_logger = logging.getLogger("create_form_view")
@@ -174,9 +305,7 @@ def create_form_view(
 
     # Implement the custom view that handles the form submissions if defined in the
     # view registry.
-    parent_classes: Tuple[
-        Type[LoginRequiredMixin], Type[Union[OutcomeIndicatorsView, OutcomeConfirmationView, FormView]]
-    ]
+    parent_classes: Tuple[Type[LoginRequiredMixin], Type[FormViewWithBreadcrumbs]]
     if class_prefix.startswith("OutcomeIndicatorsView"):
         # Use the indicators view as a parent class.
         parent_classes = (
@@ -189,10 +318,15 @@ def create_form_view(
             LoginRequiredMixin,
             OutcomeConfirmationView,
         )
+    elif class_prefix.startswith("ObjectiveView"):
+        parent_classes = (
+            LoginRequiredMixin,
+            ObjectiveView,
+        )
     else:
         parent_classes = (
             LoginRequiredMixin,
-            FormView,
+            FormViewWithBreadcrumbs,
         )
 
     FormViewClass = type(class_name, parent_classes, class_attrs)

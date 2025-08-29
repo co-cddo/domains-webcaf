@@ -6,6 +6,33 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from webcaf.webcaf.views.session_utils import SessionUtil
 
 
+class ConfigHelper:
+    @staticmethod
+    def get_objective(objective_id: str):
+        """
+        Fetches an objective based on its unique identifier.
+
+        This method retrieves an objective by searching through the framework elements
+        for a matching ``code`` and ``type``. It is a utility function that simplifies
+        access to specific objectives based on their unique ID. If the objective is not
+        found in the framework elements, the function will not return any result.
+
+        :param objective_id: The unique identifier of the objective to retrieve.
+        :type objective_id: str
+        :return: The objective dictionary matching the given identifier and type,
+                 or None if no match is found.
+        :rtype: dict or None
+        """
+        return next(filter(lambda x: x["code"] == objective_id, ConfigHelper.get_objectives()))
+
+    @staticmethod
+    def get_objectives():
+        from django.apps import apps
+
+        app_config = apps.get_app_config("webcaf")
+        return list(filter(lambda x: x["type"] == "objective", app_config.framework_router.elements))
+
+
 class IndicatorStatusChecker:
     @staticmethod
     def get_status_for_indicator(data: Dict[str, Any]) -> Dict[str, Optional[str]]:
