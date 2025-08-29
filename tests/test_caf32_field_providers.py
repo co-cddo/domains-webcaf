@@ -63,7 +63,7 @@ class FormProvidersTestCase(TestCase):
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
         self.assertEqual(len(fields), 2)
-        status_field = next(field for field in fields if field["name"] == "status")
+        status_field = next(field for field in fields if field["name"] == "confirm_outcome")
         comments_field = next(field for field in fields if field["name"] == "supporting_comments")
         self.assertEqual(status_field["type"], "choice_with_justifications")
         self.assertTrue(status_field["required"])
@@ -86,7 +86,7 @@ class FormProvidersTestCase(TestCase):
         }
         provider = OutcomeConfirmationFieldProvider(outcome_without_partial)
         fields = provider.get_field_definitions()
-        status_field = next(field for field in fields if field["name"] == "status")
+        status_field = next(field for field in fields if field["name"] == "confirm_outcome")
         choices = [choice[0] for choice in status_field["choices"]]
         self.assertIn("confirm", choices)
         self.assertIn("change_to_achieved", choices)

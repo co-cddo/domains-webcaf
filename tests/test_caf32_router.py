@@ -180,7 +180,9 @@ class TestCAF32Router(unittest.TestCase):
         with patch("webcaf.webcaf.models.UserProfile.objects.get") as mock_profile_get:
             with patch("webcaf.webcaf.models.Assessment.objects.get") as mock_assessment_get:
                 mock_profile = Mock(UserProfile)
-                mock_assessment = Mock(Assessment, assessments_data={"OutcomeIndicatorsView_B2.a": {}})
+                mock_assessment = Mock(
+                    Assessment, assessments_data={"B2.a": {"indicators": {"indicator_1": {"id": "indicator_1"}}}}
+                )
                 mock_profile_get.return_value = mock_profile
                 mock_assessment_get.return_value = mock_assessment
                 context = view.get_context_data()

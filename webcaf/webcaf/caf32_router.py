@@ -94,14 +94,14 @@ class CAF32Router(FrameworkRouter):
             "breadcrumbs": CAF32Router._build_breadcrumbs(element),
         }
         if element["type"] in ["objective", "principle"]:
-            template_name = "title.html"
+            template_name = f"{element['type']}.html"
             class_prefix = f"{element['type'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
                 template_name=template_name,
                 class_prefix=class_prefix,
                 class_id=element["code"],
-                extra_context=extra_context,
+                extra_context=extra_context | {"objective_data": element},
             )
             url_path_to_add = path(f"{url_path}/", element["view_class"].as_view(), name=element["short_name"])
             urls.urlpatterns.append(url_path_to_add)
@@ -115,7 +115,11 @@ class CAF32Router(FrameworkRouter):
                 class_prefix=class_prefix,
                 stage=element["stage"],
                 class_id=element["code"],
-                extra_context=extra_context,
+                extra_context=extra_context
+                | {
+                    "objective_name": f"Objective {element['parent']['parent']['code']} - {element['parent']['parent']['title']}",
+                    "objective_code": element["parent"]["parent"]["code"],
+                },
             )
             url_path_to_add = path(
                 f"{url_path}/{element['stage']}/", element["view_class"].as_view(), name=element["short_name"]

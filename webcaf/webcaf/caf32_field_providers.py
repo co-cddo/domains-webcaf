@@ -99,7 +99,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
 
         return [
             {
-                "name": "status",
+                "name": "confirm_outcome",
                 "type": "choice_with_justifications",
                 "choices": status_choices,
                 "required": True,
