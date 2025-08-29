@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Generator
 
 import yaml
-from django.urls import NoReverseMatch, path, reverse_lazy
+from django.urls import path, reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import FormView
 
@@ -52,16 +52,8 @@ class CAF32Router(FrameworkRouter):
     @staticmethod
     def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
         breadcrumbs: list = []
-        current_element = element
-        while current_element:
-            try:
-                url = reverse_lazy(current_element["short_name"])
-            except NoReverseMatch:
-                url = "#"
-            breadcrumbs.insert(0, {"url": url, "text": current_element["title"]})
-            current_element = current_element.get("parent")  # type: ignore
-        if current_element is None:
-            breadcrumbs.insert(0, {"url": "#", "text": "Root"})
+        # We can only build the root breadcrumb here as the rest of it is dependent on the current assessment
+        breadcrumbs.insert(0, {"url": reverse_lazy("my-account"), "text": "My account"})
         return breadcrumbs
 
     def __init__(self, framework_path, exit_url: str = "index") -> None:
@@ -119,6 +111,8 @@ class CAF32Router(FrameworkRouter):
                 | {
                     "objective_name": f"Objective {element['parent']['parent']['code']} - {element['parent']['parent']['title']}",
                     "objective_code": element["parent"]["parent"]["code"],
+                    "outcome": element,
+                    "objective_data": element["parent"]["parent"],
                 },
             )
             url_path_to_add = path(

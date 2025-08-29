@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+
+{% block title %}Complete the full assessment{% endblock %}
+{% block content %}
+    {% get_assessment request as assessment %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                Send your self-assessment for review
+            </h1>
+            <p class="govuk-body">Based on your answers, you can review the status of individual outcomes below for each
+                principle. You can go back and change your answers.</p>
+            {% for objective in objectives %}
+                <h1 class="govuk-heading-l">
+                    Objective&nbsp;{{ objective.code }}&nbsp;-&nbsp;{{ objective.title }}
+                </h1>
+                {% for principle in objective.principles.values %}
+                    <h2 class="govuk-heading-m">
+                        Principle&nbsp;{{ principle.code }}&nbsp;-&nbsp;{{ principle.title }}
+                    </h2>
+                    <dl class="govuk-summary-list">
+                        {% for outcome in principle.outcomes.values %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    {{ outcome.code }}&nbsp;-&nbsp;{{ outcome.title }}
+                                </dt>
+                                {% get_outcome_details assessment outcome.code as outcome_details %}
+                                <dd class="govuk-summary-list__value">
+                                    {% if outcome_details.override_status %}
+                                        {% if outcome_details.override_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.override_status }}</strong>
+                                        {% elif outcome_details.override_status == 'Partially Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--yellow">{{ outcome_details.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.override_status }}</strong>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                            overridden
+                                        </span>
+                                    {% else %}
+                                        {% if outcome_details.outcome_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.outcome_status }}</strong>
+                                        {% elif outcome_details.outcome_status == 'Partially Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--yellow">{{ outcome_details.outcome_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.outcome_status|default:"Not Complete" }}</strong>
+                                        {% endif %}
+                                    {% endif %}
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
+                                        <a class="govuk-link"
+                                           href="{% url indicator_url %}">
+                                            Change<span
+                                                class="govuk-visually-hidden">  {{ outcome.title }} answers</span></a>
+                                    {% endwith %}
+                                </dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                {% endfor %}
+            {% endfor %}
+            {% is_all_objectives_complete assessment.id as all_objectives_complete %}
+            {% if all_objectives_complete %}
+                <form method="post">
+                    <h2 class="govuk-heading-l">Confirm your self-assessment submission date</h2>
+                    <p class="govuk-body">Submissions close for GovAssure Year 3 2025/26 at 11:59pm on 31 March 2026. If
+                        you
+                        provide your
+                        self-assessment after this date, it will be filed for Year 4 2025/26.
+                    </p>
+                    <div class="govuk-form-group">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                <h1 class="govuk-fieldset__heading">
+                                    Are you submitting your self-assessment before the closing date of 11:59pm on 31
+                                    March
+                                    2026?
+                                </h1>
+                            </legend>
+                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                                 data-govuk-radios-init="">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="sectioncompleted" name="sectioncompleted"
+                                           type="radio" value="yes">
+                                    <label class="govuk-label govuk-radios__label" for="sectioncompleted">
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="sectioncompleted-2" name="sectioncompleted"
+                                           type="radio" value="no">
+                                    <label class="govuk-label govuk-radios__label" for="sectioncompleted-2">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                        Save and continue
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

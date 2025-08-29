@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+{% block title %} {{ title }}{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% get_assessment request as assessment %}
+            <h1 class="govuk-heading-l">
+                Objective&nbsp;{{ objective_data.code }}&nbsp;-&nbsp;{{ title }}
+            </h1>
+            <p class="govuk-body">Please provide your answers for each principle. You can review the status of
+                individual outcomes below each principle and change your answers if you need to.</p>
+            {% for principal in objective_data.principles.values %}
+                <h2 class="govuk-heading-m">
+                    Principal:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
+                </h2>
+                <dl class="govuk-summary-list">
+                    {% for outcome in principal.outcomes.values %}
+                        {% get_outcome_details assessment outcome.code as outcome_details %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                {{ outcome.code }}&nbsp;{{ outcome.title }}
+                            </dt>
+                            {% if outcome_details.complete %}
+                                <dd class="govuk-summary-list__value">
+                                    {% if outcome_details.override_status %}
+                                        {% if outcome_details.override_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.override_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.override_status }}</strong>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                            overridden
+                                        </span>
+                                    {% else %}
+                                        {% if outcome_details.outcome_status == 'Achieved' %}
+                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.outcome_status }}</strong>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.outcome_status }}</strong>
+                                        {% endif %}
+                                    {% endif %}
+
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+
+                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
+                                        <a class="govuk-link"
+                                           href="{% url indicator_url %}">
+                                            Change<span class="govuk-visually-hidden"> Question 1</span></a>
+                                    {% endwith %}
+                                </dd>
+                            {% else %}
+                                <dd class="govuk-summary-list__value">
+                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
+                                        <a class="govuk-link"
+                                           href="{% url indicator_url %}">
+                                            Add your answers<span class="govuk-visually-hidden"> Question 1</span></a>
+                                    {% endwith %}
+                                </dd>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </dl>
+            {% endfor %}
+            {% is_final_objective objective_data.code as final_objective %}
+            <form method="GET"
+                    {% if not final_objective %}
+                        {% next_objective objective_data.code as next_objective %}
+                  action="{% url next_objective %}"
+                    {% else %}
+                  action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
+                    {% endif %}
+            >
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    {% if not final_objective %}
+                        Save and continue
+                    {% else %}
+                        Review assessment
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

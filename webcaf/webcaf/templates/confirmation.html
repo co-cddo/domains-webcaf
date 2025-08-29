@@ -8,114 +8,120 @@
 {% block content %}
     <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }} Outcome</h3>
     <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-m">
-            Status: {% firstof outcome_status.override_status outcome_status.outcome_status %}</h1>
-        <div id="a3a-not-achieved-hint" class="govuk-hint">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-m">
+                Status: {% firstof outcome_status.override_status outcome_status.outcome_status %}
+            </h1>
             {% if outcome_status.override_status %}
-                <strong class="govuk-tag govuk-tag--blue">
-                    Overridden
-                </strong>
+                <h1 class="govuk-heading-s">
+                    <strong class="govuk-tag govuk-tag--blue">
+                        Overridden from {{ outcome_status.outcome_status }}
+                    </strong>
+                </h1>
             {% endif %}
-            {{ outcome_status.outcome_status_text }}
-        </div>
-        <form method="post">
-            {% csrf_token %}
-            <div class="govuk-form-group">
-                <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
-                    {% for choice in form.fields.confirm_outcome.choices %}
-                        <div class="govuk-radios__item override-item"
-                             id="div_{{ form.fields.confirm_outcome.auto_id }}">
-                            <input class="govuk-radios__input"
-                                   id="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}"
-                                   name="confirm_outcome"
-                                   value="{{ choice.0 }}"
-                                   {% if choice.0 == form.confirm_outcome.initial %}checked{% endif %}
-                                   type="radio">
-                            <label class="govuk-label govuk-radios__label"
-                                   for="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}">
-                                {{ choice.1 }}
-                            </label>
-                            {% get_comment_field form form.fields.confirm_outcome.name choice.0 as the_field_comment %}
-                            {% if the_field_comment %}
-                                <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
-                                     class="govuk-radios__conditional--hidden">
-                                    <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
-                                           for="div_id_{{ item.name }}_comments">
-                                        Tell us your justifications
-                                    </label>
-                                    <!-- @formatter:off -->
+            <div id="a3a-not-achieved-hint" class="govuk-hint">
+                <p class="govuk-body">
+                    {{ outcome_status.outcome_status_text }}
+                </p>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+                        {% for choice in form.fields.confirm_outcome.choices %}
+                            <div class="govuk-radios__item override-item"
+                                 id="div_{{ form.fields.confirm_outcome.auto_id }}">
+                                <input class="govuk-radios__input"
+                                       id="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}"
+                                       name="confirm_outcome"
+                                       value="{{ choice.0 }}"
+                                       {% if choice.0 == form.confirm_outcome.initial %}checked{% endif %}
+                                       type="radio">
+                                <label class="govuk-label govuk-radios__label"
+                                       for="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}">
+                                    {{ choice.1 }}
+                                </label>
+                                {% get_comment_field form form.fields.confirm_outcome.name choice.0 as the_field_comment %}
+                                {% if the_field_comment %}
+                                    <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
+                                         class="govuk-radios__conditional--hidden">
+                                        <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
+                                               for="div_id_{{ item.name }}_comments">
+                                            Tell us your justifications
+                                        </label>
+                                        <!-- @formatter:off -->
                                     {#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
                                     <textarea class="govuk-textarea comments_textarea"
                                               id="div_id_{{ item.name }}_comments"
                                               name="{{ the_field_comment.name }}"
                                               rows="5">{{ the_field_comment.initial|default:"" }}</textarea>
                                     <!-- @formatter:on -->
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-            <h3 class="govuk-heading-m">Provide a summary about asset management</h3>
-            <details class="govuk-details">
-                <summary class="govuk-details__summary">
+                <h3 class="govuk-heading-m">Provide a summary about asset management</h3>
+                <details class="govuk-details">
+                    <summary class="govuk-details__summary">
                 <span class="govuk-details__summary-text">
                   How to write a good summary
                 </span>
-                </summary>
-                <div class="govuk-details__text">
-                    <p class="govuk-body">It’s important that you provide enough context for the assessor about your
-                        organisation. They
-                        are unlikely to know it as well as you do.</p>
-                    <p class="govuk-body">The assessor will want your self-assessment to be:</p>
-                    <ul class="govuk-list govuk-list--bullet">
-                        <li>complete</li>
-                        <li>accurate</li>
-                        <li>relevant</li>
-                        <li>consistent</li>
-                    </ul>
-                    <p>
-                        For example, the assessor will want to see that you have clear justifications for answers
-                        and
-                        have provided enough evidence.<br><br>
-                        They will want to see evidence that you accurately measured your organisation’s cyber
-                        security
-                        posture.<br><br>
-                        It will also be important to the assessor that they can see your answers are relevant to
-                        each of
-                        the contributing outcomes and IGPs.<br><br>
-                        Before submitting your self-assessment, you must check that your answers are consistent
-                        across
-                        the outcomes and IGPs, because the assessor will compare your responses.</p></div>
-            </details>
-            <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                 data-maxlength="200">
-                <h1 class="govuk-label-wrapper">
-                    <label class="govuk-label" for="summary_outline">
-                        Please write a short summary outlining how you worked towards achieving this outcome.
-                    </label>
-                </h1>
-                <div id="with-hint-hint" class="govuk-hint">
-                    Provide a short summary outlining how you worked towards achieving this outcome.
-                </div>
-                <!-- @formatter:off -->
+                    </summary>
+                    <div class="govuk-details__text">
+                        <p class="govuk-body">It’s important that you provide enough context for the assessor about your
+                            organisation. They
+                            are unlikely to know it as well as you do.</p>
+                        <p class="govuk-body">The assessor will want your self-assessment to be:</p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>complete</li>
+                            <li>accurate</li>
+                            <li>relevant</li>
+                            <li>consistent</li>
+                        </ul>
+                        <p>
+                            For example, the assessor will want to see that you have clear justifications for answers
+                            and
+                            have provided enough evidence.<br><br>
+                            They will want to see evidence that you accurately measured your organisation’s cyber
+                            security
+                            posture.<br><br>
+                            It will also be important to the assessor that they can see your answers are relevant to
+                            each of
+                            the contributing outcomes and IGPs.<br><br>
+                            Before submitting your self-assessment, you must check that your answers are consistent
+                            across
+                            the outcomes and IGPs, because the assessor will compare your responses.</p></div>
+                </details>
+                <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
+                     data-maxlength="200">
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label" for="summary_outline">
+                            Please write a short summary outlining how you worked towards achieving this outcome.
+                        </label>
+                    </h1>
+                    <div id="with-hint-hint" class="govuk-hint">
+                        Provide a short summary outlining how you worked towards achieving this outcome.
+                    </div>
+                    <!-- @formatter:off -->
                     {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
                     <textarea class="govuk-textarea govuk-js-character-count" id="summary_outline"
                               name="supporting_comments" rows="5"
                               aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments.initial|default:"" }}</textarea>
                     <!-- @formatter:on -->
-                <div id="summary_outline-info" class="govuk-hint govuk-character-count__message">You can enter up to
-                    200 characters
+                    <div id="summary_outline-info" class="govuk-hint govuk-character-count__message">You can enter up to
+                        200 characters
+                    </div>
                 </div>
-            </div>
-            <div class="govuk-button-group">
-                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
-                    Save and continue
-                </button>
-                <a class="govuk-link" href="{% url back_url %}">Back to statements </a>
-            </div>
-        </form>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                        Save and continue
+                    </button>
+                    <a class="govuk-link" href="{% url back_url %}">Back to statements </a>
+                </div>
+            </form>
+        </div>
     </div>
 {% endblock %}
 

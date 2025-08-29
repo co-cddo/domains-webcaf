@@ -106,6 +106,24 @@ class Assessment(models.Model):
             return self.assessments_data.get(outcome_id, None)
         return None
 
+    def get_sections_by_objective_id(self, objective_id: str):
+        """
+        Retrieves and returns a list of assessment sections based on the provided
+        objective ID. If the objective ID matches the beginning of a key within the
+        assessments data, that key-value pair is included in the result. If no data
+        exists or no matches are found, returns None.
+
+        :param objective_id: The ID of the objective used to filter the assessment
+            sections
+        :type objective_id: str
+        :return: A list of key-value tuples matching the objective ID, or None if no
+            matches or data exist
+        :rtype: list[tuple] | None
+        """
+        if self.assessments_data:
+            return [(k, v) for k, v in self.assessments_data.items() if k.startswith(objective_id)]
+        return None
+
 
 class UserProfile(models.Model):
     ROLE_ACTIONS = {

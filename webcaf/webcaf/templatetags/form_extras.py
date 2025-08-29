@@ -1,7 +1,9 @@
+from typing import Any
+
 from django import template
 
 from webcaf.webcaf.models import Assessment
-from webcaf.webcaf.views.util import IndicatorStatusChecker
+from webcaf.webcaf.views.util import ConfigHelper, IndicatorStatusChecker
 
 register = template.Library()
 
@@ -113,9 +115,9 @@ def is_final_objective(objetive_id):
              corresponds to the final objective.
     :rtype: bool
     """
-    # TODO: This will need to updated with the router code access once it is in place
-    idx = ["A", "B", "C", "D"].index(objetive_id)
-    return idx == 3
+    objective_ids = [objective["code"] for objective in ConfigHelper.get_objectives()]
+    idx = objective_ids.index(objetive_id)
+    return idx == len(objective_ids) - 1
 
 
 @register.simple_tag()
@@ -131,7 +133,79 @@ def next_objective(objetive_id):
              is the last in the list.
     :rtype: str or None
     """
-    # TODO: This will need to updated with the router code access once it is in place
-    objective_ids = ["A", "B", "C", "D"]
+    objective_ids = [objective["code"] for objective in ConfigHelper.get_objectives()]
     idx = objective_ids.index(objetive_id)
-    return f"objective_{objective_ids[idx + 1]}" if idx < 3 else None
+    return f"objective_{objective_ids[idx + 1]}" if idx < len(objective_ids) - 2 else None
+
+
+@register.simple_tag()
+def is_objective_complete(assessment_id, objective_id):
+    """
+    Determines whether all outcomes associated with a specific objective in a given assessment
+    have been completed. It evaluates the sections associated with the objective and checks
+    if all the required outcomes have been confirmed as completed.
+
+    :param assessment_id: ID of the assessment to be evaluated
+    :type assessment_id: int
+    :param objective_id: ID of the objective to check for completion
+    :type objective_id: str
+    :return: True if all outcomes of the objective are complete, False otherwise
+    :rtype: bool
+    """
+    assessment = Assessment.objects.get(id=assessment_id)
+    sections = assessment.get_sections_by_objective_id(objective_id)
+    return _check_objective_complete(sections, objective_id)
+
+
+@register.simple_tag()
+def is_all_objectives_complete(assessment_id):
+    """
+    Determines if all objectives for a given assessment are complete.
+
+    This function checks each objective defined in the configuration and confirms whether
+    it is completed for a specified assessment (identified by its ID). If any objective is
+    found incomplete, the function returns False. Otherwise, it returns True.
+
+    :param assessment_id: The unique identifier of the assessment to be checked.
+    :type assessment_id: int
+    :return: Boolean indicating whether all objectives for the specified assessment
+        are complete (True) or not (False).
+    :rtype: bool
+    """
+    assessment = Assessment.objects.get(id=assessment_id)
+    for objective in ConfigHelper.get_objectives():
+        objective_id = objective["code"]
+        sections = assessment.get_sections_by_objective_id(objective_id)
+        if not _check_objective_complete(sections, objective_id):
+            return False
+    return True
+
+
+def _check_objective_complete(
+    sections: list[tuple[str, Any]] | None,
+    objective_id: str,
+):
+    """
+    Checks if an objective is completed based on provided sections. An objective is considered complete
+    if all its outcomes have a corresponding "confirmation" in the provided sections.
+
+    :param objective_id: The unique identifier of the objective to check.
+    :type objective_id: str
+    :param sections: A list of tuples where each tuple represents a completed section and
+        its associated confirmation status.
+    :type sections: list[tuple[str, Any]] | None
+    :return: True if the objective is complete, otherwise False.
+    :rtype: bool
+    """
+    if sections:
+        objective = ConfigHelper.get_objective(objective_id)
+        all_outcomes = [
+            outcome["code"]
+            for principle in objective["principles"].values()
+            for outcome in principle["outcomes"].values()
+        ]
+        completed_outcomes = [
+            completed_section[0] for completed_section in sections if "confirmation" in completed_section[1]
+        ]
+        return set(all_outcomes) == set(completed_outcomes)
+    return False
