@@ -116,8 +116,8 @@ class TestCAF32Router(unittest.TestCase):
         context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertIsInstance(breadcrumbs, list)
-        self.assertEqual(breadcrumbs[0]["text"], "Root")
-        self.assertEqual(breadcrumbs[-1]["text"], "Detecting cyber security events")
+        self.assertEqual(breadcrumbs[0]["text"], "My account")
+        self.assertEqual(breadcrumbs[-1]["text"], "Objective A - Detecting cyber security events")
 
     def test_principle_breadcrumbs(self):
         router = CAF32Router(self.fixture_path)
@@ -134,8 +134,8 @@ class TestCAF32Router(unittest.TestCase):
         view.request = self.add_session_to_request(request)
         context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
-        self.assertEqual(breadcrumbs[-2]["text"], "Detecting cyber security events")
-        self.assertEqual(breadcrumbs[-1]["text"], "Security Monitoring")
+        self.assertEqual(breadcrumbs[-2]["text"], "My account")
+        self.assertEqual(breadcrumbs[-1]["text"], "Edit draft assessment")
 
     def test_outcome_breadcrumbs(self):
         router = CAF32Router(self.fixture_path)
@@ -159,10 +159,10 @@ class TestCAF32Router(unittest.TestCase):
                 mock_assessment_get.return_value = mock_assessment
                 context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
-        self.assertEqual(breadcrumbs[0]["text"], "Root")
-        self.assertEqual(breadcrumbs[1]["text"], "Detecting cyber security events")
-        self.assertEqual(breadcrumbs[2]["text"], "Security Monitoring")
-        self.assertEqual(breadcrumbs[3]["text"], "Monitoring Coverage")
+        self.assertEqual(breadcrumbs[0]["text"], "My account")
+        self.assertEqual(breadcrumbs[1]["text"], "Edit draft assessment")
+        self.assertEqual(breadcrumbs[2]["text"], "Objective A - Detecting cyber security events")
+        self.assertEqual(breadcrumbs[3]["text"], "Objective A1.a - Monitoring Coverage")
 
     def test_breadcrumbs_have_urls(self):
         router = CAF32Router(self.fixture_path)
@@ -187,9 +187,13 @@ class TestCAF32Router(unittest.TestCase):
                 mock_assessment_get.return_value = mock_assessment
                 context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
-        for crumb in breadcrumbs:
-            self.assertIn("url", crumb)
-            self.assertTrue(isinstance(crumb["url"], str) or hasattr(crumb["url"], "__class__"))
+        for i, crumb in enumerate(breadcrumbs):
+            if i != len(breadcrumbs) - 1:
+                self.assertIn("url", crumb)
+                self.assertTrue(isinstance(crumb["url"], str) or hasattr(crumb["url"], "__class__"))
+            else:
+                # Last element is always plain text
+                self.assertNotIn("url", crumb)
 
     def add_session_to_request(self, request):
         """Attach a session to a request (for RequestFactory)."""
