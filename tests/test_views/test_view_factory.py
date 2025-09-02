@@ -77,7 +77,13 @@ class ViewFactoryFormValidTests(SimpleTestCase):
 
         # Verify data saved under the correct class_id
         self.assertIn(class_id, fake_assessment.assessments_data)
-        self.assertEqual(fake_assessment.assessments_data[class_id], {"indicator": cleaned_data})
+
+        self.assertEqual(
+            fake_assessment.assessments_data[class_id],
+            {
+                "indicator": cleaned_data,
+            },
+        )
 
         # Ensure save called and control passed to parent implementation
         fake_assessment.save.assert_called_once()

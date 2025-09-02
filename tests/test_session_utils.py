@@ -52,7 +52,7 @@ class SessionUtilTests(SimpleTestCase):
         )
 
     def test_get_current_assessment_logs_and_returns_none_on_exception(self):
-        request = SimpleNamespace(session={"draft_assessment": {"assessment_id": 55}})
+        request = SimpleNamespace(session={"draft_assessment": {"assessment_id": 55}}, user=MagicMock(username="test"))
         fake_org = SimpleNamespace(id=456)
         fake_profile = SimpleNamespace(organisation=fake_org)
 

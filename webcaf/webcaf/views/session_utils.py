@@ -51,14 +51,15 @@ class SessionUtil:
         """
         from webcaf.webcaf.models import Assessment
 
-        id_: int = int(request.session["draft_assessment"]["assessment_id"])
-        user_profile = SessionUtil.get_current_user_profile(request)
+        id_: int | None = None
         try:
+            id_ = int(request.session["draft_assessment"]["assessment_id"])
+            user_profile = SessionUtil.get_current_user_profile(request)
             if user_profile and user_profile.organisation:
                 assessment = Assessment.objects.get(
                     status="draft", id=id_, system__organisation_id=user_profile.organisation.id
                 )
                 return assessment
         except Exception:  # type: ignore[catching-any]
-            SessionUtil.logger.error(f"Unable to retrieve assessment with id {id_} for user {user_profile}")
+            SessionUtil.logger.error(f"Unable to retrieve assessment with id {id_} for user {request.user.username}")
         return None

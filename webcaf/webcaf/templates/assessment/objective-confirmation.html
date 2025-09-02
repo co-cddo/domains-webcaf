@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load permission_extras %}
 {% load static %}
 {% load csp %}
 {% load form_extras %}
@@ -6,6 +7,7 @@
 {% block title %}Complete the full assessment{% endblock %}
 {% block content %}
     {% get_assessment request as assessment %}
+    {% include 'partials/error_message.html' %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">
@@ -24,33 +26,33 @@
                     <dl class="govuk-summary-list">
                         {% for outcome in principle.outcomes.values %}
                             <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-third">
                                     {{ outcome.code }}&nbsp;-&nbsp;{{ outcome.title }}
                                 </dt>
                                 {% get_outcome_details assessment outcome.code as outcome_details %}
-                                <dd class="govuk-summary-list__value">
+                                <dd class="govuk-summary-list__value govuk-!-width-one-third">
                                     {% if outcome_details.override_status %}
-                                        {% if outcome_details.override_status == 'Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.override_status }}</strong>
-                                        {% elif outcome_details.override_status == 'Partially Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--yellow">{{ outcome_details.override_status }}</strong>
-                                        {% else %}
-                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.override_status }}</strong>
-                                        {% endif %}
-                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                        <div class="govuk-grid-row govuk-!-width-full">
+                                            {% if outcome_details.override_status == 'Achieved' %}
+                                                <span class="govuk-tag govuk-tag--green govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                            {% else %}
+                                                <span class="govuk-tag govuk-tag--pink govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                            {% endif %}
+                                            <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
                                             overridden
-                                        </span>
+                                            </span>
+                                        </div>
                                     {% else %}
                                         {% if outcome_details.outcome_status == 'Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.outcome_status }}</strong>
+                                            <strong class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</strong>
                                         {% elif outcome_details.outcome_status == 'Partially Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--yellow">{{ outcome_details.outcome_status }}</strong>
+                                            <strong class="govuk-tag govuk-tag--yellow govuk-!-font-size-16">{{ outcome_details.outcome_status }}</strong>
                                         {% else %}
-                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.outcome_status|default:"Not Complete" }}</strong>
+                                            <strong class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status|default:"Not Complete" }}</strong>
                                         {% endif %}
                                     {% endif %}
                                 </dd>
-                                <dd class="govuk-summary-list__actions">
+                                <dd class="govuk-summary-list__actions govuk-!-width-one-third">
                                     {% with 'indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
                                            href="{% url indicator_url %}">
@@ -64,36 +66,40 @@
                 {% endfor %}
             {% endfor %}
             {% is_all_objectives_complete assessment.id as all_objectives_complete %}
-            {% if all_objectives_complete %}
+            {% current_user_can_submit_assessment user_profile as can_submit %}
+            {% if all_objectives_complete and can_submit %}
                 <form method="post">
+                    {% csrf_token %}
                     <h2 class="govuk-heading-l">Confirm your self-assessment submission date</h2>
                     <p class="govuk-body">Submissions close for GovAssure Year 3 2025/26 at 11:59pm on 31 March 2026. If
                         you
                         provide your
-                        self-assessment after this date, it will be filed for Year 4 2025/26.
+                        self-assessment after this date, it will be filed for Year 4 2026/27.
                     </p>
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                 <h1 class="govuk-fieldset__heading">
                                     Are you submitting your self-assessment before the closing date of 11:59pm on 31
-                                    March
-                                    2026?
+                                    March 2026?
                                 </h1>
                             </legend>
-                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                            <div id="id_completed_on_time" class="govuk-radios govuk-radios--inline"
+                                 data-module="govuk-radios"
                                  data-govuk-radios-init="">
                                 <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="sectioncompleted" name="sectioncompleted"
+                                    <input class="govuk-radios__input" id="completed_on_time_yes"
+                                           name="completed_on_time"
                                            type="radio" value="yes">
-                                    <label class="govuk-label govuk-radios__label" for="sectioncompleted">
+                                    <label class="govuk-label govuk-radios__label" for="completed_on_time_yes">
                                         Yes
                                     </label>
                                 </div>
                                 <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="sectioncompleted-2" name="sectioncompleted"
+                                    <input class="govuk-radios__input" id="completed_on_time_no"
+                                           name="completed_on_time"
                                            type="radio" value="no">
-                                    <label class="govuk-label govuk-radios__label" for="sectioncompleted-2">
+                                    <label class="govuk-label govuk-radios__label" for="completed_on_time_no">
                                         No
                                     </label>
                                 </div>
