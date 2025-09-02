@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
 from django.forms import ModelForm
@@ -6,6 +8,7 @@ from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
+from webcaf.webcaf.views.session_utils import SessionUtil
 from webcaf.webcaf.views.util import ConfigHelper
 
 
@@ -27,13 +30,14 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
 
     login_url = "/oidc/authenticate/"  #
     template_name = "assessment/draft-assessment.html"
+    logger = logging.Logger("EditAssessmentView")
 
     def get_context_data(self, **kwargs):
         assessment_id = self.kwargs.get("assessment_id")
         current_profile = UserProfile.objects.get(id=self.request.session["current_profile_id"])
         current_organisation = current_profile.organisation
         assessment = Assessment.objects.get(
-            id=assessment_id, status="draft", assessment_period="25/26", system__organisation_id=current_organisation.id
+            id=assessment_id, status="draft", system__organisation_id=current_organisation.id
         )
         draft_assessment = {
             "assessment_id": assessment.id,
@@ -42,6 +46,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         }
         # We need to access this information later in the assessment editing stages.
         self.request.session["draft_assessment"] = draft_assessment
+        user_profile = SessionUtil.get_current_user_profile(self.request)
         data = {
             "draft_assessment": draft_assessment,
             "objectives": ConfigHelper.get_objectives(),
@@ -57,6 +62,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                 )
                 .union(System.objects.filter(id=assessment.system_id))
             ),
+            "current_profile": user_profile,
         }
 
         return data
@@ -70,13 +76,12 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         assessment_to_modify = Assessment.objects.get(id=self.kwargs.get("assessment_id"), status="draft")
         curren_organisation = UserProfile.objects.get(id=self.request.session["current_profile_id"]).organisation
         if assessment_to_modify.system.id not in curren_organisation.systems.values_list("id", flat=True):
-            raise Exception("You are not allowed to edit this assessment")
+            self.logger.error(
+                f"The user {self.request.user} does not have access to this assessment {assessment_to_modify}"
+            )
+            raise PermissionError("You are not allowed to edit this assessment")
         kwargs["instance"] = assessment_to_modify
         return kwargs
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
@@ -211,6 +216,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
 
     login_url = "/oidc/authenticate/"  # OIDC login route
     template_name = "assessment/draft-assessment.html"
+    logger = logging.Logger("CreateAssessmentView")
 
     def get_context_data(self, **kwargs):
         data = {}
@@ -225,6 +231,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
             id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
         )
+        data["objectives"] = ConfigHelper.get_objectives()
         return data
 
     def get_success_url(self):
@@ -253,6 +260,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
                 status="draft",
                 assessment_period="25/26",
                 system=system,
+                version="v3.2",
                 defaults={
                     "created_by": self.request.user,
                     "caf_profile": draft_assessment["caf_profile"],
@@ -262,6 +270,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             draft_assessment["assessment_id"] = assessment.id
             assessment.last_updated_by = self.request.user
             assessment.save()
+            self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
             # Forward to editing the draft now.
             return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
         return super().form_valid(form)

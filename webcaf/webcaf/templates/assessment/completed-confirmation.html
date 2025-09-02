@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+
+{% block title %}Completion Confirmation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="govuk-panel govuk-panel--confirmation">
+                        <h1 class="govuk-panel__title">
+                            Self-assessment completed
+                        </h1>
+                        <div class="govuk-panel__body">
+                            Your reference number<br><strong>{{ assessment_ref }}</strong>
+                        </div>
+                    </div>
+                    <p>
+                        Your CAF self-assessment has been shared with the GovAssure team.
+                    </p>
+                    <h2 class="govuk-heading-m">
+                        What happens next
+                    </h2>
+                    <p>
+                        Now you have completed your self-assessment, you must make sure that your independent assessor
+                        or peer reviewer can access it before starting stage 4.
+                    </p>
+                    <p>
+                        <a href="#">
+                            What did you think of this service?
+                        </a> (takes 30 seconds)
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}

@@ -33,7 +33,10 @@ from webcaf.webcaf.views import (
     OrganisationTypeView,
 )
 from webcaf.webcaf.views.general_views import logout_view
-from webcaf.webcaf.views.objective_views import ObjectiveConfirmationView
+from webcaf.webcaf.views.objective_views import (
+    ObjectiveConfirmationView,
+    ShowSubmissionConfirmationView,
+)
 from webcaf.webcaf.views.system_views import (
     CreateOrSkipSystemView,
     EditSystemView,
@@ -79,6 +82,9 @@ urlpatterns = [
         name="edit-draft-assessment-system",
     ),
     path("objective-confirmation/", ObjectiveConfirmationView.as_view(), name="objective-confirmation"),
+    path(
+        "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
+    ),
     #     system paths
     path("create-new-system/", SystemView.as_view(), name="create-new-system"),
     path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),

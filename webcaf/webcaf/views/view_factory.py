@@ -155,6 +155,15 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             current_user_profile = SessionUtil.get_current_user_profile(self.request)
             if self.class_id not in assessment.assessments_data:
                 assessment.assessments_data[self.class_id] = {}
+            if self.stage not in assessment.assessments_data[self.class_id]:
+                assessment.assessments_data[self.class_id][self.stage] = {}
+
+            if (
+                assessment.assessments_data[self.class_id][self.stage]
+                and assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data
+            ):
+                # Reset the confirmation data if the form data has changed
+                assessment.assessments_data[self.class_id]["confirmation"] = {}
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
             assessment.last_modified_by = current_user_profile.user
             assessment.save()
