@@ -1,7 +1,9 @@
 import logging
+import os
 from typing import Any, Generator
 
 import yaml
+from django.conf import settings
 from django.urls import path, reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import FormView
@@ -25,7 +27,9 @@ CAF32Element = dict[str, Any]
 
 
 class CAF32Router(FrameworkRouter):
-    logger = logging.getLogger("FrameworkRouter")
+    framework_path = os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
+    path_prefix = "caf32"
+    logger = logging.getLogger("CAF32Router")
 
     @staticmethod
     def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
@@ -34,8 +38,7 @@ class CAF32Router(FrameworkRouter):
         breadcrumbs.insert(0, {"url": reverse_lazy("my-account"), "text": "My account"})
         return breadcrumbs
 
-    def __init__(self, framework_path, exit_url: str = "index") -> None:
-        self.file_path = framework_path
+    def __init__(self, exit_url: str = "index") -> None:
         self.exit_url = exit_url
         self.framework: CAF32Element = {}
         self.elements: list[CAF32Element] = []
@@ -73,8 +76,10 @@ class CAF32Router(FrameworkRouter):
                 class_id=element["code"],
                 extra_context=extra_context | {"objective_data": element},
             )
-            url_path_to_add = path(f"{url_path}/", element["view_class"].as_view(), name=element["short_name"])
-            urls.urlpatterns.append(url_path_to_add)
+            url_to_add = path(
+                f"{self.__class__.path_prefix}/{url_path}/", element["view_class"].as_view(), name=element["short_name"]
+            )
+            urls.urlpatterns.append(url_to_add)
         else:
             template_name = f"{element['stage']}.html"
             class_prefix = f"Outcome{element['stage'].capitalize()}View"
@@ -93,11 +98,13 @@ class CAF32Router(FrameworkRouter):
                     "objective_data": element["parent"]["parent"],
                 },
             )
-            url_path_to_add = path(
-                f"{url_path}/{element['stage']}/", element["view_class"].as_view(), name=element["short_name"]
+            url_to_add = path(
+                f"{self.__class__.path_prefix}/{url_path}/{element['stage']}/",
+                element["view_class"].as_view(),
+                name=element["short_name"],
             )
-            urls.urlpatterns.append(url_path_to_add)
-        self.logger.info(f"Added {url_path_to_add}")
+            urls.urlpatterns.append(url_to_add)
+        self.logger.info(f"Added {url_to_add}")
 
     def traverse_framework(self) -> Generator[CAF32Element, None, None]:
         """
@@ -165,7 +172,7 @@ class CAF32Router(FrameworkRouter):
                 self._process_outcome(element)
 
     def _read(self) -> None:
-        with open(self.file_path, "r") as file:
+        with open(self.__class__.framework_path, "r") as file:
             self.framework = yaml.safe_load(file)
             self.elements = list(self.traverse_framework())
 
@@ -173,3 +180,9 @@ class CAF32Router(FrameworkRouter):
     # from creating the Django urls
     def execute(self) -> None:
         self._create_route()
+
+
+class CAF40Router(CAF32Router):
+    framework_path = os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v4.0.yaml")
+    path_prefix = "caf40"
+    logger = logging.getLogger("CAF40Router")
