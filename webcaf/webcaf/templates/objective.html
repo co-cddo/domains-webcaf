@@ -21,30 +21,32 @@
                     {% for outcome in principal.outcomes.values %}
                         {% get_outcome_details assessment outcome.code as outcome_details %}
                         <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                            <dt class="govuk-summary-list__key govuk-!-width-one-third">
                                 {{ outcome.code }}&nbsp;{{ outcome.title }}
                             </dt>
                             {% if outcome_details.complete %}
-                                <dd class="govuk-summary-list__value">
+                                <dd class="govuk-summary-list__value  govuk-!-width-one-third">
                                     {% if outcome_details.override_status %}
-                                        {% if outcome_details.override_status == 'Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.override_status }}</strong>
-                                        {% else %}
-                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.override_status }}</strong>
-                                        {% endif %}
-                                        <span class="govuk-body-s govuk-tag govuk-tag--blue">
+                                        <div class="govuk-grid-row govuk-!-width-full">
+                                            {% if outcome_details.override_status == 'Achieved' %}
+                                                <span class="govuk-tag govuk-tag--green govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                            {% else %}
+                                                <span class="govuk-tag govuk-tag--pink govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                            {% endif %}
+                                            <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
                                             overridden
-                                        </span>
+                                            </span>
+                                        </div>
                                     {% else %}
                                         {% if outcome_details.outcome_status == 'Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--green">{{ outcome_details.outcome_status }}</strong>
+                                            <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
                                         {% else %}
-                                            <strong class="govuk-tag govuk-tag--pink">{{ outcome_details.outcome_status }}</strong>
+                                            <span class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
                                         {% endif %}
                                     {% endif %}
 
                                 </dd>
-                                <dd class="govuk-summary-list__actions">
+                                <dd class="govuk-summary-list__actions  govuk-!-width-one-third">
 
                                     {% with 'indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
@@ -53,7 +55,8 @@
                                     {% endwith %}
                                 </dd>
                             {% else %}
-                                <dd class="govuk-summary-list__value">
+                                <dd class="govuk-summary-list__value  govuk-!-width-one-third"></dd>
+                                <dd class="govuk-summary-list__actions govuk-!-width-one-third">
                                     {% with 'indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
                                            href="{% url indicator_url %}">

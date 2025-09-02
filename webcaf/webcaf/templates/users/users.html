@@ -3,61 +3,86 @@
 {% block title %}Manage Users - {{ user.first_name }} {% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <table class="govuk-table">
-                <caption
-                        class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
+                <caption class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
                     has {{ current_profile.organisation.members.all |length|default:0 }} users
                 </caption>
                 <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">User name</th>
-                    <th scope="col" class="govuk-table__header">Email</th>
-                    <th scope="col" class="govuk-table__header"></th>
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Registered email address</th>
+                    <th scope="col" class="govuk-table__header">Action</th>
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
                 {% for user_profile in current_profile.organisation.members.all %}
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">
-                            <span class="govuk-body">
-                                {{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
-                            </span>
-                            <span
+                        <th scope="row"
+                            class="govuk-table__header">{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
+                            <strong
                                     {% if user_profile.role == 'cyber_advisor' %}
                                         class="govuk-tag govuk-tag--blue"
-                                    {% elif user_profile.role == 'govassure_lead' %}
+                                    {% elif user_profile.role == 'organisation_lead' %}
                                         class="govuk-tag govuk-tag--green"
                                     {% elif user_profile.role == 'organisation_user' %}
-                                        class="govuk-tag govuk-tag--pink"
+                                        class="govuk-tag govuk-tag--yellow"
                                     {% endif %}
                             >
                                 {{ user_profile.get_role_display }}
-                            </span>
+                            </strong>
                         </th>
-                        <td class="govuk-table__cell">
-                            {{ user_profile.user.email }}
-                        </td>
-                        {% if user_profile.id != current_profile.id %}
-                            <td class="govuk-table__cell">
-                                <a href="{% url 'edit-profile' user_profile_id=user_profile.id %}">
+                        <td class="govuk-table__cell"> {{ user_profile.user.email }}</td>
+                        <td scope="row" class="govuk-table__cell">
+                            {% if user_profile.id != current_profile.id and user_profile.role != 'cyber_advisor' %}
+                                <a href="{% url 'edit-profile' user_profile_id=user_profile.id %}"
+                                   class="govuk-link govuk-link--no-visited-state">
                                     Change
+                                </a> |
+                                <a href="{% url 'remove-profile' user_profile_id=user_profile.id %}"
+                                   class="govuk-link govuk-link--no-visited-state">
+                                    Remove
                                 </a>
-                            </td>
-                        {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
-            <form class="form" action="{% url 'create-new-profile' %}" method="get">
+            <form class="form" action="{% url 'create-or-skip-new-profile' %}" method="POST">
                 {% csrf_token %}
-                <div class="govuk-button-group">
-                        <span class="govuk-body govuk-!-font-size-24">
-                            <button type="submit" class="govuk-button" data-module="govuk-button">
-                                Add new user
-                            </button>
-                        </span>
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="create_new_user-hint">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            Add another user?
+                        </legend>
+                        <div id="create_new_user-hint" class="govuk-hint">
+                        </div>
+                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                             data-govuk-radios-init="">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="create_new_user" name="action"
+                                       type="radio" value="confirm"
+                                       checked
+                                >
+                                <label class="govuk-label govuk-radios__label" for="create_new_user">
+                                    Yes
+                                </label>
+
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="create_new_user-2" name="action"
+                                       type="radio" value="skip">
+                                <label class="govuk-label govuk-radios__label" for="create_new_user-2">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    Continue
+                </button>
             </form>
         </div>
     </div>
