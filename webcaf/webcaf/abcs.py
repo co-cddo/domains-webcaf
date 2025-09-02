@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class FrameworkRouter(ABC):
@@ -12,6 +13,14 @@ class FrameworkRouter(ABC):
     element in the CAF then updating Django's url patterns with paths to the views. Each form is provided the
     success_url for the next page in the route.
     """
+
+    @abstractmethod
+    def get_main_headings(self) -> list[dict]:
+        pass
+
+    @abstractmethod
+    def get_main_heading(self, id: str) -> Optional[dict]:
+        pass
 
     @abstractmethod
     def execute(self) -> None:
@@ -28,7 +37,7 @@ class FieldProvider(ABC):
     """
 
     @abstractmethod
-    def get_metadata(self) -> dict:
+    def get_metadata(self) -> Optional[dict]:
         pass
 
     @abstractmethod

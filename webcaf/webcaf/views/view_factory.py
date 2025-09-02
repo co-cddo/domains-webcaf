@@ -129,10 +129,11 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
         :rtype: list
         """
         objective_data_ = self.extra_context["objective_data"]
+        assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
                 "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
-                "url": reverse_lazy(f"objective_{objective_data_['code']}"),
+                "url": reverse_lazy(f"{assessment.framework}_objective_{objective_data_['code']}"),
             }
         ]
 
@@ -226,7 +227,8 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["back_url"] = f"objective_{data['objective_code']}"
+        assessment = SessionUtil.get_current_assessment(self.request)
+        data["back_url"] = f"{assessment.framework}_objective_{data['objective_code']}"
         return data
 
 
@@ -242,11 +244,11 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        current_assessment = SessionUtil.get_current_assessment(self.request)
+        assessment = SessionUtil.get_current_assessment(self.request)
         data["outcome_status"] = IndicatorStatusChecker.get_status_for_indicator(
-            current_assessment.assessments_data[self.class_id]
+            assessment.assessments_data[self.class_id]
         )
-        data["back_url"] = f"indicators_{self.class_id}"
+        data["back_url"] = f"{assessment.framework}_indicators_{self.class_id}"
         # Remove the redundant override option from the choice list for confirmation
         data["form"].fields["confirm_outcome"].choices = [
             choice
@@ -257,10 +259,11 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
 
     def build_breadcrumbs(self):
         outcome = self.extra_context["outcome"]
+        assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
                 "text": f'Objective {outcome["code"]} - {outcome["title"]}',
-                "url": reverse_lazy(f"indicators_{self.class_id}"),
+                "url": reverse_lazy(f"{assessment.framework}_indicators_{self.class_id}"),
             },
             {
                 "text": f'Objective {outcome["code"]} - {outcome["title"]} outcome',
@@ -276,7 +279,8 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         :return: A lazily reversed URL string built using the objective code.
         :rtype: str
         """
-        return reverse_lazy(f"objective_{self.extra_context['objective_code']}")
+        assessment = SessionUtil.get_current_assessment(self.request)
+        return reverse_lazy(f"{assessment.framework}_objective_{self.extra_context['objective_code']}")
 
 
 create_form_view_logger = logging.getLogger("create_form_view")
@@ -315,19 +319,17 @@ def create_form_view(
     # Implement the custom view that handles the form submissions if defined in the
     # view registry.
     parent_classes: Tuple[Type[LoginRequiredMixin], Type[FormViewWithBreadcrumbs]]
-    if class_prefix.startswith("OutcomeIndicatorsView"):
-        # Use the indicators view as a parent class.
+    if "OutcomeIndicatorsView" in class_prefix:
         parent_classes = (
             LoginRequiredMixin,
             OutcomeIndicatorsView,
         )
-    elif class_prefix.startswith("OutcomeConfirmationView"):
-        # Use the confirmation view as a parent class.
+    elif "OutcomeConfirmationView" in class_prefix:
         parent_classes = (
             LoginRequiredMixin,
             OutcomeConfirmationView,
         )
-    elif class_prefix.startswith("ObjectiveView"):
+    elif "ObjectiveView" in class_prefix:
         parent_classes = (
             LoginRequiredMixin,
             ObjectiveView,

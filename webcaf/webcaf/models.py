@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from multiselectfield import MultiSelectField
 
+from webcaf.webcaf.abcs import FrameworkRouter
+
 
 class Organisation(models.Model):
     ORGANISATION_TYPE_CHOICES = sorted(
@@ -178,6 +180,11 @@ class Assessment(models.Model):
         if self.assessments_data:
             return [(k, v) for k, v in self.assessments_data.items() if k.startswith(objective_id)]
         return None
+
+    def get_router(self) -> FrameworkRouter:
+        from webcaf.webcaf.frameworks import routers
+
+        return routers[self.framework]
 
 
 class UserProfile(models.Model):

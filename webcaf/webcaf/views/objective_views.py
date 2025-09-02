@@ -14,7 +14,7 @@ from webcaf.webcaf.templatetags.form_extras import (
     is_all_objectives_complete,
 )
 from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import ConfigHelper, UserRoleCheckMixin
+from webcaf.webcaf.views.util import UserRoleCheckMixin
 
 
 class ObjectiveConfirmationForm(Form):
@@ -59,7 +59,10 @@ class ObjectiveConfirmationView(UserRoleCheckMixin, FormView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["objectives"] = ConfigHelper.get_objectives()
+        assessment = get_assessment(self.request)
+        # Come back to this.
+        if assessment:
+            data["objectives"] = assessment.get_router().get_main_headings()
         data["user_profile"] = SessionUtil.get_current_user_profile(self.request)
         return data
 
