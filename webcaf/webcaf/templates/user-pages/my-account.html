@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% load govuk_frontend_django %}
+{% load permission_extras %}
 {% block title %}My account - {{ user.first_name }} {% endblock %}
 {% block content %}
+    {% current_user_can_start_assessment current_profile as can_start_assessment %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% if current_profile.role != "cyber_advisor" %}
+            {% if can_start_assessment %}
                 <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
                     <div class="govuk-notification-banner__header">
@@ -28,29 +29,27 @@
             </h2>
             <div>
                 <p class="govuk-hint">
-                    {% if current_profile.role == "cyber_advisor" %}
-                        On this page you can add new systems, modify existing systems and manage user within an
-                        organisation.
-                    {% endif %}
+                    {% get_my_account_text current_profile %}
                 </p>
             </div>
-            {% if current_profile.role == "cyber_advisor" %}
-                <div class="govuk-button-group">
-                    <form action="{% url 'create-new-system' %}" method="GET">
-                        {% csrf_token %}
+            {% current_user_can_create_system current_profile as can_create_systems %}
+            {% current_user_can_view_assessments current_profile as can_view_assessments %}
+            {% if can_create_systems %}
+                <form action="{% url 'create-new-system' %}" method="GET">
+                    {% csrf_token %}
+                    <div class="govuk-button-group">
                         <button type="submit" class="govuk-button govuk-button--primary" data-module="govuk-button">
                             Add new system
                         </button>
-                    </form>
-                    <form action="{% url 'view-systems' %}" method="GET">
-                        {% csrf_token %}
-                        <button type="submit" class="govuk-button govuk-button--secondary"
-                                data-module="govuk-button">
-                            View systems
-                        </button>
-                    </form>
-                </div>
-            {% else %}
+                        {% if system_count %}
+                            <a href="{% url 'view-systems' %}" class="govuk-link govuk-link--no-visited-state">
+                                View systems
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            {% endif %}
+            {% if can_start_assessment %}
                 <form action="{% url 'create-draft-assessment' %}" method="GET">
                     {% csrf_token %}
                     <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
@@ -58,13 +57,7 @@
                     </button>
                 </form>
             {% endif %}
-            {% if current_profile.role == "cyber_advisor" %}
-                <h3 class="govuk-heading-m">
-                    Assessments sent for review
-                </h3>
-                <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
-                </p>
-            {% else %}
+            {% if can_view_assessments %}
                 <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
                     Continue a draft assessment
                 </h3>
@@ -74,16 +67,16 @@
                 {% else %}
                     <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_systems| length }} draft assessment(s)
+                            View {{ draft_systems| length }} draft assessment{{ draft_systems | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
-                <h3 class="govuk-heading-m">
-                    Submitted assessments
-                </h3>
-                <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
-                </p>
             {% endif %}
+            <h3 class="govuk-heading-m">
+                Assessments sent for review
+            </h3>
+            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
+            </p>
         </div>
 
         <div class="govuk-grid-column-one-third">
@@ -96,28 +89,29 @@
                     {{ current_profile.organisation.name }}
                 </span>
             </h2>
-
             <nav role="navigation" aria-labelledby="subsection-title">
                 <ul class="govuk-list">
                     <li>
                         <a href="{% url 'my-organisation' id=current_profile.id %}"
                            class="govuk-link govuk-link--no-visited-state">
-                            Update your organisation
+                            Your organisation details
                         </a>
                     </li>
                 </ul>
             </nav>
-
-            <nav role="navigation" aria-labelledby="subsection-title">
-                <ul class="govuk-list">
-                    <li>
-                        <a href="{% url 'view-profiles' %}"
-                           class="govuk-link govuk-link--no-visited-state">
-                            Manage users
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            {% current_user_can_create_user current_profile as can_create_user %}
+            {% if can_create_user %}
+                <nav role="navigation" aria-labelledby="subsection-title">
+                    <ul class="govuk-list">
+                        <li>
+                            <a href="{% url 'view-profiles' %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Manage users
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

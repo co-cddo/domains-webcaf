@@ -1,56 +1,57 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    -   id: check-yaml
-        args: [--allow-multiple-documents]
-    -   id: end-of-file-fixer
+      - id: check-yaml
+        args: [ --allow-multiple-documents ]
+      - id: end-of-file-fixer
         exclude: webcaf/static|seed/
-    -   id: trailing-whitespace
+      - id: trailing-whitespace
         exclude: webcaf/static|seed/
-# Sort import statements
-- repo: https://github.com/pycqa/isort
-  rev: 5.12.0
-  hooks:
-    - id: isort
-      name: isort
-# Enforce code style
--   repo: https://github.com/psf/black
+  # Sort import statements
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort
+  # Enforce code style
+  - repo: https://github.com/psf/black
     rev: 23.12.0
     hooks:
-    -   id: black
+      - id: black
         exclude: webcaf/static|seed/
-# Linting
--   repo: https://github.com/PyCQA/flake8
+  # Linting
+  - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
-    -   id: flake8
+      - id: flake8
         exclude: webcaf/static|seed/
-# https://gds-way.cloudapps.digital/standards/pre-commit-hooks.html
--   repo: https://github.com/Yelp/detect-secrets
+  # https://gds-way.cloudapps.digital/standards/pre-commit-hooks.html
+  - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
-    -   id: detect-secrets
+      - id: detect-secrets
         exclude: (^\.github/workflows/)|package\.lock\.json|(^tests/fixtures/)|webcaf/static|seed/
--   repo: https://github.com/pre-commit/mirrors-mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
-    -   id: mypy
+      - id: mypy
         exclude: wsgi.py
         verbose: true
         entry: .hooks/mypy-wrapper.sh
-        args: [--pretty]
+        args: [ --pretty ]
         additional_dependencies:
-        -    types-six
-        -    'django-stubs[compatible-mypy]'
-        -    django-environ
-        -    psycopg2-binary
-        -    govuk-frontend-django
-        -    django-storages
-        -    django-cors-headers
-        -    notifications-python-client
-        -    markdown
-        -    types-Markdown
-        -    django-csp
-        -    pyyaml
-        -    mozilla_django_oidc
+          - types-six
+          - 'django-stubs[compatible-mypy]'
+          - django-environ
+          - psycopg2-binary
+          - govuk-frontend-django
+          - django-storages
+          - django-cors-headers
+          - notifications-python-client
+          - markdown
+          - types-Markdown
+          - django-csp
+          - pyyaml
+          - mozilla_django_oidc
+          - django-multiselectfield

@@ -3,6 +3,7 @@ from typing import Any
 from django import template
 
 from webcaf.webcaf.models import Assessment
+from webcaf.webcaf.views.session_utils import SessionUtil
 from webcaf.webcaf.views.util import ConfigHelper, IndicatorStatusChecker
 
 register = template.Library()
@@ -92,12 +93,7 @@ def get_assessment(request):
         draft assessment ID, or None if no valid assessment is found.
     :rtype: Assessment or None
     """
-    draft_assessment = request.session.get("draft_assessment", {})
-    if draft_assessment:
-        assessment_id = draft_assessment.get("assessment_id")
-        if assessment_id:
-            return Assessment.objects.get(id=assessment_id)
-    return None
+    return SessionUtil.get_current_assessment(request)
 
 
 @register.simple_tag()
@@ -172,13 +168,15 @@ def is_all_objectives_complete(assessment_id):
         are complete (True) or not (False).
     :rtype: bool
     """
-    assessment = Assessment.objects.get(id=assessment_id)
-    for objective in ConfigHelper.get_objectives():
-        objective_id = objective["code"]
-        sections = assessment.get_sections_by_objective_id(objective_id)
-        if not _check_objective_complete(sections, objective_id):
-            return False
-    return True
+    if assessment_id:
+        assessment = Assessment.objects.get(id=assessment_id)
+        for objective in ConfigHelper.get_objectives():
+            objective_id = objective["code"]
+            sections = assessment.get_sections_by_objective_id(objective_id)
+            if not _check_objective_complete(sections, objective_id):
+                return False
+        return True
+    return False
 
 
 def _check_objective_complete(
@@ -205,7 +203,28 @@ def _check_objective_complete(
             for outcome in principle["outcomes"].values()
         ]
         completed_outcomes = [
-            completed_section[0] for completed_section in sections if "confirmation" in completed_section[1]
+            completed_section[0]
+            for completed_section in sections
+            if
+            # Only consider as complete if we have the confirm_outcome attribute in the confirmation
+            "confirmation" in completed_section[1] and "confirm_outcome" in completed_section[1]["confirmation"]
         ]
         return set(all_outcomes) == set(completed_outcomes)
     return False
+
+
+@register.filter
+def get_display(instance: object, field_name: str):
+    """Return the get_FOO_display value for a choices field"""
+    method_name = f"get_{field_name}_display"
+    if hasattr(instance, method_name):
+        return getattr(instance, method_name)()
+    return getattr(instance, field_name, "")
+
+
+@register.filter
+def split(value: str, delimiter: str = ","):
+    """Split a string by the given delimiter (default: comma)."""
+    if value:
+        return [item.strip() for item in value.split(delimiter)]
+    return []
