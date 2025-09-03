@@ -1312,7 +1312,7 @@ objectives:
                     systems supporting your essential function(s).
                   ncsc-index: B3.a.PA.4
                 B3.a.9:
-                  description: 	You understand and document the impact on your essential
+                  description: You understand and document the impact on your essential
                     function(s) of all relevant scenarios, including unauthorised data
                     access, uncontrolled release, modification or deletion, or when
                     authorised users are unable to appropriately access this data.
@@ -2990,7 +2990,7 @@ objectives:
                     your organisations IT systems have been adversely affected by an incident.
                   ncsc-index: D1.a.PA.5
                 D1.a.9:
-                  description: 	Your incident response plan is regularly reviewed to ensure
+                  description: Your incident response plan is regularly reviewed to ensure
                     it remains effective.
                   ncsc-index: D1.a.PA.6
               achieved:
@@ -3058,7 +3058,7 @@ objectives:
                     and recovery of the essential function(s).
                   ncsc-index: D1.b.A.4
                 D1.b.8:
-                  description: 	Back-up mechanisms are available that can be readily
+                  description: Back-up mechanisms are available that can be readily
                     activated to allow continued operation of your essential function(s),
                     although possibly at a reduced level, if primary network and information
                     systems fail or are unavailable.
