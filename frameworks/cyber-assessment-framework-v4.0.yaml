@@ -56,40 +56,37 @@ objectives:
                   description: Your organisation's approach and policy relating to
                     the security of network and information systems supporting the
                     operation of your essential function(s) are owned and managed
-                    at board-level.
+                    at board-level. These are communicated, in a meaningful way, to risk
+                    management decision-makers across the organisation.
                   ncsc-index: A1.a.A.1
                 A1.a.6:
-                  description: These are communicated, in a meaningful way, to risk
-                    management decision-makers across the organisation.
-                  ncsc-index: A1.a.A.2
-                A1.a.7:
                   description: Regular board-level discussions on the security of
                     network and information systems supporting the operation of your
                     essential function(s) take place, based on timely and accurate
                     information and informed by expert guidance.
-                  ncsc-index: A1.a.A.3
-                A1.a.8:
+                  ncsc-index: A1.a.A.2
+                A1.a.7:
                   description: There is a board-level individual who has overall accountability
                     for the security of network and information systems and drives
                     regular discussion at board-level.
-                  ncsc-index: A1.a.A.4
-                A1.a.9:
+                  ncsc-index: A1.a.A.3
+                A1.a.8:
                   description: Direction set at board-level is translated into effective
                     organisational practices that direct and control the security
                     of network and information systems supporting your essential function(s).
-                  ncsc-index: A1.a.A.5
-                A1.a.10:
+                  ncsc-index: A1.a.A.4
+                A1.a.9:
                   description: The board has the information and understanding needed
                     in order to effectively discuss how the security and resilience
                     of network and information systems contributes to the delivery
                     of essential function(s) and what the potential impact from compromise
                     of those systems would be.
-                  ncsc-index: A1.a.A.6
-                A1.a.11:
+                  ncsc-index: A1.a.A.5
+                A1.a.10:
                   description: Security is recognised as an important enabler for
                     the resilience of your essential function(s) and considered in
                     all relevant discussions.
-                  ncsc-index: A1.a.A.7
+                  ncsc-index: A1.a.A.6
             assessment-rules: *standard-rules
           A1.b:
             code: A1.b
@@ -117,7 +114,7 @@ objectives:
                 A1.b.4:
                   description: Key roles and responsibilities for the security of
                     network and information systems supporting your essential function(s)
-                    have been identified and are reviewed regularly to ensure they
+                    have been identified. These are reviewed regularly to ensure they
                     remain fit for purpose.
                   ncsc-index: A1.b.A.1
                 A1.b.5:
@@ -157,31 +154,34 @@ objectives:
                     "averse" or "cautious".
                   ncsc-index: A1.c.NA.3
                 A1.c.4:
+                  description: Decision-makers are unable to justify their risk management decisions.
+                  ncsc-index: A1.c.NA.4
+                A1.c.5:
                   description: Organisational structure causes risk decisions to be
                     made in isolation. (e.g. engineering and IT do not talk to each
                     other about risk).
-                  ncsc-index: A1.c.NA.4
-                A1.c.5:
+                  ncsc-index: A1.c.NA.5
+                A1.c.6:
                   description: Risk priorities are too vague to make meaningful distinctions
                     between them. (e.g. almost all risks are rated 'medium' or 'amber').
-                  ncsc-index: A1.c.NA.5
+                  ncsc-index: A1.c.NA.6
               achieved:
-                A1.c.6:
+                A1.c.7:
                   description: Senior management have visibility of key risk decisions
                     made throughout the organisation.
                   ncsc-index: A1.c.A.1
-                A1.c.7:
+                A1.c.8:
                   description: Risk management decision-makers understand their responsibilities
                     for making effective and timely decisions in the context of the
                     risk appetite regarding the essential function(s), as set by senior
                     management.
                   ncsc-index: A1.c.A.2
-                A1.c.8:
+                A1.c.9:
                   description: Risk management decision-making is delegated and escalated
                     where necessary, across the organisation, to people who have the
                     skills, knowledge, tools and authority they need.
                   ncsc-index: A1.c.A.3
-                A1.c.9:
+                A1.c.10:
                   description: Risk management decisions are regularly reviewed to
                     ensure their continued relevance and validity.
                   ncsc-index: A1.c.A.4
@@ -237,80 +237,84 @@ objectives:
                     of how they contribute to the security of network and information
                     systems supporting your essential function(s).
                   ncsc-index: A2.a.NA.7
-              partially-achieved:
                 A2.a.8:
+                  description: Risks remain unresolved on a register for prolonged periods
+                    of time awaiting senior decision-making or resource allocation to resolve.
+                  ncsc-index: A2.a.NA.8
+              partially-achieved:
+                A2.a.9:
                   description: Your organisational process ensures that security risks
                     to network and information systems relevant to essential function(s)
                     are identified, analysed, prioritised, and managed.
                   ncsc-index: A2.a.PA.1
-                A2.a.9:
+                A2.a.10:
                   description: Your risk assessments are informed by an understanding
                     of known and well understood threats and vulnerabilities in network
                     and information systems supporting your essential function(s).
                   ncsc-index: A2.a.PA.2
-                A2.a.10:
+                A2.a.11:
                   description: The output from your risk management process is a clear
                     set of security requirements that will address the risks in line
                     with your organisational approach to security.
                   ncsc-index: A2.a.PA.3
-                A2.a.11:
+                A2.a.12:
                   description: Significant conclusions reached in the course of your
                     risk management process are communicated to key security decision-makers
                     and accountable individuals.
                   ncsc-index: A2.a.PA.4
-                A2.a.12:
+                A2.a.13:
                   description: You conduct risk assessments when significant events
                     potentially affect the essential function(s), such as replacing
                     a system, introducing new or emergent technologies or a change
                     in the cyber security threat.
                   ncsc-index: A2.a.PA.5
               achieved:
-                A2.a.13:
+                A2.a.14:
                   description: Your organisational process ensures that security risks
                     to network and information systems relevant to essential function(s)
                     are identified, analysed, prioritised, and managed.
                   ncsc-index: A2.a.A.1
-                A2.a.14:
+                A2.a.15:
                   description: Your approach to risk is focused on the possibility
                     of adverse impact to your essential function(s), leading to a
                     detailed understanding of how such impact might arise as a consequence
                     of possible threat actor actions and the security properties of
                     network and information systems supporting your essential function(s).
                   ncsc-index: A2.a.A.2
-                A2.a.15:
+                A2.a.16:
                   description: Your risk assessments are based on a clearly understood
                     set of threat assumptions, informed by an up-to-date understanding
                     of threats to network and information systems supporting your
                     essential function(s), your sector and wider national infrastructure.
                   ncsc-index: A2.a.A.3
-                A2.a.16:
+                A2.a.17:
                   description: Your risk assessments are informed by an understanding
                     of the vulnerabilities in network and information systems supporting
                     your essential function(s).
                   ncsc-index: A2.a.A.4
-                A2.a.17:
+                A2.a.18:
                   description: The output from your risk management process is a clear
                     set of traceable and prioritised security requirements that will
                     address the risks in line with your organisational approach to
                     security.
                   ncsc-index: A2.a.A.5
-                A2.a.18:
+                A2.a.19:
                   description: Significant conclusions reached in the course of your
                     risk management process are communicated to key security decision-makers
                     and accountable individuals.
                   ncsc-index: A2.a.A.6
-                A2.a.19:
+                A2.a.20:
                   description: Your risk assessments are dynamic and readily updated
                     in the light of relevant changes which may include technical changes
                     to network and information systems supporting your essential function(s),
                     change of use, the introduction of new or emergent technologies
                     or new threat information.
                   ncsc-index: A2.a.A.7
-                A2.a.20:
+                A2.a.21:
                   description: The effectiveness of your risk management process is
                     reviewed regularly, and improvements made as required.
                   ncsc-index: A2.a.A.8
-                A2.a.21:
+                A2.a.22:
                   description: You anticipate technological developments that could
                     be used to adversely impact network and information systems supporting
                     your essential function(s).
@@ -400,9 +404,13 @@ objectives:
                     this understanding to inform your risk management decision-making.
                   ncsc-index: A2.b.A.6
                 A2.b.16:
+                  description: You apply your detailed understanding of threat to inform
+                    your risk management decision-making.
+                  ncsc-index: A2.b.A.7
+                A2.b.17:
                   description: You have documented the steps required to undertake
                     detailed threat analysis.
-                  ncsc-index: A2.b.A.7
+                  ncsc-index: A2.b.A.8
             assessment-rules: *standard-rules
           A2.c:
             code: A2.c
@@ -475,23 +483,23 @@ objectives:
                   ncsc-index: A3.a.NA.1
                 A3.a.2:
                   description: Only certain domains or types of asset are documented
-                    and understood.
+                    and understood. Dependencies between assets are not understood (such
+                    as the dependencies between IT and OT).
                   ncsc-index: A3.a.NA.2
                 A3.a.3:
-                  description: Dependencies between assets are not understood (such
-                    as the dependencies between IT and OT).
-                  ncsc-index: A3.a.NA.3
-                A3.a.4:
                   description: Information assets, which could include personally
                     identifiable information and / or important / critical data, are
                     stored for long periods of time with no clear business need or
                     retention policy.
-                  ncsc-index: A3.a.NA.4
-                A3.a.5:
+                  ncsc-index: A3.a.NA.3
+                A3.a.4:
                   description: Knowledge critical to the management, operation, or
                     recovery of network and information systems supporting your essential
                     function(s) is held by one or two key individuals with no succession
                     plan.
+                  ncsc-index: A3.a.NA.4
+                A3.a.5:
+                  description: Asset inventories are neglected and out of date.
                   ncsc-index: A3.a.NA.5
               achieved:
                 A3.a.6:
@@ -567,23 +575,28 @@ objectives:
                     including sub-contractors.
                   ncsc-index: A4.a.PA.2
                 A4.a.7:
-                  description: You understand which contracts are relevant and you
-                    include appropriate security obligations, in relevant contracts.
+                  description: Suppliers to network and information systems that support
+                    your essential function(s) can demonstrate appropriate and proportionate
+                    levels of cyber security within the context of common threats.
                   ncsc-index: A4.a.PA.3
                 A4.a.8:
-                  description: You are aware of all third-party connections and have
-                    assurance that they meet your organisation's security requirements.
+                  description: You understand which contracts are relevant and you
+                    include appropriate security obligations, in relevant contracts.
                   ncsc-index: A4.a.PA.4
                 A4.a.9:
-                  description: Your approach to security incident management considers
-                    incidents that might arise in your supply chain.
+                  description: You are aware of all third-party connections and have
+                    assurance that they meet your organisation's security requirements.
                   ncsc-index: A4.a.PA.5
                 A4.a.10:
+                  description: Your approach to security incident management considers
+                    incidents that might arise in your supply chain.
+                  ncsc-index: A4.a.PA.6
+                A4.a.11:
                   description: You have confidence that information held by suppliers
                     that is necessary for the operation of network and information
                     systems supporting your essential function(s) is appropriately
                     protected from common threats.
-                  ncsc-index: A4.a.PA.6
+                  ncsc-index: A4.a.PA.7
               achieved:
                 A4.a.11:
                   description: You have a deep understanding of your supply chain,
@@ -801,34 +814,38 @@ objectives:
                 B1.a.10:
                   description: You fully document your overarching security governance
                     and risk management approach, technical security practice and
-                    specific regulatory compliance. Cyber security is integrated and
-                    embedded throughout policies, processes and procedures and key
-                    performance indicators are reported to your executive management.
+                    specific regulatory compliance.
                   ncsc-index: B1.a.A.1
                 B1.a.11:
-                  description: Your organisation's policies, processes and procedures
-                    are developed to be practical, usable and appropriate for your
-                    essential function(s) and your technologies.
+                  description: Cyber security is integrated and
+                    embedded throughout policies, processes and procedures and key
+                    performance indicators are reported to your executive management.
                   ncsc-index: B1.a.A.2
                 B1.a.12:
-                  description: Policies, processes and procedures that rely on user
-                    behaviour are practical, appropriate and achievable.
+                  description: Your organisation's policies, processes and procedures
+                    are developed to be practical, usable and appropriate to mitigate
+                    the risk of adverse impact to network and information systems supporting
+                    your essential function(s).
                   ncsc-index: B1.a.A.3
                 B1.a.13:
+                  description: Policies, processes and procedures that rely on user
+                    behaviour are practical, appropriate and achievable.
+                  ncsc-index: B1.a.A.4
+                B1.a.14:
                   description: You review and update policies, processes and procedures
                     at suitably regular intervals to ensure they remain relevant.
                     This is in addition to reviews following a major cyber security
                     incident.
-                  ncsc-index: B1.a.A.4
-                B1.a.14:
-                  description: Any changes to the essential function(s) or the threat
-                    it faces triggers a review of policies, processes and procedures.
                   ncsc-index: B1.a.A.5
                 B1.a.15:
+                  description: Any changes to the essential function(s) or the threat
+                    it faces triggers a review of policies, processes and procedures.
+                  ncsc-index: B1.a.A.6
+                B1.a.16:
                   description: Your systems are designed so that they remain secure
                     even when user security policies, processes and procedures are
                     not always followed.
-                  ncsc-index: B1.a.A.6
+                  ncsc-index: B1.a.A.7
             assessment-rules: *standard-rules
           B1.b:
             code: B1.b
@@ -883,15 +900,20 @@ objectives:
                     their correct application and security effectiveness is evaluated.
                   ncsc-index: B1.b.A.1
                 B1.b.11:
+                  description: Your policies, processes and procedures are integrated
+                    with other organisational policies, processes and procedures, including
+                    HR assessments of individuals' trustworthiness.
+                  ncsc-index: B1.b.A.2
+                B1.b.12:
                   description: Your policies, processes and procedures are effectively
                     and appropriately communicated across all levels of the organisation
                     resulting in good staff awareness of their responsibilities.
-                  ncsc-index: B1.b.A.2
-                B1.b.12:
+                  ncsc-index: B1.b.A.3
+                B1.b.13:
                   description: Appropriate action is taken to address all breaches
                     of policies, processes and procedures with potential to adversely
                     impact the essential function(s) including aggregated breaches.
-                  ncsc-index: B1.b.A.3
+                  ncsc-index: B1.b.A.4
             assessment-rules: *standard-rules
       B2:
         code: B2
@@ -1045,29 +1067,33 @@ objectives:
                     any risks identified.
                   ncsc-index: B2.b.PA.3
                 B2.b.8:
+                  description: The act of connecting to a network port or cable does
+                    not grant access to any systems.
+                  ncsc-index: B2.b.PA.3
+                B2.b.9:
                   description: You are able to detect unknown devices being connected
                     to network and information systems and investigate such incidents.
                   ncsc-index: B2.b.PA.4
               achieved:
-                B2.b.9:
+                B2.b.10:
                   description: All privileged operations performed on network and
                     information systems supporting your essential function(s) are
                     conducted from highly trusted devices, such as Privileged Access
                     Workstations, dedicated solely to those operations.
                   ncsc-index: B2.b.A.1
-                B2.b.10:
+                B2.b.11:
                   description: You either obtain independent and professional assurance
                     of the security of third-party devices or networks before they
                     connect to network and information systems, or you only allow
                     third-party devices or networks that are dedicated to supporting
                     network and information systems to connect.
                   ncsc-index: B2.b.A.2
-                B2.b.11:
+                B2.b.12:
                   description: You perform certificate-based device identity management
                     and only allow known devices to access systems necessary for the
                     operation of your essential function(s).
                   ncsc-index: B2.b.A.3
-                B2.b.12:
+                B2.b.13:
                   description: You perform regular scans to detect unknown devices
                     and investigate any findings.
                   ncsc-index: B2.b.A.4
@@ -1135,26 +1161,26 @@ objectives:
                     user access rights which are essential to their business role
                     or function.
                   ncsc-index: B2.c.PA.4
+              achieved:
                 B2.c.12:
                   description: Privileged user access to network and information systems
                     supporting your essential function(s) is carried out from dedicated
                     separate accounts that are closely monitored and managed.
-                  ncsc-index: B2.c.PA.5
-              achieved:
+                  ncsc-index: B2.c.A.1
                 B2.c.13:
                   description: The issuing of temporary, time-bound rights for privileged
                     user access and / or external third-party support access is in
                     place.
-                  ncsc-index: B2.c.A.1
+                  ncsc-index: B2.c.A.2
                 B2.c.14:
                   description: Privileged user access rights are regularly reviewed
                     and always updated as part of your joiners, movers and leavers
                     process.
-                  ncsc-index: B2.c.A.2
+                  ncsc-index: B2.c.A.3
                 B2.c.15:
                   description: All privileged user activity is routinely reviewed,
                     validated and recorded for offline analysis and investigation.
-                  ncsc-index: B2.c.A.3
+                  ncsc-index: B2.c.A.4
             assessment-rules: *standard-rules
           B2.d:
             code: B2.d
@@ -1286,50 +1312,55 @@ objectives:
                     systems supporting your essential function(s).
                   ncsc-index: B3.a.PA.4
                 B3.a.9:
+                  description: 	You understand and document the impact on your essential
+                    function(s) of all relevant scenarios, including unauthorised data
+                    access, uncontrolled release, modification or deletion, or when
+                    authorised users are unable to appropriately access this data.
+                B3.a.10:
                   description: You occasionally validate these documented impact statements.
                   ncsc-index: B3.a.PA.5
               achieved:
-                B3.a.10:
+                B3.a.11:
                   description: You have identified and catalogued all the data important
                     to the operation of network and information systems supporting
                     your essential function(s), or that would assist a threat actor.
                   ncsc-index: B3.a.A.1
-                B3.a.11:
+                B3.a.12:
                   description: You have identified and catalogued who has access to
                     the data important to the operation of network and information
                     systems supporting your essential function(s).
                   ncsc-index: B3.a.A.2
-                B3.a.12:
+                B3.a.13:
                   description: You maintain a current understanding of the location,
                     quantity and quality of data important to the operation of network
                     and information systems supporting your essential function(s).
                   ncsc-index: B3.a.A.3
-                B3.a.13:
+                B3.a.14:
                   description: You take steps to remove or minimise unnecessary copies
                     or unneeded historic data.
                   ncsc-index: B3.a.A.4
-                B3.a.14:
+                B3.a.15:
                   description: You have identified all mobile devices and media that
                     may hold data important to the operation of network and information
                     systems supporting your essential function(s).
                   ncsc-index: B3.a.A.5
-                B3.a.15:
+                B3.a.16:
                   description: You maintain a current understanding of the data links
                     used to transmit data that is important to network and information
                     systems supporting your essential function(s).
                   ncsc-index: B3.a.A.6
-                B3.a.16:
+                B3.a.17:
                   description: You understand the context, limitations and dependencies
                     of your important data.
                   ncsc-index: B3.a.A.7
-                B3.a.17:
+                B3.a.18:
                   description: You understand and document the impact on your essential
                     function(s) of all relevant scenarios, including unauthorised
                     data access, uncontrolled release, modification or deletion, or
                     when authorised users are unable to appropriately access this
                     data.
                   ncsc-index: B3.a.A.8
-                B3.a.18:
+                B3.a.19:
                   description: You validate these documented impact statements regularly,
                     at least annually.
                   ncsc-index: B3.a.A.9
@@ -1419,33 +1450,788 @@ objectives:
                     or as a read-only copy.
                   ncsc-index: B3.c.PA.1
                 B3.c.5:
-                  description: If cryptographic protections are used you apply suitable
-                    technical and procedural means, but you have limited or no confidence
-                    in the robustness of the protection applied.
-                  ncsc-index: B3.c.PA.2
-                B3.c.6:
                   description: You have applied suitable physical and / or technical
                     means to protect this important stored data from unauthorised
                     access, modification or deletion.
+                  ncsc-index: B3.c.PA.2
+                B3.c.6:
+                  description: If cryptographic protections are used you apply suitable
+                    technical and procedural means, but you have limited or no confidence
+                    in the robustness of the protection applied.
                   ncsc-index: B3.c.PA.3
-              achieved:
                 B3.c.7:
+                  description: You have suitable, secured backups of data to allow the
+                    operation of network and information systems supporting your essential
+                    function(s) to continue should the original data not be available. This
+                    may include off-line or segregated backups, or appropriate alternative
+                    forms such as paper copies.
+                  ncsc-index: B3.c.PA.4
+              achieved:
+                B3.c.8:
                   description: All copies of data important to the operation of network
                     and information systems supporting your essential function(s)
                     are necessary. Where this important data is transferred to less
                     secure systems, the data is provided with limited detail and /
                     or as a read-only copy.
                   ncsc-index: B3.c.A.1
-                B3.c.8:
-                  description: If cryptographic protections are used you apply suitable
-                    technical and procedural means, and you have justified confidence
-                    in the robustness of the protection applied.
-                  ncsc-index: B3.c.A.2
                 B3.c.9:
                   description: You have applied suitable physical and / or technical
                     means to protect this important stored data from unauthorised
                     access, modification or deletion.
+                  ncsc-index: B3.c.A.2
+                B3.c.10:
+                  description: If cryptographic protections are used you apply suitable
+                    technical and procedural means, and you have justified confidence
+                    in the robustness of the protection applied.
                   ncsc-index: B3.c.A.3
+                B3.c.11:
+                  description: You have suitable, secured backups of data to allow the
+                    operation of network and information systems supporting your essential
+                    function(s) to continue should the original data not be available.
+                    This may include off-line or segregated backups, or appropriate
+                    alternative forms such as paper copies.
+                  ncsc-index: B3.c.A.4
+                B3.c.12:
+                  description: Necessary historic or archive data is suitably secured
+                    in storage.
+                  ncsc-index: B3.c.A.5
+            assessment-rules: *standard-rules
+          B3.d:
+            code: B3.d
+            title: Mobile Data
+            description: You have protected data important to the operation of network
+              and information systems supporting your essential function(s) on mobile
+              devices (e.g. smartphones, tablets and laptops).
+            indicators:
+              not-achieved:
+                B3.d.1:
+                  description: You do not know which mobile devices may hold data
+                    important to the operation of network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B3.d.NA.1
+                B3.d.2:
+                  description: You allow data important to the operation of network
+                    and information systems supporting your essential function(s)
+                    to be stored on devices not managed by your organisation, or to
+                    at least equivalent standard.
+                  ncsc-index: B3.d.NA.2
+                B3.d.3:
+                  description: Data on mobile devices is not technically secured, or
+                    only some is secured.
+                  ncsc-index: B3.d.NA.3
+              partially-achieved:
+                B3.d.4:
+                  description: You know which mobile devices hold data important to
+                    the operation of network and information systems supporting your
+                    essential function(s).
+                  ncsc-index: B3.d.PA.1
+                B3.d.5:
+                  description: Data important to the operation of network and information
+                    systems supporting your essential function(s) is stored on mobile
+                    devices only when they have at least the security standard aligned
+                    to your overarching security policies.
+                  ncsc-index: B3.d.PA.2
+                B3.d.6:
+                  description: Data on mobile devices is technically secured.
+                  ncsc-index: B3.d.PA.3
+              achieved:
+                B3.d.7:
+                  description: Mobile devices that hold data that is important to the
+                    operation of network and information systems supporting your essential
+                    function(s) are catalogued, are under your organisation's control
+                    and configured according to best practice for the platform, with
+                    appropriate technical and procedural policies in place.
+                  ncsc-index: B3.d.A.1
+                B3.d.8:
+                  description: Your organisation can remotely wipe all mobile devices
+                    holding data important to the operation of network and information
+                    systems supporting your essential function(s).
+                  ncsc-index: B3.d.A.2
+                B3.d.9:
+                  description: You have minimised this data on these mobile devices.
+                    Some data may be automatically deleted off mobile devices after
+                    a certain period.
+                  ncsc-index: B3.d.A.3
+            assessment-rules: *standard-rules
+          B3.e:
+            code: B3.e
+            title: Media / Equipment Sanitisation
+            description: Before reuse and / or disposal you appropriately sanitise devices,
+              equipment and removable media holding data important to the operation
+              of network and information systems supporting your essential function(s).
+            indicators:
+              not-achieved:
+                B3.e.1:
+                  description: Some or all devices, equipment or removable media that
+                    hold data important to the operation of network and information
+                    systems supporting your essential function(s) are reused or disposed
+                    of without sanitisation of that data.
+                  ncsc-index: B3.e.NA.1
+              partially-achieved:
+                B3.e.2:
+                  description: Data important to the operations of network and information
+                    systems supporting your essential function(s) is removed from all
+                    devices, equipment and removable media before reuse and / or disposal.
+                  ncsc-index: B3.e.PA.1
+              achieved:
+                B3.e.3:
+                  description: You catalogue and track all devices that contain data
+                    important to the operation of network and information systems
+                    supporting your essential function(s) (whether a specific storage
+                    device or one with integral storage).
+                  ncsc-index: B3.e.A.1
+                B3.e.4:
+                  description: Data important to the operation of network and information
+                    systems supporting your essential function(s) is removed from all
+                    devices, equipment and removable media before reuse and / or disposal
+                    using an assured product or service.
+                  ncsc-index: B3.e.A.2
+            assessment-rules: *standard-rules
+      B4:
+        code: B4
+        title: System Security
+        description: Network and information systems and technology critical for the
+          operation of essential functions are protected from cyber attack. An organisational
+          understanding of risk to essential functions informs the use of robust and
+          reliable protective security measures to effectively limit opportunities for
+          threat actors to compromise networks and systems.
+        outcomes:
+          B4.a:
+            code: B4.a
+            title: Secure by Design
+            description: You design security into network and information systems that
+              support the operation of your essential function(s). You minimise their
+              attack surface and ensure that the operation of your essential function(s)
+              should not be impacted by the exploitation of any single vulnerability.
+            indicators:
+              not-achieved:
+                B4.a.1:
+                  description: Network and information systems supporting the operation
+                    of the essential function(s) are not appropriately segregated from
+                    other systems.
+                  ncsc-index: B4.a.NA.1
+                B4.a.2:
+                  description: Internet services, such as browsing and email are accessible
+                    from network and information systems supporting your essential
+                    function(s).
+                  ncsc-index: B4.a.NA.2
+                B4.a.3:
+                  description: Data flows between network and information systems
+                    supporting your essential function(s) and other systems are complex,
+                    making it hard to discriminate between legitimate and illegitimate
+                    / malicious traffic.
+                  ncsc-index: B4.a.NA.3
+                B4.a.4:
+                  description: Remote or third-party accesses circumvent some network
+                    controls to gain more direct access to network and information
+                    systems supporting the essential function(s).
+                  ncsc-index: B4.a.NA.4
+              partially-achieved:
+                B4.a.5:
+                  description: You employ appropriate expertise to design network and
+                    information systems supporting your essential function(s).
+                  ncsc-index: B4.a.PA.1
+                B4.a.6:
+                  description: You design strong boundary defences where network and
+                    information systems interface with other organisations or the world
+                    at large.
+                  ncsc-index: B4.a.PA.2
+                B4.a.7:
+                  description: You design simple data flows between network and information
+                    systems and any external interface to enable effective monitoring.
+                  ncsc-index: B4.a.PA.3
+                B4.a.8:
+                  description: You design to make network and information system recovery
+                    simple.
+                  ncsc-index: B4.a.PA.4
+                B4.a.9:
+                  description: All inputs to network and information systems supporting
+                    your essential function(s) are checked and validated at the network
+                    boundary where possible, or additional monitoring is in place for
+                    content-based attacks.
+                  ncsc-index: B4.a.PA.5
+              achieved:
+                B4.a.10:
+                  description: You employ appropriate expertise to design network and
+                    information systems supporting your essential function(s).
+                  ncsc-index: B4.a.A.1
+                B4.a.11:
+                  description: Network and information systems are segregated into
+                    appropriate security zones (e.g. systems supporting the essential
+                    function(s) are segregated in a highly trusted, more secure zone).
+                  ncsc-index: B4.a.A.2
+                B4.a.12:
+                  description: The network and information systems supporting your
+                    essential function(s) are designed to have simple data flows between
+                    components to support effective security monitoring.
+                  ncsc-index: B4.a.A.3
+                B4.a.13:
+                  description: The network and information systems supporting your
+                    essential function(s) are designed to be easy to recover.
+                  ncsc-index: B4.a.A.4
+                B4.a.14:
+                  description: Content-based attacks are mitigated for all inputs to
+                    network and information systems that affect the essential function(s)
+                    (e.g. via transformation and inspection / santisation and validation).
+                  ncsc-index: B4.a.A.5
+                B4.a.15:
+                  description: If automated decision-making technologies are in use,
+                    you design and apply appropriate restrictions to prevent actions
+                    that could have an adverse impact on network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B4.a.A.6
+            assessment-rules: *standard-rules
+          B4.b:
+            code: B4.b
+            title: Secure Configuration
+            description: You securely configure network and information systems that
+              support the operation of your essential function(s).
+            indicators:
+              not-achieved:
+                B4.b.1:
+                  description: You have not identified the assets that need to be
+                    carefully configured to maintain the security of network and
+                    information systems supporting your essential function(s).
+                  ncsc-index: B4.b.NA.1
+                B4.b.2:
+                  description: Policies relating to the security of operating system
+                    builds or configuration are not applied consistently across network
+                    and information systems relating to your essential function(s).
+                  ncsc-index: B4.b.NA.2
+                B4.b.3:
+                  description: Configuration details are not recorded or lack enough
+                    information to be able to rebuild the system or device.
+                  ncsc-index: B4.b.NA.3
+                B4.b.4:
+                  description: The recording of security changes or adjustments that
+                    affect your essential function(s) is lacking or inconsistent.
+                  ncsc-index: B4.b.NA.4
+                B4.b.5:
+                  description: Generic, shared, default name and built-in accounts
+                    have not been removed or disabled.
+                  ncsc-index: B4.b.NA.5
+                B4.b.6:
+                  description: Standard users are able to change settings that would
+                    adversely impact the security of network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B4.b.NA.6
+              partially-achieved:
+                B4.b.7:
+                  description: You have identified and documented the assets that need
+                    to be carefully configured to maintain the security of network
+                    and information systems supporting your essential function(s).
+                  ncsc-index: B4.b.PA.1
+                B4.b.8:
+                  description: Secure platform and device builds are used across the
+                    estate.
+                  ncsc-index: B4.b.PA.2
+                B4.b.9:
+                  description: Consistent, secure and minimal system and device configurations
+                    are applied across the same types of environment.
+                  ncsc-index: B4.b.PA.3
+                B4.b.10:
+                  description: Changes and adjustments to security configurations at
+                    security boundaries of network and information systems supporting
+                    your essential function(s) are approved and documented.
+                  ncsc-index: B4.b.PA.4
+                B4.b.11:
+                  description: You verify software before installation is permitted.
+                  ncsc-index: B4.b.PA.5
+                B4.b.12:
+                  description: Generic, shared, default name and built-in accounts have
+                    been removed or disabled. Where this is not possible, credentials
+                    to these accounts have been changed. Service accounts are appropriately
+                    protected.
+                  ncsc-index: B4.b.PA.6
+                B4.b.13:
+                  description: Standard users are not able to change settings that would
+                    adversely impact the security of network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B4.b.PA.7
+              achieved:
+                B4.b.14:
+                  description: You have identified, documented and actively manage
+                    (e.g. maintain security configurations, patching, updating according
+                    to good practice) the assets that need to be carefully configured
+                    to maintain the security of network and information systems supporting
+                    your essential function(s).
+                  ncsc-index: B4.b.A.1
+                B4.b.15:
+                  description: All platforms conform to your secure, defined baseline
+                    build, or the latest known good configuration version for that
+                    environment.
+                  ncsc-index: B4.b.A.2
+                B4.b.16:
+                  description: You closely and effectively manage changes in your environment,
+                    ensuring that network and information systems configurations are
+                    secure and documented.
+                  ncsc-index: B4.b.A.3
+                B4.b.17:
+                  description: You regularly review and validate that network and information
+                    systems have the expected, secure settings and configuration.
+                  ncsc-index: B4.b.A.4
+                B4.b.18:
+                  description: Only permitted software can be installed.
+                  ncsc-index: B4.b.A.5
+                B4.b.19:
+                  description: If automated decision-making technologies are in use,
+                    their operation is well understood, and decisions can be replicated.
+                  ncsc-index: B4.b.A.6
+                B4.b.20:
+                  description: Generic, shared, default name and built-in accounts have
+                    been removed or disabled. Where this is not possible, credentials
+                    to these accounts have been changed. Service accounts are appropriately
+                    protected.
+                  ncsc-index: B4.b.A.7
+            assessment-rules: *standard-rules
+          B4.c:
+            code: B4.c
+            title: Secure Management
+            description: You manage your organisation's network and information systems
+              that support the operation of your essential function(s) to enable and
+              maintain security.
+            indicators:
+              not-achieved:
+                B4.c.1:
+                  description: Your systems and devices supporting the operation of the
+                    essential function(s) are administered or maintained from devices
+                    that are not corporately owned and managed.
+                  ncsc-index: B4.c.NA.1
+                B4.c.2:
+                  description: You do not have good or current technical documentation
+                    of network and information systems.
+                  ncsc-index: B4.c.NA.2
+              partially-achieved:
+                B4.c.3:
+                  description: Your systems and devices supporting the operation of the
+                    essential function(s) are only administered or maintained by authorised
+                    privileged users from devices sufficiently separated, using a
+                    risk-based approach, from the activities of standard users.
+                  ncsc-index: B4.c.PA.1
+                B4.c.4:
+                  description: Technical knowledge about network and information systems,
+                    such as documentation and network diagrams, is regularly reviewed
+                    and updated.
+                  ncsc-index: B4.c.PA.2
+                B4.c.5:
+                  description: You prevent, detect and remove malware, and unauthorised
+                    software. You use technical, procedural and physical measures as
+                    necessary.
+                  ncsc-index: B4.c.PA.3
+              achieved:
+                B4.c.6:
+                  description: Your systems and devices supporting the operation of the
+                    essential function(s) are only administered or maintained by authorised
+                    privileged users from highly trusted devices, such as Privileged
+                    Access Workstations, dedicated solely to those operations.
+                  ncsc-index: B4.c.A.1
+                B4.c.7:
+                  description: You regularly review and update technical knowledge about
+                    network and information systems, such as documentation and network
+                    diagrams, and ensure they are securely stored.
+                  ncsc-index: B4.c.A.2
+                B4.c.8:
+                  description: You prevent, detect and remove malware, and unauthorised
+                    software. You use technical, procedural and physical measures as
+                    necessary.
+                  ncsc-index: B4.c.A.3
+            assessment-rules: *standard-rules
+          B4.d:
+            code: B4.d
+            title: Vulnerability Management
+            description: You manage known vulnerabilities in network and information
+              systems to prevent adverse impact on your essential function(s).
+            indicators:
+              not-achieved:
+                B4.d.1:
+                  description: You do not understand the exposure of network and information
+                    systems supporting your essential function(s) to publicly-known
+                    vulnerabilities.
+                  ncsc-index: B4.d.NA.1
+                B4.d.2:
+                  description: You do not mitigate externally exposed vulnerabilities
+                    promptly.
+                  ncsc-index: B4.d.NA.2
+                B4.d.3:
+                  description: You have not recently tested to verify your understanding
+                    of the vulnerabilities of network and information systems that
+                    support your essential function(s).
+                  ncsc-index: B4.d.NA.3
+                B4.d.4:
+                  description: You have not suitably mitigated systems or software
+                    that is no longer supported.
+                  ncsc-index: B4.d.NA.4
+                B4.d.5:
+                  description: You are not pursuing replacement for unsupported systems
+                    or software.
+                  ncsc-index: B4.d.NA.5
+              partially-achieved:
+                B4.d.6:
+                  description: You maintain a current understanding of the exposure of
+                    network and information systems supporting your essential function(s)
+                    to publicly-known vulnerabilities.
+                  ncsc-index: B4.d.PA.1
+                B4.d.7:
+                  description: Announced vulnerabilities for all software packages used
+                    in network and information systems supporting your essential function(s)
+                    are tracked, prioritised and externally exposed vulnerabilities
+                    are mitigated (e.g. by patching) promptly.
+                  ncsc-index: B4.d.PA.2
+                B4.d.8:
+                  description: Some vulnerabilities that are not externally exposed have
+                    temporary mitigations for an extended period.
+                  ncsc-index: B4.d.PA.3
+                B4.d.9:
+                  description: You have temporary mitigations for unsupported systems and
+                    software while pursuing migration to supported technology.
+                  ncsc-index: B4.d.PA.4
+                B4.d.10:
+                  description: You regularly test to fully understand the vulnerabilities
+                    of network and information systems that support the operation of
+                    your essential function(s).
+                  ncsc-index: B4.d.PA.5
+              achieved:
+                B4.d.11:
+                  description: You maintain a current understanding of the exposure of
+                    network and information systems supporting your essential function(s)
+                    to publicly-known vulnerabilities.
+                  ncsc-index: B4.d.A.1
+                B4.d.12:
+                  description: Announced vulnerabilities for all software packages used
+                    in network and information systems supporting your essential function(s)
+                    are tracked, prioritised and mitigated (e.g. by patching) promptly.
+                  ncsc-index: B4.d.A.2
+                B4.d.13:
+                  description: You regularly test to fully understand the vulnerabilities
+                    of network and information systems that support the operation of
+                    your essential function(s) and verify this understanding with
+                    third-party testing.
+                  ncsc-index: B4.d.A.3
+                B4.d.14:
+                  description: You actively maximise the use of supported software,
+                    firmware and hardware in network and information systems supporting
+                    your essential function(s).
+                  ncsc-index: B4.d.A.4
+            assessment-rules: *standard-rules
+      B5:
+        code: B5
+        title: Resilient Networks and Systems
+        description: The organisation builds resilience against cyber attack and system failure
+          into the design, implementation, operation and management of systems that support
+          the operation of your essential function(s).
+        outcomes:
+          B5.a:
+            code: B5.a
+            title: Resilience Preparation
+            description: You are prepared to restore the operation of your essential function(s)
+              following adverse impact to network and information systems.
+            indicators:
+              not-achieved:
+                B5.a.1:
+                  description: You have limited understanding of all the elements that are
+                    required to restore operation of network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B5.a.NA.1
+                B5.a.2:
+                  description: You have not completed business continuity and disaster
+                    recovery plans for network and information systems, including their
+                    dependencies, supporting the operation of the essential function(s).
+                  ncsc-index: B5.a.NA.2
+                B5.a.3:
+                  description: You have not fully assessed the practical implementation
+                    of your business continuity and disaster recovery plans.
+                  ncsc-index: B5.a.NA.3
+              partially-achieved:
+                B5.a.4:
+                  description: You know all network and information systems, and underlying
+                    technologies, that are necessary to restore the operation of your
+                    essential function(s) and understand their interdependence.
+                  ncsc-index: B5.a.PA.1
+                B5.a.5:
+                  description: You know the order in which systems need to be recovered
+                    to efficiently and effectively restore the operation of the essential
+                    function(s).
+                  ncsc-index: B5.a.PA.2
+              achieved:
+                B5.a.6:
+                  description: You have business continuity and disaster recovery plans
+                    that have been tested for practicality, effectiveness and completeness.
+                    Appropriate use is made of different test methods (e.g. manual
+                    fail-over, table-top exercises, or red-teaming).
+                  ncsc-index: B5.a.A.1
+                B5.a.7:
+                  description: You use your security awareness and threat intelligence
+                    sources to identify new or heightened levels of risk, which result
+                    in immediate and potentially temporary security measures to enhance
+                    the security of network and information systems supporting your
+                    essential function(s), (e.g. in response to a widespread outbreak
+                    of very damaging malware).
+                  ncsc-index: B5.a.A.2
+            assessment-rules: *standard-rules
+          B5.b:
+            code: B5.b
+            title: Design for Resilience
+            description: You design network and information systems supporting your
+              essential function(s) to be resilient to cyber security incidents.
+              Systems are appropriately segregated and resource limitations are mitigated.
+            indicators:
+              not-achieved:
+                B5.b.1:
+                  description: Network and information systems supporting the operation
+                    of your essential function(s) are not appropriately segregated.
+                  ncsc-index: B5.b.NA.1
+                B5.b.2:
+                  description: Internet services, such as browsing and email, are accessible
+                    from network and information systems supporting your essential
+                    function(s).
+                  ncsc-index: B5.b.NA.2
+                B5.b.3:
+                  description: You do not understand or lack plans to mitigate all resource
+                    limitations that could adversely affect your essential function(s).
+                  ncsc-index: B5.b.NA.3
+              partially-achieved:
+                B5.b.4:
+                  description: Network and information systems supporting the operation
+                    of your essential function(s) are logically separated from your
+                    business systems (e.g. they reside on the same network as the rest
+                    of the organisation but within a DMZ).
+                  ncsc-index: B5.b.PA.1
+                B5.b.5:
+                  description: Internet services, such as browsing and email, are not
+                    accessible from network and information systems supporting your
+                    essential function(s).
+                  ncsc-index: B5.b.PA.2
+                B5.b.6:
+                  description: Resource limitations (e.g. network bandwidth, single
+                    network paths) have been identified but not fully mitigated.
+                  ncsc-index: B5.b.PA.3
+              achieved:
+                B5.b.7:
+                  description: Network and information systems supporting the operation
+                    of your essential function(s) are segregated from other business
+                    and external systems by appropriate technical and physical means
+                    (e.g. separate network and system infrastructure with independent
+                    user administration).
+                  ncsc-index: B5.b.A.1
+                B5.b.8:
+                  description: Internet services, such as browsing and email, are not
+                    accessible from network and information systems supporting your
+                    essential function(s).
+                  ncsc-index: B5.b.A.2
+                B5.b.9:
+                  description: You have identified and mitigated all resource limitations
+                    (e.g. bandwidth limitations and single network paths).
+                  ncsc-index: B5.b.A.3
+                B5.b.10:
+                  description: You have identified and mitigated any geographical constraints
+                    or weaknesses. (e.g. systems that your essential function(s) depends
+                    upon are replicated in another location, important network connectivity
+                    has alternative physical paths and service providers).
+                  ncsc-index: B5.b.A.4
+                B5.b.11:
+                  description: You review and update assessments of dependencies, resource
+                    and geographical limitations and mitigations when necessary.
+                  ncsc-index: B5.b.A.5
+            assessment-rules: *standard-rules
+          B5.c:
+            code: B5.c
+            title: Backups
+            description: You hold accessible and secured current backups of data and
+              information needed to recover operation of your essential function(s)
+              following an adverse impact to network and information systems.
+            indicators:
+              not-achieved:
+                B5.c.1:
+                  description: Backup coverage is incomplete and does not include all
+                    relevant data and information needed to restore the operation of
+                    your essential function(s).
+                  ncsc-index: B5.c.NA.1
+                B5.c.2:
+                  description: Backups are not frequent enough for the operation of your
+                    essential function(s) to be restored effectively.
+                  ncsc-index: B5.c.NA.2
+                B5.c.3:
+                  description: Your restoration process does not restore your essential
+                    function(s) in a suitable time frame.
+                  ncsc-index: B5.c.NA.3
+              partially-achieved:
+                B5.c.4:
+                  description: You have appropriately secured backups (including data,
+                    configuration information, software, equipment, processes and knowledge).
+                    These backups will be accessible to recover from an extreme event
+                    including ransomware attack.
+                  ncsc-index: B5.c.PA.1
+                B5.c.5:
+                  description: You routinely test backups to ensure that the backup process
+                    function(s) correctly and the backups are usable.
+                  ncsc-index: B5.c.PA.2
+              achieved:
+                B5.c.6:
+                  description: Your comprehensive, automatic and tested technical and
+                    procedural backups are secured at centrally accessible or secondary
+                    sites to recover from an extreme event.
+                  ncsc-index: B5.c.A.1
+                B5.c.7:
+                  description: Backups of all important data and information needed to
+                    recover the essential function(s) are made, tested, documented and
+                    routinely reviewed.
+                  ncsc-index: B5.c.A.2
+            assessment-rules: *standard-rules
+      B6:
+        code: B6
+        title: Staff Awareness and Training
+        description: Staff have appropriate awareness, knowledge and skills to carry
+          out their organisational roles effectively in relation to the security of
+          network and information systems supporting the operation of your essential
+          function(s).
+        outcomes:
+          B6.a:
+            code: B6.a
+            title: Cyber Security Culture
+            description: You develop and maintain a positive cyber security culture
+              and a shared sense of responsibility.
+            indicators:
+              not-achieved:
+                B6.a.1:
+                  description: People in your organisation do not understand what they
+                    contribute to the cyber security of network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: B6.a.NA.1
+                B6.a.2:
+                  description: People in your organisation do not know how to raise a
+                    concern about cyber security.
+                  ncsc-index: B6.a.NA.2
+                B6.a.3:
+                  description: People believe that reporting issues may get them into
+                    trouble.
+                  ncsc-index: B6.a.NA.3
+                B6.a.4:
+                  description: Your organisation's approach to cyber security is perceived
+                    by staff as hindering the business of the organisation and may
+                    encourage poor security behaviours.
+                  ncsc-index: B6.a.NA.4
+                B6.a.5:
+                  description: Formal or informal incentives and rewards conflict with
+                    the promotion of positive security outcomes.
+                  ncsc-index: B6.a.NA.5
+              partially-achieved:
+                B6.a.6:
+                  description: Your executive management understand and widely communicate
+                    the importance of a positive cyber security culture. Positive attitudes,
+                    behaviours and expectations are described for your organisation.
+                  ncsc-index: B6.a.PA.1
+                B6.a.7:
+                  description: All people in your organisation understand the contribution
+                    they make to the cyber security of network and information systems
+                    supporting your essential functions(s).
+                  ncsc-index: B6.a.PA.2
+                B6.a.8:
+                  description: All individuals in your organisation know who to contact
+                    and where to access more information about cyber security. They
+                    know how to raise a cyber security issue.
+                  ncsc-index: B6.a.PA.3
+                B6.a.9:
+                  description: You identify and address issues that inhibit people from
+                    behaving in a manner that supports your intended cyber security
+                    outcomes.
+                  ncsc-index: B6.a.PA.4
+              achieved:
+                B6.a.10:
+                  description: Your executive management clearly and effectively communicates
+                    the organisation's cyber security priorities and objectives to all
+                    staff. Your organisation displays positive cyber security attitudes,
+                    behaviours, expectations.
+                  ncsc-index: B6.a.A.1
+                B6.a.11:
+                  description: People in your organisation raising potential cyber security
+                    incidents and issues are treated positively.
+                  ncsc-index: B6.a.A.2
+                B6.a.12:
+                  description: Individuals at all levels in your organisation routinely
+                    report concerns or issues about cyber security and are recognised
+                    for their contribution to keeping the organisation secure.
+                  ncsc-index: B6.a.A.3
+                B6.a.13:
+                  description: Your management is seen to be committed to and actively
+                    involved in cyber security.
+                  ncsc-index: B6.a.A.4
+                B6.a.14:
+                  description: Your organisation communicates openly about cyber security,
+                    with any concern being taken seriously.
+                  ncsc-index: B6.a.A.5
+                B6.a.15:
+                  description: People across your organisation collaborate in cyber
+                    security activities and improvements, building joint ownership and
+                    bringing knowledge of their area of expertise.
+                  ncsc-index: B6.a.A.6
+            assessment-rules: *standard-rules
+          B6.b:
+            code: B6.b
+            title: Cyber Security Training
+            description: The people who support the operation of network and information
+              systems supporting your essential function(s) are appropriately trained
+              in cyber security.
+            indicators:
+              not-achieved:
+                B6.b.1:
+                  description: There are teams who operate and support your essential
+                    function(s) that lack any cyber security training.
+                  ncsc-index: B6.b.NA.1
+                B6.b.2:
+                  description: Cyber security training is restricted to specific roles
+                    in your organisation.
+                  ncsc-index: B6.b.NA.2
+                B6.b.3:
+                  description: Cyber security training records for your organisation
+                    are lacking or incomplete.
+                  ncsc-index: B6.b.NA.3
+                B6.b.4:
+                  description: Training is used as a "silver bullet" for all user security
+                    behaviours.
+                  ncsc-index: B6.b.NA.4
+                B6.b.5:
+                  description: The success of training is only measured by the number
+                    of people reached, rather than assessing whether it has a positive
+                    impact on security behaviours.
+                  ncsc-index: B6.b.NA.5
+                B6.b.6:
+                  description: Training materials contain out of date or contradictory
+                    information, or information that conflicts with other policies,
+                    processes or procedures.
+                  ncsc-index: B6.b.NA.6
+              partially-achieved:
+                B6.b.7:
+                  description: You have defined appropriate cyber security training and
+                    awareness activities for all roles in your organisation, from
+                    executives to the most junior roles.
+                  ncsc-index: B6.b.PA.1
+                B6.b.8:
+                  description: You use a range of teaching and communication techniques
+                    for cyber security training and awareness to reach the widest audience
+                    effectively.
+                  ncsc-index: B6.b.PA.2
+                B6.b.9:
+                  description: Cyber security information is easily available.
+                  ncsc-index: B6.b.PA.3
+              achieved:
+                B6.b.10:
+                  description: All people in your organisation, from the most senior
+                    to the most junior, follow appropriate cyber security training paths.
+                  ncsc-index: B6.b.A.1
+                B6.b.11:
+                  description: Each individuals cyber security training is tracked and
+                    refreshed at suitable intervals.
+                  ncsc-index: B6.b.A.2
+                B6.b.12:
+                  description: You routinely evaluate your cyber security training and
+                    awareness activities to ensure they reach the widest audience and
+                    are effective.
+                  ncsc-index: B6.b.A.3
+                B6.b.13:
+                  description: You make cyber security information and good practice
+                    guidance easily accessible, widely available and you know it is
+                    referenced and used within your organisation.
+                  ncsc-index: B6.b.A.4
             assessment-rules: *standard-rules
   C:
     code: C
@@ -1632,6 +2418,8 @@ objectives:
                   description: The logging architecture has mechanisms, policies,
                     processes and procedures to ensure that it can protect itself
                     from threats comparable to those that it is trying to identify.
+                    This includes protecting the function itself and the data within
+                    it.
                   ncsc-index: C1.b.A.2
                 C1.b.11:
                   description: Log data analysis and normalisation is only performed
@@ -1657,36 +2445,38 @@ objectives:
               not-achieved:
                 C1.c.1:
                   description: You do not apply updates to your detection security
-                    technologies in a timely way, after receiving them.
+                    technologies in a timely way, after receiving them (e.g. AV
+                    signature updates, other threat signatures or Indicators of
+                    Compromise (IoCs)).
                   ncsc-index: C1.c.NA.1
                 C1.c.2:
                   description: Security alerts relating to network and information
                     systems supporting your essential function(s) are not prioritised.
                   ncsc-index: C1.c.NA.2
                 C1.c.3:
-                  description: The enrichment of security alerts cannot be performed.
+                  description: The enrichment of security alerts within network and
+                    information systems supporting your essential function(s) cannot
+                    be performed.
                   ncsc-index: C1.c.NA.3
                 C1.c.4:
-                  description: You do not confidently detect the presence of Indicators
-                    of Compromise (IoCs) on network and information systems supporting
-                    your essential function(s).
+                  description: You do not confidently detect the presence of IoCs on
+                    network and information systems supporting your essential
+                    function(s), such as known malicious command and control signatures
+                    (e.g. because applying the indicator is difficult or your log
+                    data is not sufficiently detailed).
                   ncsc-index: C1.c.NA.4
                 C1.c.5:
                   description: You do not monitor for user or system abnormalities
                     indicative of adverse activity.
                   ncsc-index: C1.c.NA.5
-                C1.c.6:
-                  description: Detections and alerting rely on off the shelf tooling
-                    without customisation or users reporting events and potential
-                    incidents.
-                  ncsc-index: C1.c.NA.6
                 C1.c.7:
                   description: Logs are monitored infrequently.
-                  ncsc-index: C1.c.NA.7
+                  ncsc-index: C1.c.NA.6
               partially-achieved:
                 C1.c.8:
-                  description: You easily detect the presence of IoCs, such as known
-                    malicious command and control signatures, on relevant systems.
+                  description: You easily detect the presence of Indicators of Compromise
+                    (IoCs) on network and information systems supporting your essential
+                    function(s), such as known malicious command and control signatures.
                   ncsc-index: C1.c.PA.1
                 C1.c.9:
                   description: You apply some updates, new signatures and IoCs in
@@ -1697,8 +2487,9 @@ objectives:
                     systems that support your essential function(s) are prioritised.
                   ncsc-index: C1.c.PA.3
                 C1.c.11:
-                  description: The enrichment of alerts is performed but not as part
-                    of the original alert.
+                  description: The enrichment of alerts within network and information
+                    systems supporting your essential function(s) is performed but not
+                    as part of the original alert.
                   ncsc-index: C1.c.PA.4
                 C1.c.12:
                   description: Detections and alerting rely on off the shelf tooling
@@ -1706,52 +2497,61 @@ objectives:
                     incidents.
                   ncsc-index: C1.c.PA.5
                 C1.c.13:
-                  description: Where appropriate, detections and alerting result in
-                    automated actions being taken.
+                  description: There is a documented and shared process for all users
+                    who support the operation of the essential function to report events
+                    and potential security incidents.
                   ncsc-index: C1.c.PA.6
                 C1.c.14:
-                  description: You monitor on an irregular basis for user or system
-                    abnormalities indicative of adverse activity.
+                  description: Where appropriate, detections and alerting result in
+                    automated actions being taken. (e.g. malware identified by AV is
+                    quarantined).
                   ncsc-index: C1.c.PA.7
                 C1.c.15:
-                  description: Logs are monitored at regular intervals.
+                  description: You monitor on an irregular basis for user or system
+                    abnormalities indicative of adverse activity.
                   ncsc-index: C1.c.PA.8
-              achieved:
                 C1.c.16:
-                  description: You easily detect the presence of IoCs as well as abnormalities
-                    or behaviours indicative of adverse activity.
-                  ncsc-index: C1.c.A.1
+                  description: Logs are monitored at regular intervals.
+                  ncsc-index: C1.c.PA.9
+              achieved:
                 C1.c.17:
+                  description: You easily detect the presence of Indicators of Compromise
+                    (IoCs) on network and information systems supporting your essential
+                    function(s), such as known malicious command and control signatures,
+                    as well as abnormalities or behaviours indicative of adverse activity.
+                  ncsc-index: C1.c.A.1
+                C1.c.18:
                   description: You apply all updates, new signatures and IoCs promptly.
                   ncsc-index: C1.c.A.2
-                C1.c.18:
+                C1.c.19:
                   description: Security alerts relating to all network and information
                     systems supporting your essential function(s) are prioritised
                     and this information is used to support incident management.
                   ncsc-index: C1.c.A.3
-                C1.c.19:
-                  description: Alerts are routinely enriched in almost real time and
-                    as part of the original alert.
-                  ncsc-index: C1.c.A.4
                 C1.c.20:
+                  description: Alerts are routinely enriched within network and information
+                    systems supporting your essential function(s). The enrichment of these
+                    alerts is performed in almost real time and as part of the original alert.
+                  ncsc-index: C1.c.A.4
+                C1.c.21:
                   description: Alerts and the underlying detections are regularly
                     reviewed and tested to ensure they are generated promptly and
                     reliably, distinguishing genuine incidents from false alarms.
                   ncsc-index: C1.c.A.5
-                C1.c.21:
-                  description: Alerts and detection rules are customisable and tuned
-                    to reduce false positives and optimise responses.
-                  ncsc-index: C1.c.A.6
                 C1.c.22:
+                  description: Alerts and the underlying detection rules are customisable
+                    and tuned to reduce false positives as well as optimising responses.
+                  ncsc-index: C1.c.A.6
+                C1.c.23:
                   description: Detections and alerting may use off the shelf tooling
                     and rules as well as custom tooling and / or rules.
                   ncsc-index: C1.c.A.7
-                C1.c.23:
+                C1.c.24:
                   description: You continuously monitor for user and system abnormalities
                     indicative of adverse activity generating alerts based on the
                     results of such monitoring.
                   ncsc-index: C1.c.A.8
-                C1.c.24:
+                C1.c.25:
                   description: Logs are monitored continuously in near real time.
                   ncsc-index: C1.c.A.9
             assessment-rules: *standard-rules
@@ -1765,7 +2565,7 @@ objectives:
               not-achieved:
                 C1.d.1:
                   description: You do not triage alerts from your detection security
-                    technologies.
+                    technologies (e.g. AV, IDS).
                   ncsc-index: C1.d.NA.1
                 C1.d.2:
                   description: You do not categorise alerts and incidents by type
@@ -1788,8 +2588,10 @@ objectives:
                     tools and take action.
                   ncsc-index: C1.d.PA.1
                 C1.d.7:
-                  description: You have created and use SOPs / Playbooks / Runbooks
-                    covering the most common use cases; these are regularly reviewed.
+                  description: You have created, made available and use when appropriate,
+                    Standard Operating Procedures (SOPs) / Playbooks / Runbooks covering
+                    the most common use cases. These are regularly reviewed to ensure they
+                    remain effective.
                   ncsc-index: C1.d.PA.2
                 C1.d.8:
                   description: You perform some triage and actions taken by monitoring
@@ -1809,20 +2611,23 @@ objectives:
                     tools and take action.
                   ncsc-index: C1.d.A.1
                 C1.d.12:
-                  description: You have SOPs / Playbooks / Runbooks covering all plausible
-                    use cases which are regularly reviewed.
+                  description: You have created, made available and use when appropriate,
+                    Standard Operating Procedures (SOPs) / Playbooks / Runbooks covering
+                    all plausible use cases. These are regularly reviewed to ensure they
+                    remain effective.
                   ncsc-index: C1.d.A.2
-                C1.d.13:
-                  description: You document all triage related activities and use
-                    them to drive improvements.
-                  ncsc-index: C1.d.A.3
                 C1.d.14:
                   description: You categorise alerts and incidents by type and priority
                     / severity level.
+                  ncsc-index: C1.d.A.3
+                C1.d.13:
+                  description: You document all triage related activities performed by
+                    monitoring and detection personnel and these are used to drive
+                    improvements
                   ncsc-index: C1.d.A.4
                 C1.d.15:
                   description: Triage provides enough information for subsequent activities
-                    to be prioritised.
+                    to be prioritised (e.g. the containment of damaging malware).
                   ncsc-index: C1.d.A.5
                 C1.d.16:
                   description: Your understanding of normal user and system behaviour,
@@ -1852,67 +2657,95 @@ objectives:
                     of reporting against governance requirements.
                   ncsc-index: C1.e.NA.3
                 C1.e.4:
-                  description: Monitoring and detection personnel have a lack of awareness
-                    of the essential function(s) and related assets.
+                  description: Monitoring and detection personnel have a lack of
+                    awareness of the essential function(s) the organisation provides,
+                    what assets relate to those functions and hence the importance of
+                    the log data and security events.
                   ncsc-index: C1.e.NA.4
                 C1.e.5:
-                  description: Monitoring and detection personnel are overwhelmed
-                    with the amount of data and alerts they have to work with.
+                  description: Monitoring and detection personnel have no awareness of
+                    other roles or tasks outside of security monitoring and detection that
+                    are relevant to the operation of your essential function(s).
                   ncsc-index: C1.e.NA.5
-              partially-achieved:
                 C1.e.6:
+                  description: Monitoring and detection personnel are overwhelmed with the
+                    amount of data and alerts they have to work with. Alert / triage fatigue
+                    is present.
+                  ncsc-index: C1.e.NA.6
+              partially-achieved:
+                C1.e.7:
                   description: Monitoring and detection personnel have some investigative
                     skills and a basic understanding of the data they need to work
                     with.
                   ncsc-index: C1.e.PA.1
-                C1.e.7:
-                  description: Monitoring and detection personnel can report to other
-                    parts of the organisation.
-                  ncsc-index: C1.e.PA.2
                 C1.e.8:
+                  description: Monitoring and detection personnel can report to other parts
+                    of the organisation (e.g. security directors, resilience managers).
+                  ncsc-index: C1.e.PA.2
+                C1.e.9:
                   description: Monitoring and detection personnel are capable of following
                     most of the required workflow(s).
                   ncsc-index: C1.e.PA.3
-                C1.e.9:
-                  description: Monitoring and detection personnel have some understanding
-                    of the operational context to enhance the security monitoring
-                    function.
-                  ncsc-index: C1.e.PA.4
                 C1.e.10:
+                  description: Monitoring and detection personnel are aware of some of the
+                    network and information systems and your essential function(s), and can
+                    manage alerts relating to them.
+                  ncsc-index: C1.e.PA.4
+                C1.e.11:
+                  description: Monitoring and detection personnel have some understanding of
+                    the operational context (e.g. people, processes, network and information
+                    systems that support your essential function(s)) to enhance the security
+                    monitoring function.
+                  ncsc-index: C1.e.PA.5
+                C1.e.12:
                   description: Monitoring and detection personnel deal with their
                     workload and cases effectively.
-                  ncsc-index: C1.e.PA.5
+                  ncsc-index: C1.e.PA.6
               achieved:
-                C1.e.11:
-                  description: You have monitoring and detection personnel responsible
-                    for proactive and reactive analysis, investigation and reporting
-                    of monitoring alerts including both security and performance.
+                C1.e.13:
+                  description: You have monitoring and detection personnel who are
+                    responsible for the proactive and reactive analysis, investigation
+                    and reporting of monitoring alerts including both security and performance.
                   ncsc-index: C1.e.A.1
-                C1.e.12:
+                C1.e.14:
                   description: Monitoring and detection personnel have defined roles
                     and skills that cover all parts of the monitoring and investigation
                     process.
                   ncsc-index: C1.e.A.2
-                C1.e.13:
+                C1.e.15:
                   description: Monitoring and detection personnel follow policies,
                     processes and procedures that address all governance reporting
-                    requirements.
+                    requirements, internal and external.
                   ncsc-index: C1.e.A.3
-                C1.e.14:
-                  description: Monitoring and detection personnel are aware of the
-                    network and information systems and essential function(s), related
-                    assets and can identify and prioritise alerts and investigations
-                    that relate to them.
-                  ncsc-index: C1.e.A.4
-                C1.e.15:
-                  description: Monitoring and detection personnel drive and shape
-                    new log data collection and can make effective use of it.
-                  ncsc-index: C1.e.A.5
                 C1.e.16:
-                  description: Monitoring and detection personnel deal with their
-                    workload and cases effectively as well as identifying areas for
-                    improvement.
+                  description: Monitoring and detection personnel are empowered to
+                    look beyond the fixed process to investigate and understand
+                    non-standard threats.
+                  ncsc-index: C1.e.A.4
+                C1.e.17:
+                  description: Monitoring and detection personnel are aware of the
+                    network and information systems and your essential function(s),
+                    related assets and can identify and prioritise alerts and investigations
+                    that relate to them.
+                  ncsc-index: C1.e.A.5
+                C1.e.18:
+                  description: Monitoring and detection personnel drive and shape new log
+                    data collection and can make effective use of it.
                   ncsc-index: C1.e.A.6
+                C1.e.19:
+                  description: Monitoring and detection personnel are capable of following
+                    all of the required workflow(s).
+                  ncsc-index: C1.e.A.7
+                C1.e.20:
+                  description: Monitoring and detection personnel have a sufficient understanding
+                    of the operational context (e.g. people, processes, network and information
+                    systems that support your essential function) to enhance the security monitoring
+                    function.
+                  ncsc-index: C1.e.A.8
+                C1.e.21:
+                  description: Monitoring and detection personnel deal with their workload and cases
+                    effectively as well as identifying areas for improvement.
+                  ncsc-index: C1.e.A.9
             assessment-rules: *standard-rules
           C1.f:
             code: C1.f
@@ -1943,7 +2776,7 @@ objectives:
                   ncsc-index: C1.f.NA.5
                 C1.f.6:
                   description: You do not receive updates for all your detection security
-                    technologies.
+                    technologies (e.g. AV, IDS).
                   ncsc-index: C1.f.NA.6
                 C1.f.7:
                   description: You do not understand normal user and system behaviour
@@ -1952,72 +2785,80 @@ objectives:
                   ncsc-index: C1.f.NA.7
               partially-achieved:
                 C1.f.8:
-                  description: You know how effective your threat intelligence is.
+                  description: You know how effective your threat intelligence is (e.g.
+                    by tracking how threat intelligence helps you identify security
+                    incidents).
                   ncsc-index: C1.f.PA.1
                 C1.f.9:
                   description: Your organisation may use threat intelligence services,
-                    but you do not necessarily choose sources specifically because
-                    of your business needs.
+                    but you do not necessarily choose sources or providers specifically
+                    because of your business needs, or specific threats in your sector
+                    (e.g. sector-based infoshare, software vendors, anti-virus providers,
+                    specialist threat intel firms, special interest groups).
                   ncsc-index: C1.f.PA.2
                 C1.f.10:
-                  description: The user and system abnormalities from past attacks
-                    and threat intelligence are used to signify adverse activity.
+                  description: The user and system abnormalities from past attacks and
+                    threat intelligence, on your and other network and information
+                    systems, are used to signify adverse activity.
                   ncsc-index: C1.f.PA.3
                 C1.f.11:
                   description: You receive regular updates for all of your detection
-                    security technologies.
+                    security technologies (e.g. AV, IDS).
                   ncsc-index: C1.f.PA.4
-                C1.f.12:
-                  description: You understand normal user and system abnormalities
-                    sufficiently that searching for system abnormalities is an effective
-                    way of detecting adverse activity.
-                  ncsc-index: C1.f.PA.5
               achieved:
                 C1.f.13:
                   description: You track the effectiveness of your threat intelligence
-                    and actively share feedback on the usefulness of IoCs and other
-                    intelligence with the threat community.
+                    and actively share feedback on the usefulness of Indicators of Compromise
+                    (IoCs) and other intelligence with the threat community (e.g. sector partners,
+                    threat intelligence providers, government agencies).
                   ncsc-index: C1.f.A.1
                 C1.f.14:
-                  description: When using threat intelligence feeds, these have been
-                    selected using risk-based and threat-informed decisions based
-                    on your business needs and sector.
+                  description: When using threat intelligence feeds, these have been selected using
+                    risk-based and threat-informed decisions based on your business needs and sector.
                   ncsc-index: C1.f.A.2
                 C1.f.15:
                   description: You make relevant, reliable and actionable threat intelligence
                     available to the necessary users and systems promptly.
                   ncsc-index: C1.f.A.3
                 C1.f.16:
-                  description: You contextualise threat intelligence and link it to
-                    the why and / or how attacks take place for security monitoring.
+                  description: You contextualise threat intelligence and link it to the why
+                    and / or how attacks take place for security monitoring.
                   ncsc-index: C1.f.A.4
-                C1.f.17:
-                  description: The user and system abnormalities you monitor for are
-                    based on the nature of adverse activities likely to impact your
-                    essential function(s).
+                C1.f.12:
+                  description: You understand normal user and system abnormalities fully,
+                    to such an extent that searching for system abnormalities is an effective
+                    way of detecting adverse activity (e.g. you fully understand which systems
+                    should and should not communicate and when).
                   ncsc-index: C1.f.A.5
-                C1.f.18:
-                  description: The user and system abnormalities indicative of adverse
-                    activity you use are regularly updated to reflect changes in systems
-                    and current threat intelligence.
+                C1.f.17:
+                  description: The user and system abnormalities you monitor for are based on
+                    the nature of adverse activities likely to impact network and information
+                    systems supporting the operation of your essential function(s).
                   ncsc-index: C1.f.A.6
-                C1.f.19:
-                  description: You possess the capability to share threat intelligence
-                    with the defender community when required.
+                C1.f.18:
+                  description: The user and system abnormalities indicative of adverse activity
+                    you use are regularly updated to reflect changes in network and information
+                    systems supporting your essential function(s) and current threat intelligence.
                   ncsc-index: C1.f.A.7
+                C1.f.19:
+                  description: You possess the capability to share threat intelligence (e.g.
+                    ways to effectively detect adversaries) with the threat community / defender
+                    community (sector partners, threat intelligence providers, government agencies)
+                    when required.
+                  ncsc-index: C1.f.A.8
             assessment-rules: *standard-rules
       C2:
         code: C2
         title: Threat Hunting
-        description: You proactively search for threats that are not detected by automated
-          monitoring and detection, using structured methods and appropriate resources.
+        description: The organisation proactively seeks to detect, within networks and
+          information systems, adverse activity affecting, or with the potential to affect,
+          the operation of essential functions even when the activity evades standard
+          security prevent / detect solutions (or when standard solutions are not deployable).
         outcomes:
           C2.a:
             code: C2.a
             title: Threat Hunting
-            description: Your organisation undertakes structured threat hunting activities
-              proportionate to the risks to network and information systems supporting
-              your essential function(s).
+            description: ''
             indicators:
               not-achieved:
                 C2.a.1:
@@ -2039,62 +2880,72 @@ objectives:
                   ncsc-index: C2.a.PA.1
                 C2.a.5:
                   description: You deploy an effective threat hunting capability but
-                    not frequently enough to match the risks posed to your essential
-                    function(s).
+                    not frequent enough to match the risks posed to network and information
+                    systems supporting your essential function(s) (e.g. you perform threat
+                    hunts in response to a tip off from a reputable source)
                   ncsc-index: C2.a.PA.2
                 C2.a.6:
-                  description: Your threat hunts follow pre-determined and documented
-                    methods and you document details of threat hunts and post hunt
-                    analysis.
+                  description: Your threat hunts follow pre-determined and documented methods
+                    (e.g. hypothesis driven, data driven, entity driven) designed to identify
+                    adverse activity not detected by automated detections.
                   ncsc-index: C2.a.PA.3
-              achieved:
                 C2.a.7:
+                  description: You document details of threat hunts and post hunt analysis.
+                  ncsc-index: C2.a.PA.4
+              achieved:
+                C2.a.8:
                   description: You understand the resources required to perform threat
                     hunting and these are deployed as part of business as usual.
                   ncsc-index: C2.a.A.1
-                C2.a.8:
-                  description: You deploy threat hunting resources at a frequency
-                    that matches the risks posed to your essential function(s).
-                  ncsc-index: C2.a.A.2
                 C2.a.9:
-                  description: Your threat hunts follow pre-determined and documented
-                    methods designed to identify adverse activity not detected by
-                    automated detections.
-                  ncsc-index: C2.a.A.3
+                  description: You deploy threat hunting resources at a frequency that
+                    matches the risks posed to network and information systems supporting
+                    your essential function(s).
+                  ncsc-index: C2.a.A.2
                 C2.a.10:
+                  description: Your threat hunts follow pre-determined and documented
+                    methods (e.g. hypothesis driven, data driven, entity driven) designed
+                    to identify adverse activity not detected by automated detections.
+                  ncsc-index: C2.a.A.3
+                C2.a.11:
                   description: You turn threat hunts into automated detections and
                     alerting where appropriate.
                   ncsc-index: C2.a.A.4
-                C2.a.11:
-                  description: You routinely record details of previous threat hunts
-                    and post hunt activities and use these to drive improvements.
-                  ncsc-index: C2.a.A.5
                 C2.a.12:
-                  description: You have justified confidence in the effectiveness
-                    of your threat hunts and the process is reviewed and updated to
-                    match the risks posed to your essential function(s).
-                  ncsc-index: C2.a.A.6
+                  description: You routinely record details of previous threat hunts and post
+                    hunt activities. You use these to drive improvements in your threat hunting
+                    and security posture.
+                  ncsc-index: C2.a.A.5
                 C2.a.13:
-                  description: You leverage automation to improve threat hunts where
-                    appropriate.
-                  ncsc-index: C2.a.A.7
+                  description: You have justified confidence in the effectiveness of your
+                    threat hunts and the threat hunting process is reviewed and updated to
+                    match the risks posed to network and information systems supporting your
+                    essential function(s).
+                  ncsc-index: C2.a.A.6
                 C2.a.14:
-                  description: Your threat hunts focus on tactics, techniques and
-                    procedures (TTPs) of threats over atomic IoCs.
+                  description: You leverage automation to improve threat hunts where appropriate
+                    (e.g. some stages of the threat hunting process are automated).
+                  ncsc-index: C2.a.A.7
+                C2.a.15:
+                  description: Your threat hunts focus on the tactics, techniques and procedures
+                    (TTPs) of threats over atomic IoCs (e.g. hashes, IP addresses, domain
+                    names etc).
                   ncsc-index: C2.a.A.8
             assessment-rules: *standard-rules
   D:
     code: D
     title: Minimising the impact of cyber security incidents
-    description: Capabilities exist to minimise the impact of cyber security incidents
-      on the operation of essential function(s) and to ensure timely recovery.
+    description: Capabilities exist to minimise the adverse impact of a cyber security incident
+      on the operation of essential functions, including the restoration of those function(s)
+      where necessary.
     principles:
       D1:
         code: D1
-        title: Response and Recovery
-        description: The organisation can respond to and recover from cyber security
-          incidents that affect network and information systems supporting essential
-          functions.
+        title: Response and Recovery Planning
+        description: There are well-defined and tested incident management processes in place,
+          that aim to ensure continuity of essential function(s) in the event of system or service
+          failure. Mitigation activities designed to contain or limit the impact of compromise are
+          also in place.
         outcomes:
           D1.a:
             code: D1.a
@@ -2127,30 +2978,42 @@ objectives:
                     understood attacks only.
                   ncsc-index: D1.a.PA.2
                 D1.a.6:
-                  description: Your incident response plan is documented and shared
-                    with all relevant stakeholders and is readily accessible.
+                  description: Your incident response plan is understood by all staff
+                    who are involved with your organisation's response function.
                   ncsc-index: D1.a.PA.3
                 D1.a.7:
-                  description: Your incident response plan is regularly reviewed to
-                    ensure it remains effective.
+                  description: Your incident response plan is documented and shared
+                    with all relevant stakeholders.
                   ncsc-index: D1.a.PA.4
-              achieved:
                 D1.a.8:
-                  description: Your incident response plan is based on a clear understanding
-                    of the security risks to network and information systems supporting
-                    your essential function(s).
-                  ncsc-index: D1.a.A.1
+                  description: Your incident response plan is readily accessible, even when
+                    your organisations IT systems have been adversely affected by an incident.
+                  ncsc-index: D1.a.PA.5
                 D1.a.9:
-                  description: Your incident response plan is comprehensive and covers
-                    the complete lifecycle of an incident, roles and responsibilities,
-                    and reporting, and covers likely impacts of both known attack
-                    patterns and of possible previously unseen attacks.
-                  ncsc-index: D1.a.A.2
+                  description: 	Your incident response plan is regularly reviewed to ensure
+                    it remains effective.
+                  ncsc-index: D1.a.PA.6
+              achieved:
                 D1.a.10:
-                  description: Your incident response plan is communicated and understood
-                    by the business areas involved with the operation of your essential
-                    function(s).
+                  description: Your incident response plan is based on a clear and
+                    understanding of the security risks to network and information systems
+                    supporting your essential function(s).
+                  ncsc-index: D1.a.A.1
+                D1.a.11:
+                  description: Your incident response plan is comprehensive (i.e. covers
+                    the complete lifecycle of an incident, roles and responsibilities, and
+                    reporting) and covers likely impacts of both known attack patterns and
+                    of possible attacks, previously unseen.
+                  ncsc-index: D1.a.A.2
+                D1.a.12:
+                  description: Your incident response plan is documented and integrated with
+                    wider organisational business plans and supply chain response plans, as
+                    well as dependencies on supporting infrastructure (e.g. power, cooling etc).
                   ncsc-index: D1.a.A.3
+                D1.a.13:
+                  description: Your incident response plan is communicated and understood by the
+                    business areas involved with the operation of your essential function(s).
+                  ncsc-index: D1.a.A.4
             assessment-rules: *standard-rules
           D1.b:
             code: D1.b
@@ -2195,12 +3058,15 @@ objectives:
                     and recovery of the essential function(s).
                   ncsc-index: D1.b.A.4
                 D1.b.8:
-                  description: Back-up mechanisms are available that can be readily
-                    activated to allow continued operation of your essential function(s).
+                  description: 	Back-up mechanisms are available that can be readily
+                    activated to allow continued operation of your essential function(s),
+                    although possibly at a reduced level, if primary network and information
+                    systems fail or are unavailable.
                   ncsc-index: D1.b.A.5
                 D1.b.9:
                   description: Arrangements exist to augment your organisation's incident
-                    response capabilities with external support if necessary.
+                    response capabilities with external support if necessary (e.g. specialist
+                    cyber incident responders).
                   ncsc-index: D1.b.A.6
             assessment-rules: *standard-rules
           D1.c:
@@ -2212,8 +3078,8 @@ objectives:
             indicators:
               not-achieved:
                 D1.c.1:
-                  description: Exercises test only a discrete part of the process
-                    and do not consider all areas.
+                  description: Exercises test only a discrete part of the process (e.g.
+                    that backups are working), but do not consider all areas.
                   ncsc-index: D1.c.NA.1
                 D1.c.2:
                   description: Incident response exercises are not routinely carried
@@ -2238,18 +3104,20 @@ objectives:
                   ncsc-index: D1.c.A.2
                 D1.c.7:
                   description: Exercises are routinely run, with findings documented
-                    and used to refine incident response plans and protective security.
+                    and used to refine incident response plans and protective security,
+                    in line with the lessons learned.
                   ncsc-index: D1.c.A.3
                 D1.c.8:
                   description: Exercises test all parts of your response cycle relating
-                    to your essential function(s).
+                    to your essential function(s) (e.g. restoration of normal function(s)
+                    levels).
                   ncsc-index: D1.c.A.4
             assessment-rules: *standard-rules
       D2:
         code: D2
-        title: Lessons Learned and Improvement
-        description: The organisation learns from incidents and uses this learning
-          to improve security and resilience.
+        title: Lessons Learned
+        description: When an incident occurs, steps are taken to understand its causes and to ensure
+          remediating action is taken to protect against future incidents.
         outcomes:
           D2.a:
             code: D2.a
@@ -2282,8 +3150,9 @@ objectives:
                   ncsc-index: D2.a.A.1
                 D2.a.6:
                   description: Your post incident analysis is comprehensive, considering
-                    organisational, technical and human factors and any changes to
-                    threat.
+                    organisational factors (e.g. policies, processes and procedures),
+                    technical factors (e.g. system design, vulnerabilities), human factors
+                    (e.g. training, security culture) and any changes to threat.
                   ncsc-index: D2.a.A.2
                 D2.a.7:
                   description: All relevant incident data is made available to the
@@ -2291,7 +3160,8 @@ objectives:
                   ncsc-index: D2.a.A.3
                 D2.a.8:
                   description: Your analysis considers what could have happened under
-                    plausible, alternative circumstances.
+                    plausible, alternative circumstances (e.g. 'what if' / 'if only'
+                    scenarios).
                   ncsc-index: D2.a.A.4
             assessment-rules: *standard-rules
           D2.b:
@@ -2325,9 +3195,9 @@ objectives:
                     near misses, are identified, captured, and acted upon.
                   ncsc-index: D2.b.A.1
                 D2.b.6:
-                  description: Lessons learned cover reporting, roles, governance,
-                    skills and organisational policies, processes and procedures as
-                    well as technical aspects.
+                  description: Lessons learned cover issues with reporting, roles,
+                    governance, skills and organisational policies, processes and
+                    procedures as well as technical aspects of network and information systems.
                   ncsc-index: D2.b.A.2
                 D2.b.7:
                   description: You use lessons learned to improve security measures,
@@ -2343,6 +3213,10 @@ objectives:
                     into risk management and continuous improvement.
                   ncsc-index: D2.b.A.5
                 D2.b.10:
+                  description: Your organisation maximises the lessons learned by using
+                    the analysis into 'what if' / 'if only' scenarios..
+                  ncsc-index: D2.b.A.5
+                D2.b.11:
                   description: Your organisation learns from reported incidents in
                     your sector and the wider national infrastructure.
                   ncsc-index: D2.b.A.6

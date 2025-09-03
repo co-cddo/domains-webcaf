@@ -118,11 +118,10 @@ You have effective organisational security management led at board level and art
 | Not Achieved | Achieved |
 |-------------|----------|
 | At least one of the following statements is true | All the following statements are true |
-| The security of network and information systems related to the operation of essential function(s) is not discussed or reported on regularly at board-level. | Your organisation's approach and policy relating to the security of network and information systems supporting the operation of your essential function(s) are owned and managed at board-level. |
-| Board-level discussions on the security of network and information systems are based on partial or out-of-date information, without the benefit of expert guidance. | These are communicated, in a meaningful way, to risk management decision-makers across the organisation. |
-| The security of network and information systems supporting your essential function(s) are not driven effectively by the direction set at board-level. | Regular board-level discussions on the security of network and information systems supporting the operation of your essential function(s) take place, based on timely and accurate information and informed by expert guidance. |
-| Senior management or other pockets of the organisation consider themselves exempt from some policies or expect special accommodations to be made. | There is a board-level individual who has overall accountability for the security of network and information systems and drives regular discussion at board-level. |
-|  | Direction set at board-level is translated into effective organisational practices that direct and control the security of network and information systems supporting your essential function(s). |
+| The security of network and information systems related to the operation of essential function(s) is not discussed or reported on regularly at board-level. | Your organisation's approach and policy relating to the security of network and information systems supporting the operation of your essential function(s) are owned and managed at board-level. These are communicated, in a meaningful way, to risk management decision-makers across the organisation. |
+| Board-level discussions on the security of network and information systems are based on partial or out-of-date information, without the benefit of expert guidance. | Regular board-level discussions on the security of network and information systems supporting the operation of your essential function(s) take place, based on timely and accurate information and informed by expert guidance. |
+| The security of network and information systems supporting your essential function(s) are not driven effectively by the direction set at board-level. | There is a board-level individual who has overall accountability for the security of network and information systems and drives regular discussion at board-level. |
+| Senior management or other pockets of the organisation consider themselves exempt from some policies or expect special accommodations to be made. | Direction set at board-level is translated into effective organisational practices that direct and control the security of network and information systems supporting your essential function(s). |
 |  | The board has the information and understanding needed in order to effectively discuss how the security and resilience of network and information systems contributes to the delivery of essential function(s) and what the potential impact from compromise of those systems would be. |
 |  | Security is recognised as an important enabler for the resilience of your essential function(s) and considered in all relevant discussions. |
 
@@ -213,11 +212,11 @@ Everything required to deliver, maintain or support network and information syst
 |-------------|----------|
 | At least one of the following statements is true | All the following statements are true |
 | Inventories of assets relevant to network and information systems supporting your essential function(s) are incomplete, non-existent or inadequately detailed. | All assets relevant to the secure operation of network and information systems supporting your essential function(s) are identified and inventoried (at a suitable level of detail). The inventory is kept up-to-date. |
-| Only certain domains or types of asset are documented and understood. | Dependencies on supporting infrastructure (e.g. power, cooling etc) are recognised and recorded. |
-| Dependencies between assets are not understood (such as the dependencies between IT and OT). | You have prioritised your assets according to their importance to the operation of network and information systems supporting your essential function(s). |
-| Information assets, which could include personally identifiable information and / or important / critical data, are stored for long periods of time with no clear business need or retention policy. | You have assigned responsibility for managing all assets, including physical assets, relevant to the operation of network and information systems supporting your essential function(s). |
-| Knowledge critical to the management, operation, or recovery of network and information systems supporting your essential function(s) is held by one or two key individuals with no succession plan. | Assets relevant to network and information systems supporting your essential function(s) are managed with cyber security in mind throughout their lifecycle, from creation through to eventual decommissioning or disposal. |
-| Asset inventories are neglected and out of date. |  |
+| Only certain domains or types of asset are documented and understood. Dependencies between assets are not understood (such as the dependencies between IT and OT). | Dependencies on supporting infrastructure (e.g. power, cooling etc) are recognised and recorded. |
+| Information assets, which could include personally identifiable information and / or important / critical data, are stored for long periods of time with no clear business need or retention policy. | You have prioritised your assets according to their importance to the operation of network and information systems supporting your essential function(s). |
+| Knowledge critical to the management, operation, or recovery of network and information systems supporting your essential function(s) is held by one or two key individuals with no succession plan. | You have assigned responsibility for managing all assets, including physical assets, relevant to the operation of network and information systems supporting your essential function(s). |
+| Asset inventories are neglected and out of date. | Assets relevant to network and information systems supporting your essential function(s) are managed with cyber security in mind throughout their lifecycle, from creation through to eventual decommissioning or disposal. |
+
 
 #### Principle A4 Supply Chain
 
@@ -276,10 +275,10 @@ You have developed and continue to improve a set of cyber security and resilienc
 | At least one of the following statements is true | All the following statements are true | All the following statements are true |
 | Your policies, processes and procedures are absent or incomplete. | Your policies, processes and procedures document your overarching security governance and risk management approach, technical security practice and specific regulatory compliance. | You fully document your overarching security governance and risk management approach, technical security practice and specific regulatory compliance. |
 | Policies, processes and procedures are not applied universally or consistently. | You review and update policies, processes and procedures in response to major cyber security incidents. | Cyber security is integrated and embedded throughout policies, processes and procedures and key performance indicators are reported to your executive management. |
-| People often or routinely circumvent policies, processes and procedures to achieve business objectives. | Your organisation's policies, processes and procedures are developed to be practical, usable and appropriate to mitigate the risk of adverse impact to network and information systems supporting your essential function(s). | Your organisation's policies, processes and procedures are developed to be practical, usable and appropriate to mitigate the risk of adverse impact to network and information systems supporting your essential function(s). |
-| Your organisation's security governance and risk management approach has no bearing on your policies, processes and procedures. | Policies, processes and procedures that rely on user behaviour are practical, appropriate and achievable. | Policies, processes and procedures that rely on user behaviour are practical, appropriate and achievable. |
-| System security is totally reliant on users' careful and consistent application of manual security processes. | You review and update policies, processes and procedures at suitably regular intervals to ensure they remain relevant. This is in addition to reviews following a major cyber security incident. | You review and update policies, processes and procedures at suitably regular intervals to ensure they remain relevant. This is in addition to reviews following a major cyber security incident. |
-| Policies, processes and procedures have not been reviewed in response to major changes (e.g. technology or regulatory framework), or within a suitable period. | Any changes to the essential function(s) or the threat it faces triggers a review of policies, processes and procedures. | Any changes to the essential function(s) or the threat it faces triggers a review of policies, processes and procedures. |
+| People often or routinely circumvent policies, processes and procedures to achieve business objectives. |  | Your organisation's policies, processes and procedures are developed to be practical, usable and appropriate to mitigate the risk of adverse impact to network and information systems supporting your essential function(s). |
+| Your organisation's security governance and risk management approach has no bearing on your policies, processes and procedures. |  | Policies, processes and procedures that rely on user behaviour are practical, appropriate and achievable. |
+| System security is totally reliant on users' careful and consistent application of manual security processes. |  | You review and update policies, processes and procedures at suitably regular intervals to ensure they remain relevant. This is in addition to reviews following a major cyber security incident. |
+| Policies, processes and procedures have not been reviewed in response to major changes (e.g. technology or regulatory framework), or within a suitable period. |  | Any changes to the essential function(s) or the threat it faces triggers a review of policies, processes and procedures. |
 | Policies, processes and procedures are not readily available to staff, too detailed to remember, or too hard to understand. | | Your systems are designed so that they remain secure even when user security policies, processes and procedures are not always followed. |
 
 ### B1.b Policy, Process and Procedure Implementation
@@ -335,13 +334,13 @@ You closely manage privileged user access to network and information systems sup
 | Not Achieved | Partially Achieved | Achieved |
 |--------------|-------------------|----------|
 | At least one of the following statements is true | All the following statements are true | All the following statements are true |
-| The identities of the individuals with privileged access to network and information systems (infrastructure, platforms, software, configuration etc) supporting your essential function(s) are not known or not managed. | All privileged user access to network and information systems supporting your essential function(s) requires strong authentication, such as multi-factor authentication (MFA). | The issuing of temporary, time-bound rights for privileged user access and / or external third-party support access is in place. |
-| Privileged user access to network and information systems supporting your essential function(s) is via weak authentication mechanisms (e.g. only simple passwords). | The identities of the individuals with privileged access to network and information systems (infrastructure, platforms, software, configuration etc) supporting your essential function(s) are known and managed. This includes third parties. | Privileged user access rights are regularly reviewed and always updated as part of your joiners, movers and leavers process. |
-| The list of privileged users has not been reviewed recently (e.g. within the last 12 months). | Activity by privileged users is routinely reviewed and validated (e.g. at least annually). | All privileged user activity is routinely reviewed, validated and recorded for offline analysis and investigation. |
-| Privileged user access is granted on a system-wide basis rather than by role or function(s). | Privileged users are only granted specific privileged user access rights which are essential to their business role or function. | |
-| Privileged user access to network and information systems supporting your essential function(s) is via generic, shared or default name accounts. | Privileged user access to network and information systems supporting your essential function(s) is carried out from dedicated separate accounts that are closely monitored and managed. | |
-| Where there are "always on" terminals which can perform privileged actions (such as in a control room), there are no additional controls (e.g. physical controls) to ensure access is appropriately restricted. | | |
-| There is no logical separation between roles that an individual may have and hence the actions they perform (e.g. access to corporate email and privilege user actions). | | |
+| The identities of the individuals with privileged access to network and information systems (infrastructure, platforms, software, configuration etc) supporting your essential function(s) are not known or not managed. | All privileged user access to network and information systems supporting your essential function(s) requires strong authentication, such as multi-factor authentication (MFA). | Privileged user access to network and information systems supporting your essential function(s) is carried out from dedicated separate accounts that are closely monitored and managed. |
+| Privileged user access to network and information systems supporting your essential function(s) is via weak authentication mechanisms (e.g. only simple passwords). | The identities of the individuals with privileged access to network and information systems (infrastructure, platforms, software, configuration etc) supporting your essential function(s) are known and managed. This includes third parties. | The issuing of temporary, time-bound rights for privileged user access and / or external third-party support access is in place.  |
+| The list of privileged users has not been reviewed recently (e.g. within the last 12 months). | Activity by privileged users is routinely reviewed and validated (e.g. at least annually). | Privileged user access rights are regularly reviewed and always updated as part of your joiners, movers and leavers process. |
+| Privileged user access is granted on a system-wide basis rather than by role or function(s). | Privileged users are only granted specific privileged user access rights which are essential to their business role or function. | All privileged user activity is routinely reviewed, validated and recorded for offline analysis and investigation. |
+| Privileged user access to network and information systems supporting your essential function(s) is via generic, shared or default name accounts. |
+| Where there are "always on" terminals which can perform privileged actions (such as in a control room), there are no additional controls (e.g. physical controls) to ensure access is appropriately restricted. |
+| There is no logical separation between roles that an individual may have and hence the actions they perform (e.g. access to corporate email and privilege user actions). |
 
 ### B2.d Identity and Access Management (IdAM)
 
@@ -419,8 +418,8 @@ Before reuse and / or disposal you appropriately sanitise devices, equipment and
 | Not Achieved | Partially Achieved | Achieved |
 |--------------|-------------------|----------|
 | At least one of the following statements is true | All the following statements are true | All the following statements are true |
-| Some or all devices, equipment or removable media that hold data important to the operation of network and information systems supporting your essential function(s) are reused or disposed of without sanitisation of that data. | Data important to the operations of network and information systems supporting your essential function(s) is removed from all devices, equipment and removable media before reuse and / or disposal. | Data important to the operation of network and information systems supporting your essential function(s) is removed from all devices, equipment and removable media before reuse and / or disposal using an assured product or service. |
-| | You catalogue and track all devices that contain data important to the operation of network and information systems supporting your essential function(s) (whether a specific storage device or one with integral storage). | |
+| Some or all devices, equipment or removable media that hold data important to the operation of network and information systems supporting your essential function(s) are reused or disposed of without sanitisation of that data. | Data important to the operations of network and information systems supporting your essential function(s) is removed from all devices, equipment and removable media before reuse and / or disposal. | You catalogue and track all devices that contain data important to the operation of network and information systems supporting your essential function(s) (whether a specific storage device or one with integral storage).
+| | | Data important to the operation of network and information systems supporting your essential function(s) is removed from all devices, equipment and removable media before reuse and / or disposal using an assured product or service.|
 
 ## Principle B4 System Security
 
@@ -438,9 +437,9 @@ You design security into network and information systems that support the operat
 | Data flows between network and information systems supporting your essential function(s) and other systems are complex, making it hard to discriminate between legitimate and illegitimate / malicious traffic. | You design simple data flows between network and information systems and any external interface to enable effective monitoring. | The network and information systems supporting your essential function(s) are designed to have simple data flows between components to support effective security monitoring. |
 | Remote or third-party accesses circumvent some network controls to gain more direct access to network and information systems supporting the essential function(s). | You design to make network and information system recovery simple. | The network and information systems supporting your essential function(s) are designed to be easy to recover. |
 | | All inputs to network and information systems supporting your essential function(s) are checked and validated at the network boundary where possible, or additional monitoring is in place for content-based attacks. | Content-based attacks are mitigated for all inputs to network and information systems that affect the essential function(s) (e.g. via transformation and inspection / santisation and validation). |
-| | The network and information systems supporting your essential function(s) are designed to be easy to recover. | If automated decision-making technologies are in use, you design and apply appropriate restrictions to prevent actions that could have an adverse impact on network and information systems supporting your essential function(s). |
+| | | If automated decision-making technologies are in use, you design and apply appropriate restrictions to prevent actions that could have an adverse impact on network and information systems supporting your essential function(s). |
 
-# B4.b Secure Configuration
+### B4.b Secure Configuration
 
 You securely configure network and information systems that support the operation of your essential function(s).
 
@@ -455,7 +454,7 @@ You securely configure network and information systems that support the operatio
 | Standard users are able to change settings that would adversely impact the security of network and information systems supporting your essential function(s). | Generic, shared, default name and built-in accounts have been removed or disabled. Where this is not possible, credentials to these accounts have been changed. Service accounts are appropriately protected. | If automated decision-making technologies are in use, their operation is well understood, and decisions can be replicated. |
 |  | Standard users are not able to change settings that would adversely impact the security of network and information systems supporting your essential function(s). | Generic, shared, default name and built-in accounts have been removed or disabled. Where this is not possible, credentials to these accounts have been changed. Service accounts are appropriately protected. |
 
-# B4.c Secure Management
+### B4.c Secure Management
 
 You manage your organisation's network and information systems that support the operation of your essential function(s) to enable and maintain security.
 
@@ -466,7 +465,7 @@ You manage your organisation's network and information systems that support the 
 | You do not have good or current technical documentation of network and information systems. | Technical knowledge about network and information systems, such as documentation and network diagrams, is regularly reviewed and updated. | You regularly review and update technical knowledge about network and information systems, such as documentation and network diagrams, and ensure they are securely stored. |
 |  | You prevent, detect and remove malware, and unauthorised software. You use technical, procedural and physical measures as necessary. | You prevent, detect and remove malware, and unauthorised software. You use technical, procedural and physical measures as necessary. |
 
-# B4.d. Vulnerability Management
+### B4.d. Vulnerability Management
 
 You manage known vulnerabilities in network and information systems to prevent adverse impact on your essential function(s).
 
@@ -479,22 +478,22 @@ You manage known vulnerabilities in network and information systems to prevent a
 | You have not suitably mitigated systems or software that is no longer supported. | You have temporary mitigations for unsupported systems and software while pursuing migration to supported technology. | You actively maximise the use of supported software, firmware and hardware in network and information systems supporting your essential function(s). |
 | You are not pursuing replacement for unsupported systems or software. | You regularly test to fully understand the vulnerabilities of network and information systems that support the operation of your essential function(s). |  |
 
-# Principle B5 Resilient Networks and Systems
+## Principle B5 Resilient Networks and Systems
 
 The organisation builds resilience against cyber attack and system failure into the design, implementation, operation and management of systems that support the operation of your essential function(s).
 
-## B5.a Resilience Preparation
+### B5.a Resilience Preparation
 
 You are prepared to restore the operation of your essential function(s) following adverse impact to network and information systems.
 
 | Not Achieved | Partially Achieved | Achieved |
 |--------------|-------------------|----------|
 | Any of the following statements are true | All the following statements are true | All the following statements are true |
-| You have limited understanding of all the elements that are required to restore operation of network and information systems supporting your essential function(s). | You know all network and information systems, and underlying technologies, that are necessary to restore the operation of your essential function(s) and understand their interdependence. | You use your security awareness and threat intelligence sources to identify new or heightened levels of risk, which result in immediate and potentially temporary security measures to enhance the security of network and information systems supporting your essential function(s), (e.g. in response to a widespread outbreak of very damaging malware). |
-| You have not completed business continuity and disaster recovery plans for network and information systems, including their dependencies, supporting the operation of the essential function(s). | You know the order in which systems need to be recovered to efficiently and effectively restore the operation of the essential function(s). |  |
-| You have not fully assessed the practical implementation of your business continuity and disaster recovery plans. | You have business continuity and disaster recovery plans that have been tested for practicality, effectiveness and completeness. Appropriate use is made of different test methods (e.g. manual fail-over, table-top exercises, or red-teaming). |  |
+| You have limited understanding of all the elements that are required to restore operation of network and information systems supporting your essential function(s). | You know all network and information systems, and underlying technologies, that are necessary to restore the operation of your essential function(s) and understand their interdependence. | You have business continuity and disaster recovery plans that have been tested for practicality, effectiveness and completeness. Appropriate use is made of different test methods (e.g. manual fail-over, table-top exercises, or red-teaming). |
+| You have not completed business continuity and disaster recovery plans for network and information systems, including their dependencies, supporting the operation of the essential function(s). | You know the order in which systems need to be recovered to efficiently and effectively restore the operation of the essential function(s). | You use your security awareness and threat intelligence sources to identify new or heightened levels of risk, which result in immediate and potentially temporary security measures to enhance the security of network and information systems supporting your essential function(s), (e.g. in response to a widespread outbreak of very damaging malware). |
+| You have not fully assessed the practical implementation of your business continuity and disaster recovery plans. |
 
-## B5.b Design for Resilience
+### B5.b Design for Resilience
 
 You design network and information systems supporting your essential function(s) to be resilient to cyber security incidents. Systems are appropriately segregated and resource limitations are mitigated.
 
@@ -507,7 +506,7 @@ You design network and information systems supporting your essential function(s)
 |  |  | You have identified and mitigated any geographical constraints or weaknesses. (e.g. systems that your essential function(s) depends upon are replicated in another location, important network connectivity has alternative physical paths and service providers). |
 |  |  | You review and update assessments of dependencies, resource and geographical limitations and mitigations when necessary. |
 
-## B5.c Backups
+### B5.c Backups
 
 You hold accessible and secured current backups of data and information needed to recover operation of your essential function(s) following an adverse impact to network and information systems.
 
@@ -518,25 +517,25 @@ You hold accessible and secured current backups of data and information needed t
 | Backups are not frequent enough for the operation of your essential function(s) to be restored effectively. | You routinely test backups to ensure that the backup process function(s) correctly and the backups are usable. | Backups of all important data and information needed to recover the essential function(s) are made, tested, documented and routinely reviewed. |
 | Your restoration process does not restore your essential function(s) in a suitable time frame. |  |  |
 
-# Principle B6 Staff Awareness and Training
+### Principle B6 Staff Awareness and Training
 
 Staff have appropriate awareness, knowledge and skills to carry out their organisational roles effectively in relation to the security of network and information systems supporting the operation of your essential function(s).
 
-## B6.a Cyber Security Culture
+### B6.a Cyber Security Culture
 
 You develop and maintain a positive cyber security culture and a shared sense of responsibility.
 
 | Not Achieved | Partially Achieved | Achieved |
 |--------------|-------------------|----------|
 | At least one of the following statements is true | All the following statements are true | All the following statements are true |
-| People in your organisation do not understand what they contribute to the cyber security of network and information systems supporting your essential function(s). | Your executive management understand and widely communicate the importance of a positive cyber security culture. | Your executive management clearly and effectively communicates the organisation's cyber security priorities and objectives to all staff. Your organisation displays positive cyber security attitudes, behaviours, expectations. |
-| People in your organisation do not know how to raise a concern about cyber security. | Positive attitudes, behaviours and expectations are described for your organisation. | People in your organisation raising potential cyber security incidents and issues are treated positively. |
-| People believe that reporting issues may get them into trouble. | All people in your organisation understand the contribution they make to the cyber security of network and information systems supporting your essential functions(s). | Individuals at all levels in your organisation routinely report concerns or issues about cyber security and are recognised for their contribution to keeping the organisation secure. |
-| Your organisation's approach to cyber security is perceived by staff as hindering the business of the organisation and may encourage poor security behaviours. | All individuals in your organisation know who to contact and where to access more information about cyber security. They know how to raise a cyber security issue. | Your management is seen to be committed to and actively involved in cyber security. |
-| Formal or informal incentives and rewards conflict with the promotion of positive security outcomes. | You identify and address issues that inhibit people from behaving in a manner that supports your intended cyber security outcomes. | Your organisation communicates openly about cyber security, with any concern being taken seriously. |
+| People in your organisation do not understand what they contribute to the cyber security of network and information systems supporting your essential function(s). | Your executive management understand and widely communicate the importance of a positive cyber security culture. Positive attitudes, behaviours and expectations are described for your organisation. | Your executive management clearly and effectively communicates the organisation's cyber security priorities and objectives to all staff. Your organisation displays positive cyber security attitudes, behaviours, expectations. |
+| People in your organisation do not know how to raise a concern about cyber security. | All people in your organisation understand the contribution they make to the cyber security of network and information systems supporting your essential functions(s). | People in your organisation raising potential cyber security incidents and issues are treated positively. |
+| People believe that reporting issues may get them into trouble. | All individuals in your organisation know who to contact and where to access more information about cyber security. They know how to raise a cyber security issue. | Individuals at all levels in your organisation routinely report concerns or issues about cyber security and are recognised for their contribution to keeping the organisation secure. |
+| Your organisation's approach to cyber security is perceived by staff as hindering the business of the organisation and may encourage poor security behaviours. | You identify and address issues that inhibit people from behaving in a manner that supports your intended cyber security outcomes. | Your management is seen to be committed to and actively involved in cyber security. |
+| Formal or informal incentives and rewards conflict with the promotion of positive security outcomes. |  | Your organisation communicates openly about cyber security, with any concern being taken seriously. |
 |  |  | People across your organisation collaborate in cyber security activities and improvements, building joint ownership and bringing knowledge of their area of expertise. |
 
-# B6.b Cyber Security Training
+### B6.b Cyber Security Training
 
 The people who support the operation of network and information systems supporting your essential function(s) are appropriately trained in cyber security.
 
@@ -649,41 +648,16 @@ Threats to the operation of network and information systems, and corresponding u
 | You do not evaluate the usefulness of your threat intelligence or share feedback with providers or other users. | Your organisation may use threat intelligence services, but you do not necessarily choose sources or providers specifically because of your business needs, or specific threats in your sector (e.g. sector-based infoshare, software vendors, anti-virus providers, specialist threat intel firms, special interest groups). | When using threat intelligence feeds, these have been selected using risk-based and threat-informed decisions based on your business needs and sector. |
 | You have no awareness of the steps necessary to make best use of threat intelligence for security monitoring. | The user and system abnormalities from past attacks and threat intelligence, on your and other network and information systems, are used to signify adverse activity. | You make relevant, reliable and actionable threat intelligence available to the necessary users and systems promptly. |
 | Threat intelligence is unreliable and / or is not actioned by the appropriate users or systems in a timely manner. | You receive regular updates for all of your detection security technologies (e.g. AV, IDS). | You contextualise threat intelligence and link it to the why and / or how attacks take place for security monitoring. |
-| You have no established understanding of what abnormalities to look for that might signify adverse activities. | You understand normal user and system abnormalities fully, to such an extent that searching for system abnormalities is an effective way of detecting adverse activity (e.g. you fully understand which systems should and should not communicate and when). | The user and system abnormalities you monitor for are based on the nature of adverse activities likely to impact network and information systems supporting the operation of your essential function(s). |
-| You do not receive updates for all your detection security technologies (e.g. AV, IDS). |  | The user and system abnormalities indicative of adverse activity you use are regularly updated to reflect changes in network and information systems supporting your essential function(s) and current threat intelligence. |
-| You do not understand normal user and system behaviour sufficiently to be able to use abnormalities to detect adverse activity. |  | You possess the capability to share threat intelligence (e.g. ways to effectively detect adversaries) with the threat community / defender community (sector partners, threat intelligence providers, government agencies) when required. |
+| You have no established understanding of what abnormalities to look for that might signify adverse activities. |  | You understand normal user and system abnormalities fully, to such an extent that searching for system abnormalities is an effective way of detecting adverse activity (e.g. you fully understand which systems should and should not communicate and when). |
+| You do not receive updates for all your detection security technologies (e.g. AV, IDS). |  | The user and system abnormalities you monitor for are based on the nature of adverse activities likely to impact network and information systems supporting the operation of your essential function(s). |
+| You do not understand normal user and system behaviour sufficiently to be able to use abnormalities to detect adverse activity. |  | The user and system abnormalities indicative of adverse activity you use are regularly updated to reflect changes in network and information systems supporting your essential function(s) and current threat intelligence. |
+| | | You possess the capability to share threat intelligence (e.g. ways to effectively detect adversaries) with the threat community / defender community (sector partners, threat intelligence providers, government agencies) when required.
+
+## Principle C2 Threat Hunting
+
+The organisation proactively seeks to detect, within networks and information systems, adverse activity affecting, or with the potential to affect, the operation of essential functions even when the activity evades standard security prevent / detect solutions (or when standard solutions are not deployable).
 
 ### C2.a Threat Hunting
-
-## Not Achieved
-
-At least one of the following statements is true:
-
-- You do not know the resources required for threat hunting.
-- You do not have access to an effective threat hunting capability.
-- Your threat hunts do not follow any structure and few if any records are created.
-
-## Partially Achieved
-
-All of the following statements are true:
-
-- You have identified the resources required to perform threat hunting and are able to deploy these, in a timely manner, on an occasional basis.
-- You deploy an effective threat hunting capability but not frequent enough to match the risks posed to network and information systems supporting your essential function(s) (e.g. you perform threat hunts in response to a tip off from a reputable source).
-- Your threat hunts follow pre-determined and documented methods (e.g. hypothesis driven, data driven, entity driven) designed to identify adverse activity not detected by automated detections.
-- You document details of threat hunts and post hunt analysis.
-
-## Achieved
-
-All of the following statements are true:
-
-- You understand the resources required to perform threat hunting and these are deployed as part of business as usual.
-- You deploy threat hunting resources at a frequency that matches the risks posed to network and information systems supporting your essential function(s).
-- Your threat hunts follow pre-determined and documented methods (e.g. hypothesis driven, data driven, entity driven) designed to identify adverse activity not detected by automated detections.
-- You turn threat hunts into automated detections and alerting where appropriate.
-- You routinely record details of previous threat hunts and post hunt activities. You use these to drive improvements in your threat hunting and security posture.
-- You have justified confidence in the effectiveness of your threat hunts and the threat hunting process is reviewed and updated to match the risks posed to network and information systems supporting your essential function(s).
-- You leverage automation to improve threat hunts where appropriate (e.g. some stages of the threat hunting process are automated).
-- Your threat hunts focus on the tactics, techniques and procedures (TTPs) of threats over atomic IoCs (e.g. hashes, IP addresses, domain names etc).
 
 | Not Achieved | Partially Achieved | Achieved |
 |-------------|-------------------|----------|
@@ -696,6 +670,14 @@ All of the following statements are true:
 |  |  | You have justified confidence in the effectiveness of your threat hunts and the threat hunting process is reviewed and updated to match the risks posed to network and information systems supporting your essential function(s). |
 |  |  | You leverage automation to improve threat hunts where appropriate (e.g. some stages of the threat hunting process are automated). |
 |  |  | Your threat hunts focus on the tactics, techniques and procedures (TTPs) of threats over atomic IoCs (e.g. hashes, IP addresses, domain names etc). |
+
+# CAF - Objective D - Minimising the impact of cyber security incidents
+
+Capabilities exist to minimise the adverse impact of a cyber security incident on the operation of essential functions, including the restoration of those function(s) where necessary.
+
+## Principle D1 Response and Recovery Planning
+
+There are well-defined and tested incident management processes in place, that aim to ensure continuity of essential function(s) in the event of system or service failure. Mitigation activities designed to contain or limit the impact of compromise are also in place.
 
 ### D1.a Response Plan
 
@@ -736,6 +718,10 @@ Your organisation carries out exercises to test response plans, using past incid
 | Incident response exercises are not routinely carried out or are carried out in an ad-hoc way. | Exercise scenarios are documented, regularly reviewed, and validated. |
 | Outputs from exercises are not fed into the organisation's lessons learned process. | Exercises are routinely run, with the findings documented and used to refine incident response plans and protective security, in line with the lessons learned. |
 | Exercises do not test all parts of the response cycle. | Exercises test all parts of your response cycle relating to your essential function(s) (e.g. restoration of normal function(s) levels). |
+
+## Principle D2 Lessons Learned
+
+When an incident occurs, steps are taken to understand its causes and to ensure remediating action is taken to protect against future incidents.
 
 ### D2.a Post Incident Analysis
 
