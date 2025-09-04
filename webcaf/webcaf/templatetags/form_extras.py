@@ -2,9 +2,9 @@ from typing import Any
 
 from django import template
 
+from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Assessment
-from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import IndicatorStatusChecker
+from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
 
@@ -112,7 +112,7 @@ def is_final_objective(objective_id, assessment):
     :rtype: bool
     """
 
-    objective_ids = [objective["code"] for objective in assessment.get_router().get_main_headings()]
+    objective_ids = [objective["code"] for objective in assessment.get_router().get_sections()]
     idx = objective_ids.index(objective_id)
     return idx == len(objective_ids) - 1
 
@@ -130,7 +130,7 @@ def next_objective(objective_id, assessment):
              is the last in the list.
     :rtype: str or None
     """
-    objective_ids = [objective["code"] for objective in assessment.get_router().get_main_headings()]
+    objective_ids = [objective["code"] for objective in assessment.get_router().get_sections()]
     idx = objective_ids.index(objective_id)
     return objective_ids[idx + 1] if idx < len(objective_ids) - 1 else None
 
@@ -171,7 +171,7 @@ def is_all_objectives_complete(assessment_id):
     """
     if assessment_id:
         assessment = Assessment.objects.get(id=assessment_id)
-        for objective in assessment.get_router().get_main_headings():
+        for objective in assessment.get_router().get_sections():
             objective_id = objective["code"]
             sections = assessment.get_sections_by_objective_id(objective_id)
             if not _check_objective_complete(assessment, sections, objective_id):
@@ -198,7 +198,7 @@ def _check_objective_complete(
     :rtype: bool
     """
     if sections:
-        objective = assessment.get_router().get_main_heading(objective_id)
+        objective = assessment.get_router().get_section(objective_id)
         if objective is None or "principles" not in objective:
             return False
         all_outcomes = [

@@ -1,6 +1,6 @@
 from django import forms
 
-from .caf32_field_providers import FieldProvider
+from webcaf.webcaf.caf.field_providers import FieldProvider
 
 
 def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901

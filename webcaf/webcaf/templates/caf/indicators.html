@@ -50,13 +50,13 @@
                             </strong>
                         </div>
                         {% for item in form|filter_fields:"achieved" %}
-                            {% include "partials/statement_fieldset.html" with section_type="achieved" field_name_prefix="achieved" %}
+                            {% include "caf/partials/statement_fieldset.html" with section_type="achieved" field_name_prefix="achieved" %}
                         {% endfor %}
                     </div>
                     <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="partially_achieved">
                         <h1 class="govuk-heading-s">Partially achieved statements</h1>
                         {% for item in form|filter_fields:"partially-achieved" %}
-                            {% include "partials/statement_fieldset.html" with section_type="partially-achieved" field_name_prefix="partially-achieved" %}
+                            {% include "caf/partials/statement_fieldset.html" with section_type="partially-achieved" field_name_prefix="partially-achieved" %}
                         {% endfor %}
                     </div>
                     <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="not_achieved">
@@ -65,7 +65,7 @@
                             in this section you must provide justifications otherwise you will fail this outcome.
                         </div>
                         {% for item in form|filter_fields:"not-achieved" %}
-                            {% include "partials/statement_fieldset.html" with section_type="not-achieved" field_name_prefix="not-achieved" %}
+                            {% include "caf/partials/statement_fieldset.html" with section_type="not-achieved" field_name_prefix="not-achieved" %}
                         {% endfor %}
                     </div>
                 </div>

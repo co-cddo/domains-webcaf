@@ -1,7 +1,7 @@
 from django import template
 
 from webcaf.webcaf.models import UserProfile
-from webcaf.webcaf.views.permission_util import PermissionUtil
+from webcaf.webcaf.utils.permission import PermissionUtil
 
 register = template.Library()
 

@@ -1,4 +1,5 @@
-from .assesment_views import (
+from .account import AccountView, AccountViewAssessmentsView
+from .assesment import (
     CreateAssessmentProfileView,
     CreateAssessmentSystemView,
     CreateAssessmentView,
@@ -6,9 +7,8 @@ from .assesment_views import (
     EditAssessmentSystemView,
     EditAssessmentView,
 )
-from .general_views import logout_view
-from .my_account import Index, MyAccountView, MyAccountViewAssessmentsView
-from .my_organisation import (
+from .general import Index, logout_view
+from .organisation import (
     ChangeActiveProfileView,
     MyOrganisationView,
     OrganisationContactView,
@@ -27,8 +27,8 @@ __all__ = [
     "logout_view",
     # Account views
     "Index",
-    "MyAccountView",
-    "MyAccountViewAssessmentsView",
+    "AccountView",
+    "AccountViewAssessmentsView",
     # Organisation views
     "MyOrganisationView",
     "OrganisationContactView",

@@ -15,11 +15,11 @@ class FrameworkRouter(ABC):
     """
 
     @abstractmethod
-    def get_main_headings(self) -> list[dict]:
+    def get_sections(self) -> list[dict]:
         pass
 
     @abstractmethod
-    def get_main_heading(self, id: str) -> Optional[dict]:
+    def get_section(self, id: str) -> Optional[dict]:
         pass
 
     @abstractmethod

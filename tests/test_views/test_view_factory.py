@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase
 
-from webcaf.webcaf.views.view_factory import create_form_view
+from webcaf.webcaf.caf.views.factory import create_form_view
 
 
 class ViewFactoryFormValidTests(SimpleTestCase):
@@ -56,12 +56,12 @@ class ViewFactoryFormValidTests(SimpleTestCase):
         form = SimpleNamespace(cleaned_data=cleaned_data)
 
         # Create the dynamic view class; patch reverse_lazy to avoid URL resolution
-        with patch("webcaf.webcaf.views.view_factory.reverse_lazy", return_value="/success/"), patch(
-            "webcaf.webcaf.views.view_factory.SessionUtil.get_current_assessment", return_value=fake_assessment
+        with patch("webcaf.webcaf.caf.views.factory.reverse_lazy", return_value="/success/"), patch(
+            "webcaf.webcaf.caf.views.factory.SessionUtil.get_current_assessment", return_value=fake_assessment
         ) as mock_get_assessment, patch(
-            "webcaf.webcaf.views.view_factory.SessionUtil.get_current_user_profile", return_value=fake_user_profile
+            "webcaf.webcaf.caf.views.factory.SessionUtil.get_current_user_profile", return_value=fake_user_profile
         ) as mock_get_current_user_profile, patch(
-            "webcaf.webcaf.views.view_factory.FormView.form_valid", return_value="OK"
+            "webcaf.webcaf.caf.views.factory.FormView.form_valid", return_value="OK"
         ) as mock_super_form_valid:
             ViewClass = create_form_view(
                 success_url_name="ignored",

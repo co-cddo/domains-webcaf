@@ -1,8 +1,8 @@
 from django import forms
 from django.test import TestCase
 
-from webcaf.webcaf.caf32_field_providers import FieldProvider
-from webcaf.webcaf.form_factory import create_form
+from webcaf.webcaf.caf.field_providers import FieldProvider
+from webcaf.webcaf.forms.factory import create_form
 
 
 class MockProvider(FieldProvider):

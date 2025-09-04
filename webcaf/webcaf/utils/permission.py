@@ -1,4 +1,9 @@
+from abc import abstractmethod
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.utils.session import SessionUtil
 
 
 class PermissionUtil:
@@ -131,3 +136,22 @@ class PermissionUtil:
         return user_profile and user_profile.role in [
             "organisation_lead",
         ]
+
+
+class UserRoleCheckMixin(LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        else:
+            user_profile = SessionUtil.get_current_user_profile(request)
+            if user_profile.role not in self.get_allowed_roles():
+                return self.handle_no_permission()
+            return super().dispatch(request, *args, **kwargs)
+
+    @abstractmethod
+    def get_allowed_roles(self) -> list[str]:
+        """
+        Needs to be implemented by the subclass.
+        List of roles that are allowed to access the view.
+        :return:
+        """
