@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 from django import template
@@ -232,3 +233,10 @@ def split(value: str, delimiter: str = ","):
     if value:
         return [item.strip() for item in value.split(delimiter)]
     return []
+
+
+@register.filter
+def safe_id(value):
+    if not isinstance(value, str):
+        value = str(value)
+    return re.sub(r"[^a-zA-Z0-9_-]", "_", value)
