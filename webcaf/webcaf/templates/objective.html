@@ -27,16 +27,14 @@
                             {% if outcome_details.complete %}
                                 <dd class="govuk-summary-list__value  govuk-!-width-one-third">
                                     {% if outcome_details.override_status %}
-                                        <div class="govuk-grid-row govuk-!-width-full">
-                                            {% if outcome_details.override_status == 'Achieved' %}
-                                                <span class="govuk-tag govuk-tag--green govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
-                                            {% else %}
-                                                <span class="govuk-tag govuk-tag--pink govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
-                                            {% endif %}
-                                            <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
+                                        {% if outcome_details.override_status == 'Achieved' %}
+                                            <span class="govuk-tag govuk-tag--green govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                        {% else %}
+                                            <span class="govuk-tag govuk-tag--pink govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
+                                        {% endif %}
+                                        <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
                                             overridden
-                                            </span>
-                                        </div>
+                                        </span>
                                     {% else %}
                                         {% if outcome_details.outcome_status == 'Achieved' %}
                                             <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
