@@ -1,7 +1,6 @@
 import logging
 import uuid
 from collections import defaultdict
-from textwrap import shorten
 from typing import Any, Optional, Tuple, Type
 
 from django import forms
@@ -10,7 +9,6 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 
-from webcaf.webcaf.conflict_validators import CAF32ConflictValidator
 from webcaf.webcaf.forms import ContinueForm
 from webcaf.webcaf.views.session_utils import SessionUtil
 from webcaf.webcaf.views.util import IndicatorStatusChecker
@@ -192,14 +190,6 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
     """
 
     def form_valid(self, form):
-        validation_results = CAF32ConflictValidator.validate(form.cleaned_data)
-        if validation_results:
-            for validation_result in validation_results:
-                answers_ = validation_result["answers"]
-                target_field = self.find_field(form, list(sorted(answers_, reverse=True))[-1])
-                form.add_error(target_field.name if target_field else None, self.generate_error_message(form, answers_))
-            # Call the super here as we have custom error handling in the instance implementation
-            return super().form_invalid(form)
         return super().form_valid(form)
 
     def build_breadcrumbs(self):
@@ -229,12 +219,36 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         # This will update any feilds that the user has changed.
         form.initial.update(form.cleaned_data)
         friendly_errors = set()
+        # Build an index of fields by category prefix so we can derive human numbers per tab/category
+        fields_by_category = defaultdict(list)
+        for name in form.fields.keys():
+            if not name.endswith("_comment"):
+                category = name.split("_")[0]
+                fields_by_category[category].append(name)
+
+        def get_category_name(field_name: str) -> str:
+            prefix = field_name.split("_")[0]
+            if prefix == "achieved":
+                return "Achieved"
+            if prefix == "partially-achieved":
+                return "Partially achieved"
+            return "Not achieved"
+
+        # Compose message parts with human indices per category
+        def human_index(category: str, field_name: str) -> int:
+            try:
+                return fields_by_category[category].index(field_name) + 1
+            except ValueError:
+                # This shouldn't happen, but if it does, log an error and return a generic message
+                self.logger.error(f"Field {field_name} not found in category {category}")
+                return 1
+
         for error_field, errors in form.errors.items():
             friendly_errors.add(
                 ValidationError(
                     {
-                        error_field: "Need an input for : "
-                        + shorten(form.fields[error_field].label, 50, placeholder="...")
+                        error_field: f"Need an answer for "
+                        f"{get_category_name(error_field)} question {human_index(error_field.split('_')[0], error_field)}"
                     }
                 )
             )
@@ -261,60 +275,6 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
             if field.name.endswith(suffix):
                 return field
         return None
-
-    def generate_error_message(self, form, answers_):
-        """Build a human-friendly conflict error message for a set of answers.
-
-        The form has groups of fields per category (e.g. achieved_*, partially-achieved_*, not-achieved_*),
-        optionally with companion *_comment fields that should be ignored for numbering purposes. Given a set
-        of conflicting answer suffixes, produce a message like:
-
-            "Achieved answer 2 conflicts with Partially achieved answer 1 and Not achieved answer 3"
-        """
-        answers_ = list(answers_)
-
-        # Build an index of fields by category prefix so we can derive human numbers per tab/category
-        fields_by_category = defaultdict(list)
-        for name in form.fields.keys():
-            if not name.endswith("_comment"):
-                category = name.split("_")[0]
-                fields_by_category[category].append(name)
-
-        def get_category_name(field_name: str) -> str:
-            prefix = field_name.split("_")[0]
-            if prefix == "achieved":
-                return "Achieved"
-            if prefix == "partially-achieved":
-                return "Partially achieved"
-            return "Not achieved"
-
-        # Locate the first answer and compute its human position within its category
-        first_answer_field = self.find_field(form, answers_[0])
-        first_answer_name = first_answer_field.name if first_answer_field else answers_[0]
-        first_category_name = get_category_name(first_answer_name)
-        first_tab_name = first_answer_name.split("_")[0]
-
-        # Resolve the rest fields to their full names
-        rest_field_names = []
-        for suffix in answers_[1:]:
-            fld = self.find_field(form, suffix)
-            rest_field_names.append(fld.name if fld else suffix)
-
-        # Compose message parts with human indices per category
-        def human_index(category: str, field_name: str) -> int:
-            try:
-                return fields_by_category[category].index(field_name) + 1
-            except ValueError:
-                # This shouldn't happen, but if it does, log an error and return a generic message
-                self.logger.error(f"Field {field_name} not found in category {category}")
-                return 1
-
-        first_idx = human_index(first_tab_name, first_answer_name)
-        rest_parts = [
-            f"{get_category_name(name)} answer {human_index(name.split('_')[0], name)}" for name in rest_field_names
-        ]
-
-        return f"{first_category_name} answer {first_idx} conflicts with " + (" and ".join(rest_parts))
 
 
 class OutcomeConfirmationView(BaseIndicatorsFormView):
