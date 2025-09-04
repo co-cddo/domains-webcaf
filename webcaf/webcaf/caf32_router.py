@@ -1,13 +1,15 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import Any, Generator
+import os
+from typing import Any, Generator, Optional
 
 import yaml
+from django.conf import settings
 from django.urls import path, reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import FormView
 
 from webcaf import urls
+from webcaf.webcaf.abcs import FrameworkRouter
 from webcaf.webcaf.views.view_factory import create_form_view
 
 from .caf32_field_providers import (
@@ -24,30 +26,10 @@ FormViewClass = type[FormView]
 CAF32Element = dict[str, Any]
 
 
-# This is really just a placeholder for now. Until we add in new frameworks we can't know what makes sense
-# to be included in a common interface.
-class FrameworkRouter(ABC):
-    """
-    This class is the primary interface between the YAML CAF and the rest of the application. It's declared
-    as a class partly in case we later want to use an ABC to declare a common interface for different types
-    of router.
-
-    It reads the YAML and from there can produce a route based on all the outcomes, only those associated with
-    organisations or only those associated with systems. This is done by creating a class for each view and form
-    element in the CAF then updating Django's url patterns with paths to the views. Each form is provided the
-    success_url for the next page in the route.
-    """
-
-    all_url_names: list[str] = []
-    parent_map: dict[str, Any] = {}
-
-    @abstractmethod
-    def execute(self) -> None:
-        pass
-
-
 class CAF32Router(FrameworkRouter):
-    logger = logging.getLogger("FrameworkRouter")
+    framework_path = os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
+    path_prefix = "caf32"
+    logger = logging.getLogger("CAF32Router")
 
     @staticmethod
     def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
@@ -56,8 +38,7 @@ class CAF32Router(FrameworkRouter):
         breadcrumbs.insert(0, {"url": reverse_lazy("my-account"), "text": "My account"})
         return breadcrumbs
 
-    def __init__(self, framework_path, exit_url: str = "index") -> None:
-        self.file_path = framework_path
+    def __init__(self, exit_url: str = "index") -> None:
         self.exit_url = exit_url
         self.framework: CAF32Element = {}
         self.elements: list[CAF32Element] = []
@@ -87,7 +68,7 @@ class CAF32Router(FrameworkRouter):
         }
         if element["type"] in ["objective", "principle"]:
             template_name = f"{element['type']}.html"
-            class_prefix = f"{element['type'].capitalize()}View"
+            class_prefix = f"{self.__class__.path_prefix.capitalize()}{element['type'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
                 template_name=template_name,
@@ -95,11 +76,15 @@ class CAF32Router(FrameworkRouter):
                 class_id=element["code"],
                 extra_context=extra_context | {"objective_data": element},
             )
-            url_path_to_add = path(f"{url_path}/", element["view_class"].as_view(), name=element["short_name"])
-            urls.urlpatterns.append(url_path_to_add)
+            url_to_add = path(
+                f"{self.__class__.path_prefix}/{url_path}/",
+                element["view_class"].as_view(),
+                name=element["short_name"],
+            )
+            urls.urlpatterns.append(url_to_add)
         else:
             template_name = f"{element['stage']}.html"
-            class_prefix = f"Outcome{element['stage'].capitalize()}View"
+            class_prefix = f"{self.__class__.path_prefix.capitalize()}Outcome{element['stage'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
                 template_name=template_name,
@@ -115,13 +100,15 @@ class CAF32Router(FrameworkRouter):
                     "objective_data": element["parent"]["parent"],
                 },
             )
-            url_path_to_add = path(
-                f"{url_path}/{element['stage']}/", element["view_class"].as_view(), name=element["short_name"]
+            url_to_add = path(
+                f"{self.__class__.path_prefix}/{url_path}/{element['stage']}/",
+                element["view_class"].as_view(),
+                name=element["short_name"],
             )
-            urls.urlpatterns.append(url_path_to_add)
-        self.logger.info(f"Added {url_path_to_add}")
+            urls.urlpatterns.append(url_to_add)
+        self.logger.info(f"Added {url_to_add}")
 
-    def traverse_framework(self) -> Generator[CAF32Element, None, None]:
+    def _traverse_framework(self) -> Generator[CAF32Element, None, None]:
         """
         Traverse the framework structure and yield those elements requiring their own
         page in a single sequence.
@@ -134,7 +121,7 @@ class CAF32Router(FrameworkRouter):
                 **objective,
                 "type": "objective",
                 "code": objective_code,
-                "short_name": f"objective_{objective_code}",
+                "short_name": f"{self.__class__.path_prefix}_objective_{objective_code}",
                 "parent": None,
             }
             yield objective_
@@ -143,7 +130,7 @@ class CAF32Router(FrameworkRouter):
                     **principle,
                     "type": "principle",
                     "code": principle_code,
-                    "short_name": f"principle_{principle_code}",
+                    "short_name": f"{self.__class__.path_prefix}_principle_{principle_code}",
                     "parent": objective_,
                 }
                 yield principle_
@@ -152,7 +139,7 @@ class CAF32Router(FrameworkRouter):
                         **outcome,
                         "type": "outcome",
                         "code": outcome_code,
-                        "short_name": f"indicators_{outcome_code}",
+                        "short_name": f"{self.__class__.path_prefix}_indicators_{outcome_code}",
                         "parent": principle_,
                         "stage": "indicators",
                     }
@@ -161,7 +148,7 @@ class CAF32Router(FrameworkRouter):
                         **outcome,
                         "type": "outcome",
                         "code": outcome_code,
-                        "short_name": f"confirmation_{outcome_code}",
+                        "short_name": f"{self.__class__.path_prefix}_confirmation_{outcome_code}",
                         "parent": principle_,
                         "stage": "confirmation",
                     }
@@ -187,11 +174,23 @@ class CAF32Router(FrameworkRouter):
                 self._process_outcome(element)
 
     def _read(self) -> None:
-        with open(self.file_path, "r") as file:
+        with open(self.__class__.framework_path, "r") as file:
             self.framework = yaml.safe_load(file)
-            self.elements = list(self.traverse_framework())
+            self.elements = list(self._traverse_framework())
+
+    def get_main_headings(self) -> list[dict]:
+        return list(filter(lambda x: x["type"] == "objective", self.elements))
+
+    def get_main_heading(self, objective_id: str) -> Optional[dict]:
+        return next((x for x in self.get_main_headings() if x["code"] == objective_id), None)
 
     # Keeping this interface so we can separate generating the order of the elements
     # from creating the Django urls
     def execute(self) -> None:
         self._create_route()
+
+
+class CAF40Router(CAF32Router):
+    framework_path = os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v4.0.yaml")
+    path_prefix = "caf40"
+    logger = logging.getLogger("CAF40Router")

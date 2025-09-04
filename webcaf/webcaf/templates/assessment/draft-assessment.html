@@ -73,7 +73,7 @@
                     <li class="govuk-task-list__item">
                         <div class="govuk-task-list__name-and-hint">
                             {% if draft_assessment.assessment_id %}
-                                {% with 'objective_'|add:objective.code as objective_id %}
+                                {% with draft_assessment.framework|add:'_objective_'|add:objective.code as objective_id %}
                                     <a class="govuk-link govuk-task-list__link"
                                        href="{% url objective_id %}"
                                        aria-describedby="first-section-2-status">

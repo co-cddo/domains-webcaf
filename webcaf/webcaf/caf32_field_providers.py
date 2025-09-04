@@ -1,26 +1,8 @@
-from abc import ABC, abstractmethod
 from collections import namedtuple
 
+from webcaf.webcaf.abcs import FieldProvider
 
-class FieldProvider(ABC):
-    """
-    An interface for providing specifications for form fields, based on an
-    assessment framework. These are consumed by the form factory.
-
-    The purpose of this class is to separate the form factory from the
-    specifics of the assessment framework.
-    """
-
-    @abstractmethod
-    def get_metadata(self) -> dict:
-        pass
-
-    @abstractmethod
-    def get_field_definitions(self) -> list[dict]:
-        pass
-
-
-Choice = namedtuple("Choice", ["value", "label", "needs_justification_text"])
+AchievementChoice = namedtuple("AchievementChoice", ["value", "label", "needs_justification_text"])
 
 
 class OutcomeIndicatorsFieldProvider(FieldProvider):
@@ -39,23 +21,27 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         fields = []
         justifications = {
             "not-achieved": [
-                Choice("agreed", "This does apply to my system or organisation and I have justifications", True),
-                Choice(
+                AchievementChoice(
+                    "agreed", "This does apply to my system or organisation and I have justifications", True
+                ),
+                AchievementChoice(
                     "not_true_have_justification",
                     "This does apply to my system or organisation, but I have no justifications",
                     False,
                 ),
-                Choice("not_true_no_justification", "This does not apply to my system or organisation", False),
+                AchievementChoice(
+                    "not_true_no_justification", "This does not apply to my system or organisation", False
+                ),
             ],
             "achieved": [
-                Choice("agreed", "True", False),
-                Choice("not_true_have_justification", "Not true, but I do have justifications", True),
-                Choice("not_true_no_justification", "Not true, and I have no justifications", False),
+                AchievementChoice("agreed", "True", False),
+                AchievementChoice("not_true_have_justification", "Not true, but I do have justifications", True),
+                AchievementChoice("not_true_no_justification", "Not true, and I have no justifications", False),
             ],
             "partially-achieved": [
-                Choice("agreed", "True", False),
-                Choice("not_true_have_justification", "Not true, but I do have justifications", True),
-                Choice("not_true_no_justification", "Not true, and I have no justifications", False),
+                AchievementChoice("agreed", "True", False),
+                AchievementChoice("not_true_have_justification", "Not true, but I do have justifications", True),
+                AchievementChoice("not_true_no_justification", "Not true, and I have no justifications", False),
             ],
         }
         for level in ["not-achieved", "partially-achieved", "achieved"]:
@@ -86,16 +72,18 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         # The irrelevant ones are filtered out in the view as the options are
         # dependent on the indicator outcome answers
         status_choices = [
-            Choice("confirm", "Confirm", False),
-            Choice("change_to_achieved", "Change to Achieved", True),
-            Choice("change_to_not_achieved", "Change to Not Achieved", True),
+            AchievementChoice("confirm", "Confirm", False),
+            AchievementChoice("change_to_achieved", "Change to Achieved", True),
+            AchievementChoice("change_to_not_achieved", "Change to Not Achieved", True),
         ]
 
         if (
             "partially-achieved" in self.outcome_data.get("indicators", {})
             and self.outcome_data["indicators"]["partially-achieved"]
         ):
-            status_choices.append(Choice("change_to_partially_achieved", "Change to Partially Achieved", True))
+            status_choices.append(
+                AchievementChoice("change_to_partially_achieved", "Change to Partially Achieved", True)
+            )
 
         return [
             {

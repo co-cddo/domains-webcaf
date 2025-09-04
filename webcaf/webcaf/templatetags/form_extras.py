@@ -4,7 +4,7 @@ from django import template
 
 from webcaf.webcaf.models import Assessment
 from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import ConfigHelper, IndicatorStatusChecker
+from webcaf.webcaf.views.util import IndicatorStatusChecker
 
 register = template.Library()
 
@@ -97,7 +97,7 @@ def get_assessment(request):
 
 
 @register.simple_tag()
-def is_final_objective(objetive_id):
+def is_final_objective(objective_id, assessment):
     """
     Determine if the given objective ID corresponds to the final objective.
 
@@ -111,13 +111,14 @@ def is_final_objective(objetive_id):
              corresponds to the final objective.
     :rtype: bool
     """
-    objective_ids = [objective["code"] for objective in ConfigHelper.get_objectives()]
-    idx = objective_ids.index(objetive_id)
+
+    objective_ids = [objective["code"] for objective in assessment.get_router().get_main_headings()]
+    idx = objective_ids.index(objective_id)
     return idx == len(objective_ids) - 1
 
 
 @register.simple_tag()
-def next_objective(objetive_id):
+def next_objective(objective_id, assessment):
     """
     Retrieves the identifier for the next objective based on the current objective ID. The function
     uses a predefined list of objective IDs to determine the next item in sequence. If the current
@@ -129,9 +130,9 @@ def next_objective(objetive_id):
              is the last in the list.
     :rtype: str or None
     """
-    objective_ids = [objective["code"] for objective in ConfigHelper.get_objectives()]
-    idx = objective_ids.index(objetive_id)
-    return f"objective_{objective_ids[idx + 1]}" if idx < len(objective_ids) - 2 else None
+    objective_ids = [objective["code"] for objective in assessment.get_router().get_main_headings()]
+    idx = objective_ids.index(objective_id)
+    return objective_ids[idx + 1] if idx < len(objective_ids) - 1 else None
 
 
 @register.simple_tag()
@@ -150,7 +151,7 @@ def is_objective_complete(assessment_id, objective_id):
     """
     assessment = Assessment.objects.get(id=assessment_id)
     sections = assessment.get_sections_by_objective_id(objective_id)
-    return _check_objective_complete(sections, objective_id)
+    return _check_objective_complete(assessment, sections, objective_id)
 
 
 @register.simple_tag()
@@ -170,16 +171,17 @@ def is_all_objectives_complete(assessment_id):
     """
     if assessment_id:
         assessment = Assessment.objects.get(id=assessment_id)
-        for objective in ConfigHelper.get_objectives():
+        for objective in assessment.get_router().get_main_headings():
             objective_id = objective["code"]
             sections = assessment.get_sections_by_objective_id(objective_id)
-            if not _check_objective_complete(sections, objective_id):
+            if not _check_objective_complete(assessment, sections, objective_id):
                 return False
         return True
     return False
 
 
 def _check_objective_complete(
+    assessment: Assessment,
     sections: list[tuple[str, Any]] | None,
     objective_id: str,
 ):
@@ -196,7 +198,9 @@ def _check_objective_complete(
     :rtype: bool
     """
     if sections:
-        objective = ConfigHelper.get_objective(objective_id)
+        objective = assessment.get_router().get_main_heading(objective_id)
+        if objective is None or "principles" not in objective:
+            return False
         all_outcomes = [
             outcome["code"]
             for principle in objective["principles"].values()

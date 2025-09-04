@@ -48,7 +48,7 @@
                                 </dd>
                                 <dd class="govuk-summary-list__actions  govuk-!-width-one-third">
 
-                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
+                                    {% with assessment.framework|add:'_indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
                                            href="{% url indicator_url %}">
                                             Change<span class="govuk-visually-hidden"> Question 1</span></a>
@@ -57,7 +57,7 @@
                             {% else %}
                                 <dd class="govuk-summary-list__value  govuk-!-width-one-third"></dd>
                                 <dd class="govuk-summary-list__actions govuk-!-width-one-third">
-                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
+                                    {% with assessment.framework|add:'_indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
                                            href="{% url indicator_url %}">
                                             Add your answers<span class="govuk-visually-hidden"> Question 1</span></a>
@@ -68,15 +68,16 @@
                     {% endfor %}
                 </dl>
             {% endfor %}
-            {% is_final_objective objective_data.code as final_objective %}
+            {% is_final_objective objective_data.code assessment as final_objective %}
             <form method="GET"
                     {% if not final_objective %}
-                        {% next_objective objective_data.code as next_objective %}
-                  action="{% url next_objective %}"
+                        {% next_objective objective_data.code assessment as next_objective_code %}
+                        {% with assessment.framework|add:'_objective_'|add:next_objective_code as next_objective_url %}
+                            action="{% url next_objective_url %}"
+                        {% endwith %}
                     {% else %}
-                  action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
-                    {% endif %}
-            >
+                        action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
+                    {% endif %}>
                 <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
                     {% if not final_objective %}
                         Save and continue

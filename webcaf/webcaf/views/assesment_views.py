@@ -9,7 +9,6 @@ from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
 from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import ConfigHelper
 
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
@@ -28,7 +27,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
     :type template_name: str
     """
 
-    login_url = "/oidc/authenticate/"  #
+    login_url = "/oidc/authenticate/"
     template_name = "assessment/draft-assessment.html"
     logger = logging.Logger("EditAssessmentView")
 
@@ -43,13 +42,14 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             "assessment_id": assessment.id,
             "system": assessment.system.id,
             "caf_profile": assessment.caf_profile,
+            "framework": assessment.framework,
         }
         # We need to access this information later in the assessment editing stages.
         self.request.session["draft_assessment"] = draft_assessment
         user_profile = SessionUtil.get_current_user_profile(self.request)
         data = {
             "draft_assessment": draft_assessment,
-            "objectives": ConfigHelper.get_objectives(),
+            "objectives": assessment.get_router().get_main_headings(),
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},
             ]
@@ -219,6 +219,8 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
     logger = logging.Logger("CreateAssessmentView")
 
     def get_context_data(self, **kwargs):
+        from webcaf.webcaf.frameworks import routers
+
         data = {}
         profile_id = self.request.session["current_profile_id"]
         profile = UserProfile.objects.get(user=self.request.user, id=profile_id)
@@ -231,7 +233,9 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
             id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
         )
-        data["objectives"] = ConfigHelper.get_objectives()
+        # Hard code the router class version for now
+        router = routers["caf32"]
+        data["objectives"] = router.get_main_headings()
         return data
 
     def get_success_url(self):
@@ -268,6 +272,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
                 },
             )
             draft_assessment["assessment_id"] = assessment.id
+            draft_assessment["framework"] = assessment.framework
             assessment.last_updated_by = self.request.user
             assessment.save()
             self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")

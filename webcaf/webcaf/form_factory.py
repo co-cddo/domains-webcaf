@@ -10,7 +10,7 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
     specifics of the assessment framework (or other document) being
     represented.
     """
-    metadata = provider.get_metadata()
+    metadata = provider.get_metadata() or {}
     field_defs = provider.get_field_definitions()
 
     form_fields = {}
