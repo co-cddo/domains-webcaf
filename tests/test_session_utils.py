@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase
 
-from webcaf.webcaf.views.session_utils import SessionUtil
+from webcaf.webcaf.utils.session import SessionUtil
 
 
 class SessionUtilTests(SimpleTestCase):

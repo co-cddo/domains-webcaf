@@ -3,7 +3,7 @@ import os
 import yaml
 from django.test import TestCase
 
-from webcaf.webcaf.caf32_field_providers import (
+from webcaf.webcaf.caf.field_providers import (
     OutcomeConfirmationFieldProvider,
     OutcomeIndicatorsFieldProvider,
 )

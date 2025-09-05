@@ -6,11 +6,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView, UpdateView
 
-from webcaf.webcaf.forms import NextActionForm
+from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.models import System, UserProfile
-from webcaf.webcaf.views.permission_util import PermissionUtil
-from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import UserRoleCheckMixin
+from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
+from webcaf.webcaf.utils.session import SessionUtil
 
 
 class SystemForm(ModelForm):

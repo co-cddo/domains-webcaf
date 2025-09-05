@@ -5,15 +5,7 @@ from django.views.generic import TemplateView
 from webcaf.webcaf.models import Assessment, System, UserProfile
 
 
-class Index(TemplateView):
-    """
-    Landing page
-    """
-
-    template_name = "index.html"
-
-
-class MyAccountView(LoginRequiredMixin, TemplateView):
+class AccountView(LoginRequiredMixin, TemplateView):
     """
     Handles the user account view which provides user account management and displays specific
     profile-related data. It is accessible only to authenticated users and serves as an entry point
@@ -86,7 +78,7 @@ class MyAccountView(LoginRequiredMixin, TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-class MyAccountViewAssessmentsView(MyAccountView):
+class AccountViewAssessmentsView(AccountView):
     """
     Represents a view for displaying draft assessments in the user's account.
 

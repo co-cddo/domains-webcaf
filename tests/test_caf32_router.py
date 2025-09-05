@@ -7,7 +7,7 @@ from django.test import RequestFactory
 from django.urls.resolvers import URLPattern
 
 from webcaf import urls
-from webcaf.webcaf.caf32_router import CAF32Router
+from webcaf.webcaf.caf.routers import CAF32Router
 from webcaf.webcaf.models import Assessment, UserProfile
 
 # Test that when _create_view_and_url is called with an outcome, it has a form class as an argument.

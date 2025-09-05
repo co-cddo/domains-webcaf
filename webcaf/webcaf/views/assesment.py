@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
-from webcaf.webcaf.views.session_utils import SessionUtil
+from webcaf.webcaf.utils.session import SessionUtil
 
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
@@ -49,7 +49,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         user_profile = SessionUtil.get_current_user_profile(self.request)
         data = {
             "draft_assessment": draft_assessment,
-            "objectives": assessment.get_router().get_main_headings(),
+            "objectives": assessment.get_router().get_sections(),
             "breadcrumbs": [
                 {"url": reverse("my-account"), "text": "My account"},
             ]
@@ -148,7 +148,7 @@ class EditAssessmentProfileView(EditAssessmentView):
     :type form_class: type
     """
 
-    template_name = "assessment/caf-profile.html"
+    template_name = "assessment-profile.html"
     form_class = AssessmentProfileForm
 
     def breadcrumbs(self, assessment_id: int):
@@ -181,7 +181,7 @@ class EditAssessmentSystemView(EditAssessmentView):
     :type form_class: Type[forms.Form]
     """
 
-    template_name = "assessment/system-details.html"
+    template_name = "system/system-details.html"
     form_class = AssessmentSystemForm
 
     def breadcrumbs(self, assessment_id: int):
@@ -235,7 +235,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         )
         # Hard code the router class version for now
         router = routers["caf32"]
-        data["objectives"] = router.get_main_headings()
+        data["objectives"] = router.get_sections()
         return data
 
     def get_success_url(self):
@@ -302,7 +302,7 @@ class CreateAssessmentProfileView(CreateAssessmentView):
     """
 
     form_class = AssessmentProfileForm
-    template_name = "assessment/caf-profile.html"
+    template_name = "assessment-profile.html"
 
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
@@ -335,7 +335,7 @@ class CreateAssessmentSystemView(CreateAssessmentView):
     """
 
     form_class = AssessmentSystemForm
-    template_name = "assessment/system-details.html"
+    template_name = "system/system-details.html"
 
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]

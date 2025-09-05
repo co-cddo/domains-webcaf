@@ -3,47 +3,26 @@ import random
 import string
 from datetime import datetime
 
-from django import forms
-from django.forms import Form
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
+from webcaf.webcaf.forms.general import HeadingConfirmationForm
 from webcaf.webcaf.templatetags.form_extras import (
     get_assessment,
     is_all_objectives_complete,
 )
-from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import UserRoleCheckMixin
+from webcaf.webcaf.utils.permission import UserRoleCheckMixin
+from webcaf.webcaf.utils.session import SessionUtil
 
 
-class ObjectiveConfirmationForm(Form):
+class SectionConfirmationView(UserRoleCheckMixin, FormView):
     """
-    A form to confirm whether an objective has been completed on time.
+    Represents a view to handle the confirmation page for a main section
+    of an assessment.
 
-    This form is used to collect user input for verifying if the objective
-    was completed within the intended deadline. It includes a single field
-    for this purpose.
-
-    :ivar completed_on_time: A field indicating whether the objective was
-        completed on time.
-    :type completed_on_time: forms.BooleanField
-    """
-
-    completed_on_time = forms.BooleanField(
-        required=True,
-    )
-
-
-class ObjectiveConfirmationView(UserRoleCheckMixin, FormView):
-    """
-    Represents a view to handle the objective confirmation page.
-
-    This view is responsible for rendering the template associated with the
-    objective confirmation process. It provides the necessary context data,
-    including the objectives fetched using an external helper class. The
-    primary responsibility of this view is to render the template with all
-    required data, ensuring seamless user interaction.
+    For the purpose of the Cyber Assessment Framework (CAF), a main section
+    is an 'Objective'.
 
     :ivar template_name: Path to the template used to render the objective
         confirmation page.
@@ -51,7 +30,7 @@ class ObjectiveConfirmationView(UserRoleCheckMixin, FormView):
     """
 
     template_name = "assessment/objective-confirmation.html"
-    form_class = ObjectiveConfirmationForm
+    form_class = HeadingConfirmationForm
     logger = logging.Logger("ObjectiveConfirmationView")
 
     def get_allowed_roles(self) -> list[str]:
@@ -62,7 +41,7 @@ class ObjectiveConfirmationView(UserRoleCheckMixin, FormView):
         assessment = get_assessment(self.request)
         # Come back to this.
         if assessment:
-            data["objectives"] = assessment.get_router().get_main_headings()
+            data["objectives"] = assessment.get_router().get_sections()
         data["user_profile"] = SessionUtil.get_current_user_profile(self.request)
         return data
 
@@ -84,14 +63,14 @@ class ObjectiveConfirmationView(UserRoleCheckMixin, FormView):
         """
         Validates the submitted form and handles assessment processing.
 
-        If a current assessment exists in the session, checks whether all objectives
+        If a current assessment exists in the session, checks whether all sections
         of the assessment are completed. If completed and the assessment is in
         draft status, updates the assessment status to 'submitted', generates a
         reference for it, sets the user who last updated it, and saves the updated
         assessment. Logs the actions performed. Redirects to the submission
         confirmation page if successful.
 
-        If the assessment objectives are not completed, logs the unauthorized
+        If the assessment sections are not completed, logs the unauthorized
         submission attempt and redirects back to the account page. If no assessment
         is found in the session, logs the absence and redirects to the account page.
 

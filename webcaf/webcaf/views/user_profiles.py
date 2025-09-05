@@ -1,17 +1,14 @@
 import logging
 
-from django import forms
 from django.contrib.auth.models import User
-from django.forms import ModelForm
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
-from webcaf.webcaf.forms import NextActionForm
+from webcaf.webcaf.forms.general import NextActionForm, UserProfileForm
 from webcaf.webcaf.models import UserProfile
-from webcaf.webcaf.views.permission_util import PermissionUtil
-from webcaf.webcaf.views.session_utils import SessionUtil
-from webcaf.webcaf.views.util import UserRoleCheckMixin
+from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
+from webcaf.webcaf.utils.session import SessionUtil
 
 
 class UserProfilesView(UserRoleCheckMixin, TemplateView):
@@ -28,39 +25,6 @@ class UserProfilesView(UserRoleCheckMixin, TemplateView):
         if not PermissionUtil.current_user_can_view_users(user_profile):
             raise PermissionError("You are not allowed to view this page")
         return data
-
-
-class UserProfileForm(ModelForm):
-    first_name = forms.CharField(max_length=150, required=True)
-    last_name = forms.CharField(max_length=150, required=True)
-    email = forms.CharField(max_length=150, required=True)
-    # By default we do not pass the action field in the initial form, which makes the validation failure
-    # and we capture that ant and redirect the user to the confirmation page.
-    action = forms.ChoiceField(choices=[("change", "Change"), ("confirm", "Confirm")], required=True)
-
-    class Meta:
-        model = UserProfile
-        fields = ["first_name", "last_name", "email", "role"]
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get("instance")
-        if instance:
-            initial = kwargs.setdefault("initial", {})
-            initial["first_name"] = instance.user.first_name
-            initial["last_name"] = instance.user.last_name
-            initial["email"] = instance.user.email
-        super().__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        # Save role to UserProfile and names to related User
-        profile = super().save(commit=False)
-        user = profile.user
-        user.first_name = self.cleaned_data["first_name"]
-        user.last_name = self.cleaned_data["last_name"]
-        if commit:
-            user.save()
-            profile.save()
-        return profile
 
 
 class UserProfileView(UserRoleCheckMixin, FormView):

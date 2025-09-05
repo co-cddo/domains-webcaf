@@ -10,14 +10,14 @@ from django.views.generic import FormView
 
 from webcaf import urls
 from webcaf.webcaf.abcs import FrameworkRouter
-from webcaf.webcaf.views.view_factory import create_form_view
+from webcaf.webcaf.caf.views.factory import create_form_view
+from webcaf.webcaf.forms.factory import create_form
 
-from .caf32_field_providers import (
+from .field_providers import (
     FieldProvider,
     OutcomeConfirmationFieldProvider,
     OutcomeIndicatorsFieldProvider,
 )
-from .form_factory import create_form
 
 FrameworkValue = str | dict | int | None
 
@@ -67,7 +67,7 @@ class CAF32Router(FrameworkRouter):
             "breadcrumbs": CAF32Router._build_breadcrumbs(element),
         }
         if element["type"] in ["objective", "principle"]:
-            template_name = f"{element['type']}.html"
+            template_name = f"caf/{element['type']}.html"
             class_prefix = f"{self.__class__.path_prefix.capitalize()}{element['type'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
@@ -83,7 +83,7 @@ class CAF32Router(FrameworkRouter):
             )
             urls.urlpatterns.append(url_to_add)
         else:
-            template_name = f"{element['stage']}.html"
+            template_name = f"caf/{element['stage']}.html"
             class_prefix = f"{self.__class__.path_prefix.capitalize()}Outcome{element['stage'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
@@ -178,11 +178,11 @@ class CAF32Router(FrameworkRouter):
             self.framework = yaml.safe_load(file)
             self.elements = list(self._traverse_framework())
 
-    def get_main_headings(self) -> list[dict]:
+    def get_sections(self) -> list[dict]:
         return list(filter(lambda x: x["type"] == "objective", self.elements))
 
-    def get_main_heading(self, objective_id: str) -> Optional[dict]:
-        return next((x for x in self.get_main_headings() if x["code"] == objective_id), None)
+    def get_section(self, objective_id: str) -> Optional[dict]:
+        return next((x for x in self.get_sections() if x["code"] == objective_id), None)
 
     # Keeping this interface so we can separate generating the order of the elements
     # from creating the Django urls

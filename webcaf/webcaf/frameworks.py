@@ -1,5 +1,5 @@
 from webcaf.webcaf.abcs import FrameworkRouter
-from webcaf.webcaf.caf32_router import CAF32Router, CAF40Router
+from webcaf.webcaf.caf.routers import CAF32Router, CAF40Router
 
 routers_mapping = {"caf32": CAF32Router, "caf40": CAF40Router}
 

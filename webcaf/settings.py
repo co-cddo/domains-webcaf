@@ -82,7 +82,7 @@ ROOT_URLCONF = "webcaf.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "webcaf", "templates")],
+        "DIRS": [os.path.join(BASE_DIR, "webcaf", "templates"), os.path.join(BASE_DIR, "webcaf", "templates", "caf")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -90,7 +90,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "webcaf.utils.variable_page_content",
+                "webcaf.context_processors.variable_page_content",
             ],
         },
     },

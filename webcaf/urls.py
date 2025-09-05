@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 from webcaf.webcaf.views import (
+    AccountView,
+    AccountViewAssessmentsView,
     ChangeActiveProfileView,
     CreateAssessmentProfileView,
     CreateAssessmentSystemView,
@@ -26,24 +28,22 @@ from webcaf.webcaf.views import (
     EditAssessmentSystemView,
     EditAssessmentView,
     Index,
-    MyAccountView,
-    MyAccountViewAssessmentsView,
     MyOrganisationView,
     OrganisationContactView,
     OrganisationTypeView,
 )
-from webcaf.webcaf.views.general_views import logout_view
-from webcaf.webcaf.views.objective_views import (
-    ObjectiveConfirmationView,
+from webcaf.webcaf.views.general import logout_view
+from webcaf.webcaf.views.sections import (
+    SectionConfirmationView,
     ShowSubmissionConfirmationView,
 )
-from webcaf.webcaf.views.system_views import (
+from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
     EditSystemView,
     SystemView,
     ViewSystemsView,
 )
-from webcaf.webcaf.views.users_profiles_view import (
+from webcaf.webcaf.views.user_profiles import (
     CreateOrSkipUserProfileView,
     CreateUserProfileView,
     RemoveUserProfileView,
@@ -53,8 +53,8 @@ from webcaf.webcaf.views.users_profiles_view import (
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
-    path("my-account/", MyAccountView.as_view(), name="my-account"),
-    path("my-account/view-draft-assessments/", MyAccountViewAssessmentsView.as_view(), name="view-draft-assessments"),
+    path("my-account/", AccountView.as_view(), name="my-account"),
+    path("my-account/view-draft-assessments/", AccountViewAssessmentsView.as_view(), name="view-draft-assessments"),
     path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
     path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
     path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
@@ -81,7 +81,7 @@ urlpatterns = [
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
     ),
-    path("objective-confirmation/", ObjectiveConfirmationView.as_view(), name="objective-confirmation"),
+    path("objective-confirmation/", SectionConfirmationView.as_view(), name="objective-confirmation"),
     path(
         "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
     ),
