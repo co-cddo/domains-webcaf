@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 
 class FrameworkRouter(ABC):
@@ -23,7 +23,7 @@ class FrameworkRouter(ABC):
         pass
 
     @abstractmethod
-    def execute(self) -> None:
+    def execute(self) -> Any | None:
         pass
 
 

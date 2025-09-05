@@ -14,7 +14,18 @@ from webcaf.webcaf.models import Assessment, UserProfile
 
 
 class CAF32RouterWithFixture(CAF32Router):
-    framework_path = os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
+    """
+    Represents a specialized CAF32Router with fixture integration.
+
+    This class extends the functionality of CAF32Router by providing
+    a specific framework path that points to a fixture file. The fixture
+    is expected to be used for testing or development purposes, offering
+    a pre-defined configuration YAML file.
+
+    """
+
+    def get_framework_path(self) -> str:
+        return os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
 
 
 # We test for the validity of the CAF YAML elsewhere, so this module assmes the YAML is valid
