@@ -55,3 +55,4 @@ repos:
           - pyyaml
           - mozilla_django_oidc
           - django-multiselectfield
+          - openpyxl
