@@ -13,7 +13,7 @@ class OIDCBackend(OIDCAuthenticationBackend):
     logger = logging.getLogger("OIDCBackend")
 
     def create_user(self, claims):
-        self.logger.info("Create user for claims", claims)
+        self.logger.info(f"Create user for {claims.get('email')}")
         user = super().create_user(claims)
         user.email = claims.get("email")
         user.username = claims.get("email")
@@ -29,7 +29,7 @@ class OIDCBackend(OIDCAuthenticationBackend):
         :param claims:
         :return:
         """
-        self.logger.info("Update user", claims)
+        self.logger.info(f"User  {user.username} logged in to the system")
         user.first_name = claims.get("given_name", user.first_name) or claims.get("name", user.first_name)
         user.last_name = claims.get("family_name", user.last_name)
         user.save()
@@ -46,10 +46,13 @@ class LoginRequiredMiddleware:
         # Let admin and static/media go through without redirecting to OIDC
         if (
             request.path == "/"
-            or request.path == "/"
+            # Admin path is secured by Django authentication, thats why it is allowed here
             or request.path.startswith("/admin/")
             or request.path.startswith("/assets/")
             or request.path.startswith("/oidc/")
+            or request.path.startswith("/static/")
+            or request.path.startswith("/media/")
+            or request.path.startswith("/logout/")
             or request.user.is_authenticated
         ):
             self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)
