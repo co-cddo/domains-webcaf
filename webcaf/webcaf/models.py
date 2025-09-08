@@ -125,7 +125,7 @@ class Assessment(models.Model):
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
     version = models.CharField(max_length=10)
-    reference = models.CharField(max_length=12, null=True, blank=True)
+    reference = models.CharField(max_length=20, null=True, blank=True)
     framework = models.CharField(max_length=255, choices=FRAMEWORK_CHOICES, default="caf32")
     caf_profile = models.CharField(
         max_length=255,
