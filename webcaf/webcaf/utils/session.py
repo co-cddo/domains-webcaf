@@ -35,7 +35,7 @@ class SessionUtil:
         return None
 
     @staticmethod
-    def get_current_assessment(request) -> Optional["Assessment"]:
+    def get_current_assessment(request, status_to_get: str = "draft") -> Optional["Assessment"]:
         """
         Retrieve the current draft assessment for the user based on session data.
 
@@ -57,7 +57,7 @@ class SessionUtil:
             user_profile = SessionUtil.get_current_user_profile(request)
             if user_profile and user_profile.organisation:
                 assessment = Assessment.objects.get(
-                    status="draft", id=id_, system__organisation_id=user_profile.organisation.id
+                    status=status_to_get, id=id_, system__organisation_id=user_profile.organisation.id
                 )
                 return assessment
         except Exception:  # type: ignore[catching-any]

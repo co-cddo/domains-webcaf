@@ -31,9 +31,9 @@ class ViewFactoryFormValidTests(SimpleTestCase):
         # Prepare cleaned_data with the required key format.
         # Only the ticked indicators are included in the form submission.
         cleaned_data = {
-            "not-achieved_A1.a.1": True,
-            "not-achieved_A1.a.2": True,
-            "achieved_A1.a.2": True,
+            "not-achieved_A1.a.1": "agreed",
+            "not-achieved_A1.a.2": "agreed",
+            "achieved_A1.a.2": "agreed",
         }
 
         # Class id to associate the saved data with
@@ -53,7 +53,7 @@ class ViewFactoryFormValidTests(SimpleTestCase):
         )
 
         # A dummy form carrying cleaned_data
-        form = SimpleNamespace(cleaned_data=cleaned_data)
+        form = SimpleNamespace(cleaned_data=cleaned_data, errors=[])
 
         # Create the dynamic view class; patch reverse_lazy to avoid URL resolution
         with patch("webcaf.webcaf.caf.views.factory.reverse_lazy", return_value="/success/"), patch(

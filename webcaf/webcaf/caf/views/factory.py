@@ -1,15 +1,17 @@
 import logging
 import uuid
-from textwrap import shorten
+from collections import defaultdict
 from typing import Any, Optional, Tuple, Type
 
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
 from django.views.generic import FormView
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.forms.general import ContinueForm
+from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.views.general import FormViewWithBreadcrumbs
 
@@ -72,6 +74,30 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
 
     def _get_init_data(self, current_assessment):
         return current_assessment.assessments_data.get(self.class_id, {}).get(self.stage, {})
+
+    def get_form(self, form_class: Optional[type[forms.Form]] = None):
+        """
+        Returns a modified form instance. Finds fields with duplicate labels in the
+        provided form class and adjusts their label suffix to ensure differentiation.
+        This method processes all fields except those with names ending in "_comment".
+
+        :param form_class: The form class to generate the form instance from. Defaults
+            to `None`.
+        :type form_class: Optional[type[forms.Form]]
+        :return: The modified form instance with adjusted label suffixes for fields
+            with duplicate labels.
+        :rtype: forms.Form
+        """
+        duplicate_form_data = defaultdict(list)
+        form = super().get_form(form_class)
+        for field_name, field in form.fields.items():
+            if not field_name.endswith("_comment"):
+                duplicate_form_data[field.label].append((field, field_name))
+        for label, fields in duplicate_form_data.items():
+            if len(fields) > 1:
+                for field in fields:
+                    field[0].label_suffix = [other_field[1] for other_field in fields if other_field[1] != field[1]]
+        return form
 
     def build_breadcrumbs(self):
         """
@@ -147,6 +173,20 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
     """
 
     def form_valid(self, form):
+        cleaned_data = form.cleaned_data
+        fields_needing_justification = [
+            (k, v) for k, v in cleaned_data.items() if str(v).endswith("_have_justification")
+        ]
+        if fields_needing_justification:
+            for field_name, value in fields_needing_justification:
+                if not cleaned_data[f"{field_name}_{value}_comment"]:
+                    form.add_error(field_name, ValidationError("You must provide a justification."))
+            form.initial.update(form.cleaned_data)
+            # We directly call super as we don't want to call form_invalid here.'This is because
+            # form_invalid will us purly to capture non selected questions and we cannot have
+            # optional logic to handle this.
+        if form.errors:
+            return super().form_invalid(form)
         return super().form_valid(form)
 
     def build_breadcrumbs(self):
@@ -176,8 +216,17 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         # This will update any feilds that the user has changed.
         form.initial.update(form.cleaned_data)
         friendly_errors = set()
-        for error_field in form.errors.keys():
-            friendly_errors.add("Need an input for : " + shorten(form.fields[error_field].label, 50, placeholder="..."))
+        for error_field, errors in form.errors.items():
+            friendly_errors.add(
+                ValidationError(
+                    {
+                        error_field: f"Need an answer for "
+                        f"{CafFormUtil.get_category_name(error_field)} question "
+                        f"{CafFormUtil.human_index(form, error_field)}"
+                    }
+                )
+            )
+
         form.errors.clear()
         for message in friendly_errors:
             form.add_error(None, message)

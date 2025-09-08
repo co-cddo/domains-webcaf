@@ -121,7 +121,7 @@ class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
         return ["organisation_lead"]
 
     def get_context_data(self, **kwargs):
-        assessment = get_assessment(self.request)
+        assessment = get_assessment(self.request, "submitted")
         if assessment:
             return {"assessment_ref": assessment.reference}
         return {}
