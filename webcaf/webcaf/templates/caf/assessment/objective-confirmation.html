@@ -43,19 +43,21 @@
                                             </span>
                                         </div>
                                     {% else %}
-                                        {% if outcome_details.outcome_status == 'Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</strong>
-                                        {% elif outcome_details.outcome_status == 'Partially Achieved' %}
-                                            <strong class="govuk-tag govuk-tag--yellow govuk-!-font-size-16">{{ outcome_details.outcome_status }}</strong>
-                                        {% else %}
-                                            <strong class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status|default:"Not Complete" }}</strong>
-                                        {% endif %}
+                                        <div class="govuk-grid-row govuk-!-width-full">
+                                            {% if outcome_details.outcome_status == 'Achieved' %}
+                                                <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
+                                            {% elif outcome_details.outcome_status == 'Partially Achieved' %}
+                                                <span class="govuk-tag govuk-tag--yellow govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
+                                            {% else %}
+                                                <span class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status|default:"Not Complete" }}</span>
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
                                 </dd>
                                 <dd class="govuk-summary-list__actions govuk-!-width-one-third">
                                     {% with 'indicators_'|add:outcome.code as indicator_url %}
                                         <a class="govuk-link"
-                                           href="{% url indicator_url %}">
+                                           href="{% url assessment.framework|add:"_"|add:indicator_url %}">
                                             Change<span
                                                 class="govuk-visually-hidden">  {{ outcome.title }} answers</span></a>
                                     {% endwith %}

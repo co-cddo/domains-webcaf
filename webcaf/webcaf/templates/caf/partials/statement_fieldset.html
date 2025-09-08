@@ -1,16 +1,22 @@
 {% load form_extras %}
-<div class="govuk-form-group">
+<div class="govuk-form-group {% if item.errors %}govuk-form-group--error{% endif %}">
     <fieldset class="govuk-fieldset" aria-describedby="outcome{{ forloop.counter }}-{{ section_type }}-hint">
         <legend class="govuk-fieldset__legend govuk">
             <h1 class="govuk-fieldset__heading">
-                {{ forloop.counter }}. {{ item.field.label }}
+                {{ forloop.counter }}. {{ item.field.label }} {% handle_duplicate_question form item.field as duplicate_text %}
+                {% if duplicate_text %}
+                    <span class="govuk-tag--green govuk-!-font-size-16">
+                        {{ duplicate_text }}
+                    </span>
+                {% endif %}
             </h1>
         </legend>
         <div id="outcome{{ forloop.counter }}-{{ section_type }}-hint" class="govuk-hint">
         </div>
-        <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+        {# Assign the id at the top level so that we can navigate from the error message   #}
+        <div id="{{ item.auto_id|safe_id }}" class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
             {% for choice in item.field.choices %}
-                <div class="govuk-radios__item override-item" id="div_{{ item.auto_id }}">
+                <div class="govuk-radios__item override-item">
                     <input class="govuk-radios__input"
                            id="{{ item.auto_id }}-{{ forloop.counter }}"
                            name="{{ item.name }}"
