@@ -35,14 +35,16 @@
                                             {% endif %}
                                             <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
                                             overridden
-                                            </span>
+                                        </span>
                                         </div>
                                     {% else %}
-                                        {% if outcome_details.outcome_status == 'Achieved' %}
-                                            <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
-                                        {% else %}
-                                            <span class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
-                                        {% endif %}
+                                        <div class="govuk-grid-row govuk-!-width-full">
+                                            {% if outcome_details.outcome_status == 'Achieved' %}
+                                                <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
+                                            {% else %}
+                                                <span class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
 
                                 </dd>
@@ -73,10 +75,10 @@
                     {% if not final_objective %}
                         {% next_objective objective_data.code assessment as next_objective_code %}
                         {% with assessment.framework|add:'_objective_'|add:next_objective_code as next_objective_url %}
-                            action="{% url next_objective_url %}"
+                  action="{% url next_objective_url %}"
                         {% endwith %}
                     {% else %}
-                        action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
+                  action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
                     {% endif %}>
                 <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
                     {% if not final_objective %}
