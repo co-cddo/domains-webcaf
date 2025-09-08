@@ -1,10 +1,16 @@
+import logging
 from typing import Any
 
+from django.conf import settings
+from django.contrib.auth import logout as django_logout
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import FormView, TemplateView
 
 
+@method_decorator(never_cache, name="dispatch")
 class Index(TemplateView):
     """
     Landing page
@@ -56,6 +62,9 @@ class FormViewWithBreadcrumbs(FormView):
         ]
 
 
+logout_view_logger = logging.getLogger("logout_view")
+
+
 def logout_view(request):
     """
     Handle any cleanup and redirect to the oidc cleanup.
@@ -63,4 +72,12 @@ def logout_view(request):
     :param request:
     :return:
     """
-    return redirect("oidc_logout")  # redirect to OIDC logout
+    logout_view_logger.info(f"Logging out user {request.user.username}")
+    id_token = request.session.get("oidc_id_token")  # make sure you store it at login
+    # 1. Log out Django session
+    django_logout(request)
+    oidc_logout_url = settings.OIDC_OP_LOGOUT_ENDPOINT
+    client_id = settings.OIDC_RP_CLIENT_ID
+    redirect_url = settings.LOGOUT_REDIRECT_URL
+    logout_url = f"{oidc_logout_url}?id_token_hint={id_token}&client_id={client_id}&redirect_uri={redirect_url}"
+    return redirect(logout_url)

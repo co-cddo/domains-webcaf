@@ -232,24 +232,30 @@ LOGGING = {
     },
 }
 
-sso_mode = env.str("SSO_MODE", "external")  # or dex or local or none
+SSO_MODE = env.str("SSO_MODE", "external")  # or dex or local or none
 
-if sso_mode.lower() == "external":
+if SSO_MODE.lower() == "external":
     OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
     OIDC_RP_CLIENT_SECRET = env.str("OIDC_RP_CLIENT_SECRET")  # pragma: allowlist secret
     OIDC_OP_AUTHORIZATION_ENDPOINT = env.str("OIDC_OP_AUTHORIZATION_ENDPOINT")
     OIDC_OP_TOKEN_ENDPOINT = env.str("OIDC_OP_TOKEN_ENDPOINT")
     OIDC_OP_USER_ENDPOINT = env.str("OIDC_OP_USER_ENDPOINT")
     OIDC_OP_JWKS_ENDPOINT = env.str("OIDC_OP_JWKS_ENDPOINT")
+    OIDC_OP_LOGOUT_ENDPOINT = env.str("OIDC_OP_LOGOUT_ENDPOINT")
+    OIDC_STORE_ID_TOKEN = True
+    OIDC_STORE_ACCESS_TOKEN = True
     LOGOUT_REDIRECT_URL = env.str("LOGOUT_REDIRECT_URL")
 else:
-    sso_host = "dex" if sso_mode == "dex" else "localhost"
+    sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"
     OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
     OIDC_OP_AUTHORIZATION_ENDPOINT = "http://localhost:5556/auth"
     OIDC_OP_TOKEN_ENDPOINT = f"http://{sso_host}:5556/token"
     OIDC_OP_USER_ENDPOINT = f"http://{sso_host}:5556/userinfo"
     OIDC_OP_JWKS_ENDPOINT = f"http://{sso_host}:5556/keys"
+    OIDC_STORE_ID_TOKEN = True
+    OIDC_STORE_ACCESS_TOKEN = True
+    OIDC_OP_LOGOUT_ENDPOINT = f"http://{sso_host}:5556/auth/logout"
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")

@@ -117,11 +117,14 @@
                                 My account
                             </a>
                         </li>
-                        {% if user.is_authenticated %}
+                        {% if request.user.is_authenticated %}
                             <li class="govuk-header__navigation-item">
                                 <a class="govuk-header__link" href="{% url 'logout' %}">
-                                    Logout
+                                    Logout <span class="govuk-visually-hidden">
+                                {{ request.user.username }}
+                                 </span>
                                 </a>
+
                             </li>
                         {% endif %}
                     </ul>
@@ -201,6 +204,7 @@
 <script type="module" nonce="{{ request.csp_nonce }}" src='{% static "govuk-frontend-5.11.1.min.js" %}'></script>
 <script type="module" nonce="{{ request.csp_nonce }}">
     import {initAll} from '{% static "govuk-frontend-5.11.1.min.js" %}'
+
     initAll()
 </script>
 </body>
