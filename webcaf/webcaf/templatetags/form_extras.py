@@ -2,11 +2,9 @@ import re
 from typing import Any
 
 from django import template
-from django.utils.safestring import mark_safe
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Assessment
-from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -90,6 +88,7 @@ def get_assessment(request, status="draft"):
     session of the given request. If no draft assessment or assessment ID is
     present, returns None.
 
+    :param status:
     :param request: The HTTP request object containing session data.
     :type request: HttpRequest
     :return: The assessment object retrieved from the database based on the
@@ -181,55 +180,6 @@ def is_all_objectives_complete(assessment_id):
                 return False
         return True
     return False
-
-
-@register.simple_tag()
-def handle_duplicate_question(form, field):
-    """
-    Handles the display of duplicate question prompts in form rendering for cases
-    where the same answer can be used for multiple fields.
-
-    The function processes the field's `label_suffix` attribute to generate a
-    human-readable message indicating which fields share the same answer. If
-    `suffix` is not present, it returns an empty string.
-
-    :param form: The form instance containing the field, used to retrieve the human-readable
-        labels of related fields.
-    :type form: Form
-    :param field: The field for which a duplicate question prompt is being generated. It
-        includes the label_suffix indicating related fields sharing the same answer.
-    :type field: Field
-    :return: HTML string to prompt the user about using the same answer as other
-        specified fields or an empty string if there is no label_suffix.
-    :rtype: str
-    """
-    if field.label_suffix:
-        return mark_safe(
-            f"""
-                Use the same answer as {" and ".join(_get_human_readable_text(form, item) for item in field.label_suffix)}
-                """
-        )
-    return ""
-
-
-def _get_human_readable_text(form, field):
-    """
-    Generates a human-readable text combining the category name of the form
-    field (tab name) and the human-readable index of the field (question
-    name) for better representation and debugging purposes.
-
-    :param form: The form instance containing relevant data for the field
-        processing.
-    :type form: Any
-    :param field: The field instance from which the human-readable text is
-        derived.
-    :type field: Any
-    :return: A string in the format '<tab_name> question <question_name>'.
-    :rtype: str
-    """
-    tab_name = CafFormUtil.get_category_name(field)
-    question_name = CafFormUtil.human_index(form, field)
-    return f"{tab_name} question {question_name}"
 
 
 def _check_objective_complete(
