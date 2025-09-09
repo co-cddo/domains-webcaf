@@ -119,11 +119,11 @@ class CAFLoader(FrameworkRouter):
                     }
                     yield outcome_
 
-    def get_main_headings(self) -> list[dict]:
+    def get_sections(self) -> list[dict]:
         return list(filter(lambda x: x["type"] == "objective", self.elements))
 
-    def get_main_heading(self, objective_id: str) -> Optional[dict]:
-        return next((x for x in self.get_main_headings() if x["code"] == objective_id), None)
+    def get_section(self, objective_id: str) -> Optional[dict]:
+        return next((x for x in self.get_sections() if x["code"] == objective_id), None)
 
 
 class CAF32Router(CAFLoader):
@@ -378,8 +378,13 @@ class CAF32ExcelExporter(CAFLoader):
     def _validators() -> dict[str, DataValidation]:
         # Common choice list used across achievement columns
         formula = '"agreed,not_true_have_justification,not_true_no_justification"'
+        not_achieved_formula = '"true_have_justification,agreed,not_true_no_justification"'
         return {
-            key: DataValidation(type="list", formula1=formula, allow_blank=False)
+            key: DataValidation(
+                type="list",
+                formula1=formula if key in ["partially-achieved", "achieved"] else not_achieved_formula,
+                allow_blank=False,
+            )
             for key in ("not-achieved", "partially-achieved", "achieved")
         }
 
@@ -395,6 +400,15 @@ class CAF32ExcelExporter(CAFLoader):
             ("Please summarize your evidence", None),
         ]
 
+    @staticmethod
+    def _confirmation_status_validatos() -> dict[str, DataValidation]:
+        return {
+            "with-partial": DataValidation(
+                type="list", formula1='"Achieved,Partially achieved,Not achieved"', allow_blank=False
+            ),
+            "without-partial": DataValidation(type="list", formula1='"Achieved,Not achieved"', allow_blank=False),
+        }
+
     # ---- Public API ------------------------------------------------------------
     def execute(self) -> Workbook:
         """Build and return the Excel workbook for the framework."""
@@ -404,6 +418,7 @@ class CAF32ExcelExporter(CAFLoader):
         border = self._thin_border()
         fills = self._fills()
         validators = self._validators()
+        confirmation_validators = self._confirmation_status_validatos()
         headers = self._header_specs(fills)
 
         # Iterate objectives -> principles -> outcomes
@@ -415,6 +430,8 @@ class CAF32ExcelExporter(CAFLoader):
 
             # Register data validations on the worksheet
             for validator in validators.values():
+                ws.add_data_validation(validator)
+            for validator in confirmation_validators.values():
                 ws.add_data_validation(validator)
 
             # Set column widths (ensure consistent with header)
@@ -513,11 +530,19 @@ class CAF32ExcelExporter(CAFLoader):
 
                     # Contributing outcome achievement fields
                     ws.merge_cells(start_row=row, start_column=7, end_row=row, end_column=8)
-                    cell = ws.cell(row=row, column=7, value="Contributing Outcome achievement:")
+                    cell = ws.cell(row=row, column=7, value="Contributing Outcome achievement fff:")
                     cell.font = Font(bold=True)
                     cell.border = border
 
-                    cell = ws.cell(row=row, column=9, value="")
+                    cell = ws.cell(
+                        row=row,
+                        column=9,
+                    )
+                    if indicators.get("partially-achieved"):
+                        validator = confirmation_validators["with-partial"]
+                    else:
+                        validator = confirmation_validators["without-partial"]
+                    validator.add(ws[cell.coordinate])
                     cell.border = border
                     row += 1
 

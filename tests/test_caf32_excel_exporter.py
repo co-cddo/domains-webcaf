@@ -3,18 +3,22 @@ import unittest
 
 from openpyxl.worksheet.worksheet import Worksheet
 
-from webcaf.webcaf.caf32_router import CAF32ExcelExporter
+from webcaf.webcaf.caf.routers import CAF32ExcelExporter
 
 
 class CAF32ExcelExporterWithFixture(CAF32ExcelExporter):
     def get_framework_path(self) -> str:
-        return os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
+        return os.path.join(os.path.dirname(__file__), "../frameworks", "cyber-assessment-framework-v3.2.yaml")
 
 
 class TestCAF32ExcelExporter(unittest.TestCase):
     def setUp(self):
         self.exporter = CAF32ExcelExporterWithFixture()
         self.wb = self.exporter.execute()
+        # Uncomment to save the workbook for manual inspection
+        # current_dir = os.path.dirname(os.path.abspath(__file__))
+        # new_file_path = os.path.join(current_dir, "test.xlsx")
+        # self.wb.save(new_file_path)
 
     def test_elements_loaded_and_workbook_created(self):
         self.assertIsInstance(self.exporter.elements, list)
@@ -48,15 +52,10 @@ class TestCAF32ExcelExporter(unittest.TestCase):
     def test_outcome_sections_and_validations_present(self):
         ws: Worksheet = self.wb.worksheets[0]
         # Find the first outcome header row by searching for a known pattern "A1.a -" or similar
-        found_outcome_row = None
-        for r in range(1, 200):
-            v = ws.cell(row=r, column=3).value
-            if isinstance(v, str) and (" - " in v) and ("A1" in v or "A2" in v or "B1" in v):
-                found_outcome_row = r
-                break
+        found_outcome_row = self._find_first_outcome_row(ws)
         self.assertIsNotNone(found_outcome_row, "Outcome header not found")
-        # Column headers should be 2 rows below outcome header (one row for header, one for description)
-        header_row = found_outcome_row + 2
+        # Column headers should be 3 rows below outcome header (one row for header, one for description)
+        header_row = found_outcome_row + 3
         expected_headers = [
             "Achieved",
             "Answer",
@@ -80,14 +79,11 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         # Validate fill colors for the first indicator line across achieved/partially/not columns
         ws: Worksheet = self.wb.worksheets[0]
         # Locate the first header row as in previous test
-        found_outcome_row = None
-        for r in range(1, 200):
-            v = ws.cell(row=r, column=3).value
-            if isinstance(v, str) and (" - " in v) and ("A1" in v or "A2" in v or "B1" in v):
-                found_outcome_row = r
-                break
-        self.assertIsNotNone(found_outcome_row)
-        header_row = found_outcome_row + 2
+        found_outcome_row = self._find_first_outcome_row(ws, "A2.a")
+        self.assertIsNotNone(
+            found_outcome_row,
+        )
+        header_row = found_outcome_row + 3
         # Find the first indicator row that actually has any indicator text in C/E/G
         indicator_row = None
         scan_row = header_row + 1
@@ -118,6 +114,15 @@ class TestCAF32ExcelExporter(unittest.TestCase):
             self.assertTrue(
                 str(color_val).upper().endswith(expected), f"Expected fill {expected} at column {col}, got {color_val}"
             )
+
+    def _find_first_outcome_row(self, ws: Worksheet, text_to_match: str = "A1.a") -> int | None:
+        found_outcome_row = None
+        for r in range(1, 200):
+            v = ws.cell(row=r, column=3).value
+            if isinstance(v, str) and (" - " in v) and (text_to_match in v):
+                found_outcome_row = r
+                break
+        return found_outcome_row
 
 
 if __name__ == "__main__":

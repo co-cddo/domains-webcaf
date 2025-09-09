@@ -22,10 +22,12 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         justifications = {
             "not-achieved": [
                 AchievementChoice(
-                    "agreed", "This does apply to my system or organisation and I have justifications", True
+                    "true_have_justification",
+                    "This does apply to my system or organisation and I have justifications",
+                    True,
                 ),
                 AchievementChoice(
-                    "not_true_have_justification",
+                    "agreed",
                     "This does apply to my system or organisation, but I have no justifications",
                     False,
                 ),
