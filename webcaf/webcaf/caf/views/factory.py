@@ -6,7 +6,9 @@ from typing import Any, Optional, Tuple, Type
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.forms import Form
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
 from django.views.generic import FormView
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
@@ -75,30 +77,6 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
     def _get_init_data(self, current_assessment):
         return current_assessment.assessments_data.get(self.class_id, {}).get(self.stage, {})
 
-    def get_form(self, form_class: Optional[type[forms.Form]] = None):
-        """
-        Returns a modified form instance. Finds fields with duplicate labels in the
-        provided form class and adjusts their label suffix to ensure differentiation.
-        This method processes all fields except those with names ending in "_comment".
-
-        :param form_class: The form class to generate the form instance from. Defaults
-            to `None`.
-        :type form_class: Optional[type[forms.Form]]
-        :return: The modified form instance with adjusted label suffixes for fields
-            with duplicate labels.
-        :rtype: forms.Form
-        """
-        duplicate_form_data = defaultdict(list)
-        form = super().get_form(form_class)
-        for field_name, field in form.fields.items():
-            if not field_name.endswith("_comment"):
-                duplicate_form_data[field.label].append((field, field_name))
-        for label, fields in duplicate_form_data.items():
-            if len(fields) > 1:
-                for field in fields:
-                    field[0].label_suffix = [other_field[1] for other_field in fields if other_field[1] != field[1]]
-        return form
-
     def build_breadcrumbs(self):
         """
         Builds breadcrumbs with additional information regarding objectives.
@@ -160,6 +138,18 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
     def form_invalid(self, form):
         return FormView.form_invalid(self, form)
 
+    def _build_duplicate_field_suffix(self, form: Form, other_field_names: list[str]):
+        """
+        Summary: Builds a suffix for duplicate fields based on form and other field names.
+
+        :param form: The current form object.
+        :param other_field_names: List of field names to be used as references.
+        :return: A string with the duplicate field suffix, marked as safe for HTML rendering.
+        """
+        return mark_safe(
+            f"""Use the same answer as {" and ".join(f"{CafFormUtil.get_category_name(field)} question {CafFormUtil.human_index(form, field)}" for field in other_field_names)}"""
+        )
+
 
 class OutcomeIndicatorsView(BaseIndicatorsFormView):
     """
@@ -171,6 +161,32 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
     tied to a specific ClassId.
 
     """
+
+    def get_form(self, form_class: Optional[type[forms.Form]] = None):
+        """
+        Returns a modified form instance. Finds fields with duplicate labels in the
+        provided form class and adjusts their label suffix to ensure differentiation.
+        This method processes all fields except those with names ending in "_comment".
+
+        :param form_class: The form class to generate the form instance from. Defaults
+            to `None`.
+        :type form_class: Optional[type[forms.Form]]
+        :return: The modified form instance with adjusted label suffixes for fields
+            with duplicate labels.
+        :rtype: forms.Form
+        """
+        duplicate_form_data = defaultdict(list)
+        form = super().get_form(form_class)
+        for field_name, field in form.fields.items():
+            if not field_name.endswith("_comment"):
+                duplicate_form_data[field.label].append((field, field_name))
+        for label, fields in duplicate_form_data.items():
+            if len(fields) > 1:
+                for field in fields:
+                    field[0].label_suffix = self._build_duplicate_field_suffix(
+                        form, [other_field[1] for other_field in fields if other_field[1] != field[1]]
+                    )
+        return form
 
     def form_valid(self, form):
         cleaned_data = form.cleaned_data

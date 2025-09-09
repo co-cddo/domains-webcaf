@@ -3,10 +3,10 @@
     <fieldset class="govuk-fieldset" aria-describedby="outcome{{ forloop.counter }}-{{ section_type }}-hint">
         <legend class="govuk-fieldset__legend govuk">
             <h1 class="govuk-fieldset__heading">
-                {{ forloop.counter }}. {{ item.field.label }} {% handle_duplicate_question form item.field as duplicate_text %}
-                {% if duplicate_text %}
+                {{ forloop.counter }}. {{ item.field.label }}
+                {% if item.field.label_suffix %}
                     <span class="govuk-tag--green govuk-!-font-size-16">
-                        {{ duplicate_text }}
+                        {{ item.field.label_suffix }}
                     </span>
                 {% endif %}
             </h1>
