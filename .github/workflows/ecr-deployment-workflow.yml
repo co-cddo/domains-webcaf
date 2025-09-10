@@ -1,0 +1,79 @@
+name: Build & Publish Docker to ECR
+
+on:
+  push:
+    tags:
+      - "dev-*"
+      - "stage-*"
+      - "release-*"
+
+permissions:
+  id-token: write   # required for AWS OIDC
+  contents: read
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Figure out the image name based on the tag
+      - name: Derive image name
+        id: image_name
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+
+          if [[ "$TAG" == dev-* ]]; then
+            # keep the prefix in the image name except the "dev-" part
+            IMAGE_NAME="${TAG#dev-}"
+          elif [[ "$TAG" == stage-* ]]; then
+            # strip the "stage-" prefix
+            IMAGE_NAME="${TAG#stage-}"
+          elif [[ "$TAG" == release-* ]]; then
+            # strip the "release-" prefix
+            IMAGE_NAME="${TAG#release-}"
+          else
+            echo "Tag format not recognized: $TAG"
+            exit 1
+          fi
+
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+#      - name: Configure AWS credentials (Dev)
+#        if: startsWith(github.ref_name, 'dsv-')
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::<DEV_ACCOUNT_ID>:role/<DEV_OIDC_ROLE>
+#          aws-region: us-east-1
+#
+#      - name: Configure AWS credentials (Stage)
+#        if: startsWith(github.ref_name, 'stage-')
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::<STAGE_ACCOUNT_ID>:role/<STAGE_OIDC_ROLE>
+#          aws-region: us-east-1
+#
+#      - name: Configure AWS credentials (Prod)
+#        if: startsWith(github.ref_name, 'release-')
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::<PROD_ACCOUNT_ID>:role/<PROD_OIDC_ROLE>
+#          aws-region: us-east-1
+#
+#      - name: Log in to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v2
+#
+#      - name: Build, Tag, and Push Docker image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          IMAGE_NAME: ${{ steps.imagename.outputs.IMAGE_NAME }}
+#        run: |
+#          IMAGE_TAG=${GITHUB_SHA::7}   # short commit SHA as the tag
+#          echo "Pushing image: $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+#
+#          docker build -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+#          docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+#
+#
