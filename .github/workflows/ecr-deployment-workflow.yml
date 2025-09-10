@@ -23,16 +23,26 @@ jobs:
         id: image_name
         run: |
           TAG="${GITHUB_REF_NAME}"
+          BASE_IMAGE="web-caf-app-ecr"
+
+          # Extract the env marker (dsv, stage, release) from the tag
+          if [[ "$TAG" =~ (dsv|stage|release) ]]; then
+            ENV_MARKER="${BASH_REMATCH[1]}"
+          else
+            echo "Tag does not contain a valid environment marker (dsv/stage/release)"
+            exit 1
+          fi
 
           if [[ "$TAG" == dev-* ]]; then
-            # keep the prefix in the image name except the "dev-" part
-            IMAGE_NAME="${TAG#dev-}"
+            # Extract the unique id from the tag (e.g. 'dsv' from dev-dsv-release-1.001)
+            ENV_MARKER=$(echo "$TAG" | cut -d'-' -f2)
+            IMAGE_NAME="${ENV_MARKER}-${BASE_IMAGE}"
           elif [[ "$TAG" == stage-* ]]; then
             # strip the "stage-" prefix
-            IMAGE_NAME="${TAG#stage-}"
+            IMAGE_NAME="${BASE_IMAGE}"
           elif [[ "$TAG" == release-* ]]; then
             # strip the "release-" prefix
-            IMAGE_NAME="${TAG#release-}"
+            IMAGE_NAME="${BASE_IMAGE}"
           else
             echo "Tag format not recognized: $TAG"
             exit 1
@@ -40,34 +50,34 @@ jobs:
 
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
 
-#      - name: Configure AWS credentials (Dev)
-#        if: startsWith(github.ref_name, 'dsv-')
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          role-to-assume: arn:aws:iam::<DEV_ACCOUNT_ID>:role/<DEV_OIDC_ROLE>
-#          aws-region: us-east-1
-#
-#      - name: Configure AWS credentials (Stage)
-#        if: startsWith(github.ref_name, 'stage-')
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          role-to-assume: arn:aws:iam::<STAGE_ACCOUNT_ID>:role/<STAGE_OIDC_ROLE>
-#          aws-region: us-east-1
-#
-#      - name: Configure AWS credentials (Prod)
-#        if: startsWith(github.ref_name, 'release-')
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          role-to-assume: arn:aws:iam::<PROD_ACCOUNT_ID>:role/<PROD_OIDC_ROLE>
-#          aws-region: us-east-1
-#
-#      - name: Log in to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v2
-#
+      #      - name: Configure AWS credentials (Dev)
+      #        if: startsWith(github.ref_name, 'dsv-')
+      #        uses: aws-actions/configure-aws-credentials@v4
+      #        with:
+      #          role-to-assume: arn:aws:iam::<DEV_ACCOUNT_ID>:role/<DEV_OIDC_ROLE>
+      #          aws-region: us-east-1
+      #
+      #      - name: Configure AWS credentials (Stage)
+      #        if: startsWith(github.ref_name, 'stage-')
+      #        uses: aws-actions/configure-aws-credentials@v4
+      #        with:
+      #          role-to-assume: arn:aws:iam::<STAGE_ACCOUNT_ID>:role/<STAGE_OIDC_ROLE>
+      #          aws-region: us-east-1
+      #
+      #      - name: Configure AWS credentials (Prod)
+      #        if: startsWith(github.ref_name, 'release-')
+      #        uses: aws-actions/configure-aws-credentials@v4
+      #        with:
+      #          role-to-assume: arn:aws:iam::<PROD_ACCOUNT_ID>:role/<PROD_OIDC_ROLE>
+      #          aws-region: us-east-1
+      #
+      #      - name: Log in to Amazon ECR
+      #        id: login-ecr
+      #        uses: aws-actions/amazon-ecr-login@v2
+      #
       - name: Build, Tag, and Push Docker image
         env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          #          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_NAME: ${{ steps.image_name.outputs.IMAGE_NAME }}
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}   # short commit SHA as the tag
