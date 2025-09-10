@@ -60,7 +60,7 @@ jobs:
         if: startsWith(github.ref_name, 'dev-')
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: "arn:aws:ecr:eu-west-2:047916624712:repository/${{ steps.image_name.outputs.ENV_PREFIX }}web-caf-app-ecr"
+          role-to-assume: "arn:aws:iam::047916624712:role/github-actions-ecr-role-${{ steps.image_name.outputs.ENV_PREFIX }}web-caf-app-ecr"
           aws-region: eu-west-2
       #
       #      - name: Configure AWS credentials (Stage)
