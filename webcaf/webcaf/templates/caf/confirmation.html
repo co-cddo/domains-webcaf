@@ -9,6 +9,7 @@
     <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }} Outcome</h3>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% include "partials/error_message.html" %}
             <h1 class="govuk-heading-m">
                 Status: {% firstof outcome_status.override_status outcome_status.outcome_status %}
             </h1>
@@ -95,7 +96,7 @@
                             the outcomes and IGPs, because the assessor will compare your responses.</p></div>
                 </details>
                 <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                     data-maxlength="200">
+                     data-maxwords={{form.supporting_comments.field.widget.attrs.maxlength}}>
                     <h1 class="govuk-label-wrapper">
                         <label class="govuk-label" for="summary_outline">
                             Please write a short summary outlining how you worked towards achieving this outcome.
@@ -106,12 +107,12 @@
                     </div>
                     <!-- @formatter:off -->
                     {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
-                    <textarea class="govuk-textarea govuk-js-character-count" id="summary_outline"
+                    <textarea class="govuk-textarea govuk-js-character-count" id="id_supporting_comments"
                               name="supporting_comments" rows="5"
-                              aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments.initial|default:"" }}</textarea>
+                              aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments|striptags|default:"" }}</textarea>
                     <!-- @formatter:on -->
-                    <div id="summary_outline-info" class="govuk-hint govuk-character-count__message">You can enter up to
-                        200 characters
+                    <div id="id_supporting_comments-info" class="govuk-hint govuk-character-count__message">You can enter up to
+                        {{form.supporting_comments.field.widget.attrs.maxlength}} words
                     </div>
                 </div>
                 <div class="govuk-button-group">

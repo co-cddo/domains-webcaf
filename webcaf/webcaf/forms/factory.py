@@ -1,6 +1,33 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 
 from webcaf.webcaf.caf.field_providers import FieldProvider
+
+
+@deconstructible
+class WordCountValidator:
+    """
+    A custom validator to validate the word count against the max
+    allowed wordcount and raise a validationError if the user word
+    count in a field exceeds the given maximum allowed word count.
+    """
+
+    def __init__(self, max_words):
+        self.max_words = max_words
+        self.message = f"Ensure this value has at most {self.max_words} words (it has "
+
+    def __call__(self, words):
+        word_count = len(words.split())
+        if word_count > self.max_words:
+            raise ValidationError(f"{self.message} {word_count}).")
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, WordCountValidator)
+            and self.max_words == other.max_words
+            and self.message == other.message
+        )
 
 
 def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
@@ -51,6 +78,7 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
                 label=field_def["label"],
                 required=field_def.get("required", True),
                 widget=forms.Textarea(attrs=widget_attrs) if widget_attrs else None,
+                validators=[WordCountValidator(widget_attrs["maxlength"])],
             )
         elif field_def["type"] == "hidden":
             widget_attrs = field_def.get("widget_attrs", {})

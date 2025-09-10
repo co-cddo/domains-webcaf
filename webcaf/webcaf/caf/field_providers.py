@@ -103,7 +103,8 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 "widget_attrs": {
                     "rows": 5,
                     "class": "govuk-textarea",
-                    "maxlength": 200,
+                    # maxlength is words not characters
+                    "maxlength": 1500,
                 },
             },
         ]

@@ -76,7 +76,7 @@ class FormProvidersTestCase(TestCase):
         self.assertTrue(comments_field["required"])
         self.assertIn("widget_attrs", comments_field)
         self.assertEqual(comments_field["widget_attrs"]["rows"], 5)
-        self.assertEqual(comments_field["widget_attrs"]["maxlength"], 200)
+        self.assertEqual(comments_field["widget_attrs"]["maxlength"], 1500)
 
     def test_outcome_provider_without_partially_achieved(self):
         outcome_without_partial = self.outcome_data.copy()
