@@ -255,7 +255,7 @@ else:
     OIDC_OP_JWKS_ENDPOINT = f"http://{sso_host}:5556/keys"
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
-    OIDC_OP_LOGOUT_ENDPOINT = f"http://{sso_host}:5556/auth/logout"
+    OIDC_OP_LOGOUT_ENDPOINT = "http://localhost:5556/auth/logout"
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
