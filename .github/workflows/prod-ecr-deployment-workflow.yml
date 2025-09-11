@@ -1,23 +1,23 @@
-name: Build & Publish Docker to ECR (Staging)
+name: Build & Publish Docker to ECR (Production)
 
-#Run this workflow when a feature branch is merged into main. Image is deployed to staging environment.
+#Runs on creation of a release tag. Image is deployed to production environment.
+#Tag is only considered if it starts with "release-" and from the main branch.
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "release-*"
 
 permissions:
   id-token: write   # required for AWS OIDC
   contents: read
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Figure out the image name based on the tag
       - name: Derive image name
         id: image_name
         run: |
@@ -27,18 +27,20 @@ jobs:
           echo "Image name is : $BASE_IMAGE"
           echo "IMAGE_NAME=$BASE_IMAGE" >> $GITHUB_OUTPUT
 
-      - name: Configure AWS credentials (Staging)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: "arn:aws:iam::${{ secrets.STAGE_ACCOUNT_ID }}:role/github-actions-ecr-role-web-caf-app-ecr"
-          aws-region: eu-west-2
       - name: Ensure release tag is from main
+        if: startsWith(github.ref_name, 'release-')
         run: |
           if [ "${GITHUB_EVENT_BASE_REF}" != "refs/heads/main" ]; then
             echo "❌ Release tags must be created from main branch only."
             echo "This tag (${GITHUB_REF_NAME}) came from ${GITHUB_EVENT_BASE_REF}"
-            exit 0
+            exit 1
           fi
+      - name: Configure AWS credentials (Prod)
+        if: startsWith(github.ref_name, 'release-')
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.PROD_ACCOUNT_ID }}:role/github-actions-ecr-role-web-caf-app-ecr
+          aws-region: eu-west-2
       - name: Log in to Amazon ECR
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -51,7 +53,8 @@ jobs:
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}   # short commit SHA as the tag
           echo "Pushing image: $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
-          docker buildx build --platform linux/amd64 \
-          -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
-          -t $ECR_REGISTRY/$IMAGE_NAME:latest  \
-          . --push;
+#          Keeping the build step commented out for now. Will be enabled once we have a working infrastructure deployed.
+#          docker buildx build --platform linux/amd64 \
+#          -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
+#          -t $ECR_REGISTRY/$IMAGE_NAME:latest  \
+#          . --push;
