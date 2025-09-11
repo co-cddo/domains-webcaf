@@ -61,3 +61,26 @@ follow the steps above to install poetry and run a local server, then in a termi
 cd end-to-end-tests
 poetry run pytest # add "--headed" to see the browser window
 ```
+
+### Deployment strategy
+
+#### Staging
+We deploy the latest image created from the main branch to staging. Each time a PR is merged to main,
+the image is rebuilt and deployed to staging. This is hanby the stage-ecr-deployment-workflow in the GitHub Actions.
+
+#### Production
+We deploy the latest image created from the main branch to production. Each time a release tag i.e release-v1.0.0 is created from
+the main branch.
+the image is rebuilt and deployed to production. This is handled by the prod-ecr-deployment-workflow in the GitHub Actions.
+
+#### dependencies
+ - Production and the staging account information are stored in the GitHub secrets.
+   - Deployment roles are created in the domains-iac repo.
+     - You will need to run the following once per account to enable Github OIDC login for the workflow to obtain the credentials.
+     ```bash
+      aws iam create-open-id-connect-provider \
+      --url https://token.actions.githubusercontent.com \
+      --client-id-list sts.amazonaws.com \
+      --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 --profile <profile>
+      ```
+     NOTE: if the github changes the thumbprint, you will need to run the above command with the new value.
