@@ -4,6 +4,8 @@ from webcaf.webcaf.abcs import FieldProvider
 
 AchievementChoice = namedtuple("AchievementChoice", ["value", "label", "needs_justification_text"])
 
+MAX_WORD_COUNT = 1500
+
 
 class OutcomeIndicatorsFieldProvider(FieldProvider):
     def __init__(self, outcome_data: dict):
@@ -56,6 +58,12 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "type": "choice_with_justifications",
                             "required": True,
                             "choices": justifications[level],
+                            "widget_attrs": {
+                                "rows": 5,
+                                "class": "govuk-textarea",
+                                "max_words": MAX_WORD_COUNT,
+                                "id": f"{level}_{indicator_id}".replace(".", "_"),
+                            },
                         }
                     )
 
@@ -103,8 +111,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 "widget_attrs": {
                     "rows": 5,
                     "class": "govuk-textarea",
-                    # maxlength is words not characters
-                    "maxlength": 1500,
+                    "max_words": MAX_WORD_COUNT,
                 },
             },
         ]

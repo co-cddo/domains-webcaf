@@ -31,17 +31,27 @@
                     {% if the_field_comment %}
                         <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
                              class="govuk-radios__conditional--hidden">
-                            <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
-                                   for="div_id_{{ item.name }}_comments">
-                                Tell us your justifications
-                            </label>
+                            <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
+                            data-maxwords={{the_field_comment.field.widget.attrs.max_words}}>
+                             <h1 class="govuk-label-wrapper">
+                                <label class="govuk-label comments_label id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment_label"
+                                    for="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment">
+                                    Tell us your justifications
+                                </label>
+                            </h1>
                             <!-- @formatter:off -->
 {#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
-                            <textarea class="govuk-textarea comments_textarea"
-                                      id="div_id_{{ item.name }}_comments"
+
+                            <textarea class="govuk-textarea govuk-js-character-count"
+                                      data-module="govuk-character-count"
+                                      id="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment"
                                       name="{{ the_field_comment.name }}"
-                                      rows="5">{{ the_field_comment.initial|default:"" }}</textarea>
+                                      rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
+                            <div id="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment-info" class="govuk-hint govuk-character-count__message">You can enter up to
+                                {{the_field_comment.field.widget.attrs.max_words}} words
+                             </div>
                             <!-- @formatter:on -->
+                        </div>
                         </div>
                     {% endif %}
                 </div>

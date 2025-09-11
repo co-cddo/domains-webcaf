@@ -96,7 +96,7 @@
                             the outcomes and IGPs, because the assessor will compare your responses.</p></div>
                 </details>
                 <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                     data-maxwords={{form.supporting_comments.field.widget.attrs.maxlength}}>
+                     data-maxwords={{form.supporting_comments.field.widget.attrs.max_words}}>
                     <h1 class="govuk-label-wrapper">
                         <label class="govuk-label" for="summary_outline">
                             Please write a short summary outlining how you worked towards achieving this outcome.
@@ -112,7 +112,7 @@
                               aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments|striptags|default:"" }}</textarea>
                     <!-- @formatter:on -->
                     <div id="id_supporting_comments-info" class="govuk-hint govuk-character-count__message">You can enter up to
-                        {{form.supporting_comments.field.widget.attrs.maxlength}} words
+                        {{ form.supporting_comments.field.widget.attrs.max_words }} words
                     </div>
                 </div>
                 <div class="govuk-button-group">

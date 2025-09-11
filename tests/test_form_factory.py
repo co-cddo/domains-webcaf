@@ -66,7 +66,7 @@ class FormFactoryTestCase(TestCase):
                     "label": "Test Text",
                     "type": "text",
                     "required": True,
-                    "widget_attrs": {"rows": 5, "maxlength": 1500},
+                    "widget_attrs": {"rows": 5, "max_words": 1500},
                 }
             ]
         )
@@ -78,4 +78,4 @@ class FormFactoryTestCase(TestCase):
         self.assertTrue(form.fields["test_text"].required)
         self.assertIsInstance(form.fields["test_text"].widget, forms.Textarea)
         self.assertEqual(form.fields["test_text"].widget.attrs["rows"], 5)
-        self.assertEqual(form.fields["test_text"].widget.attrs["maxlength"], 1500)
+        self.assertEqual(form.fields["test_text"].widget.attrs["max_words"], 1500)
