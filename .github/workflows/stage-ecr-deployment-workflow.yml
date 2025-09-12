@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       # Figure out the image name based on the tag
       - name: Derive image name
@@ -28,7 +28,7 @@ jobs:
           echo "IMAGE_NAME=$BASE_IMAGE" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials (Staging)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
         with:
           role-to-assume: "arn:aws:iam::${{ secrets.STAGE_ACCOUNT_ID }}:role/github-actions-ecr-role-web-caf-app-ecr"
           aws-region: eu-west-2
@@ -41,9 +41,9 @@ jobs:
           fi
       - name: Log in to Amazon ECR
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
       - name: Build, Tag, and Push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
