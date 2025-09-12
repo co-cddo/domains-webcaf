@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
+{% load static %}
 {% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
@@ -7,7 +8,7 @@
             <h1 class="govuk-heading-l">
                 Government CAF profile
             </h1>
-            <p>
+            <p class="govuk-body">
                 Every system undergoing an assessment must be classified as one of two profile types. These are baseline or
                 enhanced.
             </p>

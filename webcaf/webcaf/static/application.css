@@ -47,3 +47,10 @@ span.govuk-header__logotype-text {
     display: block;
     visibility: visible;
 }
+
+.govspeak-code {
+    color:#d13118;
+    background-color:#f3f2f1;
+    padding: 0 5px;
+    font-size: 16px;
+}
