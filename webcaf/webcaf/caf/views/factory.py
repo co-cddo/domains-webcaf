@@ -233,10 +233,16 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         form.initial.update(form.cleaned_data)
         friendly_errors = set()
         for error_field, errors in form.errors.items():
+            # validation on word count breaks the below so skip that and keep entered text
+            if "_comment" in error_field:
+                error_message = "Word count limit exceeded in justifcation of answer for "
+            else:
+                error_message = "Need an answer for "
+
             friendly_errors.add(
                 ValidationError(
                     {
-                        error_field: f"Need an answer for "
+                        error_field: f"{error_message}"
                         f"{CafFormUtil.get_category_name(error_field)} question "
                         f"{CafFormUtil.human_index(form, error_field)}"
                     }

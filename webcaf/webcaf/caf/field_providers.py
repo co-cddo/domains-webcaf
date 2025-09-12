@@ -4,6 +4,8 @@ from webcaf.webcaf.abcs import FieldProvider
 
 AchievementChoice = namedtuple("AchievementChoice", ["value", "label", "needs_justification_text"])
 
+MAX_WORD_COUNT = 1500
+
 
 class OutcomeIndicatorsFieldProvider(FieldProvider):
     def __init__(self, outcome_data: dict):
@@ -49,6 +51,11 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         for level in ["not-achieved", "partially-achieved", "achieved"]:
             if level in self.outcome_data.get("indicators", {}):
                 for indicator_id, indicator_text in self.outcome_data["indicators"][level].items():
+                    justication_for_id = [
+                        justification.value
+                        for justification in justifications[level]
+                        if justification.needs_justification_text
+                    ][0]
                     fields.append(
                         {
                             "name": f"{level}_{indicator_id}",
@@ -56,6 +63,12 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "type": "choice_with_justifications",
                             "required": True,
                             "choices": justifications[level],
+                            "widget_attrs": {
+                                "rows": 5,
+                                "class": "govuk-textarea",
+                                "max_words": MAX_WORD_COUNT,
+                                "id": f"{level}_{indicator_id}_{justication_for_id}_comment".replace(".", "_"),
+                            },
                         }
                     )
 
@@ -103,7 +116,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 "widget_attrs": {
                     "rows": 5,
                     "class": "govuk-textarea",
-                    "maxlength": 200,
+                    "max_words": MAX_WORD_COUNT,
                 },
             },
         ]
