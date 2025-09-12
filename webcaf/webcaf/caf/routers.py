@@ -9,8 +9,12 @@ from django.urls import path, reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import FormView
 from openpyxl import Workbook
+from openpyxl.cell import Cell
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.worksheet import Worksheet
 
 from webcaf import urls
 from webcaf.webcaf.abcs import FrameworkRouter
@@ -272,6 +276,7 @@ class CAF32ExcelExporter(CAFLoader):
     """
 
     logger = logging.getLogger("CAF32ExcelExporter")
+    OFFICIAL_SENSITIVE = "OFFICIAL SENSITIVE WHEN COMPLETED"
 
     # ---- FrameworkLoader hooks -------------------------------------------------
     def get_framework_path(self) -> str:
@@ -282,82 +287,127 @@ class CAF32ExcelExporter(CAFLoader):
 
     # ---- Helpers ---------------------------------------------------------------
 
-    def _write_top_header(self, ws) -> int:
+    def _write_guidance_tab(self, wb: Workbook) -> int:
         """Write the required instruction cells at the very top of a worksheet.
         Returns the next row index to continue rendering (1-based).
         """
         # Cache styles used repeatedly
-        fills = self._fills()
         border = self._thin_border()
-
-        # Columns C..I are used everywhere else; keep the same for header
-        for col, width in (("C", 60), ("D", 10), ("E", 60), ("F", 10), ("G", 60), ("H", 10), ("I", 60)):
+        ws = wb.create_sheet(title="Guidance")
+        for col, width in (
+            ("A", 50),
+            ("B", 50),
+            ("C", 50),
+            ("D", 50),
+        ):
             ws.column_dimensions[col].width = width
 
         # Content constants
-        title = "PLEASE ENTER CLASSIFICATION (OFFICIAL IF BLANK)"
-        instructions = (
-            "This is not a substitution for using WebCAF. Unless otherwise agreed with GSG, you should be using WebCAF for creating and submitting assessments under GovAssure.\n"
-            "However, you can use this spreadsheet to draft your answers. Contributing outcomes, IGPs and supplementary questions are identical to WebCAF.\n\n"
-            'To complete this spreadsheet, provide an answer to each Indicator of Good Practice (IGP) by selecting the appropriate value in the dropdowns adjacent to the "Not achieved", "Partially achieved" and "Achieved" columns. Provide a summary of your evidence for each group of IGPs in column I.\n\n'
-            "For each Contributing Outcome, select a dropdown for the achievement, and provide comments justifying the achievement selected.\n\n"
-            "For certain Contributing Outcomes, there are supplementary questions which are not part of the CAF but provide additional context to your answers. \n\n"
-            "Here are links to WebCAF, GovAssure Stage 3 self-assessment guidance and the five lens mapping model."
-        )
+        gov_assure_section_title = "GovAssure self-assessment and evidence collation template - CAF version 3.2"
+        supporting_resources_title = "Supporting Resources"
+        instructions_title = "To use the spreadsheet:"
+        faq_title = "For questions or support:"
+        template_instructions = """You can use this spreadsheet to prepare your organisation’s GovAssure self-assessment before completing it in WebCAF.
+        The structure of the spreadsheet matches the format of responses in WebCAF. You should use the GovAssure stage 3 guidance to support you when preparing your self-assessment.
+
+        This spreadsheet is for use within your organisation. You will not need to share it with GDS. You can choose to use as much or as little as is helpful to you.
+        """
+        usage_instructions = """There is a separate sheet for each CAF objective. You should scroll to the bottom of the sheet to see all contributing outcomes.
+        For each contributing outcome, you can:
+        - select your response to each indicator of good practice (IGP) statement from the dropdown menu
+        - where applicable, record your justifications
+        - select your overall contributing outcome status from the dropdown menu
+        - write a summary for the contributing outcome (1,500 word limit)
+        - list your supporting evidence for the contributing outcome
+
+        Note: You will not be asked to list all your supporting evidence in WebCAF. You may choose to do so here for your own reference and to support your stage 4 reviewer.
+        """
         links = (
-            ("Five Lens Mapping Model", "PROVIDE LINK ONCE NEW FIVE LENS MODEL IS UPLOADED"),
             (
-                "Stage 3 Self-Assessment Guidance",
+                "Stage 3 self-assessment guidance:",
                 "https://www.security.gov.uk/policy-and-guidance/govassure/stage-3-self-assessment/",
+            ),
+            (
+                "NCSC CAF version 3.2:",
+                "https://www.ncsc.gov.uk/collection/cyber-assessment-framework/changelog",
             ),
             ("WebCAF", "https://webcaf.service.security.gov.uk/"),
         )
 
+        faq_links = (("Please contact", "cybergovassure@cabinetoffice.gov.uk"), ("or:", "webcaf@cabinetoffice.gov.uk"))
+
         row = 1
+
         # Title line
-        ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=9)
-        cell = ws.cell(row=row, column=3, value=title)
-        cell.font = Font(bold=True, color="FFFFFF")
-        cell.fill = fills["blue"]
-        cell.border = border
-        row += 1
-
-        # Instruction paragraph (multi-line). Merge across C..I and wrap text.
-        ws.merge_cells(start_row=row, start_column=3, end_row=row + 5, end_column=9)
-        cell = ws.cell(row=row, column=3, value=instructions)
-        cell.alignment = Alignment(horizontal="center", vertical="top", wrap_text=True)
-        cell.border = border
-        row += 6
-
-        # Resource Links header
-        ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=9)
-        cell = ws.cell(row=row, column=3, value="Resource Links")
-        cell.font = Font(bold=True, color="FFFFFF")
-        cell.fill = fills["blue"]
-        cell.border = border
-        row += 1
-
-        # Links rows
-        for text, target in links:
-            left = ws.cell(row=row, column=3, value=text)
-            left.border = border
-            ws.merge_cells(start_row=row, start_column=5, end_row=row, end_column=9)
-            right = ws.cell(row=row, column=5, value=target)
-            right.border = border
-            row += 1
-
-        # System name prompt
-        ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=8)
-        cell = ws.cell(row=row, column=3, value="Please enter name of system being assessed:")
-        cell.font = Font(bold=True, color="FFFFFF")
-        cell.fill = fills["blue"]
-        cell.alignment = Alignment(horizontal="right", vertical="top", wrap_text=True)
-        cell.border = border
-        cell = ws.cell(row=row, column=9, value="")
-        cell.border = border
+        self._write_title(self.OFFICIAL_SENSITIVE, row, ws, h_alignment="center")
         row += 2
 
+        self._write_title(gov_assure_section_title, row, ws)
+        row += 1
+
+        # Write instructions
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
+        cell = ws.cell(row=row, column=1, value=template_instructions)
+        cell.alignment = Alignment(
+            horizontal="left",
+            vertical="top",
+            wrap_text=True,
+        )
+        ws.row_dimensions[row].height = 100
+
+        # Write the links
+        row += 2
+        self._write_title(supporting_resources_title, row, ws)
+        row += 1
+        # Links rows
+        for text, target in links:
+            left = ws.cell(row=row, column=1, value=text)
+            left.border = border
+            ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=4)
+            right = ws.cell(row=row, column=2, value=target)
+            right.border = border
+            row += 1
+        row += 1
+
+        self._write_title(instructions_title, row, ws)
+        row += 1
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
+        cell = ws.cell(row=row, column=1, value=usage_instructions)
+        cell.alignment = Alignment(
+            horizontal="left",
+            vertical="top",
+            wrap_text=True,
+        )
+        ws.row_dimensions[row].height = 150
+        row += 2
+
+        # FAQ section
+        self._write_title(faq_title, row, ws)
+        row += 1
+
+        for text, target in faq_links:
+            left = ws.cell(row=row, column=1, value=text)
+            left.border = border
+            ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=4)
+            right = ws.cell(row=row, column=2, value=target)
+            right.border = border
+            row += 1
         return row
+
+    def _write_title(self, title: str, row: int, ws: Worksheet, h_alignment: str = "left"):
+        """
+        Write a title row at the given row of the worksheet.
+        :param title:
+        :param row:
+        :param ws:
+        :return:
+        """
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
+        cell = ws.cell(row=row, column=1, value=title)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.alignment = Alignment(horizontal=h_alignment, vertical="top", wrap_text=True)
+        cell.fill = self._fills()["blue"]
+        cell.border = self._thin_border()
 
     @staticmethod
     def _thin_border() -> Border:
@@ -393,11 +443,13 @@ class CAF32ExcelExporter(CAFLoader):
         return [
             ("Achieved", fills["green"]),
             ("Answer", fills["green"]),
+            ("Justification (if applicable)", fills["green"]),
             ("Partially Achieved", fills["yellow"]),
             ("Answer", fills["yellow"]),
+            ("Justification (if applicable)", fills["yellow"]),
             ("Not Achieved", fills["pink"]),
             ("Answer", fills["pink"]),
-            ("Please summarize your evidence", None),
+            ("Justification (if applicable)", fills["pink"]),
         ]
 
     @staticmethod
@@ -421,12 +473,54 @@ class CAF32ExcelExporter(CAFLoader):
         confirmation_validators = self._confirmation_status_validatos()
         headers = self._header_specs(fills)
 
+        self._write_guidance_tab(wb)
+
         # Iterate objectives -> principles -> outcomes
         for obj_code, obj_data in self.framework["objectives"].items():
             ws = wb.create_sheet(title=f"CAF - Objective {obj_code}")
+            # Columns C..I are used everywhere else; keep the same for header
+            for col, width in (
+                ("A", 50),
+                ("B", 10),
+                ("C", 50),
+                ("D", 50),
+                ("E", 10),
+                ("F", 50),
+                ("G", 50),
+                ("H", 10),
+                ("I", 50),
+            ):
+                ws.column_dimensions[col].width = width
 
-            # Top header block required by specification
-            row = self._write_top_header(ws)
+            # Start on row 1
+            row = 1
+            self._write_title(self.OFFICIAL_SENSITIVE, row, ws, h_alignment="center")
+            row += 2
+
+            # Header
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
+            cell = ws.cell(
+                row=row,
+                column=1,
+                value=CellRichText(
+                    TextBlock(
+                        InlineFont(b=True),
+                        "Please refer to the guidance sheet before filling in this sheet. Scroll to the bottom to make sure you have completed all contributing outcomes. 						",
+                    )
+                ),
+            )
+            cell.border = border
+
+            row += 1
+            cell = ws.cell(
+                row=row,
+                column=1,
+                value=CellRichText(TextBlock(InlineFont(b=True), "Name of the system being assessed: ")),
+            )
+            cell.border = border
+            ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
+
+            row += 3
 
             # Register data validations on the worksheet
             for validator in validators.values():
@@ -434,46 +528,43 @@ class CAF32ExcelExporter(CAFLoader):
             for validator in confirmation_validators.values():
                 ws.add_data_validation(validator)
 
-            # Set column widths (ensure consistent with header)
-            for col, width in (("C", 60), ("D", 10), ("E", 60), ("F", 10), ("G", 60), ("H", 10), ("I", 60)):
-                ws.column_dimensions[col].width = width
             # Objective heading
-            ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=8)
-            cell = ws.cell(row=row, column=3, value=f"Objective {obj_data['code']} - {obj_data['title']}")
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
+            cell = ws.cell(row=row, column=1, value=f"Objective {obj_data['code']} - {obj_data['title']}")
             cell.font = Font(bold=True, size=16)
             row += 1
 
             # Objective description
-            ws.merge_cells(start_row=row, start_column=3, end_row=row + 1, end_column=8)
-            cell = ws.cell(row=row, column=3, value=obj_data["description"])
+            ws.merge_cells(start_row=row, start_column=1, end_row=row + 1, end_column=9)
+            cell = ws.cell(row=row, column=1, value=obj_data["description"])
             cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
             row += 2
 
             # Principles
             for _, principle_data in obj_data.get("principles", {}).items():
-                ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=8)
-                cell = ws.cell(row=row, column=3, value=f"{principle_data['code']} - {principle_data['title']}")
+                ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
+                cell = ws.cell(row=row, column=1, value=f"{principle_data['code']} - {principle_data['title']}")
                 cell.font = Font(bold=True, size=14)
                 row += 1
 
-                ws.merge_cells(start_row=row, start_column=3, end_row=row + 1, end_column=8)
-                cell = ws.cell(row=row, column=3, value=principle_data["description"])
+                ws.merge_cells(start_row=row, start_column=1, end_row=row + 1, end_column=9)
+                cell = ws.cell(row=row, column=1, value=principle_data["description"])
                 cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
                 row += 3
 
                 # Outcomes
                 for _, outcome_data in principle_data.get("outcomes", {}).items():
                     # Outcome header bar
-                    ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=9)
-                    cell = ws.cell(row=row, column=3, value=f"{outcome_data['code']} - {outcome_data['title']}")
+                    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
+                    cell = ws.cell(row=row, column=1, value=f"{outcome_data['code']} - {outcome_data['title']}")
                     cell.font = Font(bold=True, size=14, color="FFFFFF")
                     cell.fill = fills["blue"]
                     cell.border = border
                     row += 1
 
                     # Outcome description bar
-                    ws.merge_cells(start_row=row, start_column=3, end_row=row + 1, end_column=9)
-                    cell = ws.cell(row=row, column=3, value=outcome_data["description"])
+                    ws.merge_cells(start_row=row, start_column=1, end_row=row + 1, end_column=9)
+                    cell = ws.cell(row=row, column=1, value=outcome_data["description"])
                     cell.font = Font(color="FFFFFF")
                     cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
                     cell.fill = fills["blue"]
@@ -481,7 +572,7 @@ class CAF32ExcelExporter(CAFLoader):
                     row += 2
 
                     # Column headers
-                    for col_idx, (title, fill) in enumerate(headers, start=3):
+                    for col_idx, (title, fill) in enumerate(headers, start=1):
                         cell = ws.cell(row=row, column=col_idx, value=title)
                         cell.font = Font(bold=True, size=12)
                         cell.border = border
@@ -494,7 +585,7 @@ class CAF32ExcelExporter(CAFLoader):
                     max_len = max((len(v) for v in indicators.values() if isinstance(v, dict)), default=0)
 
                     for idx in range(max_len):
-                        col_idx = 3
+                        col_idx = 1
                         for key in ("achieved", "partially-achieved", "not-achieved"):
                             values = indicators.get(key, {})
                             if idx < len(values):
@@ -520,44 +611,69 @@ class CAF32ExcelExporter(CAFLoader):
                             # Adjacent answer dropdown cell
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
-                            validators[key].add(ws[ans_cell.coordinate])
+                            validators[key].add(ans_cell.coordinate)
                             col_idx += 1
-
-                        # Evidence cell at the end
-                        ev_cell = ws.cell(row=row, column=col_idx, value="")
-                        ev_cell.border = border
+                            ans_cell = ws.cell(row=row, column=col_idx)
+                            ans_cell.border = border
+                            col_idx += 1
                         row += 1
 
                     # Contributing outcome achievement fields
-                    ws.merge_cells(start_row=row, start_column=7, end_row=row, end_column=8)
-                    cell = ws.cell(row=row, column=7, value="Contributing Outcome achievement fff:")
+                    cell = ws.cell(row=row, column=1, value="Contributing Outcome status:")
                     cell.font = Font(bold=True)
                     cell.border = border
-
+                    # status value
                     cell = ws.cell(
                         row=row,
-                        column=9,
+                        column=2,
                     )
+                    cell.border = border
+                    self._remove_any_validation_in_cell(cell, ws)
+                    ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
                     if indicators.get("partially-achieved"):
                         validator = confirmation_validators["with-partial"]
                     else:
                         validator = confirmation_validators["without-partial"]
-                    validator.add(ws[cell.coordinate])
+                    validator.add(cell.coordinate)
                     cell.border = border
                     row += 1
 
-                    ws.merge_cells(start_row=row, start_column=7, end_row=row, end_column=8)
-                    cell = ws.cell(
-                        row=row,
-                        column=7,
-                        value=("Please provide comments justifying your achievement for this Contributing Outcome:"),
-                    )
+                    cell = ws.cell(row=row, column=1, value="Contributing outcome summary (1,500 word limit):")
                     cell.font = Font(bold=True)
                     cell.border = border
-                    cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
-
-                    cell = ws.cell(row=row, column=9, value="")
+                    cell = ws.cell(row=row, column=2)
                     cell.border = border
+                    ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=9)
+                    self._remove_any_validation_in_cell(cell, ws)
+                    self.add_max_word_validation(cell, ws, 1500)
+                    ws.row_dimensions[row].height = 50
+                    row += 1
+
+                    cell = ws.cell(row=row, column=1, value="Contributing outcome evidence list: ")
+                    cell.font = Font(bold=True)
+                    cell.border = border
+                    cell = ws.cell(row=row, column=2)
+                    cell.border = border
+                    self._remove_any_validation_in_cell(cell, ws)
+                    ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=9)
+                    ws.row_dimensions[row].height = 50
                     row += 5
 
         return wb
+
+    def add_max_word_validation(self, cell: Cell, ws: Worksheet, max_words: int):
+        """Adds a max word validation to the given cell"""
+        formula = f'LEN(TRIM({cell.coordinate})) - LEN(SUBSTITUTE(TRIM({cell.coordinate})," ","")) + 1 <= {max_words}'
+        dv = DataValidation(type="custom", formula1=formula)
+        dv.error = f"Maximum {max_words} words allowed"
+        dv.prompt = f"Enter up to {max_words} words only"
+        ws.add_data_validation(dv)
+        dv.add(cell)
+
+    def _remove_any_validation_in_cell(self, cell: Cell, ws: Worksheet):
+        # Iterate through all validation rules
+        for dv in ws.data_validations.dataValidation[:]:
+            if cell.coordinate in dv.cells:
+                dv.ranges.remove(cell.coordinate)  # remove just this cell
+                if not dv.cells:  # if rule no longer applies anywhere
+                    ws.data_validations.dataValidation.remove(dv)
