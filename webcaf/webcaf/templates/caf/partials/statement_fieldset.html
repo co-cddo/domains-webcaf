@@ -34,8 +34,8 @@
                             <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
                             data-maxwords={{the_field_comment.field.widget.attrs.max_words}}>
                              <h1 class="govuk-label-wrapper">
-                                <label class="govuk-label comments_label id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment_label"
-                                    for="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment">
+                                <label class="govuk-label comments_label id_{{ the_field_comment.field.widget.attrs.id }}_label"
+                                    for="id_{{ the_field_comment.field.widget.attrs.id }}">
                                     Tell us your justifications
                                 </label>
                             </h1>
@@ -44,10 +44,10 @@
 
                             <textarea class="govuk-textarea govuk-js-character-count"
                                       data-module="govuk-character-count"
-                                      id="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment"
+                                      id="id_{{ the_field_comment.field.widget.attrs.id }}"
                                       name="{{ the_field_comment.name }}"
                                       rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
-                            <div id="id_{{ the_field_comment.field.widget.attrs.id }}_not_true_have_justification_comment-info" class="govuk-hint govuk-character-count__message">You can enter up to
+                            <div id="id_{{ the_field_comment.field.widget.attrs.id }}-info" class="govuk-hint govuk-character-count__message">You can enter up to
                                 {{the_field_comment.field.widget.attrs.max_words}} words
                              </div>
                             <!-- @formatter:on -->

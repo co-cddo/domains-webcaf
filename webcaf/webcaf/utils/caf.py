@@ -67,8 +67,10 @@ class CafFormUtil:
         category, field_name = field_name.split("_", 1)
 
         # we're handling validation for justification comments too but the index needs to be the same as the associated question
-        if field_name.endswith("_not_true_have_justification_comment"):
-            field_name = field_name.replace("_not_true_have_justification_comment", "")
+        if field_name.endswith("_comment"):
+            field_name = field_name.replace("_not_true_have_justification_comment", "").replace(
+                "_true_have_justification_comment", ""
+            )
 
         try:
             return fields_by_category[category].index(field_name) + 1

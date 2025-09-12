@@ -51,6 +51,11 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
         for level in ["not-achieved", "partially-achieved", "achieved"]:
             if level in self.outcome_data.get("indicators", {}):
                 for indicator_id, indicator_text in self.outcome_data["indicators"][level].items():
+                    justication_for_id = [
+                        justification.value
+                        for justification in justifications[level]
+                        if justification.needs_justification_text
+                    ][0]
                     fields.append(
                         {
                             "name": f"{level}_{indicator_id}",
@@ -62,7 +67,7 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                                 "rows": 5,
                                 "class": "govuk-textarea",
                                 "max_words": MAX_WORD_COUNT,
-                                "id": f"{level}_{indicator_id}".replace(".", "_"),
+                                "id": f"{level}_{indicator_id}_{justication_for_id}_comment".replace(".", "_"),
                             },
                         }
                     )
