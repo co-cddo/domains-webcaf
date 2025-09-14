@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load permission_extras %}
+{% load csp %}
+{% load form_extras %}
+
+{% block title %}Choose review type for your self assessment{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if draft_assessment.caf_profile == "enhanced" %}
+                <h1 class="govuk-heading-l">
+                    You have chosen an enhanced CAF profile for this system
+                </h1>
+                <p class="govuk-body">
+                    This means your self-assessment must have an independent assurance review.
+                </p>
+                <a href="{{breadcrumbs.1.url}}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+                    Continue
+                </a>
+
+            {% else %}
+                <h1 class="govuk-heading-l">
+                    Choose a review type for your self-assessment
+                </h1>
+                <p class="govuk-body">
+                    During the scoping phases, you will have agreed with your cyber advisor how your self-assessment will be reviewed in stage 4
+                </p>
+                <form class="form" method="post">
+                    {% csrf_token %}
+                    <div class="govuk-form-group">
+                        <fieldset class="govuk-fieldset" aria-describedby="review-type-hint">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h1 class="govuk-fieldset__heading">
+                                    Describe the type of review
+                                </h1>
+                            </legend>
+                            <div id="review-type-hint" class="govuk-hint">
+                                Select one
+                            <div class="govuk-radios" data-module="govuk-radios">
+                            {% for choice in review_form.fields.review_type.choices %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input"
+                                        id="review_type{{ forloop.counter }}"
+                                        value="{{ choice.0 }}"
+                                        name="review_type"
+                                        {% if choice.0 == draft_assessment.review_type %}checked{% endif %}
+                                        type="radio">
+                                    <label class="govuk-label govuk-radios__label" for="review_type{{ forloop.counter }}">{{choice.1}}</label>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            If you select no or not decided, your cyber advisor must already be aware.
+                        </strong>
+                    </div>
+                    <div class="govuk-button-group">
+                            <span class="govuk-body govuk-!-font-size-24">
+                                <button type="submit" class="govuk-button" data-module="govuk-button">
+                                    Save and continue
+                                </button>
+                            </span>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

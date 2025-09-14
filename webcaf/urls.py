@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import include, path
 
@@ -22,9 +23,11 @@ from webcaf.webcaf.views import (
     AccountViewAssessmentsView,
     ChangeActiveProfileView,
     CreateAssessmentProfileView,
+    CreateAssessmentReviewTypeView,
     CreateAssessmentSystemView,
     CreateAssessmentView,
     EditAssessmentProfileView,
+    EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
     Index,
@@ -69,6 +72,11 @@ urlpatterns = [
         "create-draft-assessment/profile", CreateAssessmentProfileView.as_view(), name="create-draft-assessment-profile"
     ),
     path("create-draft-assessment/system", CreateAssessmentSystemView.as_view(), name="create-draft-assessment-system"),
+    path(
+        "create-draft-assessment/review-type",
+        CreateAssessmentReviewTypeView.as_view(),
+        name="create-draft-assessment-choose-review-type",
+    ),
     # Editing existing draft assessment
     path("edit-draft-assessment/<int:assessment_id>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
     path(
@@ -80,6 +88,11 @@ urlpatterns = [
         "edit-draft-assessment/<int:assessment_id>/system",
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
+    ),
+    path(
+        "edit-draft-assessment/<int:assessment_id>/review-type",
+        EditAssessmentReviewTypeView.as_view(),
+        name="edit-draft-assessment-choose-review-type",
     ),
     path("objective-confirmation/", SectionConfirmationView.as_view(), name="objective-confirmation"),
     path(

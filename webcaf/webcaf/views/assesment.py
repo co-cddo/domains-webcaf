@@ -1,5 +1,6 @@
 import logging
 
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
 from django.forms import ModelForm
@@ -32,9 +33,11 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
     logger = logging.Logger("EditAssessmentView")
 
     def get_context_data(self, **kwargs):
+        data = {}
         assessment_id = self.kwargs.get("assessment_id")
         current_profile = UserProfile.objects.get(id=self.request.session["current_profile_id"])
         current_organisation = current_profile.organisation
+
         assessment = Assessment.objects.get(
             id=assessment_id, status="draft", system__organisation_id=current_organisation.id
         )
@@ -43,29 +46,63 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             "system": assessment.system.id,
             "caf_profile": assessment.caf_profile,
             "framework": assessment.framework,
+            "review_type": assessment.review_type,
         }
         # We need to access this information later in the assessment editing stages.
         self.request.session["draft_assessment"] = draft_assessment
         user_profile = SessionUtil.get_current_user_profile(self.request)
-        data = {
-            "draft_assessment": draft_assessment,
-            "objectives": assessment.get_router().get_sections(),
-            "breadcrumbs": [
-                {"url": reverse("my-account"), "text": "My account"},
-            ]
-            + self.breadcrumbs(assessment.id),
-            "systems": (
-                System.objects.filter(organisation=current_organisation)
-                .exclude(
-                    # Exclude any systems that already have draft assessments assigned
-                    id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
-                )
-                .union(System.objects.filter(id=assessment.system_id))
-            ),
-            "current_profile": user_profile,
-        }
+        data.update(
+            {
+                "draft_assessment": draft_assessment,
+                "objectives": assessment.get_router().get_sections(),
+                "breadcrumbs": [
+                    {"url": reverse("my-account"), "text": "My account"},
+                ]
+                + self.breadcrumbs(assessment.id),
+                "systems": (
+                    System.objects.filter(organisation=current_organisation)
+                    .exclude(
+                        # Exclude any systems that already have draft assessments assigned
+                        id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
+                    )
+                    .union(System.objects.filter(id=assessment.system_id))
+                ),
+                "current_profile": user_profile,
+                "review_form": AssessmentReviewTypeForm,
+            }
+        )
 
         return data
+
+    def form_valid(self, form):
+        draft_assessment = self.request.session["draft_assessment"]
+        current_organisation = UserProfile.objects.get(id=self.request.session["current_profile_id"]).organisation
+        if "system" in draft_assessment and "caf_profile" in draft_assessment and "review_type" in draft_assessment:
+            # If the mandatory fields are provided, then we can go ahead and
+            # edit the assessment instance in the database. This enables us to
+            # forward the user to the editing screen with an known assessment id.
+            system = System.objects.get(id=draft_assessment["system"], organisation=current_organisation)
+            assessment = Assessment.objects.get(id=draft_assessment["assessment_id"])
+
+            draft_assessment["assessment_id"] = assessment.id
+            draft_assessment["framework"] = assessment.framework
+            draft_assessment["system_name"] = system.name
+            assessment.last_updated_by = self.request.user
+            # save the edited values for profile, system and review type persists
+            assessment.system = system
+            assessment.review_type = draft_assessment["review_type"]
+            assessment.caf_profile = draft_assessment["caf_profile"]
+
+            assessment.save()
+            self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
+            if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
+                return redirect(
+                    reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_id": assessment.id})
+                )
+            else:
+                # Forward to editing the draft now.
+                return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
+        return super().form_valid(form)
 
     def get_form_kwargs(self):
         """
@@ -84,7 +121,15 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
+        draft_assessment = self.request.session["draft_assessment"]
+        if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
+            return redirect(
+                reverse(
+                    "edit-draft-assessment-choose-review-type", kwargs={"assessment_id": self.kwargs["assessment_id"]}
+                )
+            )
+        else:
+            return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
 
     def breadcrumbs(self, assessment_id: int):
         return [{"url": "#", "text": "Edit draft assessment"}]
@@ -131,6 +176,25 @@ class AssessmentSystemForm(ModelForm):
         fields = ["system"]
 
 
+class AssessmentReviewTypeForm(ModelForm):
+    """
+    Form for handling the assessment review type data
+    """
+
+    class Meta:
+        model = Assessment
+
+        fields = ["review_type"]
+        widgets = {
+            "review_type": forms.RadioSelect(
+                attrs={
+                    "class": "govuk-radios__input",
+                    "form": "assessmentreviewtypeForm",
+                }
+            ),
+        }
+
+
 class EditAssessmentProfileView(EditAssessmentView):
     """
     Handles the view for editing the assessment profile.
@@ -150,6 +214,14 @@ class EditAssessmentProfileView(EditAssessmentView):
 
     template_name = "assessment-profile.html"
     form_class = AssessmentProfileForm
+
+    def form_valid(self, form):
+        draft_assessment = self.request.session["draft_assessment"]
+        draft_assessment["caf_profile"] = form.cleaned_data["caf_profile"]
+        if form.cleaned_data["caf_profile"] == "enhanced":
+            draft_assessment["review_type"] = "independent"
+        self.request.session.save()
+        return super().form_valid(form)
 
     def breadcrumbs(self, assessment_id: int):
         return [
@@ -183,6 +255,12 @@ class EditAssessmentSystemView(EditAssessmentView):
 
     template_name = "system/system-details.html"
     form_class = AssessmentSystemForm
+
+    def form_valid(self, form):
+        draft_assessment = self.request.session["draft_assessment"]
+        draft_assessment["system"] = form.cleaned_data["system"].id
+        self.request.session.save()
+        return super().form_valid(form)
 
     def breadcrumbs(self, assessment_id: int):
         return [
@@ -236,10 +314,15 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         # Hard code the router class version for now
         router = routers["caf32"]
         data["objectives"] = router.get_sections()
+        data["review_form"] = AssessmentReviewTypeForm
         return data
 
     def get_success_url(self):
-        return reverse("create-draft-assessment")
+        draft_assessment = self.request.session["draft_assessment"]
+        if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
+            return reverse("create-draft-assessment-choose-review-type")
+        else:
+            return reverse("create-draft-assessment")
 
     def form_valid(self, form):
         """
@@ -255,8 +338,8 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         """
         draft_assessment = self.request.session["draft_assessment"]
         current_organisation = UserProfile.objects.get(id=self.request.session["current_profile_id"]).organisation
-        if "system" in draft_assessment and "caf_profile" in draft_assessment:
-            # If both the mandatory fields are provided, then we can go ahead and
+        if "system" in draft_assessment and "caf_profile" in draft_assessment and "review_type" in draft_assessment:
+            # If the mandatory fields are provided, then we can go ahead and
             # create the assessment instance in the database. This enables us to
             # forward the user to the editing screen with an known assessment id.
             system = System.objects.get(id=draft_assessment["system"], organisation=current_organisation)
@@ -269,6 +352,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
                     "created_by": self.request.user,
                     "caf_profile": draft_assessment["caf_profile"],
                     "last_updated_by": self.request.user,
+                    "review_type": draft_assessment["review_type"],
                 },
             )
             draft_assessment["assessment_id"] = assessment.id
@@ -277,7 +361,12 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             assessment.save()
             self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
             # Forward to editing the draft now.
-            return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
+            if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
+                return redirect(
+                    reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_id": assessment.id})
+                )
+            else:
+                return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
         return super().form_valid(form)
 
     def breadcrumbs(self):
@@ -307,6 +396,8 @@ class CreateAssessmentProfileView(CreateAssessmentView):
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
         draft_assessment["caf_profile"] = form.cleaned_data["caf_profile"]
+        if form.cleaned_data["caf_profile"] == "enhanced":
+            draft_assessment["review_type"] = "independent"
         self.request.session.save()
         return super().form_valid(form)
 
@@ -347,4 +438,75 @@ class CreateAssessmentSystemView(CreateAssessmentView):
         return [
             {"url": reverse("create-draft-assessment"), "text": "Start a draft assessment"},
             {"url": "#", "text": "Choose System"},
+        ]
+
+
+class CreateAssessmentReviewTypeView(CreateAssessmentView):
+    """
+    CreateAssessmentReviewTypeView class.
+
+    Handles the process of selecting and managing the review type for an assessment,
+    using the provided form class. The class is responsible for rendering the review type
+    template and processing valid form submissions to update the draft assessment.
+
+    Inherits from CreateAssessmentView.
+
+    :ivar template_name: Path to the HTML template used for rendering the view.
+    :type template_name: str
+    :ivar form_class: Form class used for managing the review type form.
+    :type form_class: Type[forms.Form]
+    """
+
+    form_class = AssessmentReviewTypeForm
+    template_name = "assessment/choose-review-type.html"
+
+    def form_valid(self, form):
+        draft_assessment = self.request.session["draft_assessment"]
+        draft_assessment["review_type"] = form.cleaned_data["review_type"]
+        self.request.session.save()
+        return super().form_valid(form)
+
+    def breadcrumbs(self):
+        return [
+            {"url": reverse("create-draft-assessment"), "text": "Start a draft assessment"},
+            {"url": "#", "text": "Choose review type"},
+        ]
+
+
+class EditAssessmentReviewTypeView(EditAssessmentView):
+    """
+    View for editing the assessment review type.
+
+    This class is responsible for rendering and managing the form used to edit
+    the review type of an assessment. It provides the necessary data and
+    behavior to facilitate modification of review type information for an
+    assessment entry.
+
+    :ivar template_name: Path to the HTML template used for rendering the view.
+    :type template_name: str
+    :ivar form_class: Form class used for managing the review type form.
+    :type form_class: Type[forms.Form]
+    """
+
+    form_class = AssessmentReviewTypeForm
+    template_name = "assessment/choose-review-type.html"
+
+    def form_valid(self, form):
+        draft_assessment = self.request.session["draft_assessment"]
+        draft_assessment["review_type"] = form.cleaned_data["review_type"]
+        self.request.session.save()
+        return super().form_valid(form)
+
+    def breadcrumbs(self, assessment_id):
+        return [
+            {
+                "url": reverse(
+                    "edit-draft-assessment",
+                    kwargs={
+                        "assessment_id": assessment_id,
+                    },
+                ),
+                "text": "Edit draft assessment",
+            },
+            {"url": "#", "text": "Choose review type"},
         ]
