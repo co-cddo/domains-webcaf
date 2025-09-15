@@ -1,12 +1,12 @@
 {% load form_extras %}
-<div class="govuk-checkboxes__item">
+<div class="govuk-checkboxes__item " >
     <input class="govuk-checkboxes__input" id="{{ item.auto_id|safe_id }}" name="{{ item.name }}" type="checkbox"
            value="agreed"
             {% if item.value %}
            checked="checked"
             {% endif %}
     >
-    <label class="govuk-label govuk-checkboxes__label" for="{{ item.auto_id|safe_id }}">
+    <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}" for="{{ item.auto_id|safe_id }}">
         {{ forloop.counter }}. {{ item.field.label }}
         {% if item.field.label_suffix %}
             <span class="govuk-tag--green govuk-!-font-size-16">

@@ -28,7 +28,7 @@ span.govuk-header__logotype-text {
     color: #003078; /* GOV.UK link hover colour */
 }
 
-.govuk-checkboxes__conditional {
+.govuk-checkboxes__conditional, .govuk-radios__conditional {
     margin-bottom: 15px;
     margin-left: 20px;
     padding-left: 35px;
@@ -39,6 +39,11 @@ span.govuk-header__logotype-text {
 }
 
 .govuk-checkboxes__input:checked ~ .govuk-checkboxes__conditional {
+    display: block;
+    visibility: visible;
+}
+
+.govuk-radios__input:checked ~ .govuk-radios__conditional {
     display: block;
     visibility: visible;
 }

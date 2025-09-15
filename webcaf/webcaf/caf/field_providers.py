@@ -79,8 +79,14 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         return [
             {
                 "name": "confirm_outcome",
-                "type": "choice_with_justifications",
-                "choices": status_choices,
+                "type": "choice",
+                "choices": [
+                    (
+                        choice.value,
+                        choice.label,
+                    )
+                    for choice in status_choices
+                ],
                 "required": True,
                 "label": "",
             },
@@ -95,4 +101,19 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                     "max_words": MAX_WORD_COUNT,
                 },
             },
+        ] + [
+            # Add justification_text for the confirmation choice list
+            {
+                "name": f"confirm_outcome_{status_choice.value}_comment",
+                "label": "Tell us your justifications",
+                "type": "text",
+                "required": False,
+                "widget_attrs": {
+                    "rows": 5,
+                    "class": "govuk-textarea",
+                    "max_words": MAX_WORD_COUNT,
+                },
+            }
+            for status_choice in status_choices
+            if status_choice.needs_justification_text
         ]
