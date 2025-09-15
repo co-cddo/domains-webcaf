@@ -18,45 +18,4 @@
             </ul>
         </div>
     </div>
-    <script nonce="{{ request.csp_nonce }}">
-        document.querySelectorAll("ul.govuk-list.govuk-error-summary__list a")
-            .forEach(function (anchor) {
-                anchor.addEventListener("click", function (event) {
-                    event.preventDefault();
-
-                    const targetSelector = anchor.getAttribute("href");
-                    const targetElement = document.querySelector(targetSelector);
-
-                    if (targetElement) {
-                        // Step 1: find parent tab panel
-                        const tabPanel = targetElement.closest(".govuk-tabs__panel");
-                        if (tabPanel) {
-                            const panelId = tabPanel.id;
-
-                            // Step 2: find tab button that activates this panel
-                            const tabButton = document.querySelector(
-                                `.govuk-tabs__list-item a[href="#${panelId}"]`
-                            );
-
-                            if (tabButton) {
-                                // Activate the tab using the GOV.UK Tabs API (preferred)
-                                const tabs = document.querySelector(".govuk-tabs");
-                                if (tabs && tabs.GOVUKTabs) {
-                                    tabs.GOVUKTabs.showPanel(tabPanel.id);
-                                } else {
-                                    // Fallback: simulate click on the tab button
-                                    tabButton.click();
-                                }
-                            }
-                        }
-
-                        // Step 3: scroll smoothly to the target
-                        setTimeout(() => {
-                            targetElement.scrollIntoView({behavior: "smooth", block: "center"});
-                            targetElement.focus({preventScroll: true}); // accessibility
-                        }, 200); // slight delay so tab panel has time to open
-                    }
-                });
-            })
-    </script>
 {% endif %}
