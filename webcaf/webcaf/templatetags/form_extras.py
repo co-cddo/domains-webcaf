@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Optional
 
 from django import template
 
@@ -28,7 +28,7 @@ def filter_fields(form, prefix):
 
 
 @register.simple_tag
-def get_comment_field(form, field_name, choice):
+def get_comment_field(form, field_name, prefix: Optional[str] = None):
     """
     Retrieve a comment field from the given form based on the specified field name and choice.
 
@@ -42,15 +42,18 @@ def get_comment_field(form, field_name, choice):
     :param field_name: The base name of the field to search for. All matching
         fields should start with this base name.
     :type field_name: str
-    :param choice: The choice identifier to narrow down the field search. All
+    :param prefix: The choice identifier to narrow down the field search. All
         matching fields should end with this choice followed by "_comment".
-    :type choice: str
+    :type prefix: str
     :return: The matched form field if found, otherwise None.
     :rtype: Optional[Any]
     """
-    matched_fields = [
-        field for field in form if field.name.startswith(field_name) and field.name.endswith(f"_{choice}_comment")
-    ]
+    if prefix is None:
+        suffix = "_comment"
+    else:
+        suffix = f"_{prefix}_comment"
+
+    matched_fields = [field for field in form if field.name.startswith(field_name) and field.name.endswith(suffix)]
     if matched_fields:
         return matched_fields[0]
     return None
