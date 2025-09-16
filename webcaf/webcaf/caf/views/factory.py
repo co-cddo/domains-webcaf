@@ -125,8 +125,13 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
                 assessment.assessments_data[self.class_id][self.stage]
                 and assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data
             ):
-                # Reset the confirmation data if the form data has changed
-                assessment.assessments_data[self.class_id]["confirmation"] = {}
+                # Reset the confirmation data if the form data has changed.
+                # Keep supporting comments unchanged as the user may want to reuse it.
+                assessment.assessments_data[self.class_id]["confirmation"] = {
+                    k: v
+                    for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
+                    if k in ["supporting_comments"]
+                }
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
             assessment.last_modified_by = current_user_profile.user
             assessment.save()
@@ -190,18 +195,19 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
 
     def form_valid(self, form):
         cleaned_data = form.cleaned_data
+        # Not achieved fields need justification if the value is set
         fields_needing_justification = [
-            (k, v) for k, v in cleaned_data.items() if str(v).endswith("_have_justification")
+            (k, v) for k, v in cleaned_data.items() if str(k).startswith("not-achieved") and str(v) == "True"
         ]
         if fields_needing_justification:
             for field_name, value in fields_needing_justification:
-                if not cleaned_data[f"{field_name}_{value}_comment"]:
+                if not cleaned_data[f"{field_name}_comment"]:
                     form.add_error(field_name, ValidationError("You must provide a justification."))
-            form.initial.update(form.cleaned_data)
             # We directly call super as we don't want to call form_invalid here.'This is because
             # form_invalid will us purly to capture non selected questions and we cannot have
             # optional logic to handle this.
         if form.errors:
+            form.initial.update(form.cleaned_data)
             return super().form_invalid(form)
         return super().form_valid(form)
 
@@ -286,6 +292,23 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         ]
         return data
 
+    def form_valid(self, form):
+        cleaned_data = form.cleaned_data
+        outcome = cleaned_data["confirm_outcome"]
+        if outcome.startswith("change_to"):
+            #     Validate if the user has provided justification text for changing the outcome
+            #     Find out what it was changed to
+            comment_for_the_change = cleaned_data.get(f"confirm_outcome_{outcome}_comment")
+            if not comment_for_the_change:
+                form.add_error("confirm_outcome", ValidationError("You must provide a justification."))
+            # We directly call super as we don't want to call form_invalid here.'This is because
+            # form_invalid will us purly to capture non selected questions and we cannot have
+            # optional logic to handle this.
+        if form.errors:
+            form.initial.update(form.cleaned_data)
+            return super().form_invalid(form)
+        return super().form_valid(form)
+
     def build_breadcrumbs(self):
         outcome = self.extra_context["outcome"]
         assessment = SessionUtil.get_current_assessment(self.request)
@@ -310,6 +333,10 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         """
         assessment = SessionUtil.get_current_assessment(self.request)
         return reverse_lazy(f"{assessment.framework}_objective_{self.extra_context['objective_code']}")
+
+    def form_invalid(self, form):
+        form.initial.update(form.cleaned_data)
+        return super().form_invalid(form)
 
 
 create_form_view_logger = logging.getLogger("create_form_view")

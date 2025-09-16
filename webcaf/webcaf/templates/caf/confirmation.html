@@ -28,34 +28,34 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
-                    <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+                    <div class="govuk-radios {% if form.confirm_outcome.errors %}govuk-form-group--error{% endif %}" data-module="govuk-radios" data-govuk-radios-init="">
                         {% for choice in form.fields.confirm_outcome.choices %}
-                            <div class="govuk-radios__item override-item"
-                                 id="div_{{ form.fields.confirm_outcome.auto_id }}">
+                            <div class="govuk-radios__item "
+                                 id="id_confirm_outcome">
                                 <input class="govuk-radios__input"
-                                       id="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}"
+                                       id="{{ form.confirm_outcome.auto_id }}-{{ forloop.counter }}"
                                        name="confirm_outcome"
                                        value="{{ choice.0 }}"
                                        {% if choice.0 == form.confirm_outcome.initial %}checked{% endif %}
                                        type="radio">
                                 <label class="govuk-label govuk-radios__label"
-                                       for="{{ form.fields.confirm_outcome.auto_id }}-{{ forloop.counter }}">
+                                       for="{{ form.confirm_outcome.auto_id }}-{{ forloop.counter }}">
                                     {{ choice.1 }}
                                 </label>
                                 {% get_comment_field form form.fields.confirm_outcome.name choice.0 as the_field_comment %}
                                 {% if the_field_comment %}
                                     <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
-                                         class="govuk-radios__conditional--hidden">
+                                         class="govuk-radios__conditional">
                                         <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
-                                               for="div_id_{{ item.name }}_comments">
-                                            Tell us your justifications
+                                               for="{{the_field_comment.auto_id|safe_id}}">
+                                            {{ the_field_comment.label }}
                                         </label>
                                         <!-- @formatter:off -->
-                                    {#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                                    {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
                                     <textarea class="govuk-textarea comments_textarea"
-                                              id="div_id_{{ item.name }}_comments"
+                                              id="{{the_field_comment.auto_id|safe_id}}"
                                               name="{{ the_field_comment.name }}"
-                                              rows="5">{{ the_field_comment.initial|default:"" }}</textarea>
+                                              rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
                                     <!-- @formatter:on -->
                                     </div>
                                 {% endif %}
@@ -96,7 +96,7 @@
                             the outcomes and IGPs, because the assessor will compare your responses.</p></div>
                 </details>
                 <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                     data-maxwords={{form.supporting_comments.field.widget.attrs.max_words}}>
+                     data-maxwords={{ form.supporting_comments.field.widget.attrs.max_words }}>
                     <h1 class="govuk-label-wrapper">
                         <label class="govuk-label" for="summary_outline">
                             Please write a short summary outlining how you worked towards achieving this outcome.
@@ -111,7 +111,8 @@
                               name="supporting_comments" rows="5"
                               aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments|striptags|default:"" }}</textarea>
                     <!-- @formatter:on -->
-                    <div id="id_supporting_comments-info" class="govuk-hint govuk-character-count__message">You can enter up to
+                    <div id="id_supporting_comments-info" class="govuk-hint govuk-character-count__message">You can
+                        enter up to
                         {{ form.supporting_comments.field.widget.attrs.max_words }} words
                     </div>
                 </div>

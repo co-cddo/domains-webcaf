@@ -32,14 +32,15 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 14)
+        self.assertEqual(len(fields), 18)
         for field in fields:
             self.assertIn("name", field)
             self.assertIn("label", field)
             self.assertIn("type", field)
             self.assertIn("required", field)
-            self.assertEqual(field["type"], "choice_with_justifications")
-            self.assertTrue(field["required"])
+            # There are check box fields as well as the comment fields in the form
+            self.assertEqual(field["type"], "text" if field["name"].endswith("_comment") else "boolean")
+            self.assertFalse(field["required"])
         field_names = [field["name"] for field in fields]
         self.assertIn("not-achieved_A1.a.1", field_names)
         self.assertIn("not-achieved_A1.a.4", field_names)
@@ -62,10 +63,10 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 2)
+        self.assertEqual(len(fields), 5)
         status_field = next(field for field in fields if field["name"] == "confirm_outcome")
         comments_field = next(field for field in fields if field["name"] == "supporting_comments")
-        self.assertEqual(status_field["type"], "choice_with_justifications")
+        self.assertEqual(status_field["type"], "choice")
         self.assertTrue(status_field["required"])
         choices = [choice[0] for choice in status_field["choices"]]
         self.assertIn("confirm", choices)

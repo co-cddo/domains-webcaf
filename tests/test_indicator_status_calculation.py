@@ -12,9 +12,9 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "agreed",
-                        "achieved_statement_2": "not_true_have_justification",
-                        "partially-achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": True,
+                        "achieved_statement_2": True,
+                        "partially-achieved_statement_2": True,
                     },
                 },
                 "Achieved",
@@ -23,8 +23,8 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "not_true_no_justification",
-                        "achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": False,
+                        "achieved_statement_2": True,
                     },
                 },
                 "Not achieved",
@@ -33,10 +33,10 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "not_true_no_justification",
-                        "achieved_statement_2": "not_true_have_justification",
-                        "partially-achieved_statement_1": "agreed",
-                        "partially-achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": False,
+                        "achieved_statement_2": True,
+                        "partially-achieved_statement_1": True,
+                        "partially-achieved_statement_2": True,
                     },
                 },
                 "Partially achieved",
@@ -45,8 +45,8 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "partially-achieved_statement_1": "not_true_no_justification",
-                        "partially-achieved_statement_2": "not_true_have_justification",
+                        "partially-achieved_statement_1": False,
+                        "partially-achieved_statement_2": True,
                     },
                 },
                 "Not achieved",
@@ -55,9 +55,9 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "agreed",
-                        "achieved_statement_2": "agreed",
-                        "partially-achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": True,
+                        "achieved_statement_2": True,
+                        "partially-achieved_statement_2": True,
                     },
                 },
                 "Achieved",
@@ -66,10 +66,10 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "not_true_no_justification",
-                        "achieved_statement_2": "agreed",
-                        "not_achieved_statement_1": "not_true_no_justification",
-                        "not_achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": False,
+                        "achieved_statement_2": True,
+                        "not_achieved_statement_1": False,
+                        "not_achieved_statement_2": True,
                     },
                 },
                 "Not achieved",
@@ -78,8 +78,8 @@ class TestIndicatorStatusChecker(TestCase):
                 {
                     "confirmation": {"confirm_outcome": None},
                     "indicators": {
-                        "achieved_statement_1": "not_true_no_justification",
-                        "achieved_statement_2": "not_true_have_justification",
+                        "achieved_statement_1": False,
+                        "achieved_statement_2": True,
                     },
                 },
                 "Not achieved",

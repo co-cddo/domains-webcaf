@@ -32,11 +32,11 @@ class IndicatorStatusChecker:
 
         # Determine achieved
         outcome_status: str
-        if achieved_items and all(v in ["agreed", "not_true_have_justification"] for _, v in achieved_items):
+        if achieved_items and all(v for _, v in achieved_items):
             outcome_status = "Achieved"
         else:
             # Determine partially achieved
-            if partial_items and all(v in ["agreed", "not_true_have_justification"] for _, v in partial_items):
+            if partial_items and all(v for _, v in partial_items):
                 outcome_status = "Partially achieved"
             else:
                 outcome_status = "Not achieved"

@@ -1,61 +1,36 @@
 {% load form_extras %}
-<div class="govuk-form-group {% if item.errors %}govuk-form-group--error{% endif %}">
-    <fieldset class="govuk-fieldset" aria-describedby="outcome{{ forloop.counter }}-{{ section_type }}-hint">
-        <legend class="govuk-fieldset__legend govuk">
-            <h1 class="govuk-fieldset__heading">
-                {{ forloop.counter }}. {{ item.field.label }}
-                {% if item.field.label_suffix %}
-                    <span class="govuk-tag--green govuk-!-font-size-16">
-                        {{ item.field.label_suffix }}
-                    </span>
-                {% endif %}
-            </h1>
-        </legend>
-        <div id="outcome{{ forloop.counter }}-{{ section_type }}-hint" class="govuk-hint">
-        </div>
-        {# Assign the id at the top level so that we can navigate from the error message   #}
-        <div id="{{ item.auto_id|safe_id }}" class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
-            {% for choice in item.field.choices %}
-                <div class="govuk-radios__item override-item">
-                    <input class="govuk-radios__input"
-                           id="{{ item.auto_id }}-{{ forloop.counter }}"
-                           name="{{ item.name }}"
-                           value="{{ choice.0 }}"
-                           {% if choice.0 == item.initial %}checked{% endif %}
-                           type="radio">
-                    <label class="govuk-label govuk-radios__label"
-                           for="{{ item.auto_id }}-{{ forloop.counter }}">
-                        {{ choice.1 }}
-                    </label>
-                    {% get_comment_field form item.name choice.0 as the_field_comment %}
-                    {% if the_field_comment %}
-                        <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
-                             class="govuk-radios__conditional--hidden">
-                            <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                            data-maxwords={{the_field_comment.field.widget.attrs.max_words}}>
-                             <h1 class="govuk-label-wrapper">
-                                <label class="govuk-label comments_label id_{{ the_field_comment.field.widget.attrs.id }}_label"
-                                    for="id_{{ the_field_comment.field.widget.attrs.id }}">
-                                    Tell us your justifications
-                                </label>
-                            </h1>
-                            <!-- @formatter:off -->
-{#                            Disable formatting the text area as it introduces spaces if wrongly formatted#}
-
-                            <textarea class="govuk-textarea govuk-js-character-count"
-                                      data-module="govuk-character-count"
-                                      id="id_{{ the_field_comment.field.widget.attrs.id }}"
-                                      name="{{ the_field_comment.name }}"
-                                      rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
-                            <div id="id_{{ the_field_comment.field.widget.attrs.id }}-info" class="govuk-hint govuk-character-count__message">You can enter up to
-                                {{the_field_comment.field.widget.attrs.max_words}} words
-                             </div>
-                            <!-- @formatter:on -->
-                        </div>
-                        </div>
-                    {% endif %}
+<div class="govuk-checkboxes__item " >
+    <input class="govuk-checkboxes__input" id="{{ item.auto_id|safe_id }}" name="{{ item.name }}" type="checkbox"
+           value="agreed"
+            {% if item.value %}
+           checked="checked"
+            {% endif %}
+    >
+    <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}" for="{{ item.auto_id|safe_id }}">
+        {{ forloop.counter }}. {{ item.field.label }}
+        {% if item.field.label_suffix %}
+            <span class="govuk-tag--green govuk-!-font-size-16">
+                                {{ item.field.label_suffix }}</span>
+        {% endif %}
+    </label>
+    {% get_comment_field form item.name as the_field_comment %}
+    {% if the_field_comment %}
+        <div class="govuk-checkboxes__conditional" id="conditional-{{ the_field_comment.auto_id|safe_id }}">
+            <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
+                 data-maxwords={{ the_field_comment.field.widget.attrs.max_words }}>
+                <label class="govuk-label" for="{{ the_field_comment.auto_id|safe_id }}">
+                    {{ the_field_comment.label }}
+                </label>
+                <textarea class="govuk-textarea govuk-js-character-count"
+                          id="{{ the_field_comment.auto_id|safe_id }}"
+                          data-module="govuk-character-count"
+                          name="{{ the_field_comment.name }}"
+                          rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
+                <div id="{{ the_field_comment.auto_id|safe_id }}-info"
+                     class="govuk-hint govuk-character-count__message">You can enter up to
+                    {{ the_field_comment.field.widget.attrs.max_words }} words
                 </div>
-            {% endfor %}
+            </div>
         </div>
-    </fieldset>
+    {% endif %}
 </div>
