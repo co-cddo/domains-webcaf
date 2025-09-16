@@ -56,3 +56,4 @@ repos:
           - mozilla_django_oidc
           - django-multiselectfield
           - openpyxl
+          - python-dotenv

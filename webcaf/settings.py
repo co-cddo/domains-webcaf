@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-import uuid
 from pathlib import Path
 
 from csp.constants import NONCE, SELF
@@ -38,7 +37,11 @@ if DEBUG:
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY: str = str(uuid.uuid4()) if DEBUG else env.str("SECRET_KEY", default="not_set")  # type: ignore
+SECRET_KEY: str = env.str("SECRET_KEY", default="not_set")  # type: ignore
+
+if SECRET_KEY == "not_set" and not DEBUG:  # pragma: allowlist secret
+    raise Exception("SECRET_KEY must be set in production")
+
 APPEND_SLASH = True
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
