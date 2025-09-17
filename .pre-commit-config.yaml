@@ -57,3 +57,4 @@ repos:
           - django-multiselectfield
           - openpyxl
           - python-dotenv
+          - django-simple-history
