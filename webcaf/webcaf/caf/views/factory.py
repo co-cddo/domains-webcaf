@@ -133,7 +133,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
                     if k in ["supporting_comments"]
                 }
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
-            assessment.last_modified_by = current_user_profile.user
+            assessment.last_updated_by = current_user_profile.user
             assessment.save()
             self.logger.info(
                 f"Form step {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"

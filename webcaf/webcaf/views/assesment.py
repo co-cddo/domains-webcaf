@@ -347,7 +347,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
                 status="draft",
                 assessment_period="25/26",
                 system=system,
-                version="v3.2",
+                framework="caf32",
                 defaults={
                     "created_by": self.request.user,
                     "caf_profile": draft_assessment["caf_profile"],
@@ -357,8 +357,6 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             )
             draft_assessment["assessment_id"] = assessment.id
             draft_assessment["framework"] = assessment.framework
-            assessment.last_updated_by = self.request.user
-            assessment.save()
             self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
             # Forward to editing the draft now.
             if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
