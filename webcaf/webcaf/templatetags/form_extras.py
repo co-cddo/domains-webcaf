@@ -287,8 +287,3 @@ def indicator_min_profile_requirement_met(
     assessment: Assessment, principal_id: str, indicator_id: str, status: str
 ) -> str:
     return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)
-
-
-@register.simple_tag()
-def get_justification_text(assessments_data: dict[str, Any], indicator_id: str) -> str | None:
-    return IndicatorStatusChecker.get_justification_text(assessments_data, indicator_id)

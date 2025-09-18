@@ -68,8 +68,8 @@ class TestIndicatorStatusChecker(TestCase):
                     "indicators": {
                         "achieved_statement_1": False,
                         "achieved_statement_2": True,
-                        "not_achieved_statement_1": False,
-                        "not_achieved_statement_2": True,
+                        "not-achieved_statement_1": False,
+                        "not-achieved_statement_2": True,
                     },
                 },
                 "Not achieved",
@@ -80,6 +80,64 @@ class TestIndicatorStatusChecker(TestCase):
                     "indicators": {
                         "achieved_statement_1": False,
                         "achieved_statement_2": True,
+                    },
+                },
+                "Not achieved",
+            ),
+            (
+                {
+                    "confirmation": {"confirm_outcome": None},
+                    "indicators": {
+                        "not-achieved_statement_1": True,
+                        "not-achieved_statement_2": True,
+                    },
+                },
+                "Not achieved",
+            ),
+            (
+                {
+                    "confirmation": {"confirm_outcome": None},
+                    "indicators": {
+                        "not-achieved_statement_1": True,
+                        "not-achieved_statement_2": True,
+                        "not-achieved_statement_1_comment": "This is the comment",
+                        "not-achieved_statement_2_comment": "",
+                    },
+                },
+                "Not achieved",
+            ),
+            (
+                {
+                    "confirmation": {"confirm_outcome": None},
+                    "indicators": {
+                        "not-achieved_statement_1": True,
+                        "not-achieved_statement_2": True,
+                        "not-achieved_statement_1_comment": "This is the comment",
+                        "not-achieved_statement_2_comment": None,
+                    },
+                },
+                "Not achieved",
+            ),
+            (
+                {
+                    "confirmation": {"confirm_outcome": None},
+                    "indicators": {
+                        "not-achieved_statement_1": True,
+                        "not-achieved_statement_2": True,
+                        "not-achieved_statement_1_comment": "This is the comment",
+                        "not-achieved_statement_2_comment": "This is the other comment",
+                    },
+                },
+                "Achieved",
+            ),
+            (
+                {
+                    "confirmation": {"confirm_outcome": None},
+                    "indicators": {
+                        "not-achieved_statement_1": True,
+                        "not-achieved_statement_2": False,
+                        "not-achieved_statement_1_comment": "This is the comment",
+                        "not-achieved_statement_2_comment": "This is the other comment",
                     },
                 },
                 "Not achieved",
