@@ -14,15 +14,12 @@ class IndicatorStatusChecker:
         }
         compute:
           - outcome_status: "achieved" | "partially_achieved" | "not_achieved"
-          - override_status: value of confirmation["confirm_outcome"] or None
-          - outcome_status_text: ""
         Rules:
           - "achieved" if ALL indicator keys starting with "achieved_" are "agreed"
           - else "partially_achieved" if ALL indicator keys starting with "partially-achieved_" are "agreed"
-          - else "not_Achieved"
-        Only non-comment indicator keys are considered (ignore keys ending with "_comment").
+          - else "not_Achieved" unless all agreed with justification provided otherwise revert to "achieved"
+        Only non-comment indicator keys are considered (ignore keys ending with "_comment") for achieved and partially_achieved tests.
         """
-        confirmation = (data or {}).get("confirmation") or {}
         indicators = (data or {}).get("indicators") or {}
 
         # Helper: filter only primary indicator keys (ignore any *_comment variants)
@@ -41,29 +38,28 @@ class IndicatorStatusChecker:
             if partial_items and all(v for _, v in partial_items):
                 outcome_status = "Partially achieved"
             else:
-                outcome_status = "Not achieved"
+                # Check all not-achieved are ticked with comments, which makes the satus achieved
+                not_achieved_indicators = primary_items_with_prefix("not-achieved_")
+                # Make sure all are ticked
+                if not_achieved_indicators and all(v for _, v in not_achieved_indicators):
+                    not_achieved_comments = [
+                        (k, v and v.strip() != "")
+                        for k, v in indicators.items()
+                        if k.startswith("not-achieved_") and k.endswith("_comment")
+                    ]
+                    if (
+                        not_achieved_comments
+                        and len(not_achieved_comments) == len(not_achieved_indicators)
+                        and all(v for _, v in not_achieved_comments)
+                    ):
+                        outcome_status = "Achieved"
+                    else:
+                        outcome_status = "Not achieved"
+                else:
+                    outcome_status = "Not achieved"
 
-        # - "confirm" -> None
-        # - "change_to_xxx" -> "xxx"
-        raw_override = confirmation.get("confirm_outcome")
-        if raw_override == "confirm":
-            override_status: Optional[str] = None
-        elif isinstance(raw_override, str) and raw_override.startswith("change_to_"):
-            override_status = raw_override[len("change_to_") :].replace("_", " ").capitalize()
-        else:
-            override_status = None
-
-        outcome_status_text_map = {
-            "Achieved": """You selected 'true' to all the achieved statements.
-Please confirm you agree with this status, or you can choose to change the outcome.""",
-            "Not achieved": """You selected 'not true' to at least one of the achieved or partially achieved statements.
-Please confirm you agree with this status, or you can choose to change the outcome.""",
-            "Partially achieved": """You selected 'partially achieved'""",
-        }
         return {
             "outcome_status": outcome_status,
-            "override_status": override_status,
-            "outcome_status_text": outcome_status_text_map[outcome_status],
         }
 
     @staticmethod
@@ -80,7 +76,6 @@ Please confirm you agree with this status, or you can choose to change the outco
         historical_assessments = assessment.history.all()
 
         # Filter historical assessments where the indicator's status has changed
-        status_key = IndicatorStatusChecker.status_to_key(status)
 
         filtered_history = []
         for i in range(len(historical_assessments) - 1):
@@ -88,16 +83,16 @@ Please confirm you agree with this status, or you can choose to change the outco
                 historical_assessments[i]
                 .assessments_data.get(indicator_id, {})
                 .get("confirmation", {})
-                .get("confirm_outcome", "")
+                .get("confirm_outcome_status", "")
             )
             next_outcome = (
                 historical_assessments[i + 1]
                 .assessments_data.get(indicator_id, {})
                 .get("confirmation", {})
-                .get("confirm_outcome", "")
+                .get("confirm_outcome_status", "")
             )
             # We get the records in reverse order, so we need to check the next outcome first
-            if prev_outcome == f"change_to_{status_key}" and next_outcome != f"change_to_{status_key}":
+            if prev_outcome == status and next_outcome != status:
                 filtered_history.append(historical_assessments[i])
 
         # If there are no matching statuses, return None
@@ -178,23 +173,3 @@ Please confirm you agree with this status, or you can choose to change the outco
         else:
             raise ValueError(f"Invalid key: {status}")
         return status_key
-
-    @classmethod
-    def get_justification_text(cls, assessments_data: dict[str, Any], indicator_id: str) -> str | None:
-        """
-        Returns the justification text for a given indicator based on assessment data.
-
-        :param assessments_data: Dictionary containing assessment data.
-        :type assessments_data: dict
-
-        :param indicator_id: Identifier of the indicator to retrieve justification text for.
-        :type indicator_id: int
-
-        :return: Justification text if found, otherwise None.
-        :rtype: str | None
-        """
-        confirmation = assessments_data.get(indicator_id, {}).get("confirmation", {})
-        if confirm_outcome := confirmation.get("confirm_outcome"):
-            if confirm_outcome.startswith("change_to_"):
-                return confirmation.get(f"confirm_outcome_{confirm_outcome}_comment")
-        return None

@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import Form
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.generic import FormView
@@ -121,17 +122,26 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             if self.stage not in assessment.assessments_data[self.class_id]:
                 assessment.assessments_data[self.class_id][self.stage] = {}
 
-            if (
-                assessment.assessments_data[self.class_id][self.stage]
-                and assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data
-            ):
+            if assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data:
                 # Reset the confirmation data if the form data has changed.
                 # Keep supporting comments unchanged as the user may want to reuse it.
-                assessment.assessments_data[self.class_id]["confirmation"] = {
-                    k: v
-                    for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
-                    if k in ["supporting_comments"]
-                }
+                current_assessment_status = IndicatorStatusChecker.get_status_for_indicator(
+                    assessment.assessments_data[self.class_id]
+                )
+                self.logger.info(
+                    f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_assessment_status}."
+                )
+                if "confirmation" in assessment.assessments_data[self.class_id]:
+                    assessment.assessments_data[self.class_id]["confirmation"] = {
+                        k: v
+                        for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
+                        # This is the comment associated with the confirmation
+                        if k
+                        in [
+                            "confirm_outcome_confirm_comment",
+                        ]
+                    }
+
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
             assessment.last_updated_by = current_user_profile.user
             assessment.save()
@@ -152,7 +162,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
         :return: A string with the duplicate field suffix, marked as safe for HTML rendering.
         """
         return mark_safe(
-            f"""Use the same answer as {" and ".join(f"{CafFormUtil.get_category_name(field)} question {CafFormUtil.human_index(form, field)}" for field in other_field_names)}"""
+            f"""identical to {" and ".join(f"{CafFormUtil.get_category_name(field)} statement {CafFormUtil.human_index(form, field)}" for field in other_field_names)}"""
         )
 
 
@@ -295,18 +305,28 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
     def form_valid(self, form):
         cleaned_data = form.cleaned_data
         outcome = cleaned_data["confirm_outcome"]
-        if outcome.startswith("change_to"):
+        assessment = SessionUtil.get_current_assessment(self.request)
+
+        if not outcome.startswith("back_to_achieved"):
             #     Validate if the user has provided justification text for changing the outcome
             #     Find out what it was changed to
             comment_for_the_change = cleaned_data.get(f"confirm_outcome_{outcome}_comment")
             if not comment_for_the_change:
-                form.add_error("confirm_outcome", ValidationError("You must provide a justification."))
+                form.initial.update(form.cleaned_data)
+                form.add_error("confirm_outcome", ValidationError("You must provide a summary."))
             # We directly call super as we don't want to call form_invalid here.'This is because
             # form_invalid will us purly to capture non selected questions and we cannot have
             # optional logic to handle this.
+        else:
+            return redirect(reverse_lazy(f"{assessment.framework}_indicators_{self.class_id}"))
+
         if form.errors:
-            form.initial.update(form.cleaned_data)
             return super().form_invalid(form)
+
+        status_for_indicator = IndicatorStatusChecker.get_status_for_indicator(
+            assessment.assessments_data[self.class_id]
+        )
+        form.cleaned_data.update(**status_for_indicator)
         return super().form_valid(form)
 
     def build_breadcrumbs(self):
