@@ -122,6 +122,13 @@ class Assessment(models.Model):
         ("caf32", "Cyber Assessment Framework v3.2"),
         ("caf40", "Cyber Assessment Framework v4.0"),
     ]
+
+    REVIEW_TYPE_CHOICES = [
+        ("independent", "Independent assurance review"),
+        ("peer_review", "Peer review"),
+        ("self_assessment", "No review, self-assessment only"),
+        ("not_decided", "Not decided"),
+    ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
     version = models.CharField(max_length=10)
@@ -142,6 +149,8 @@ class Assessment(models.Model):
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assessments_updated"
     )
     assessments_data = models.JSONField(default=dict)
+
+    review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default="not_decided")
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]

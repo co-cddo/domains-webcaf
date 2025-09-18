@@ -5,6 +5,8 @@
 {% block title %} {{ title }}{% endblock %}
 
 {% block content %}
+    {% get_assessment request as assessment %}
+    <span class="govuk-caption-l">{{ assessment.system.name }}</span>
     <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h3>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
