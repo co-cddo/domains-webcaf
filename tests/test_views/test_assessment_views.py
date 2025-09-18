@@ -13,7 +13,7 @@ def setUpModule():
 class SetupAssessmentTestData(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.create_asssement_url = reverse("create-draft-assessment")
+        cls.create_assessment_url = reverse("create-draft-assessment")
         cls.create_system_url = reverse("create-draft-assessment-system")
         cls.create_profile_url = reverse("create-draft-assessment-profile")
         cls.create_review_type_url = reverse("create-draft-assessment-choose-review-type")
@@ -76,7 +76,7 @@ class TestCreateAssessmentViews(SetupAssessmentTestData):
             self.client.session["draft_assessment"], {"system": self.test_system.id, "caf_profile": "baseline"}
         )
         # We should also be redirected to the review page to be shown this review type is mandatory for an enhanced profile
-        self.assertRedirects(response, self.create_asssement_url)
+        self.assertRedirects(response, self.create_assessment_url)
 
     def test_profile_enhanced(self):
         """test selection of enhanced caf profile, that completes section 1, results an independent review type"""
@@ -108,7 +108,7 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
             status="draft",
             assessment_period="25/26",
             review_type="peer_review",
-            version="v3.2",
+            framework="caf32",
             caf_profile="baseline",
         )
         self.edit_asssement_url = reverse("edit-draft-assessment", kwargs={"assessment_id": self.assessment.id})
