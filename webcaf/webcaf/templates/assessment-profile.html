@@ -6,15 +6,13 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">
-                Government CAF profile
+                Choose your Government CAF profile
             </h1>
             <p class="govuk-body">
-                Every system undergoing an assessment must be classified as one of two profile types. These are baseline or
-                enhanced.
+                Every system undergoing GovAssure must be assigned one of the two Government CAF profiles. These are baseline and enhanced. You will have agreed this with your cyber advisor during stage 2.
             </p>
-            <div class="govuk-inset-text">
-                Baseline profile is essential for all government organisations. Enhanced is for critical or CNI systems.
-            </div>
+            <p class="govuk-body">You can read more in the
+                <a href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-2-in-scope-systems-and-assigning-target-caf-profile/#section_5_assign-caf-profiles-to-your-systems" target="new" class="govuk-lik"> CAF profiles to your systems guidance (opens in new tab). </a></p>
             <form class="form" method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
@@ -37,9 +35,6 @@
                                 <label class="govuk-label govuk-radios__label" for="caf_profile">
                                     Baseline
                                 </label>
-                                <div id="cafprofile-item-hint" class="govuk-hint govuk-radios__hint">
-                                    Use this if your system is non-critical
-                                </div>
                             </div>
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="cafprofile-2" name="caf_profile" type="radio"
@@ -50,20 +45,9 @@
                                 <label class="govuk-label govuk-radios__label" for="cafprofile-2">
                                     Enhanced
                                 </label>
-                                <div id="cafprofile-2-item-hint" class="govuk-hint govuk-radios__hint">
-                                    Use this if your system is part of the CNI or is another critical government system
-                                </div>
                             </div>
                         </div>
                     </fieldset>
-                </div>
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                        <span class="govuk-visually-hidden">Warning</span>
-                        All government organisations must meet the Baseline Profile. If your organisation wants to
-                        assign the Enhanced Profile to a system, you should contact us at <code class="govspeak-code">cybergovassure@cabinetoffice.gov.uk</code>.
-                    </strong>
                 </div>
                 <button type="submit" class="govuk-button" data-module="govuk-button">
                     Save and continue
