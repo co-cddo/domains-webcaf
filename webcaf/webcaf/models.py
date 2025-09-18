@@ -150,7 +150,7 @@ class Assessment(models.Model):
     )
     assessments_data = models.JSONField(default=dict)
 
-    review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default=None)
+    review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default="not_decided")
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]
