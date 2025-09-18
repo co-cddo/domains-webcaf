@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("webcaf", "0005_alter_assessment_reference"),
+        ("webcaf", "0006_assessment_review_type"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
