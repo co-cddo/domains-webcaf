@@ -4,7 +4,7 @@ from typing import Any, Optional
 from django import template
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment
+from webcaf.webcaf.models import Assessment, System
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -249,3 +249,12 @@ def safe_id(value):
     if not isinstance(value, str):
         value = str(value)
     return re.sub(r"[^a-zA-Z0-9_-]", "_", value)
+
+
+@register.filter
+def get_system_name_from_id(system_id: int):
+    """
+    takes the system id and returns the name
+    """
+    system = System.objects.get(id=system_id)
+    return system.name

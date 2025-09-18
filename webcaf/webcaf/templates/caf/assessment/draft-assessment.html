@@ -7,6 +7,9 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% if draft_assessment.system %}
+                <span class="govuk-caption-l">{{ draft_assessment.system | get_system_name_from_id }}</span>
+            {% endif %}
             <h1 class="govuk-heading-l">Submit a WebCAF self-assessment
             </h1>
             <p class="govuk-body"><strong>Draft assessment</strong></p>

@@ -5,11 +5,13 @@
 
 {% block title %}Completion Confirmation - {{ user.first_name }} {% endblock %}
 {% block content %}
+    {% get_assessment request as assessment %}
     <div class="govuk-width-container">
         <main class="govuk-main-wrapper" id="main-content">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
                     <div class="govuk-panel govuk-panel--confirmation">
+                        <span class="govuk-caption-l">{{ assessment.system.name }}</span>
                         <h1 class="govuk-panel__title">
                             Self-assessment completed
                         </h1>
