@@ -24,13 +24,14 @@
             {% endif %}
             <div id="a3a-not-achieved-hint" class="govuk-hint">
                 <p class="govuk-body">
-                    {{ outcome_status.outcome_status_text }}
+                    Confirm you agree with this status, or go back and change your response to the IGP statements.
                 </p>
             </div>
             <form method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
-                    <div class="govuk-radios {% if form.confirm_outcome.errors %}govuk-form-group--error{% endif %}" data-module="govuk-radios" data-govuk-radios-init="">
+                    <div class="govuk-radios {% if form.confirm_outcome.errors %}govuk-form-group--error{% endif %}"
+                         data-module="govuk-radios" data-govuk-radios-init="">
                         {% for choice in form.fields.confirm_outcome.choices %}
                             <div class="govuk-radios__item "
                                  id="id_confirm_outcome">
@@ -46,75 +47,75 @@
                                 </label>
                                 {% get_comment_field form form.fields.confirm_outcome.name choice.0 as the_field_comment %}
                                 {% if the_field_comment %}
-                                    <div id="{{ section_type }}-{{ forloop.parentloop.counter }}-{{ forloop.counter }}_container"
+                                    <div id="{{ the_field_comment.auto_id|safe_id }}-{{ forloop.counter }}_container"
                                          class="govuk-radios__conditional">
-                                        <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
-                                               for="{{the_field_comment.auto_id|safe_id}}">
-                                            {{ the_field_comment.label }}
-                                        </label>
-                                        <!-- @formatter:off -->
-                                    {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
-                                    <textarea class="govuk-textarea comments_textarea"
-                                              id="{{the_field_comment.auto_id|safe_id}}"
-                                              name="{{ the_field_comment.name }}"
-                                              rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
-                                    <!-- @formatter:on -->
+
+                                        <details class="govuk-details">
+                                            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                  How to write a good summary
+                </span>
+                                            </summary>
+                                            <div class="govuk-details__text">
+                                                GovAssure stage 4 assessments are reviewed against the contributing
+                                                outcomes. <br><br>
+                                                While the focus is on meeting the contributing outcome, any gaps or
+                                                limitations in the cyber security measures for the contributing outcome
+                                                should also be detailed in this summary. <br><br>
+                                                You should reference the IGPs in your contributing outcome summary. This
+                                                is particularly important if you have included justifications for
+                                                individual IGPs.<Br><br>
+
+                                                <p class="govuk-body">The assessor will want your summary to:</p>
+                                                <ul class="govuk-list govuk-list--bullet">
+                                                    <li>explain what your organisation does</li>
+                                                    <li>show how key controls and processes contributed to you achieving
+                                                        the contributing outcome
+                                                    </li>
+                                                    <li>have brief descriptions of how these are implemented</li>
+                                                    <li>include clear references to supporting evidence</li>
+                                                </ul>
+                                                <p>
+                                                    Before submission, check that your overall contributing outcome
+                                                    achievement status and your responses to IGP statements are
+                                                    consistent, as the assessor will compare these. Any inconsistencies
+                                                    must be explained through your justifications or when changing the
+                                                    outcome. <Br><Br>
+                                                    For more detailed guidance on what is expected for each contributing
+                                                    outcome, please visit security.gov.uk.
+                                                </p></div>
+                                        </details>
+                                        <div id="{{ the_field_comment.auto_id|safe_id }}-{{ forloop.counter }}_outer"
+                                             class="govuk-form-group govuk-character-count"
+                                             data-module="govuk-character-count"
+                                             data-maxwords={{ the_field_comment.field.widget.attrs.max_words }}>
+                                            <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
+                                                   for="{{ the_field_comment.auto_id|safe_id }}">
+                                                {{ the_field_comment.label }}
+                                            </label>
+                                            <!-- @formatter:off -->
+                                            {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                                            <textarea class="govuk-textarea comments_textarea govuk-js-character-count"
+                                                      id="{{the_field_comment.auto_id|safe_id}}"
+                                                      name="{{ the_field_comment.name }}"
+                                                      rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
+                                             <!-- @formatter:on -->
+                                            <div id="{{ the_field_comment.auto_id|safe_id }}-info"
+                                                 class="govuk-hint govuk-character-count__message">You can
+                                                enter up to
+                                                {{ the_field_comment.field.widget.attrs.max_words }} words
+                                            </div>
+                                        </div>
                                     </div>
                                 {% endif %}
                             </div>
                         {% endfor %}
                     </div>
                 </div>
-                <h3 class="govuk-heading-m">Provide a summary about asset management</h3>
-                <details class="govuk-details">
-                    <summary class="govuk-details__summary">
-                <span class="govuk-details__summary-text">
-                  How to write a good summary
-                </span>
-                    </summary>
-                    <div class="govuk-details__text">
-                       GovAssure stage 4 assessments are reviewed against the contributing outcomes. <br><br>
-                        While the focus is on meeting the contributing outcome, any gaps or limitations in the cyber security measures for the contributing outcome should also be detailed in this summary. <br><br>
-                        You should reference the IGPs in your contributing outcome summary. This is particularly important if you have included justifications for individual IGPs.<Br><br>
-
-                    <p class="govuk-body">The assessor will want your summary to:</p>
-                    <ul class="govuk-list govuk-list--bullet">
-                    <li>explain what your organisation does</li>
-                    <li>show how key controls and processes contributed to you achieving the contributing outcome</li>
-                    <li>have brief descriptions of how these are implemented</li>
-                    <li>include clear references to supporting evidence</li>
-                    </ul>
-                    <p>
-                        Before submission, check that your overall contributing outcome achievement status and your responses to IGP statements are consistent, as the assessor will compare these. Any inconsistencies must be explained through your justifications or when changing the outcome. <Br><Br>
-                        For more detailed guidance on what is expected for each contributing outcome, please visit security.gov.uk.
-                    </p></div>
-                </details>
-                <div class="govuk-form-group govuk-character-count" data-module="govuk-character-count"
-                     data-maxwords={{ form.supporting_comments.field.widget.attrs.max_words }}>
-                    <h1 class="govuk-label-wrapper">
-                        <label class="govuk-label" for="summary_outline">
-                            Please write a short summary outlining how you worked towards achieving this outcome.
-                        </label>
-                    </h1>
-                    <div id="with-hint-hint" class="govuk-hint">
-                        Provide a short summary outlining how you worked towards achieving this outcome.
-                    </div>
-                    <!-- @formatter:off -->
-                    {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
-                    <textarea class="govuk-textarea govuk-js-character-count" id="id_supporting_comments"
-                              name="supporting_comments" rows="5"
-                              aria-describedby="summary_outline-info summary_outline-hint">{{ form.supporting_comments|striptags|default:"" }}</textarea>
-                    <!-- @formatter:on -->
-                    <div id="id_supporting_comments-info" class="govuk-hint govuk-character-count__message">You can
-                        enter up to
-                        {{ form.supporting_comments.field.widget.attrs.max_words }} words
-                    </div>
-                </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
                         Save and continue
                     </button>
-                    <a class="govuk-link" href="{% url back_url %}">Back to statements </a>
                 </div>
             </form>
         </div>

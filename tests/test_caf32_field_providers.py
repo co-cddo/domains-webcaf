@@ -32,7 +32,7 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 18)
+        self.assertEqual(len(fields), 28)
         for field in fields:
             self.assertIn("name", field)
             self.assertIn("label", field)
@@ -63,18 +63,16 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeConfirmationFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 5)
+        self.assertEqual(len(fields), 2)
         status_field = next(field for field in fields if field["name"] == "confirm_outcome")
-        comments_field = next(field for field in fields if field["name"] == "supporting_comments")
+        comments_field = next(field for field in fields if field["name"] == "confirm_outcome_confirm_comment")
         self.assertEqual(status_field["type"], "choice")
         self.assertTrue(status_field["required"])
         choices = [choice[0] for choice in status_field["choices"]]
         self.assertIn("confirm", choices)
-        self.assertIn("change_to_achieved", choices)
-        self.assertIn("change_to_not_achieved", choices)
-        self.assertIn("change_to_partially_achieved", choices)
         self.assertEqual(comments_field["type"], "text")
-        self.assertTrue(comments_field["required"])
+        # Comment fields are required only if they chose the confirm option
+        self.assertFalse(comments_field["required"])
         self.assertIn("widget_attrs", comments_field)
         self.assertEqual(comments_field["widget_attrs"]["rows"], 5)
         self.assertEqual(comments_field["widget_attrs"]["max_words"], 1500)
@@ -90,5 +88,3 @@ class FormProvidersTestCase(TestCase):
         status_field = next(field for field in fields if field["name"] == "confirm_outcome")
         choices = [choice[0] for choice in status_field["choices"]]
         self.assertIn("confirm", choices)
-        self.assertIn("change_to_achieved", choices)
-        self.assertNotIn("change_to_partially_achieved", choices)
