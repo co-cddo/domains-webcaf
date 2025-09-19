@@ -8,6 +8,15 @@ assessment-rules: &standard-rules
   3:
     - not-achieved
     - any
+
+#Use these constants to reference the standard statuses
+#You need to maintain the case of the status names as they appear in the database
+
+indicator_statuses: &indicator_statuses
+  - &achieved Achieved
+  - &partially_achieved Partially achieved
+  - &not_Achieved Not achieved
+
 objectives:
   A:
     code: A
@@ -78,8 +87,8 @@ objectives:
                   ncsc-index: A1.a.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
           A1.b:
             code: A1.b
             title: Roles and Responsibilities
@@ -121,8 +130,8 @@ objectives:
                   ncsc-index: A1.b.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
           A1.c:
             code: A1.c
             title: Decision-making
@@ -179,8 +188,8 @@ objectives:
                   ncsc-index: A1.c.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
       A2:
         code: A2
         title: Risk Management
@@ -287,8 +296,8 @@ objectives:
                   ncsc-index: A2.a.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially Achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           A2.b:
             code: A2.b
             title: Assurance
@@ -339,8 +348,8 @@ objectives:
                   ncsc-index: A2.b.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
       A3:
         code: A3
         title: Asset Management
@@ -402,8 +411,8 @@ objectives:
                   ncsc-index: A3.a.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
       A4:
         code: A4
         title: Supply Chain
@@ -502,8 +511,8 @@ objectives:
                   ncsc-index: A4.a.A.7
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially Achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
   B:
     code: B
     title: Protecting against cyber attack
@@ -598,8 +607,8 @@ objectives:
                   ncsc-index: B1.a.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B1.b:
             code: B1.b
             title: Policy, Process and Procedure Implementation
@@ -673,8 +682,8 @@ objectives:
                   ncsc-index: B1.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
       B2:
         code: B2
         title: Identity and Access Control
@@ -785,8 +794,8 @@ objectives:
                   ncsc-index: B2.a.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           B2.b:
             code: B2.b
             title: Device Management
@@ -862,8 +871,8 @@ objectives:
                   ncsc-index: B2.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           B2.c:
             code: B2.c
             title: Privileged User Management
@@ -948,8 +957,8 @@ objectives:
                   ncsc-index: B2.c.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B2.d:
             code: B2.d
             title: Identity and Access Management (IdAM)
@@ -1022,8 +1031,8 @@ objectives:
                   ncsc-index: B2.d.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
       B3:
         code: B3
         title: Data Security
@@ -1133,8 +1142,8 @@ objectives:
                   ncsc-index: B3.a.A.9
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.b:
             code: B3.b
             title: Data in Transit
@@ -1189,8 +1198,8 @@ objectives:
                   ncsc-index: B3.b.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.c:
             code: B3.c
             title: Stored Data
@@ -1265,8 +1274,8 @@ objectives:
                   ncsc-index: B3.c.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.d:
             code: B3.d
             title: Mobile Data
@@ -1319,8 +1328,8 @@ objectives:
                   ncsc-index: B3.d.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.e:
             code: B3.e
             title: Media / Equipment Sanitisation
@@ -1353,8 +1362,8 @@ objectives:
                   ncsc-index: B3.e.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
       B4:
         code: B4
         title: System Security
@@ -1444,8 +1453,8 @@ objectives:
                   ncsc-index: B4.a.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B4.b:
             code: B4.b
             title: Secure Configuration
@@ -1541,8 +1550,8 @@ objectives:
                   ncsc-index: B4.b.A.8
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           B4.c:
             code: B4.c
             title: Secure Management
@@ -1595,8 +1604,8 @@ objectives:
                   ncsc-index: B4.c.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B4.d:
             code: B4.d
             title: Vulnerability Management
@@ -1673,8 +1682,8 @@ objectives:
                   ncsc-index: B4.d.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
       B5:
         code: B5
         title: Resilient Networks and Systems
@@ -1730,8 +1739,8 @@ objectives:
                   ncsc-index: B5.a.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B5.b:
             code: B5.b
             title: Design for Resilience
@@ -1792,8 +1801,8 @@ objectives:
                   ncsc-index: B5.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B5.c:
             code: B5.c
             title: Backups
@@ -1838,8 +1847,8 @@ objectives:
                   ncsc-index: B5.c.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
       B6:
         code: B6
         title: Staff Awareness and Training
@@ -1916,8 +1925,8 @@ objectives:
                   ncsc-index: B6.a.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B6.b:
             code: B6.b
             title: Cyber Security Training
@@ -1974,8 +1983,8 @@ objectives:
                   ncsc-index: B6.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Partially achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
   C:
     code: C
     title: Detecting cyber security events
@@ -2071,8 +2080,8 @@ objectives:
                   ncsc-index: C1.a.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           C1.b:
             code: C1.b
             title: Securing Logs
@@ -2147,8 +2156,8 @@ objectives:
                   ncsc-index: C1.b.A.7
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           C1.c:
             code: C1.c
             title: Generating Alerts
@@ -2224,8 +2233,8 @@ objectives:
                   ncsc-index: C1.c.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           C1.d:
             code: C1.d
             title: Identifying Security Incidents
@@ -2295,8 +2304,8 @@ objectives:
                   ncsc-index: C1.d.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
           C1.e:
             code: C1.e
             title: Monitoring Tools and Skills
@@ -2397,8 +2406,8 @@ objectives:
                   ncsc-index: C1.e.A.7
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Partially achieved
-              enhanced: Achieved
+              baseline: *partially_achieved
+              enhanced: *achieved
       C2:
         code: C2
         title: Proactive Security Event Discovery
@@ -2450,8 +2459,8 @@ objectives:
                   ncsc-index: C2.a.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Not achieved
-              enhanced: Not achieved
+              baseline: *not_Achieved
+              enhanced: *not_Achieved
           C2.b:
             code: C2.b
             title: Proactive Attack Discovery
@@ -2479,8 +2488,8 @@ objectives:
                   ncsc-index: C2.b.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Not achieved
-              enhanced: Not achieved
+              baseline: *not_Achieved
+              enhanced: *not_Achieved
   D:
     code: D
     title: Minimising the impact of cyber security incidents
@@ -2557,8 +2566,8 @@ objectives:
                   ncsc-index: D1.a.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
           D1.b:
             code: D1.b
             title: Response and Recovery Capability
@@ -2615,8 +2624,8 @@ objectives:
                   ncsc-index: D1.b.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
           D1.c:
             code: D1.c
             title: Testing and Exercising
@@ -2663,8 +2672,8 @@ objectives:
                   ncsc-index: D1.c.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
       D2:
         code: D2
         title: Lessons Learned
@@ -2704,8 +2713,8 @@ objectives:
                   ncsc-index: D2.a.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved
           D2.b:
             code: D2.b
             title: Using Incidents to Drive Improvements
@@ -2749,5 +2758,5 @@ objectives:
                   ncsc-index: D2.b.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: Achieved
-              enhanced: Achieved
+              baseline: *achieved
+              enhanced: *achieved

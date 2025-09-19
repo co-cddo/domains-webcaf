@@ -6,7 +6,9 @@ from typing import Any, Optional, Tuple, Type
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.forms import Form
+from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
@@ -122,32 +124,15 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             if self.stage not in assessment.assessments_data[self.class_id]:
                 assessment.assessments_data[self.class_id][self.stage] = {}
 
-            if assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data:
-                # Reset the confirmation data if the form data has changed.
-                # Keep supporting comments unchanged as the user may want to reuse it.
-                current_assessment_status = IndicatorStatusChecker.get_status_for_indicator(
-                    assessment.assessments_data[self.class_id]
-                )
-                self.logger.info(
-                    f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_assessment_status}."
-                )
-                if "confirmation" in assessment.assessments_data[self.class_id]:
-                    assessment.assessments_data[self.class_id]["confirmation"] = {
-                        k: v
-                        for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
-                        # This is the comment associated with the confirmation
-                        if k
-                        in [
-                            "confirm_outcome_confirm_comment",
-                        ]
-                    }
-
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
             assessment.last_updated_by = current_user_profile.user
             assessment.save()
             self.logger.info(
                 f"Form step {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"
             )
+        else:
+            return HttpResponseNotFound("Requested assessment could not be found.")
+
         return FormView.form_valid(self, form)
 
     def form_invalid(self, form):
@@ -202,24 +187,6 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
                         form, [other_field[1] for other_field in fields if other_field[1] != field[1]]
                     )
         return form
-
-    def form_valid(self, form):
-        cleaned_data = form.cleaned_data
-        # Not achieved fields need justification if the value is set
-        fields_needing_justification = [
-            (k, v) for k, v in cleaned_data.items() if str(k).startswith("not-achieved") and str(v) == "True"
-        ]
-        if fields_needing_justification:
-            for field_name, value in fields_needing_justification:
-                if not cleaned_data[f"{field_name}_comment"]:
-                    form.add_error(field_name, ValidationError("You must provide a justification."))
-            # We directly call super as we don't want to call form_invalid here.'This is because
-            # form_invalid will us purly to capture non selected questions and we cannot have
-            # optional logic to handle this.
-        if form.errors:
-            form.initial.update(form.cleaned_data)
-            return super().form_invalid(form)
-        return super().form_valid(form)
 
     def build_breadcrumbs(self):
         """
@@ -276,6 +243,47 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         data["back_url"] = f"{assessment.framework}_objective_{data['objective_code']}"
         return data
 
+    @transaction.atomic
+    def form_valid(self, form):
+        """
+        Summary:
+        Validates the form and updates the assessment data accordingly.
+        Allow the data to be persisted using the parent class method.
+        Then reset the confirmation data if the form data has changed.
+
+        :param form: The form to be validated.
+        :return: The result of calling super().form_valid(form).
+        """
+        assessment = SessionUtil.get_current_assessment(self.request)
+        needs_to_reset_confirmation = assessment and (
+            assessment.assessments_data.get(self.class_id, {}).get(self.stage, {}) != {}
+            and assessment.assessments_data.get(self.class_id, {}).get(self.stage, {}) != form.cleaned_data
+        )
+        result = super().form_valid(form)
+        # Check if we have successfully saved and we need to reset the confirmation data
+        if needs_to_reset_confirmation and result.status_code == 302:
+            assessment.refresh_from_db()
+            # Reset the confirmation data if the form data has changed.
+            # Keep supporting comments unchanged as the user may want to reuse it.
+            current_assessment_status = IndicatorStatusChecker.get_status_for_indicator(
+                assessment.assessments_data[self.class_id]
+            )
+            if "confirmation" in assessment.assessments_data[self.class_id]:
+                assessment.assessments_data[self.class_id]["confirmation"] = {
+                    k: v
+                    for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
+                    # This is the comment associated with the confirmation
+                    if k
+                    in [
+                        "confirm_outcome_confirm_comment",
+                    ]
+                }
+                assessment.save()
+                self.logger.info(
+                    f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_assessment_status}."
+                )
+        return result
+
 
 class OutcomeConfirmationView(BaseIndicatorsFormView):
     """
@@ -327,6 +335,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             assessment.assessments_data[self.class_id]
         )
         form.cleaned_data.update(**status_for_indicator)
+        self.logger.info(f"Saving outcome confirmation {self.class_id} form {self.request.user.username}")
         return super().form_valid(form)
 
     def build_breadcrumbs(self):

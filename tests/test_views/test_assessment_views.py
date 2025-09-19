@@ -1,29 +1,18 @@
-from django.contrib.auth.models import User
-from django.core.management import call_command
-from django.test import Client, TestCase
+from django.test import Client
 from django.urls import reverse
 
-from webcaf.webcaf.models import Assessment, Organisation, System, UserProfile
+from tests.test_views.base_view_test import BaseViewTest
+from webcaf.webcaf.models import Assessment
 
 
-def setUpModule():
-    call_command("add_seed_data")
-
-
-class SetupAssessmentTestData(TestCase):
+class SetupAssessmentTestData(BaseViewTest):
     @classmethod
     def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
         cls.create_assessment_url = reverse("create-draft-assessment")
         cls.create_system_url = reverse("create-draft-assessment-system")
         cls.create_profile_url = reverse("create-draft-assessment-profile")
         cls.create_review_type_url = reverse("create-draft-assessment-choose-review-type")
-
-        cls.user_profile = UserProfile.objects.all()[0]
-        cls.test_system = System.objects.all()[0]
-        cls.test_user = User.objects.all()[0]
-        cls.test_organisation = Organisation.objects.get(id=cls.test_system.organisation.id)
-        cls.user_profile.organisation = cls.test_organisation
-        cls.user_profile.save()
 
     def setUp(self):
         self.client = Client()
@@ -111,7 +100,7 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
             framework="caf32",
             caf_profile="baseline",
         )
-        self.edit_asssement_url = reverse("edit-draft-assessment", kwargs={"assessment_id": self.assessment.id})
+        self.edit_assessment_url = reverse("edit-draft-assessment", kwargs={"assessment_id": self.assessment.id})
         self.edit_system_url = reverse("edit-draft-assessment-system", kwargs={"assessment_id": self.assessment.id})
         self.edit_profile_url = reverse("edit-draft-assessment-profile", kwargs={"assessment_id": self.assessment.id})
         self.edit_review_type_url = reverse(
