@@ -1,0 +1,28 @@
+{% load form_extras %}
+{% load static %}
+
+{% if principle_id %}
+  {% generate_assessment_progress_indicators assessment principle_id as progress_indicators %}
+{% else %}
+  {% generate_assessment_progress_indicators assessment as progress_indicators %}
+{% endif %}
+
+<div class="progress-container" role="region" aria-label="Assessment Progress">
+  {% if principle_id %}
+  <p class="govuk-hint">Principle {{progress_indicators.question_number}} of {{progress_indicators.principles_in_section}}<br><strong>Principle: {{ progress_indicators.principle }} {{ progress_indicators.principle_name }}</strong>
+    <br></p>
+  {% endif %}
+    <p class="govuk-body-m" id="progress-status-text"> <strong>You have completed {{ progress_indicators.percentage }}% of your CAF self-assessment</strong>
+    </p>
+
+
+  <div class="progress-bar-total">
+    <style nonce="{{ request.csp_nonce }}">
+      .progress-bar-completed {
+        width: {{ progress_indicators.percentage }}%;
+      }
+    </style>
+     <div class="progress-bar-completed" id="progress-bar-completed"></div>
+</div>
+</div>
+<br>

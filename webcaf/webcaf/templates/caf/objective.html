@@ -6,9 +6,9 @@
 {% block title %} {{ title }}{% endblock %}
 
 {% block content %}
+{% get_assessment request as assessment %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% get_assessment request as assessment %}
             <span class="govuk-caption-l">{{ assessment.system.name }}</span>
             <h1 class="govuk-heading-l">
                 Objective&nbsp;{{ objective_data.code }}&nbsp;-&nbsp;{{ title }}

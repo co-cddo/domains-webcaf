@@ -287,3 +287,47 @@ def indicator_min_profile_requirement_met(
     assessment: Assessment, principal_id: str, indicator_id: str, status: str
 ) -> str:
     return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)
+
+
+@register.simple_tag
+def generate_assessment_progress_indicators(assessment: Assessment, principle_question: str = "") -> dict[str, Any]:
+    """
+    Returns a dict of figures calculated to show caf assessment progress calucluated using the
+    caf and the saved assessment
+
+    :param assessment: The assessment model contianing the data for the current assessment being completed
+    :type assessment: Assessment
+    :param principle_question: This is the question code of the principle for the page the user is currently
+        on, e.g. B1.a
+    :type principle_question: str
+    """
+    from webcaf.webcaf.frameworks import routers
+
+    progress_dict: dict[str, Any] = {}
+    router = routers["caf32"]
+    sections = router.get_sections()
+
+    if principle_question:
+        section = principle_question[0]
+        section_detail = next((s for s in sections if s["code"] == section))
+        principle = principle_question.split(".")[0]
+        question_number = principle[1:]
+        progress_dict["question_number"] = question_number
+        progress_dict["principles_in_section"] = len(section_detail.get("principles", []))
+        progress_dict["principle"] = principle
+        progress_dict["principle_name"] = section_detail["principles"][principle]["title"]
+
+    # calculate the number of completed outcomes across the whole assessment, this is indicative of
+    # having completed a previous indicator page and confirming it's completion
+    completed_outcomes = len(
+        [
+            p
+            for p in assessment.assessments_data
+            if assessment.assessments_data[p].get("confirmation", {}).get("confirm_outcome") == "confirm"
+        ]
+    )
+    # calcuate the number of total outcomes across the whole caf
+    total_outcomes = len([k for s in sections for p in s["principles"].values() for k in p["outcomes"]])
+    progress_dict["percentage"] = int((completed_outcomes / total_outcomes) * 100)
+
+    return progress_dict
