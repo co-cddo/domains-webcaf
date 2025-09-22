@@ -1,66 +1,68 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 
+from webcaf.webcaf.abcs import FrameworkRouter
 from webcaf.webcaf.models import Assessment
 
 
 class IndicatorStatusChecker:
     @staticmethod
-    def get_status_for_indicator(data: Dict[str, Any]) -> Dict[str, Optional[str]]:
+    def get_router(framework) -> FrameworkRouter:
+        from webcaf.webcaf.frameworks import routers
+
+        return routers[framework]
+
+    @staticmethod
+    def get_status_for_indicator(
+        data: Dict[str, Any], framework: Literal["caf32", "caf40"] | None = None
+    ) -> Dict[str, Optional[str]]:
         """
-        Given an assessment entry shaped like:
-        {
-            "confirmation": {...},
-            "indicators": {...}
-        }
-        compute:
-          - outcome_status: "achieved" | "partially_achieved" | "not_achieved"
-        Rules:
-          - "achieved" if ALL indicator keys starting with "achieved_" are "agreed"
-          - else "partially_achieved" if ALL indicator keys starting with "partially-achieved_" are "agreed"
-          - else "not_Achieved" unless all agreed with justification provided otherwise revert to "achieved"
-        Only non-comment indicator keys are considered (ignore keys ending with "_comment") for achieved and partially_achieved tests.
+        Get the status for an indicator based on the provided data and framework.
+        Not achieved status is returned if if at least one not achieved statement is present or none of
+        achieved or partially achieved statements are present.
+        The user can get Achieved status if all achieved statements are present and none of not achieved statements are present.
+        The user can get Partially achieved status if all Partially achieved statements are present and none of not achieved statements are present..
+
+        :param data: Dictionary containing indicators.
+        :type data: Dict[str, Any]
+        :param framework: The framework to use. Defaults to "caf32".
+        :type framework: Literal["caf32", "caf40"] | None
+
+        :return: A dictionary with the outcome status and its corresponding message.
+        :rtype: Dict[str, Optional[str]]
         """
         indicators = (data or {}).get("indicators") or {}
+        if not framework:
+            framework = "caf32"
+        router = IndicatorStatusChecker.get_router(framework)
 
         # Helper: filter only primary indicator keys (ignore any *_comment variants)
         def primary_items_with_prefix(prefix: str):
             return [(k, v) for k, v in indicators.items() if k.startswith(prefix) and not k.endswith("_comment")]
 
+        def generate_key(indicator_items: list[tuple[str, Any]]):
+            """
+            Generates a key based on the provided indicator items.
+            :param indicator_items: List of tuples where each tuple contains an identifier and a value. The function evaluates these values to determine the key.
+            :return: A string indicating whether all values are present, some values are missing, or no values are provided.
+            """
+            if not indicator_items or all(not v for _, v in indicator_items):
+                return "none"
+            elif all(v for _, v in indicator_items):
+                return "all"
+            else:
+                return "some"
+
         achieved_items = primary_items_with_prefix("achieved_")
         partial_items = primary_items_with_prefix("partially-achieved_")
+        not_achieved_items = primary_items_with_prefix("not-achieved_")
 
-        # Determine achieved
-        outcome_status: str
-        if achieved_items and all(v for _, v in achieved_items):
-            outcome_status = "Achieved"
-        else:
-            # Determine partially achieved
-            if partial_items and all(v for _, v in partial_items):
-                outcome_status = "Partially achieved"
-            else:
-                # Check all not-achieved are ticked with comments, which makes the satus achieved
-                not_achieved_indicators = primary_items_with_prefix("not-achieved_")
-                # Make sure all are ticked
-                if not_achieved_indicators and all(v for _, v in not_achieved_indicators):
-                    not_achieved_comments = [
-                        (k, v and v.strip() != "")
-                        for k, v in indicators.items()
-                        if k.startswith("not-achieved_") and k.endswith("_comment")
-                    ]
-                    if (
-                        not_achieved_comments
-                        and len(not_achieved_comments) == len(not_achieved_indicators)
-                        and all(v for _, v in not_achieved_comments)
-                    ):
-                        outcome_status = "Achieved"
-                    else:
-                        outcome_status = "Not achieved"
-                else:
-                    outcome_status = "Not achieved"
+        achieved_key = generate_key(achieved_items)
+        partially_achieved_key = generate_key(partial_items)
+        not_achieved_key = generate_key(not_achieved_items)
 
-        return {
-            "outcome_status": outcome_status,
-        }
+        return router.framework["assessment-rules"][  # type: ignore
+            f"{achieved_key}_{partially_achieved_key}_{not_achieved_key}"
+        ]
 
     @staticmethod
     def get_when_the_status_changed(assessment: Assessment, indicator_id: str, status: str) -> Assessment | None:

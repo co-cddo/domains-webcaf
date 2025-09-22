@@ -1,21 +1,10 @@
-assessment-rules: &standard-rules
-  1:
-    - achieved
-    - all
-  2:
-    - partially-achieved
-    - all
-  3:
-    - not-achieved
-    - any
-
 #Use these constants to reference the standard statuses
 #You need to maintain the case of the status names as they appear in the database
 
 indicator_statuses: &indicator_statuses
   - &achieved Achieved
   - &partially_achieved Partially achieved
-  - &not_Achieved Not achieved
+  - &not_achieved Not achieved
 
 validation_messages:
   not_achieved_present: &not_achieved_present You have received this status because you have selected one or more not achieved IGP statements.
@@ -23,35 +12,95 @@ validation_messages:
   all_partially_achieved_present: &all_partially_achieved_present You have received this status because you have selected all partially achieved IGP statements.
   no_not_achieved_present: &no_not_achieved_present You have received this status because not all of the achieved or partially achieved IGP statements have been selected. If you believe this is incorrect, you should review the IGP statements again and select all that are appropriate, providing comments where alternative controls or exemptions are in place.
 
-validation_message_map: &validation_message_map
+assessment-rules: &standard-rules
   #  Mapping of IGP statements to validation messages.
-  "all_all_all": *not_achieved_present
-  "all_all_none": *all_achieved_present
-  "all_all_some": *not_achieved_present
-  "all_none_all": *not_achieved_present
-  "all_none_none": *all_achieved_present
-  "all_none_some": *not_achieved_present
-  "all_some_all": *not_achieved_present
-  "all_some_none": *all_achieved_present
-  "all_some_some": *not_achieved_present
-  "none_all_all": *not_achieved_present
-  "none_all_none": *all_partially_achieved_present
-  "none_all_some": *not_achieved_present
-  "none_none_all": *not_achieved_present
-  "none_none_none": *no_not_achieved_present
-  "none_none_some": *not_achieved_present
-  "none_some_all": *not_achieved_present
-  "none_some_none": *no_not_achieved_present
-  "none_some_some": *not_achieved_present
-  "some_all_all": *not_achieved_present
-  "some_all_none": *all_partially_achieved_present
-  "some_all_some": *not_achieved_present
-  "some_none_all": *not_achieved_present
-  "some_none_none": *no_not_achieved_present
-  "some_none_some": *not_achieved_present
-  "some_some_all": *not_achieved_present
-  "some_some_none": *no_not_achieved_present
-  "some_some_some": *not_achieved_present
+  #  Each part of the key corresponds to the following (from left to right):
+  #  - the number of achieved IGP statements selected
+  #  - the number of partially achieved IGP statements selected
+  #  - the number of not achieved IGP statements selected,
+  #  therefore, all_all_all is the key for all achieved, all partially achieved and all not achieved statements selected.
+
+  all_all_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  all_all_none:
+    outcome_status_message: *all_achieved_present
+    outcome_status: *achieved
+  all_all_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  all_none_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  all_none_none:
+    outcome_status_message: *all_achieved_present
+    outcome_status: *achieved
+  all_none_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  all_some_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  all_some_none:
+    outcome_status_message: *all_achieved_present
+    outcome_status: *achieved
+  all_some_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_all_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_all_none:
+    outcome_status_message: *all_partially_achieved_present
+    outcome_status: *partially_achieved
+  none_all_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_none_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_none_none:
+    outcome_status_message: *no_not_achieved_present
+    outcome_status: *not_achieved
+  none_none_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_some_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  none_some_none:
+    outcome_status_message: *no_not_achieved_present
+    outcome_status: *not_achieved
+  none_some_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_all_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_all_none:
+    outcome_status_message: *all_partially_achieved_present
+    outcome_status: *partially_achieved
+  some_all_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_none_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_none_none:
+    outcome_status_message: *no_not_achieved_present
+    outcome_status: *not_achieved
+  some_none_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_some_all:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
+  some_some_none:
+    outcome_status_message: *no_not_achieved_present
+    outcome_status: *not_achieved
+  some_some_some:
+    outcome_status_message: *not_achieved_present
+    outcome_status: *not_achieved
 
 
 objectives:
@@ -2496,8 +2545,8 @@ objectives:
                   ncsc-index: C2.a.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *not_Achieved
-              enhanced: *not_Achieved
+              baseline: *not_achieved
+              enhanced: *not_achieved
           C2.b:
             code: C2.b
             title: Proactive Attack Discovery
@@ -2525,8 +2574,8 @@ objectives:
                   ncsc-index: C2.b.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *not_Achieved
-              enhanced: *not_Achieved
+              baseline: *not_achieved
+              enhanced: *not_achieved
   D:
     code: D
     title: Minimising the impact of cyber security incidents

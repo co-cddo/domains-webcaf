@@ -15,13 +15,11 @@
             <h1 class="govuk-heading-m">
                 Status: {% firstof outcome_status.override_status outcome_status.outcome_status %}
             </h1>
-            {% if outcome_status.override_status %}
-                <h1 class="govuk-heading-s">
-                    <strong class="govuk-tag govuk-tag--blue">
-                        Overridden from {{ outcome_status.outcome_status }}
-                    </strong>
-                </h1>
-            {% endif %}
+            <div id="a3a-not-achieved-hint" class="govuk-hint">
+                <p class="govuk-hint">
+                    {{ outcome_status.outcome_status_message }}
+                </p>
+            </div>
             <div id="a3a-not-achieved-hint" class="govuk-hint">
                 <p class="govuk-body">
                     Confirm you agree with this status, or go back and change your response to the IGP statements.

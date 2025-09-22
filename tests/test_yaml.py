@@ -146,7 +146,14 @@ class TestFrameworkStructure(unittest.TestCase):
         )
 
     def test_outcomes_structure(self):
-        expected_keys = {"code", "title", "description", "indicators", "assessment-rules", "min_profile_requirement"}
+        expected_keys = {
+            "code",
+            "title",
+            "description",
+            "indicators",
+            "assessment-rules",
+            "min_profile_requirement",
+        }
 
         self._test_structure(
             self.outcomes,

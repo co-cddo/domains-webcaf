@@ -32,20 +32,21 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "required": False,
                         }
                     )
-                    # Add justification field for every category question
-                    fields.append(
-                        {
-                            "name": f"{level}_{indicator_id}_comment",
-                            "label": "Please provide any justifications (optional)",
-                            "type": "text",
-                            "required": False,
-                            "widget_attrs": {
-                                "rows": 5,
-                                "class": "govuk-textarea",
-                                "max_words": MAX_WORD_COUNT,
-                            },
-                        }
-                    )
+                    # Add justification field for every category question except for not-achieved
+                    if level not in ["not-achieved"]:
+                        fields.append(
+                            {
+                                "name": f"{level}_{indicator_id}_comment",
+                                "label": "Please provide any alternative controls or exemptions (optional)",
+                                "type": "text",
+                                "required": False,
+                                "widget_attrs": {
+                                    "rows": 5,
+                                    "class": "govuk-textarea",
+                                    "max_words": MAX_WORD_COUNT,
+                                },
+                            }
+                        )
 
         return fields
 

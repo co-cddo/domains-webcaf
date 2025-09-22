@@ -124,11 +124,32 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             if self.stage not in assessment.assessments_data[self.class_id]:
                 assessment.assessments_data[self.class_id][self.stage] = {}
 
+            if (
+                self.stage == "indicators"
+                and assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data
+            ):
+                # If we are changing the indicators, then we have to reset the confirmation data
+                if "confirmation" in assessment.assessments_data[self.class_id]:
+                    current_outcome_status = assessment.assessments_data[self.class_id]["confirmation"].get(
+                        "outcome_status", ""
+                    )
+                    assessment.assessments_data[self.class_id]["confirmation"] = {
+                        k: v
+                        for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
+                        # This is the comment associated with the confirmation
+                        if k
+                        in [
+                            "confirm_outcome_confirm_comment",
+                        ]
+                    }
+                    self.logger.info(
+                        f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_outcome_status}."
+                    )
             assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
             assessment.last_updated_by = current_user_profile.user
             assessment.save()
             self.logger.info(
-                f"Form step {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"
+                f"Updating section {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"
             )
         else:
             return HttpResponseNotFound("Requested assessment could not be found.")
@@ -254,35 +275,17 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         :param form: The form to be validated.
         :return: The result of calling super().form_valid(form).
         """
-        assessment = SessionUtil.get_current_assessment(self.request)
-        needs_to_reset_confirmation = assessment and (
-            assessment.assessments_data.get(self.class_id, {}).get(self.stage, {}) != {}
-            and assessment.assessments_data.get(self.class_id, {}).get(self.stage, {}) != form.cleaned_data
-        )
-        result = super().form_valid(form)
-        # Check if we have successfully saved and we need to reset the confirmation data
-        if needs_to_reset_confirmation and result.status_code == 302:
-            assessment.refresh_from_db()
-            # Reset the confirmation data if the form data has changed.
-            # Keep supporting comments unchanged as the user may want to reuse it.
-            current_assessment_status = IndicatorStatusChecker.get_status_for_indicator(
-                assessment.assessments_data[self.class_id]
-            )
-            if "confirmation" in assessment.assessments_data[self.class_id]:
-                assessment.assessments_data[self.class_id]["confirmation"] = {
-                    k: v
-                    for k, v in assessment.assessments_data[self.class_id]["confirmation"].items()
-                    # This is the comment associated with the confirmation
-                    if k
-                    in [
-                        "confirm_outcome_confirm_comment",
-                    ]
-                }
-                assessment.save()
-                self.logger.info(
-                    f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_assessment_status}."
-                )
-        return result
+
+        def if_any_selected():
+            for field_name, value in form.cleaned_data.items():
+                if not field_name.endswith("_comment") and value:
+                    return True
+            return False
+
+        if not if_any_selected():
+            form.add_error(None, ValidationError("You need to select at least one statement to answer."))
+            return super().form_invalid(form)
+        return super().form_valid(form)
 
 
 class OutcomeConfirmationView(BaseIndicatorsFormView):

@@ -32,7 +32,7 @@ class FormProvidersTestCase(TestCase):
         provider = OutcomeIndicatorsFieldProvider(self.outcome_data)
         fields = provider.get_field_definitions()
         self.assertIsInstance(fields, list)
-        self.assertEqual(len(fields), 28)
+        self.assertEqual(len(fields), 24)
         for field in fields:
             self.assertIn("name", field)
             self.assertIn("label", field)

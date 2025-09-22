@@ -49,33 +49,25 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
                     "achieved_A1.a.6_comment": "",
                     "achieved_A1.a.7_comment": "",
                     "achieved_A1.a.8_comment": "",
-                    "not-achieved_A1.a.1_comment": "Comment 1",
-                    "not-achieved_A1.a.2_comment": "Comment 2",
-                    "not-achieved_A1.a.3_comment": "Comment 3",
-                    "not-achieved_A1.a.4_comment": "Comment 4",
                 },
-                "Achieved",
+                "Not achieved",
             ],
             [
                 {
-                    "achieved_A1.a.5": False,
-                    "achieved_A1.a.6": False,
-                    "achieved_A1.a.7": False,
-                    "achieved_A1.a.8": False,
-                    "not-achieved_A1.a.1": True,
-                    "not-achieved_A1.a.2": True,
-                    "not-achieved_A1.a.3": True,
-                    "not-achieved_A1.a.4": True,
-                    "achieved_A1.a.5_comment": "",
+                    "achieved_A1.a.5": True,
+                    "achieved_A1.a.6": True,
+                    "achieved_A1.a.7": True,
+                    "achieved_A1.a.8": True,
+                    "not-achieved_A1.a.1": False,
+                    "not-achieved_A1.a.2": False,
+                    "not-achieved_A1.a.3": False,
+                    "not-achieved_A1.a.4": False,
+                    "achieved_A1.a.5_comment": "Achieved comment one",
                     "achieved_A1.a.6_comment": "",
                     "achieved_A1.a.7_comment": "",
                     "achieved_A1.a.8_comment": "",
-                    "not-achieved_A1.a.1_comment": "Comment 1",
-                    "not-achieved_A1.a.2_comment": "Comment 2",
-                    "not-achieved_A1.a.3_comment": "Comment 3",
-                    "not-achieved_A1.a.4_comment": "",
                 },
-                "Not achieved",
+                "Achieved",
             ],
         ]
     )
@@ -123,6 +115,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
 
         """
         # Setup the indicator data that should exist before the confirmation
+        # indicator status will be calculated as not achieved as all not achieved statements are selected
         self.assessment.assessments_data = {
             "A1.a": {
                 "indicators": {
@@ -130,8 +123,6 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
                     "not-achieved_A1.a.1": True,
                     "not-achieved_A1.a.2": True,
                     "achieved_A1.a.5_comment": "",
-                    "not-achieved_A1.a.1_comment": "Comment 1",
-                    "not-achieved_A1.a.2_comment": "Comment 2",
                 }
             }
         }
@@ -142,7 +133,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertRegex(response.content.decode(), r"Status: Achieved")
+        self.assertRegex(response.content.decode(), r"Status: Not achieved")
         self.assertRegex(response.content.decode(), r"You must provide a summary.")
 
     def test_post_confirmation_with_summary(self):
@@ -162,8 +153,6 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
                     "not-achieved_A1.a.1": True,
                     "not-achieved_A1.a.2": True,
                     "achieved_A1.a.5_comment": "",
-                    "not-achieved_A1.a.1_comment": "Comment 1",
-                    "not-achieved_A1.a.2_comment": "Comment 2",
                 }
             }
         }
@@ -183,7 +172,12 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         self.assessment.refresh_from_db()
         # We store the calculated outcome status along with the confirmation input
         self.assertEqual(
-            {"outcome_status": "Achieved"} | form_data, self.assessment.assessments_data["A1.a"]["confirmation"]
+            {
+                "outcome_status": "Not achieved",
+                "outcome_status_message": "You have received this status because you have selected one or more not achieved IGP statements.",
+            }
+            | form_data,
+            self.assessment.assessments_data["A1.a"]["confirmation"],
         )
 
     def test_only_users_in_the_organisation_can_modify(self):
