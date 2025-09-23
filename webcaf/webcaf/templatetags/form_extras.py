@@ -258,3 +258,32 @@ def get_system_name_from_id(system_id: int):
     """
     system = System.objects.get(id=system_id)
     return system.name
+
+
+@register.simple_tag()
+def get_tag_for_status(status: str) -> str:
+    """Function to retrieve a color code based on the given status.
+
+    :param status: A string indicating the current status.
+    :return: A string representing the color code for the status.
+    """
+    if status == "Achieved":
+        return "green"
+    elif status == "Partially achieved":
+        return "yellow"
+    elif status == "Not met":
+        return "grey"
+    else:
+        return "red"
+
+
+@register.simple_tag()
+def get_when_the_status_changed(assessment: Assessment, indicator_id: str, status: str) -> Assessment | None:
+    return IndicatorStatusChecker.get_when_the_status_changed(assessment, indicator_id, status)
+
+
+@register.simple_tag()
+def indicator_min_profile_requirement_met(
+    assessment: Assessment, principal_id: str, indicator_id: str, status: str
+) -> str:
+    return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)

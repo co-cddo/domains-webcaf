@@ -32,12 +32,12 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                             "required": False,
                         }
                     )
-                    # Not achieved choices have an extra justification field
-                    if level in ["not-achieved"]:
+                    # Add justification field for every category question except for not-achieved
+                    if level not in ["not-achieved"]:
                         fields.append(
                             {
                                 "name": f"{level}_{indicator_id}_comment",
-                                "label": "Tell us your justification",
+                                "label": "Please provide any alternative controls or exemptions (optional)",
                                 "type": "text",
                                 "required": False,
                                 "widget_attrs": {
@@ -63,18 +63,9 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
         # The irrelevant ones are filtered out in the view as the options are
         # dependent on the indicator outcome answers
         status_choices = [
-            AchievementChoice("confirm", "Confirm", False),
-            AchievementChoice("change_to_achieved", "Change to Achieved", True),
-            AchievementChoice("change_to_not_achieved", "Change to Not Achieved", True),
+            AchievementChoice("confirm", "Confirm, and write a contributing outcome summary", True),
+            AchievementChoice("back_to_achieved", "Change your response", False),
         ]
-
-        if (
-            "partially-achieved" in self.outcome_data.get("indicators", {})
-            and self.outcome_data["indicators"]["partially-achieved"]
-        ):
-            status_choices.append(
-                AchievementChoice("change_to_partially_achieved", "Change to Partially Achieved", True)
-            )
 
         return [
             {
@@ -90,22 +81,12 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 "required": True,
                 "label": "",
             },
-            {
-                "name": "supporting_comments",
-                "type": "text",
-                "label": "Please write a short summary outlining how you worked towards achieving this outcome.",
-                "required": True,
-                "widget_attrs": {
-                    "rows": 5,
-                    "class": "govuk-textarea",
-                    "max_words": MAX_WORD_COUNT,
-                },
-            },
         ] + [
             # Add justification_text for the confirmation choice list
             {
                 "name": f"confirm_outcome_{status_choice.value}_comment",
-                "label": "Tell us your justifications",
+                # Label will be added on the UI
+                "label": "",
                 "type": "text",
                 "required": False,
                 "widget_attrs": {

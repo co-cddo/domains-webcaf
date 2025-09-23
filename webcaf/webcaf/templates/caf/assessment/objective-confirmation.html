@@ -20,53 +20,7 @@
                 <h1 class="govuk-heading-l">
                     Objective&nbsp;{{ objective.code }}&nbsp;-&nbsp;{{ objective.title }}
                 </h1>
-                {% for principle in objective.principles.values %}
-                    <h2 class="govuk-heading-m">
-                        Principle&nbsp;{{ principle.code }}&nbsp;-&nbsp;{{ principle.title }}
-                    </h2>
-                    <dl class="govuk-summary-list">
-                        {% for outcome in principle.outcomes.values %}
-                            <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key govuk-!-width-one-third">
-                                    {{ outcome.code }}&nbsp;-&nbsp;{{ outcome.title }}
-                                </dt>
-                                {% get_outcome_details assessment outcome.code as outcome_details %}
-                                <dd class="govuk-summary-list__value govuk-!-width-one-third">
-                                    {% if outcome_details.override_status %}
-                                        <div class="govuk-grid-row govuk-!-width-full">
-                                            {% if outcome_details.override_status == 'Achieved' %}
-                                                <span class="govuk-tag govuk-tag--green govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
-                                            {% else %}
-                                                <span class="govuk-tag govuk-tag--pink govuk-grid-column-one-half govuk-!-font-size-16">{{ outcome_details.override_status }}</span>
-                                            {% endif %}
-                                            <span class="govuk-body-s govuk-tag govuk-tag--blue govuk-grid-column-one-half govuk-!-font-size-16">
-                                            overridden
-                                            </span>
-                                        </div>
-                                    {% else %}
-                                        <div class="govuk-grid-row govuk-!-width-full">
-                                            {% if outcome_details.outcome_status == 'Achieved' %}
-                                                <span class="govuk-tag govuk-tag--green govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
-                                            {% elif outcome_details.outcome_status == 'Partially Achieved' %}
-                                                <span class="govuk-tag govuk-tag--yellow govuk-!-font-size-16">{{ outcome_details.outcome_status }}</span>
-                                            {% else %}
-                                                <span class="govuk-tag govuk-tag--pink govuk-!-font-size-16">{{ outcome_details.outcome_status|default:"Not Complete" }}</span>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                </dd>
-                                <dd class="govuk-summary-list__actions govuk-!-width-one-third">
-                                    {% with 'indicators_'|add:outcome.code as indicator_url %}
-                                        <a class="govuk-link"
-                                           href="{% url assessment.framework|add:"_"|add:indicator_url %}">
-                                            Change<span
-                                                class="govuk-visually-hidden">  {{ outcome.title }} answers</span></a>
-                                    {% endwith %}
-                                </dd>
-                            </div>
-                        {% endfor %}
-                    </dl>
-                {% endfor %}
+                {% include "partials/principal_summary-list.html" with objective_data=objective %}
             {% endfor %}
             {% is_all_objectives_complete assessment.id as all_objectives_complete %}
             {% current_user_can_submit_assessment user_profile as can_submit %}

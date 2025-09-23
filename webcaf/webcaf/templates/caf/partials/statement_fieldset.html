@@ -9,8 +9,8 @@
     <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}" for="{{ item.auto_id|safe_id }}">
         {{ forloop.counter }}. {{ item.field.label }}
         {% if item.field.label_suffix %}
-            <span class="govuk-tag--green govuk-!-font-size-16">
-                                {{ item.field.label_suffix }}</span>
+            <strong class="govuk-tag--grey govuk-!-font-size-16">
+                                {{ item.field.label_suffix }}</strong>
         {% endif %}
     </label>
     {% get_comment_field form item.name as the_field_comment %}

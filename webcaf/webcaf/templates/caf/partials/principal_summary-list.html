@@ -1,0 +1,55 @@
+{% load tz %}
+{% load form_extras %}
+{% for principal in objective_data.principles.values %}
+    <h2 class="govuk-heading-m">
+        Principal:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
+    </h2>
+    <dl class="govuk-summary-list">
+        {% for outcome in principal.outcomes.values %}
+            {% get_outcome_details assessment outcome.code as outcome_details %}
+            <div class="govuk-summary-list__row">
+                {% if outcome_details.complete %}
+                    <dt class="govuk-summary-list__key govuk-!-width-two-thirds">
+                        {{ outcome.code }}&nbsp;{{ outcome.title }}
+                    </dt>
+                    <dd class="govuk-summary-list__value govuk-!-width-one-third">
+                        {% get_tag_for_status outcome_details.override_status|default:outcome_details.outcome_status as tag_colour %}
+                        <strong class="govuk-tag  govuk-tag--{{ tag_colour }}">{{ outcome_details.override_status|default:outcome_details.outcome_status }}</strong>
+                        {% indicator_min_profile_requirement_met assessment principal.code outcome.code outcome_details.override_status|default:outcome_details.outcome_status as profile_met %}
+                        {% if profile_met == 'Not met' %}
+                            <br>
+                            <br>
+                            <strong>{{ assessment.get_caf_profile_display }} profile</strong>
+                            <strong class="govuk-tag govuk-tag--grey govuk-!-margin-top-1">
+                                {{ profile_met }}
+                            </strong>
+                        {% endif %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions govuk-!-width-one-third">
+                        {% with assessment.framework|add:'_indicators_'|add:outcome.code as indicator_url %}
+                            <a class="govuk-link"
+                               href="{% url indicator_url %}">
+                                Change<span
+                                    class="govuk-visually-hidden"> Edit {{ outcome.code }}&nbsp;{{ outcome.title }}</span></a>
+                        {% endwith %}
+                    </dd>
+                {% else %}
+                    <dt class="govuk-summary-list__key govuk-!-width-two-thirds">
+                        {{ outcome.code }}&nbsp;{{ outcome.title }}
+                        <br><br>
+                    </dt>
+                    <dd class="govuk-summary-list__value govuk-!-width-one-third"></dd>
+                    <dd class="govuk-summary-list__actions govuk-!-width-two-thirds">
+                        {% with assessment.framework|add:'_indicators_'|add:outcome.code as indicator_url %}
+                            <a class="govuk-link govuk-!-width-full "
+                               href="{% url indicator_url %}">
+                                Add your answers<span
+                                    class="govuk-visually-hidden"> Add answers to {{ outcome.code }}&nbsp;{{ outcome.title }}</span></a>
+                        {% endwith %}
+                    </dd>
+
+                {% endif %}
+            </div>
+        {% endfor %}
+    </dl>
+{% endfor %}

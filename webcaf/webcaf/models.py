@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from multiselectfield import MultiSelectField
+from simple_history.models import HistoricalRecords
 
 from webcaf.webcaf.abcs import FrameworkRouter
 
@@ -131,7 +132,6 @@ class Assessment(models.Model):
     ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
-    version = models.CharField(max_length=10)
     reference = models.CharField(max_length=20, null=True, blank=True)
     framework = models.CharField(max_length=255, choices=FRAMEWORK_CHOICES, default="caf32")
     caf_profile = models.CharField(
@@ -151,6 +151,8 @@ class Assessment(models.Model):
     assessments_data = models.JSONField(default=dict)
 
     review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default="not_decided")
+
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]

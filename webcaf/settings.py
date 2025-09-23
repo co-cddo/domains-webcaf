@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "webcaf.webcaf.apps.WebcafConfig",
     "csp",
     "mozilla_django_oidc",
+    "simple_history",
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 ROOT_URLCONF = "webcaf.urls"
