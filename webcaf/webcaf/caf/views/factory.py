@@ -262,6 +262,8 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         data = super().get_context_data(**kwargs)
         assessment = SessionUtil.get_current_assessment(self.request)
         data["back_url"] = f"{assessment.framework}_objective_{data['objective_code']}"
+        data["progress"] = True
+        data["assessment"] = assessment
         return data
 
     @transaction.atomic
@@ -311,6 +313,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             for choice in data["form"].fields["confirm_outcome"].choices
             if choice[1].lower() != f"Change to {data['outcome_status']['outcome_status']}".lower()
         ]
+        data["progress"] = True
         return data
 
     def form_valid(self, form):
