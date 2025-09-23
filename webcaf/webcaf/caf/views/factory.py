@@ -314,6 +314,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             if choice[1].lower() != f"Change to {data['outcome_status']['outcome_status']}".lower()
         ]
         data["progress"] = True
+        data["assessment"] = assessment
         return data
 
     def form_valid(self, form):
