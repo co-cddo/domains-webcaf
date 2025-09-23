@@ -2,6 +2,7 @@ import re
 from typing import Any, Optional
 
 from django import template
+from django.forms import Form
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Assessment, System
@@ -289,6 +290,19 @@ def indicator_min_profile_requirement_met(
     return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)
 
 
+@register.simple_tag()
+def is_duplicate_questions_present(form: Form) -> bool:
+    """Determines whether any question fields in the provided form are labeled as identical to others.
+
+    :param form: The Django form instance to check.
+    :return: True if any question fields have a label suffix indicating they are identical to another field, False otherwise.
+    """
+    for field_name, field in form.fields.items():
+        if field.label_suffix and field.label_suffix.startswith("identical to"):
+            return True
+    return False
+
+
 @register.simple_tag
 def generate_assessment_progress_indicators(assessment: Assessment, principle_question: str = "") -> dict[str, Any]:
     """
@@ -326,7 +340,7 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
             if assessment.assessments_data[p].get("confirmation", {}).get("confirm_outcome") == "confirm"
         ]
     )
-    # calcuate the number of total outcomes across the whole caf
+    # calculate the number of total outcomes across the whole caf
     total_outcomes = len([k for s in sections for p in s["principles"].values() for k in p["outcomes"]])
     progress_dict["percentage"] = int((completed_outcomes / total_outcomes) * 100)
 

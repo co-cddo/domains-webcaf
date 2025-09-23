@@ -17,6 +17,17 @@
         <div class="govuk-grid-column-two-thirds">
             {% include "partials/error_message.html" %}
             <h3 class="govuk-body-l">You must read each indicator of good practice (IGP).</h3>
+            {% is_duplicate_questions_present form as is_duplicate_questions_present %}
+            {% if is_duplicate_questions_present %}
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        Some achieved and partially-achieved statements are identical.
+                        Please make sure that your selections for these statements do not conflict.
+                    </strong>
+                </div>
+            {% endif %}
             <form class="form" id="mainForm" method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
@@ -27,7 +38,8 @@
                             </h1>
                         </legend>
                         <div id="a3aAc-hint" class="govuk-hint">
-                            You must select all statements to meet this outcome or add a comment if you have a justification for meeting the IGP in a different way.
+                            You must select all statements to meet this outcome or add a comment if you have a
+                            justification for meeting the IGP in a different way.
                         </div>
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
                             {% for item in form|filter_fields:"achieved" %}
@@ -45,7 +57,8 @@
                                 </h1>
                             </legend>
                             <div id="pa3aAc-hint" class="govuk-hint">
-                                You must select all statements to meet this outcome or add a comment if you have a justification for meeting the IGP in a different way.
+                                You must select all statements to meet this outcome or add a comment if you have a
+                                justification for meeting the IGP in a different way.
                             </div>
                             <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
                                 {% for item in form|filter_fields:"partially-achieved" %}
