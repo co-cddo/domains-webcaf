@@ -5,8 +5,12 @@
 {% load form_extras %}
 {% block title %} {{ title }}{% endblock %}
 
+
+{% block with_progress %}
+    {% include "caf/partials/progress_indicator.html" with assessment=assessment principle_id=view.class_id principle_title=title %}
+{% endblock %}
+
 {% block content %}
-    {% get_assessment request as assessment %}
     <span class="govuk-caption-l">{{ assessment.system.name }}</span>
     <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }} Outcome</h3>
     <div class="govuk-grid-row">
