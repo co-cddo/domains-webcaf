@@ -168,7 +168,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
         :return: A string with the duplicate field suffix, marked as safe for HTML rendering.
         """
         return mark_safe(
-            f"""identical to {" and ".join(f"{CafFormUtil.get_category_name(field)} statement {CafFormUtil.human_index(form, field)}" for field in other_field_names)}"""
+            f"""identical to {" and ".join(f"{'-'.join([part.lower() for part in CafFormUtil.get_category_name(field).split()])} statement {CafFormUtil.human_index(form, field)}" for field in other_field_names)}"""
         )
 
 
