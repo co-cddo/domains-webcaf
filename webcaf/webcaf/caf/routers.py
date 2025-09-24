@@ -425,18 +425,13 @@ class CAF32ExcelExporter(CAFLoader):
         }
 
     @staticmethod
-    def _validators() -> dict[str, DataValidation]:
-        # Common choice list used across achievement columns
-        formula = '"agreed,not_true_have_justification,not_true_no_justification"'
-        not_achieved_formula = '"true_have_justification,agreed,not_true_no_justification"'
-        return {
-            key: DataValidation(
-                type="list",
-                formula1=formula if key in ["partially-achieved", "achieved"] else not_achieved_formula,
-                allow_blank=False,
-            )
-            for key in ("not-achieved", "partially-achieved", "achieved")
-        }
+    def _get_indicator_validator() -> DataValidation:
+        # Simple true/false choice list for all indicators
+        return DataValidation(
+            type="list",
+            formula1='"True,False"',
+            allow_blank=False,
+        )
 
     @staticmethod
     def _header_specs(fills: dict[str, PatternFill]) -> list[tuple[str, Optional[PatternFill]]]:
@@ -469,7 +464,7 @@ class CAF32ExcelExporter(CAFLoader):
 
         border = self._thin_border()
         fills = self._fills()
-        validators = self._validators()
+        indicator_validator = self._get_indicator_validator()
         confirmation_validators = self._confirmation_status_validatos()
         headers = self._header_specs(fills)
 
@@ -523,8 +518,7 @@ class CAF32ExcelExporter(CAFLoader):
             row += 3
 
             # Register data validations on the worksheet
-            for validator in validators.values():
-                ws.add_data_validation(validator)
+            ws.add_data_validation(indicator_validator)
             for validator in confirmation_validators.values():
                 ws.add_data_validation(validator)
 
@@ -611,7 +605,7 @@ class CAF32ExcelExporter(CAFLoader):
                             # Adjacent answer dropdown cell
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
-                            validators[key].add(ans_cell.coordinate)
+                            indicator_validator.add(ans_cell.coordinate)
                             col_idx += 1
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
