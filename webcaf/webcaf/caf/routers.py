@@ -331,7 +331,7 @@ class CAF32ExcelExporter(CAFLoader):
                 "NCSC CAF version 3.2:",
                 "https://www.ncsc.gov.uk/collection/cyber-assessment-framework/changelog",
             ),
-            ("WebCAF", "https://webcaf.service.security.gov.uk/"),
+            ("WebCAF:", "https://webcaf.service.security.gov.uk/"),
         )
 
         faq_links = (("Please contact", "cybergovassure@cabinetoffice.gov.uk"), ("or:", "webcaf@cabinetoffice.gov.uk"))
