@@ -424,15 +424,28 @@ class CAF32ExcelExporter(CAFLoader):
             "grey": PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid"),
         }
 
+    # @staticmethod
+    # def _validators() -> dict[str, DataValidation]:
+    #     # Common choice list used across achievement columns
+    #     formula = '"agreed,not_true_have_justification,not_true_no_justification"'
+    #     not_achieved_formula = '"true_have_justification,agreed,not_true_no_justification"'
+    #     return {
+    #         key: DataValidation(
+    #             type="list",
+    #             formula1=formula if key in ["partially-achieved", "achieved"] else not_achieved_formula,
+    #             allow_blank=False,
+    #         )
+    #         for key in ("not-achieved", "partially-achieved", "achieved")
+    #     }
+
     @staticmethod
     def _validators() -> dict[str, DataValidation]:
-        # Common choice list used across achievement columns
-        formula = '"agreed,not_true_have_justification,not_true_no_justification"'
-        not_achieved_formula = '"true_have_justification,agreed,not_true_no_justification"'
+        # Simple true/false choice list for all achievement columns
+        formula = '"True,False"'
         return {
             key: DataValidation(
                 type="list",
-                formula1=formula if key in ["partially-achieved", "achieved"] else not_achieved_formula,
+                formula1=formula,
                 allow_blank=False,
             )
             for key in ("not-achieved", "partially-achieved", "achieved")
