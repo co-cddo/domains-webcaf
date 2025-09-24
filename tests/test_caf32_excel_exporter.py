@@ -53,76 +53,68 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         self.assertIn("NCSC CAF version 3.2:", texts)
         self.assertIn("WebCAF:", texts)
 
-    # def test_outcome_sections_and_validations_present(self):
-    #     ws: Worksheet = self.wb.worksheets[0]
-    #     # Find the first outcome header row by searching for a known pattern "A1.a -" or similar
-    #     found_outcome_row = self._find_first_outcome_row(ws)
-    #     self.assertIsNotNone(found_outcome_row, "Outcome header not found")
-    #     # Column headers should be 3 rows below outcome header (one row for header, one for description)
-    #     header_row = found_outcome_row + 3
-    #     expected_headers = [
-    #         "Achieved",
-    #         "Answer",
-    #         "Partially Achieved",
-    #         "Answer",
-    #         "Not Achieved",
-    #         "Answer",
-    #         "Please summarize your evidence",
-    #     ]
-    #     actual_headers = [ws.cell(row=header_row, column=c).value for c in range(3, 10)]
-    #     self.assertEqual(actual_headers, expected_headers)
-    #     # Below headers there should be at least one indicator row with validation cells at D, F, H
-    #     indicator_row = header_row + 1
-    #     # The validation objects are registered on the worksheet; we can assert dataValidations exists
-    #     self.assertTrue(hasattr(ws, "data_validations"))
-    #     # Ensure the answer cells exist (they might be empty strings but should be addressable)
-    #     for col in (4, 6, 8):
-    #         self.assertIsNotNone(ws.cell(row=indicator_row, column=col))
+    def test_outcome_sections_and_validations_present(self):
+        ws: Worksheet = self.wb.worksheets[1]
+        # Find the first outcome header row by searching for a known pattern "A1.a -" or similar
+        found_outcome_row = self._find_first_outcome_row(ws)
+        self.assertIsNotNone(found_outcome_row, "Outcome header not found")
+        # Column headers should be 3 rows below outcome header (one row for header, one for description)
+        header_row = found_outcome_row + 3
+        expected_headers = ['Justification (if applicable)', 'Partially Achieved', 'Answer', 'Justification (if applicable)', 'Not Achieved', 'Answer', 'Justification (if applicable)']
+        actual_headers = [ws.cell(row=header_row, column=c).value for c in range(3, 10)]
+        self.assertEqual(actual_headers, expected_headers)
+        # Below headers there should be at least one indicator row with validation cells at D, F, H
+        indicator_row = header_row + 1
+        # The validation objects are registered on the worksheet; we can assert dataValidations exists
+        self.assertTrue(hasattr(ws, "data_validations"))
+        # Ensure the answer cells exist (they might be empty strings but should be addressable)
+        for col in (4, 6, 8):
+            self.assertIsNotNone(ws.cell(row=indicator_row, column=col))
 
-    # def test_indicator_fill_colours(self):
-    #     # Validate fill colors for the first indicator line across achieved/partially/not columns
-    #     ws: Worksheet = self.wb.worksheets[0]
-    #     # Locate the first header row as in previous test
-    #     found_outcome_row = self._find_first_outcome_row(ws, "A2.a")
-    #     self.assertIsNotNone(
-    #         found_outcome_row,
-    #     )
-    #     header_row = found_outcome_row + 3
-    #     # Find the first indicator row that actually has any indicator text in C/E/G
-    #     indicator_row = None
-    #     scan_row = header_row + 1
-    #     for r in range(scan_row, scan_row + 100):
-    #         c_vals = [ws.cell(row=r, column=c).value for c in (3, 5, 7)]
-    #         if any(isinstance(v, str) and v.strip() for v in c_vals):
-    #             indicator_row = r
-    #             break
-    #     self.assertIsNotNone(indicator_row, "Could not locate a non-empty indicator row after headers")
-    #
-    #     # Columns C, E, G should have colored fills for achieved/partially/not respectively
-    #     fills = {
-    #         3: "C6E2B3",  # green
-    #         5: "FFFACD",  # yellow
-    #         7: "FFB6C1",  # pink
-    #     }
-    #     for col, expected in fills.items():
-    #         cell = ws.cell(row=indicator_row, column=col)
-    #         fill = cell.fill
-    #         self.assertIsNotNone(fill)
-    #         # openpyxl may store color as ARGB or RGB or by index; normalize and compare suffix
-    #         color_val = None
-    #         if getattr(fill, "start_color", None) is not None:
-    #             color_val = fill.start_color.rgb or fill.start_color.index
-    #         if not color_val and getattr(fill, "fgColor", None) is not None:
-    #             color_val = fill.fgColor.rgb or fill.fgColor.index
-    #         self.assertIsNotNone(color_val, f"Could not read cell fill color at row {indicator_row}, col {col}")
-    #         self.assertTrue(
-    #             str(color_val).upper().endswith(expected), f"Expected fill {expected} at column {col}, got {color_val}"
-    #         )
+    def test_indicator_fill_colours(self):
+        # Validate fill colors for the first indicator line across achieved/partially/not columns
+        ws: Worksheet = self.wb.worksheets[1]
+        # Locate the first header row as in previous test
+        found_outcome_row = self._find_first_outcome_row(ws, "A2.a")
+        self.assertIsNotNone(
+            found_outcome_row,
+        )
+        header_row = found_outcome_row + 3
+        # Find the first indicator row that actually has any indicator text in C/E/G
+        indicator_row = None
+        scan_row = header_row + 1
+        for r in range(scan_row, scan_row + 100):
+            c_vals = [ws.cell(row=r, column=c).value for c in (1, 4, 7)]
+            if any(isinstance(v, str) and v.strip() for v in c_vals):
+                indicator_row = r
+                break
+        self.assertIsNotNone(indicator_row, "Could not locate a non-empty indicator row after headers")
+    
+        # Columns C, E, G should have colored fills for achieved/partially/not respectively
+        fills = {
+            1: "C6E2B3",  # green
+            4: "FFFACD",  # yellow
+            7: "FFB6C1",  # pink
+        }
+        for col, expected in fills.items():
+            cell = ws.cell(row=indicator_row, column=col)
+            fill = cell.fill
+            self.assertIsNotNone(fill)
+            # openpyxl may store color as ARGB or RGB or by index; normalize and compare suffix
+            color_val = None
+            if getattr(fill, "start_color", None) is not None:
+                color_val = fill.start_color.rgb or fill.start_color.index
+            if not color_val and getattr(fill, "fgColor", None) is not None:
+                color_val = fill.fgColor.rgb or fill.fgColor.index
+            self.assertIsNotNone(color_val, f"Could not read cell fill color at row {indicator_row}, col {col}")
+            self.assertTrue(
+                str(color_val).upper().endswith(expected), f"Expected fill {expected} at column {col}, got {color_val}"
+            )
 
     def _find_first_outcome_row(self, ws: Worksheet, text_to_match: str = "A1.a") -> int | None:
         found_outcome_row = None
         for r in range(1, 200):
-            v = ws.cell(row=r, column=3).value
+            v = ws.cell(row=r, column=1).value
             if isinstance(v, str) and (" - " in v) and (text_to_match in v):
                 found_outcome_row = r
                 break
