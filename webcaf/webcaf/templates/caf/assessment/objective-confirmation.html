@@ -27,44 +27,8 @@
             {% if all_objectives_complete and can_submit %}
                 <form method="post">
                     {% csrf_token %}
-                    <h2 class="govuk-heading-l">Confirm your self-assessment submission date</h2>
-                    <p class="govuk-body">Submissions close for GovAssure Year 3 2025/26 at 11:59pm on 31 March 2026. If
-                        you
-                        provide your
-                        self-assessment after this date, it will be filed for Year 4 2026/27.
-                    </p>
-                    <div class="govuk-form-group">
-                        <fieldset class="govuk-fieldset">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                <h1 class="govuk-fieldset__heading">
-                                    Are you submitting your self-assessment before the closing date of 11:59pm on 31
-                                    March 2026?
-                                </h1>
-                            </legend>
-                            <div id="id_completed_on_time" class="govuk-radios govuk-radios--inline"
-                                 data-module="govuk-radios"
-                                 data-govuk-radios-init="">
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="completed_on_time_yes"
-                                           name="completed_on_time"
-                                           type="radio" value="yes">
-                                    <label class="govuk-label govuk-radios__label" for="completed_on_time_yes">
-                                        Yes
-                                    </label>
-                                </div>
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="completed_on_time_no"
-                                           name="completed_on_time"
-                                           type="radio" value="no">
-                                    <label class="govuk-label govuk-radios__label" for="completed_on_time_no">
-                                        No
-                                    </label>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
                     <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
-                        Save and continue
+                        Save and send for review
                     </button>
                 </form>
             {% endif %}

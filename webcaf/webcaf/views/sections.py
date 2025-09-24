@@ -3,11 +3,11 @@ import random
 import string
 from datetime import datetime
 
+from django.forms import Form
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
-from webcaf.webcaf.forms.general import HeadingConfirmationForm
 from webcaf.webcaf.templatetags.form_extras import (
     get_assessment,
     is_all_objectives_complete,
@@ -30,7 +30,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
     """
 
     template_name = "assessment/objective-confirmation.html"
-    form_class = HeadingConfirmationForm
+    form_class = Form
     logger = logging.Logger("ObjectiveConfirmationView")
 
     def get_allowed_roles(self) -> list[str]:

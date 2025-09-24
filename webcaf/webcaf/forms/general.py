@@ -33,24 +33,6 @@ class NextActionForm(Form):
     )
 
 
-class HeadingConfirmationForm(Form):
-    """
-    A form to confirm whether an objective has been completed on time.
-
-    This form is used to collect user input for verifying if the objective
-    was completed within the intended deadline. It includes a single field
-    for this purpose.
-
-    :ivar completed_on_time: A field indicating whether the objective was
-        completed on time.
-    :type completed_on_time: forms.BooleanField
-    """
-
-    completed_on_time = forms.BooleanField(
-        required=True,
-    )
-
-
 class UserProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, required=True)
     last_name = forms.CharField(max_length=150, required=True)
