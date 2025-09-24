@@ -23,34 +23,35 @@ class TestCAF32ExcelExporter(unittest.TestCase):
     def test_pass(self):
         pass
 
-    # def test_elements_loaded_and_workbook_created(self):
-    #     self.assertIsInstance(self.exporter.elements, list)
-    #     self.assertGreater(len(self.exporter.elements), 0)
-    #     self.assertIsNotNone(self.wb)
-    #
-    # def test_sheet_count_and_titles(self):
-    #     # Expect one sheet per objective in the dummy fixture (A and B)
-    #     sheet_titles = [ws.title for ws in self.wb.worksheets]
-    #     # Titles use the format used by exporter: "CAF - Objective {code}" or similar
-    #     self.assertTrue(any(title.endswith("Objective A") or title.endswith("Objective - A") for title in sheet_titles))
-    #     self.assertTrue(any(title.endswith("Objective B") or title.endswith("Objective - B") for title in sheet_titles))
-    #
-    # def test_top_header_contents_on_first_sheet(self):
-    #     ws: Worksheet = self.wb.worksheets[0]
-    #     # Title merged across C..I at row 1 with the expected text
-    #     self.assertEqual(ws.cell(row=1, column=3).value, "PLEASE ENTER CLASSIFICATION (OFFICIAL IF BLANK)")
-    #     # Resource Links header exists
-    #     resource_links_row = None
-    #     for r in range(1, 15):
-    #         if ws.cell(row=r, column=3).value == "Resource Links":
-    #             resource_links_row = r
-    #             break
-    #     self.assertIsNotNone(resource_links_row)
-    #     # Specific link texts exist in subsequent rows
-    #     texts = [ws.cell(row=resource_links_row + i, column=3).value for i in range(1, 4)]
-    #     self.assertIn("Five Lens Mapping Model", texts)
-    #     self.assertIn("Stage 3 Self-Assessment Guidance", texts)
-    #     self.assertIn("WebCAF", texts)
+    def test_elements_loaded_and_workbook_created(self):
+        self.assertIsInstance(self.exporter.elements, list)
+        self.assertGreater(len(self.exporter.elements), 0)
+        self.assertIsNotNone(self.wb)
+    
+    def test_sheet_count_and_titles(self):
+        # Expect one sheet per objective in the dummy fixture (A and B)
+        sheet_titles = [ws.title for ws in self.wb.worksheets]
+        # Titles use the format used by exporter: "CAF - Objective {code}" or similar
+        self.assertTrue(any(title.endswith("Objective A") or title.endswith("Objective - A") for title in sheet_titles))
+        self.assertTrue(any(title.endswith("Objective B") or title.endswith("Objective - B") for title in sheet_titles))
+    
+    def test_top_header_contents_on_first_sheet(self):
+        ws: Worksheet = self.wb.worksheets[0]
+        # Title merged across C..I at row 1 with the expected text
+        self.assertEqual(ws.cell(row=1, column=1).value, "OFFICIAL SENSITIVE WHEN COMPLETED")
+        # Resource Links header exists
+        resource_links_row = None
+        for r in range(1, 15):
+            if ws.cell(row=r, column=1).value == "Supporting Resources":
+                resource_links_row = r
+                break
+        self.assertIsNotNone(resource_links_row)
+        # Specific link texts exist in subsequent rows
+        texts = [ws.cell(row=resource_links_row + i, column=1).value for i in range(1, 4)]
+        
+        self.assertIn("Stage 3 self-assessment guidance:", texts)
+        self.assertIn("NCSC CAF version 3.2:", texts)
+        self.assertIn("WebCAF:", texts)
 
     # def test_outcome_sections_and_validations_present(self):
     #     ws: Worksheet = self.wb.worksheets[0]
