@@ -6,7 +6,7 @@
 {% block title %} {{ title }}{% endblock %}
 
 {% block content %}
-{% get_assessment request as assessment %}
+    {% get_assessment request as assessment %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">{{ assessment.system.name }}</span>
@@ -17,23 +17,50 @@
                 individual outcomes below each principle and change your answers if you need to.</p>
             {% include "partials/principal_summary-list.html" with objective_data=objective_data %}
             {% is_final_objective objective_data.code assessment as final_objective %}
-            <form method="GET"
-                    {% if not final_objective %}
+            {% if not final_objective %}
+                <form method="post" novalidate="">
+                    <div class="govuk-form-group">
+                        {% csrf_token %}
                         {% next_objective objective_data.code assessment as next_objective_code %}
-                        {% with assessment.framework|add:'_objective_'|add:next_objective_code as next_objective_url %}
-                  action="{% url next_objective_url %}"
-                        {% endwith %}
-                    {% else %}
-                  action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}"
-                    {% endif %}>
-                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
-                    {% if not final_objective %}
+                        <input type="hidden" name="next_objective" value="{{ next_objective_code }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                <h1 class="govuk-fieldset__heading">
+                                    Do you want to go to the next objective?
+                                </h1>
+                            </legend>
+                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                                 data-govuk-radios-init="">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="objective-nav-1" name="action"
+                                           type="radio" value="confirm" checked>
+                                    <label class="govuk-label govuk-radios__label" for="objective-nav-1">
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="objective-nav-2" name="action"
+                                           type="radio" value="skip">
+                                    <label class="govuk-label govuk-radios__label" for="objective-nav-2">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
                         Save and continue
-                    {% else %}
-                        Review assessment
-                    {% endif %}
-                </button>
-            </form>
+                    </button>
+                </form>
+            {% else %}
+                <form method="GET"
+                      action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}">
+                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                            data-govuk-button-init="">
+                        Back to draft assessment
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -7,18 +7,26 @@ from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.forms import Form
+from django.forms import CharField, Form
 from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.views.generic import FormView
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.forms.general import ContinueForm
+from webcaf.webcaf.forms.general import ContinueForm, NextActionForm
 from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.views.general import FormViewWithBreadcrumbs
+
+
+class NextObjectiveForm(NextActionForm):
+    """
+    Decides whether to go to the next objective or to the main page.
+    """
+
+    next_objective = CharField()
 
 
 class ObjectiveView(FormViewWithBreadcrumbs):
@@ -38,6 +46,13 @@ class ObjectiveView(FormViewWithBreadcrumbs):
                 "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
             }
         ]
+
+    def form_valid(self, form):
+        # Redirect to the appropriate destination
+        assessment = SessionUtil.get_current_assessment(self.request)
+        if form.cleaned_data["action"] == "confirm":
+            return redirect(reverse(f"{assessment.framework}_objective_{form.cleaned_data['next_objective']}"))
+        return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
 
 
 class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
@@ -426,6 +441,9 @@ def create_form_view(
             LoginRequiredMixin,
             ObjectiveView,
         )
+        # Use custom form class for the Objective
+        # By default we get continue form which is not needed
+        class_attrs["form_class"] = NextObjectiveForm
     else:
         parent_classes = (
             LoginRequiredMixin,
