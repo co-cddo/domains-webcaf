@@ -116,7 +116,7 @@ class PermissionUtil:
             assessments, False otherwise.
         :rtype: bool
         """
-        return user_profile and user_profile.role in ["organisation_lead", "organisation_user"]
+        return user_profile and user_profile.role in ["cyber_advisor", "organisation_lead", "organisation_user"]
 
     @staticmethod
     def current_user_can_submit_assessment(user_profile: UserProfile):
