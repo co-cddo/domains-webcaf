@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-xl">
+        Page not found
+      </h1>
+
+      <p class="govuk-body">
+        If you entered a web address, check it is correct.
+      </p>
+
+      <p class="govuk-body">
+        You can <a class="govuk-link" href="/">go back to the service's home page</a>.
+      </p>
+    </div>
+  </div>
+
+{% endblock %}

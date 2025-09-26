@@ -74,7 +74,7 @@ class SystemView(UserRoleCheckMixin, SystemContextDataMixin, FormView):
     form_class = SystemForm
 
     def get_allowed_roles(self) -> list[str]:
-        return ["cyber_advisor", "organisation_lead"]
+        return ["cyber_advisor"]
 
     def form_valid(self, form):
         current_profile_id = self.request.session.get("current_profile_id")

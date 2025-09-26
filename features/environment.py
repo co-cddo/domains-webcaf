@@ -29,10 +29,17 @@ def before_scenario(context, scenario):
     context.page.context.add_cookies([])  # Wipe all cookies
 
     def clear_db():
+        print("****************** Clearing DB *****************************")
         from webcaf.webcaf.models import Assessment, Organisation, UserProfile
 
         Assessment.objects.filter(
             created_by__email__in=[email.strip() for email in context.config.userdata.get("user_emails", "").split(",")]
+        ).delete()
+
+        Assessment.objects.filter(
+            system__organisation__name__in=[
+                org.strip() for org in context.config.userdata.get("organisation_names", "").split(",")
+            ]
         ).delete()
 
         UserProfile.objects.filter(

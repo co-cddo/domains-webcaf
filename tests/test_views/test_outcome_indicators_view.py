@@ -207,3 +207,30 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             "ERROR:SessionUtil:Unable to retrieve assessment with id None for user organisation_user@mediumorganisation.gov.uk",
             cm.output[0],
         )
+
+    def test_indicator_label_has_a_prefix_when_there_are_duplicate_questions(self):
+        """
+        Checks if the indicator label includes a prefix when duplicate questions are present.
+
+        This method sends a GET request to the specified URL and verifies that the HTML content contains an indicator label with the correct prefix.
+        """
+        response = self.client.get(reverse("caf32_indicators_A2.a"))
+        response_content = response.content.decode("utf-8")
+        self.assertInHTML(
+            """<strong class="govuk-tag--grey govuk-!-font-size-16">
+                                identical to partially-achieved statement 1</strong>""",
+            response_content,
+        )
+        self.assertInHTML(
+            """<strong class="govuk-tag--grey govuk-!-font-size-16">
+                                identical to achieved statement 1</strong>""",
+            response_content,
+        )
+        self.assertInHTML(
+            """<strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        Some achieved and partially-achieved statements are identical.
+                        Please make sure that your selections for these statements do not conflict.
+                    </strong>""",
+            response_content,
+        )

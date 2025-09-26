@@ -81,10 +81,10 @@
         <div class="govuk-grid-column-one-third">
             <h2 class="govuk-body" id="subsection-title">
                 Logged in as {% if profile_count > 1 %}(
-                <a href="{% url 'view-organisations' %}" class="govuk-link govuk-link--no-visited-state">
+                <a id="change_organisation" href="{% url 'view-organisations' %}" class="govuk-link govuk-link--no-visited-state">
                     change
                 </a>){% endif %}
-                <span class="govuk-heading-m">
+                <span class="govuk-heading-m" id="logged-in-as-org-name">
                     {{ current_profile.organisation.name }}
                 </span>
             </h2>

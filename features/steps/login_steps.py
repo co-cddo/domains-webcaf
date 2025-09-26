@@ -1,12 +1,12 @@
 from time import sleep
 
-from behave import given, then, when
+from behave import given, step, then
 from playwright.sync_api import Page, expect
 
 from features.util import get_model, run_async_orm
 
 
-@given("the application is running")
+@step("the application is running")
 def go_to_landing_page(context):
     context.page.goto(context.config.userdata["base_url"])
     expect(context.page).to_have_title("Start page  - Submit a CAF self-assessment for a system")
@@ -42,7 +42,10 @@ def create_org_and_systems(context, organisation_name, organisation_type, system
     )
     run_async_orm(
         lambda: [
-            System.objects.get_or_create(name=system_name.strip(), organisation=organisation)
+            System.objects.get_or_create(
+                name=system_name.strip(),
+                organisation=organisation,
+            )
             for system_name in systems.split(",")
         ]
     )
@@ -69,11 +72,12 @@ def assign_user_profile(context, user_name, role, organisation_name):
     )
 
 
-@when('the user logs in with username  "{user_name}" and password "{password}"')
+@step('the user logs in with username  "{user_name}" and password "{password}"')
 def user_logging_in(context, user_name, password):
     page = context.page
     page.get_by_text("Sign in").click()
-    sleep(context.think_time)
+    if "think_time" in context:
+        sleep(context.think_time)
     expect(page.get_by_role("heading")).to_contain_text("Log in to Your Account")
 
     page.get_by_placeholder("email address").fill(user_name)
@@ -81,6 +85,7 @@ def user_logging_in(context, user_name, password):
     page.get_by_role("button", name="Login").click()
     expect(page.get_by_role("heading")).to_contain_text("Grant Access")
     page.get_by_role("button", name="Grant Access").click()
+    context.current_email = user_name
 
 
 @then('they should see page title "{page_title}"')

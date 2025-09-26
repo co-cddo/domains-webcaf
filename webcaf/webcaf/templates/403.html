@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+
+{% block title %}Forbidden{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-xl">
+        Forbidden
+      </h1>
+
+      <p class="govuk-body">
+        It looks like you've tried to do something that's not allowed. This might have been a simple mistake, so if you think this shouldn't have happened please double-check the URL or head back to the <a class="govuk-link" href="/">service's homepage</a>.
+      </p>
+    </div>
+  </div>
+
+{% endblock %}

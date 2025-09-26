@@ -19,7 +19,7 @@
             <h1 class="govuk-heading-m">
                 Status: {% firstof outcome_status.override_status outcome_status.outcome_status %}
             </h1>
-            <div id="a3a-not-achieved-hint" class="govuk-hint">
+            <div id="a3a-not-achieved-message" class="govuk-hint">
                 <p class="govuk-hint">
                     {{ outcome_status.outcome_status_message }}
                 </p>
