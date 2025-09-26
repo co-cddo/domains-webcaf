@@ -1,11 +1,11 @@
-Feature: User login without a profile
+Feature: User login with a profile
 
 
   Background:
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
 #    Database does not store the passwords
     And the user "admin@example.gov.uk" exists
-    And User "admin@example.gov.uk" has the profile "GovAssure Lead" assigned in "Ministry of Agriculture"
+    And User "admin@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
 
   Scenario Outline: Valid user logs in <user_name>
     Given the application is running
