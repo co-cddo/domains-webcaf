@@ -11,15 +11,15 @@ class Organisation(models.Model):
         [
             ("ad-hoc-advisory-group", "Ad-hoc advisory group"),
             ("advisory-non-departmental-public-body", "Advisory non-departmental public body"),
-            ("civil-service", "Civil service"),
+            ("agencies-other-public-bodies", "Agencies and other public bodies"),
+            ("devolved-administrations", "Devolved administrations"),
             ("executive-agency", "Executive agency"),
             ("executive-non-departmental-public-body", "Executive non-departmental public body"),
-            ("executive-office", "executive office"),
-            ("independent-monitoring-body", "Independent monitoring body"),
+            ("executive-office", "Executive office"),
+            ("high-profile-groups", "High profile groups"),
             ("ministerial-department", "Ministerial department"),
             ("non-ministerial-department", "Non-ministerial department"),
             ("public-corporation", "Public corporation"),
-            ("special-health-authority", "Special health authority"),
             ("tribunal", "Tribunal"),
         ]
     ) + [("other", "Other")]
