@@ -448,7 +448,7 @@ class CAF32ExcelExporter(CAFLoader):
         ]
 
     @staticmethod
-    def _confirmation_status_validatos() -> dict[str, DataValidation]:
+    def _confirmation_status_validators() -> dict[str, DataValidation]:
         return {
             "with-partial": DataValidation(
                 type="list", formula1='"Achieved,Partially achieved,Not achieved"', allow_blank=False
@@ -465,7 +465,7 @@ class CAF32ExcelExporter(CAFLoader):
         border = self._thin_border()
         fills = self._fills()
         indicator_validator = self._get_indicator_validator()
-        confirmation_validators = self._confirmation_status_validatos()
+        # Outcome status validators no longer needed at this level since we create them per cell
         headers = self._header_specs(fills)
 
         self._write_guidance_tab(wb)
@@ -517,10 +517,8 @@ class CAF32ExcelExporter(CAFLoader):
 
             row += 3
 
-            # Register data validations on the worksheet
+            # Register indicator validator on the worksheet
             ws.add_data_validation(indicator_validator)
-            for validator in confirmation_validators.values():
-                ws.add_data_validation(validator)
 
             # Objective heading
             ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
@@ -605,7 +603,15 @@ class CAF32ExcelExporter(CAFLoader):
                             # Adjacent answer dropdown cell
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
-                            indicator_validator.add(ans_cell.coordinate)
+
+                            # Clear any existing validations on this cell first to avoid conflicts
+                            self._remove_any_validation_in_cell(ans_cell, ws)
+
+                            # Create a new validator instance for each cell to avoid conflicts
+                            cell_validator = self._get_indicator_validator()
+                            ws.add_data_validation(cell_validator)
+                            cell_validator.add(ans_cell.coordinate)
+
                             col_idx += 1
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
@@ -622,13 +628,27 @@ class CAF32ExcelExporter(CAFLoader):
                         column=2,
                     )
                     cell.border = border
+
+                    # Clear any existing validations first to avoid conflicts
                     self._remove_any_validation_in_cell(cell, ws)
+
                     ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
+
+                    # Create a new validator instance for each cell to avoid conflicts
                     if indicators.get("partially-achieved"):
-                        validator = confirmation_validators["with-partial"]
+                        # Create fresh instance of validation for each cell
+                        outcome_validator = DataValidation(
+                            type="list", formula1='"Achieved,Partially achieved,Not achieved"', allow_blank=False
+                        )
                     else:
-                        validator = confirmation_validators["without-partial"]
-                    validator.add(cell.coordinate)
+                        # Create fresh instance of validation for each cell
+                        outcome_validator = DataValidation(
+                            type="list", formula1='"Achieved,Not achieved"', allow_blank=False
+                        )
+
+                    # Register and add validation to cell
+                    ws.add_data_validation(outcome_validator)
+                    outcome_validator.add(cell.coordinate)
                     cell.border = border
                     row += 1
 
