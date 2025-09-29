@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import TemplateView
 
 from webcaf.webcaf.views import (
     AccountView,
@@ -109,4 +110,8 @@ urlpatterns = [
     path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
     path("remove-profile/<int:user_profile_id>", RemoveUserProfileView.as_view(), name="remove-profile"),
     path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
+    path("data-usage-policy/", TemplateView.as_view(template_name="data-policy.html")),
+    path("cookies/", TemplateView.as_view(template_name="cookies.html")),
+    path("privacy/", TemplateView.as_view(template_name="privacy.html")),
+    path("help/", TemplateView.as_view(template_name="help.html")),
 ]

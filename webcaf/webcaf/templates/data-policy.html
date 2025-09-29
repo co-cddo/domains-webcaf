@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">
+        Data usage policy
+      <br><span class="govuk-body govuk-!-font-size-16  ">Last updated on 27 September 2025.
+            </span></h1>
+
+
+      <h2 class="govuk-heading-m">
+        Who we are
+      </h2>
+      <p class="govuk-body">
+       WebCAF is managed by the Central Digital and Data Office (CDDO) and the Government Security Group (GSG). CDDO and GSG are part of the Cabinet Office. All individuals who have WebCAF administrator rights hold SC clearances.
+      </p>
+      <h3 class="govuk-heading-m">
+        How your data is used in GovAssure
+      </h3>
+
+      <p class="govuk-body">For CAF assessments requiring review, the data you input into WebCAF will be used by external independent assurance reviewers ("assessors") to inform their third party assessments and subsequent reports.
+      </p>
+      <p class="govuk-body">The lead(s) for each government organisation ("organisation leads") are able to set up and assign users and assessors to relevant assessments, giving them the appropriate permissions. Organisations are responsible for ensuring roles and access rights allocated to individuals are appropriate and proportionate to the individual, using the principle of least privilege.
+      </P>
+      <p class="govuk-body">From WebCAF, datasets will be generated that are anonymised for the names of and references to specific organisations and systems. These datasets will be used to produce reporting on government security for the Cabinet Office, and to measure progress against the
+        <a href="https://www.gov.uk/government/publications/government-cyber-security-strategy-2022-to-2030/government-cyber-security-strategy-2022-to-2030-html" class="govuk-link--no-visited-state">Government Cyber Security Strategy</a>
+        This process will include sharing anonymised data with the National Cyber Security Centre (NCSC), the Cyber Government Security Centre (GSeC), the Government Cyber Coordination Centre (GC3), and the Central Digital and Data Office (CDDO).
+      </p>
+      <h3 class="govuk-heading-m">
+        How your data is stored and managed
+      </h3>
+     <p class="govuk-body">In-progress CAF returns are stored on WebCAF and are editable by all of your organisation users, as well any system users your organisation lead has assigned. Once complete and progressed, further edits are not possible.
+      </p>
+      <p class="govuk-body">If an assessment has been progressed to review, it will remain viewable but not editable during the independent assurance review. The assessor(s) who your organisation lead has assigned will be able to view your data and complete their assessment. Once assessors have submitted, your organisation will be able to view (but not edit) the completed CAF return, with both your organisation's and the assessor's answers and comments.
+      </p>
+      <p class="govuk-body">You will then be able to submit your CAF return to GSG. Owing to the aggregate risk of multiple Government organisations using WebCAF, we will transfer the CAF return to a tier two storage environment two weeks from submission. The data will then be unavailable to view through WebCAF. Following submission, only limited metadata will be visible to show what was submitted and when, for your records.
+      </p>
+      <p class="govuk-body">At any point until the assessment has been submitted to GSG, organisation leads are able to make an export of your assessment to download and store for your organisation's records.
+      </p>
+
+
+      <h2 class="govuk-heading-m">
+        Further information
+      </h2>
+
+      <p class="govuk-body">WebCAF has passed the Cabinet Office digital approvals process. Throughout the build of WebCAF, the National Cyber Security Centre has provided technical expertise and guidance. The development of WebCAF aligns and adheres with the
+         <a class="govuk-link" href="https://www.gov.uk/guidance/the-technology-code-of-practice">CDDO's Service Standard and Technology Code of Practice</a>; for example, the application has appropriate access controls, uses continuous integration and deployment from GitHub, logs and monitors usage and audit data, integrates continuous static and dynamic code analysis to identify vulnerability and configuration issues, and runs via iterative development process to quickly remediate issues and adapt features.</p>
+      <p class="govuk-body">A <a class="govuk-link" href="privacy">privacy notice</a> is available around the use of personal data which is linked with a Data Protection Impact Assessment that the GSG and CDDO team have performed with support from Cabinet Office Data Protection Office.
+      </p>
+
+      <p class="govuk-body">For more help on WebCAF, including contact details for the GovAssure and WebCAF teams and information on user roles, please visit the
+        <a class="govuk-link" href="help">help page</a>.
+      </p>
+
+    </div>
+  </div>
+
+{% endblock %}
