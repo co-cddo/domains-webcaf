@@ -37,7 +37,7 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                         fields.append(
                             {
                                 "name": f"{level}_{indicator_id}_comment",
-                                "label": "Please provide any alternative controls or exemptions (optional)",
+                                "label": "You only need to add a comment if you are using alternative controls or exemptions (optional)",
                                 "type": "text",
                                 "required": False,
                                 "widget_attrs": {
