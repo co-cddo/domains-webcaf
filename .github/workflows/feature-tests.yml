@@ -138,4 +138,4 @@ jobs:
           done
 
           echo "=================== Running tests ==================="
-#          SSO_MODE=localhost DATABASE_URL=postgresql://webcaf:webcaf@localhost:5432/webcaf poetry run behave
+          SSO_MODE=localhost DATABASE_URL=postgresql://webcaf:webcaf@localhost:5432/webcaf poetry run behave
