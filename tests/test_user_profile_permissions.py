@@ -25,6 +25,7 @@ class SetupPermissionsData(BaseViewTest):
         self.create_or_skip_new_system_url = reverse("create-or-skip-new-system")
         self.create_or_skip_new_profile_url = reverse("create-or-skip-new-profile")
         self.create_a_draft_assessment_utl = reverse("create-draft-assessment")
+        self.submit_a_review_url = reverse("objective-confirmation")
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
         session.save()
@@ -133,9 +134,9 @@ class CyberAdvisorPermssionsTests(SetupPermissionsData):
         self.user_profile.role = "cyber_advisor"
         self.user_profile.save()
 
-    def test_cyber_advisor_cannot_access_create_a_draft_assessment(self):
+    def test_cyber_advisor_cannot_submit_a_review(self):
         """
         Test that a user with cyber advisor profile gets a 403 forbidden status
         """
-        # TODO - need to confirm whether the cyber advisor has any restrcitions
-        pass
+        response = self.client.get(self.submit_a_review_url)
+        self.assertEqual(response.status_code, 403)
