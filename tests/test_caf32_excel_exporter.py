@@ -62,13 +62,13 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         # Column headers should be 3 rows below outcome header (one row for header, one for description)
         header_row = found_outcome_row + 3
         expected_headers = [
-            "Justification (if applicable)",
-            "Partially Achieved",
+            "If applicable, explain alternative controls/exemptions:",
+            "Partially achieved",
             "Answer",
-            "Justification (if applicable)",
-            "Not Achieved",
+            "If applicable, explain alternative controls/exemptions:",
+            "Not achieved",
             "Answer",
-            "Justification (if applicable)",
+            "If applicable, explain alternative controls/exemptions:",
         ]
         actual_headers = [ws.cell(row=header_row, column=c).value for c in range(3, 10)]
         self.assertEqual(actual_headers, expected_headers)
@@ -130,11 +130,11 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         return found_outcome_row
 
     def _find_status_cells(self, worksheet):
-        """Helper method to find all Contributing Outcome status cells in a worksheet"""
+        """Helper method to find all Contributing outcome status cells in a worksheet"""
         status_cells = []
         for r in range(1, 500):  # Scan through enough rows to find all outcomes
             cell = worksheet.cell(row=r, column=1)
-            if cell.value == "Contributing Outcome status:":
+            if cell.value == "Contributing outcome status:":
                 # The status dropdown should be in column 2 on the same row
                 status_cell = worksheet.cell(row=r, column=2)
                 status_cells.append((r, status_cell))
@@ -180,7 +180,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         return expected_options
 
     def test_contributing_outcome_status_dropdowns(self):
-        """Test that all Contributing Outcome status cells have the correct dropdown validation."""
+        """Test that all Contributing outcome status cells have the correct dropdown validation."""
         # Skip the guidance sheet (index 0)
         for sheet_idx in range(1, len(self.wb.worksheets)):
             ws = self.wb.worksheets[sheet_idx]
@@ -188,7 +188,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
 
             # Find all contributing outcome status cells
             status_cells = self._find_status_cells(ws)
-            self.assertTrue(len(status_cells) > 0, f"No 'Contributing Outcome status' cells found in sheet {ws.title}")
+            self.assertTrue(len(status_cells) > 0, f"No 'Contributing outcome status' cells found in sheet {ws.title}")
 
             # For each status cell, verify it has data validation and correct options
             for row_num, status_cell in status_cells:
@@ -208,7 +208,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         return indicator_cells
 
     def test_indicator_answer_validations(self):
-        """Test that all indicator answer cells have the correct True/False validation."""
+        """Test that all indicator answer cells have the correct Yes/No validation."""
         # Skip the guidance sheet (index 0)
         for sheet_idx in range(1, len(self.wb.worksheets)):
             ws = self.wb.worksheets[sheet_idx]
@@ -218,7 +218,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
             indicator_cells = self._find_indicator_cells(ws)
             self.assertTrue(len(indicator_cells) > 0, f"No indicator answer cells found in sheet {ws.title}")
 
-            # For each indicator cell, verify it has data validation with True/False options
+            # For each indicator cell, verify it has data validation with Yes/No options
             for row_num, col_num, cell in indicator_cells:
                 has_validation = False
                 for dv in ws.data_validations.dataValidation:
@@ -233,11 +233,11 @@ class TestCAF32ExcelExporter(unittest.TestCase):
                         formula = dv.formula1.strip('"')
                         options = formula.split(",")
 
-                        # Indicator cells should have True/False options
+                        # Indicator cells should have Yes/No options
                         self.assertEqual(
                             options,
-                            ["True", "False"],
-                            f"Incorrect options in {ws.title} at cell {cell.coordinate} (row {row_num}, col {col_num}). Expected True/False but got {options}",
+                            ["Yes", "No"],
+                            f"Incorrect options in {ws.title} at cell {cell.coordinate} (row {row_num}, col {col_num}). Expected Yes/No but got {options}",
                         )
                         break
 

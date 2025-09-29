@@ -14,6 +14,7 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.hyperlink import Hyperlink
 from openpyxl.worksheet.worksheet import Worksheet
 
 from webcaf import urls
@@ -307,21 +308,19 @@ class CAF32ExcelExporter(CAFLoader):
         supporting_resources_title = "Supporting Resources"
         instructions_title = "To use the spreadsheet:"
         faq_title = "For questions or support:"
-        template_instructions = """You can use this spreadsheet to prepare your organisation’s GovAssure self-assessment before completing it in WebCAF.
-        The structure of the spreadsheet matches the format of responses in WebCAF. You should use the GovAssure stage 3 guidance to support you when preparing your self-assessment.
-
-        This spreadsheet is for use within your organisation. You will not need to share it with GDS. You can choose to use as much or as little as is helpful to you.
-        """
-        usage_instructions = """There is a separate sheet for each CAF objective. You should scroll to the bottom of the sheet to see all contributing outcomes.
-        For each contributing outcome, you can:
-        - select your response to each indicator of good practice (IGP) statement from the dropdown menu
-        - where applicable, record your justifications
-        - select your overall contributing outcome status from the dropdown menu
-        - write a summary for the contributing outcome (1,500 word limit)
-        - list your supporting evidence for the contributing outcome
-
-        Note: You will not be asked to list all your supporting evidence in WebCAF. You may choose to do so here for your own reference and to support your stage 4 reviewer.
-        """
+        template_instructions = ["You can use this spreadsheet to prepare your organisation’s GovAssure self-assessment before completing it in WebCAF.",
+                                 "The structure of the spreadsheet matches the format of responses in WebCAF. You should use the GovAssure stage 3 guidance to support you when preparing your self-assessment.",
+                                 "This spreadsheet is for use within your organisation. You will not need to share it with GDS. You can choose to use as much or as little as is helpful to you.",
+                                 ]
+        usage_instructions = ["There is a separate sheet for each CAF objective. You should scroll to the bottom of the sheet to see all contributing outcomes.\n", 
+                              "For each contributing outcome, you can:",
+                              "- Respond 'Yes' or 'No' to each indicator of good practice (IGP) statement that is true about your system or organisation",
+                              "- If you have alternative controls in place, or the IGP is not applicable, tick the statement and explain this alternative control or exemption in the next column",
+                              "- Select your overall contributing outcome status from the dropdown menu",
+                              "- Write a summary for the contributing outcome (1,500 word limit)",
+                              "- List your supporting evidence for the contributing outcome",
+                              "\nNote: You will not be asked to list all your supporting evidence in WebCAF. You may choose to do so here for your own reference and to support your stage 4 reviewer.",
+                              ]
         links = (
             (
                 "Stage 3 self-assessment guidance:",
@@ -334,20 +333,18 @@ class CAF32ExcelExporter(CAFLoader):
             ("WebCAF:", "https://webcaf.service.security.gov.uk/"),
         )
 
-        faq_links = (("Please contact", "cybergovassure@cabinetoffice.gov.uk"), ("or:", "webcaf@cabinetoffice.gov.uk"))
+        faq_links = ("Please contact", "cybergovassure@cabinetoffice.gov.uk"),
 
         row = 1
 
-        # Title line
         self._write_title(self.OFFICIAL_SENSITIVE, row, ws, h_alignment="center")
         row += 2
 
         self._write_title(gov_assure_section_title, row, ws)
         row += 1
 
-        # Write instructions
         ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
-        cell = ws.cell(row=row, column=1, value=template_instructions)
+        cell = ws.cell(row=row, column=1, value="\n\n".join(template_instructions))
         cell.alignment = Alignment(
             horizontal="left",
             vertical="top",
@@ -355,24 +352,24 @@ class CAF32ExcelExporter(CAFLoader):
         )
         ws.row_dimensions[row].height = 100
 
-        # Write the links
         row += 2
         self._write_title(supporting_resources_title, row, ws)
         row += 1
-        # Links rows
         for text, target in links:
             left = ws.cell(row=row, column=1, value=text)
             left.border = border
             ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=4)
             right = ws.cell(row=row, column=2, value=target)
             right.border = border
+            right.hyperlink = Hyperlink(ref=right.coordinate, target=target)
+            right.style = "Hyperlink"
             row += 1
         row += 1
 
         self._write_title(instructions_title, row, ws)
         row += 1
         ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
-        cell = ws.cell(row=row, column=1, value=usage_instructions)
+        cell = ws.cell(row=row, column=1, value="\n".join(usage_instructions))
         cell.alignment = Alignment(
             horizontal="left",
             vertical="top",
@@ -381,7 +378,6 @@ class CAF32ExcelExporter(CAFLoader):
         ws.row_dimensions[row].height = 150
         row += 2
 
-        # FAQ section
         self._write_title(faq_title, row, ws)
         row += 1
 
@@ -391,6 +387,8 @@ class CAF32ExcelExporter(CAFLoader):
             ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=4)
             right = ws.cell(row=row, column=2, value=target)
             right.border = border
+            right.hyperlink = Hyperlink(ref=right.coordinate, target=target)
+            right.style = "Hyperlink"
             row += 1
         return row
 
@@ -404,10 +402,11 @@ class CAF32ExcelExporter(CAFLoader):
         """
         ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
         cell = ws.cell(row=row, column=1, value=title)
-        cell.font = Font(bold=True, color="FFFFFF")
+        cell.font = Font(name='Calibri', bold=True, color="FFFFFF")
         cell.alignment = Alignment(horizontal=h_alignment, vertical="top", wrap_text=True)
         cell.fill = self._fills()["blue"]
         cell.border = self._thin_border()
+        
 
     @staticmethod
     def _thin_border() -> Border:
@@ -426,10 +425,9 @@ class CAF32ExcelExporter(CAFLoader):
 
     @staticmethod
     def _get_indicator_validator() -> DataValidation:
-        # Simple true/false choice list for all indicators
         return DataValidation(
             type="list",
-            formula1='"True,False"',
+            formula1='"Yes,No"',
             allow_blank=False,
         )
 
@@ -438,13 +436,13 @@ class CAF32ExcelExporter(CAFLoader):
         return [
             ("Achieved", fills["green"]),
             ("Answer", fills["green"]),
-            ("Justification (if applicable)", fills["green"]),
-            ("Partially Achieved", fills["yellow"]),
+            ("If applicable, explain alternative controls/exemptions:", fills["green"]),
+            ("Partially achieved", fills["yellow"]),
             ("Answer", fills["yellow"]),
-            ("Justification (if applicable)", fills["yellow"]),
-            ("Not Achieved", fills["pink"]),
+            ("If applicable, explain alternative controls/exemptions:", fills["yellow"]),
+            ("Not achieved", fills["pink"]),
             ("Answer", fills["pink"]),
-            ("Justification (if applicable)", fills["pink"]),
+            ("If applicable, explain alternative controls/exemptions:", fills["pink"]),
         ]
 
     @staticmethod
@@ -523,7 +521,7 @@ class CAF32ExcelExporter(CAFLoader):
             # Objective heading
             ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
             cell = ws.cell(row=row, column=1, value=f"Objective {obj_data['code']} - {obj_data['title']}")
-            cell.font = Font(bold=True, size=16)
+            cell.font = Font(name='Calibri', bold=True, size=16)
             row += 1
 
             # Objective description
@@ -536,7 +534,7 @@ class CAF32ExcelExporter(CAFLoader):
             for _, principle_data in obj_data.get("principles", {}).items():
                 ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
                 cell = ws.cell(row=row, column=1, value=f"{principle_data['code']} - {principle_data['title']}")
-                cell.font = Font(bold=True, size=14)
+                cell.font = Font(name='Calibri', bold=True, size=14)
                 row += 1
 
                 ws.merge_cells(start_row=row, start_column=1, end_row=row + 1, end_column=9)
@@ -549,7 +547,7 @@ class CAF32ExcelExporter(CAFLoader):
                     # Outcome header bar
                     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=9)
                     cell = ws.cell(row=row, column=1, value=f"{outcome_data['code']} - {outcome_data['title']}")
-                    cell.font = Font(bold=True, size=14, color="FFFFFF")
+                    cell.font = Font(name='Calibri', bold=True, size=14, color="FFFFFF")
                     cell.fill = fills["blue"]
                     cell.border = border
                     row += 1
@@ -557,7 +555,7 @@ class CAF32ExcelExporter(CAFLoader):
                     # Outcome description bar
                     ws.merge_cells(start_row=row, start_column=1, end_row=row + 1, end_column=9)
                     cell = ws.cell(row=row, column=1, value=outcome_data["description"])
-                    cell.font = Font(color="FFFFFF")
+                    cell.font = Font(name='Calibri', color="FFFFFF")
                     cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
                     cell.fill = fills["blue"]
                     cell.border = border
@@ -566,8 +564,9 @@ class CAF32ExcelExporter(CAFLoader):
                     # Column headers
                     for col_idx, (title, fill) in enumerate(headers, start=1):
                         cell = ws.cell(row=row, column=col_idx, value=title)
-                        cell.font = Font(bold=True, size=12)
+                        cell.font = Font(name='Calibri', bold=True, size=12)
                         cell.border = border
+                        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
                         if fill:
                             cell.fill = fill
                     row += 1
@@ -581,8 +580,8 @@ class CAF32ExcelExporter(CAFLoader):
                         for key in ("achieved", "partially-achieved", "not-achieved"):
                             values = indicators.get(key, {})
                             if idx < len(values):
-                                item_code, item_data = list(values.items())[idx]
-                                desc = f"{item_code} - {item_data['description']}"
+                                item_data = list(values.values())[idx]
+                                desc = f"{idx + 1} - {item_data['description']}"
                                 cell = ws.cell(row=row, column=col_idx, value=desc)
                                 cell.alignment = Alignment(wrap_text=True)
                                 cell.border = border
@@ -604,23 +603,30 @@ class CAF32ExcelExporter(CAFLoader):
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
 
-                            # Clear any existing validations on this cell first to avoid conflicts
-                            self._remove_any_validation_in_cell(ans_cell, ws)
+                            if idx < len(values):
+                                # Clear any existing validations on this cell first to avoid conflicts
+                                self._remove_any_validation_in_cell(ans_cell, ws)
 
-                            # Create a new validator instance for each cell to avoid conflicts
-                            cell_validator = self._get_indicator_validator()
-                            ws.add_data_validation(cell_validator)
-                            cell_validator.add(ans_cell.coordinate)
+                                # Create a new validator instance for each cell to avoid conflicts
+                                cell_validator = self._get_indicator_validator()
+                                ws.add_data_validation(cell_validator)
+                                cell_validator.add(ans_cell.coordinate)
+                            else:
+                                # Grey out the answer cell when no indicator
+                                ans_cell.fill = fills["grey"]
 
                             col_idx += 1
                             ans_cell = ws.cell(row=row, column=col_idx)
                             ans_cell.border = border
+                            if idx >= len(values):
+                                # Grey out the "If applicable..." cell when no indicator
+                                ans_cell.fill = fills["grey"]
                             col_idx += 1
                         row += 1
 
                     # Contributing outcome achievement fields
-                    cell = ws.cell(row=row, column=1, value="Contributing Outcome status:")
-                    cell.font = Font(bold=True)
+                    cell = ws.cell(row=row, column=1, value="Contributing outcome status:")
+                    cell.font = Font(name='Calibri', bold=True)
                     cell.border = border
                     # status value
                     cell = ws.cell(
@@ -653,7 +659,7 @@ class CAF32ExcelExporter(CAFLoader):
                     row += 1
 
                     cell = ws.cell(row=row, column=1, value="Contributing outcome summary (1,500 word limit):")
-                    cell.font = Font(bold=True)
+                    cell.font = Font(name='Calibri', bold=True)
                     cell.border = border
                     cell = ws.cell(row=row, column=2)
                     cell.border = border
@@ -664,7 +670,7 @@ class CAF32ExcelExporter(CAFLoader):
                     row += 1
 
                     cell = ws.cell(row=row, column=1, value="Contributing outcome evidence list: ")
-                    cell.font = Font(bold=True)
+                    cell.font = Font(name='Calibri', bold=True)
                     cell.border = border
                     cell = ws.cell(row=row, column=2)
                     cell.border = border
