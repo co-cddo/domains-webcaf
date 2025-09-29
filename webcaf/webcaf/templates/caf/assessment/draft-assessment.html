@@ -14,7 +14,8 @@
             </h1>
             <p class="govuk-body"><strong>Draft assessment</strong></p>
             <div class="govuk-inset-text">
-                For it to be assessed in GovAssure 2025/26 your stage 4 review must be completed by <strong>11:59pm</strong> on <strong>31 March 2026</strong>.
+                For it to be assessed in GovAssure 2025/26 your stage 4 review must be completed by
+                <strong>11:59pm</strong> on <strong>31 March 2026</strong>.
             </div>
             <h2 class="govuk-heading-m">1. Give system details and profile to be assessed</h2>
             <ul class="govuk-task-list">
@@ -114,9 +115,7 @@
                             {% if draft_assessment.assessment_id %}
                                 {% is_objective_complete draft_assessment.assessment_id objective.code as objective_complete %}
                                 {% if objective_complete %}
-                                    <strong class="govuk-tag govuk-tag--green">
-                                        Complete
-                                    </strong>
+                                    Completed
                                 {% else %}
                                     <strong class="govuk-tag govuk-tag--blue">
                                         Incomplete
@@ -132,21 +131,26 @@
             <h2 class="govuk-heading-m govuk-!-margin-top-5">3. Submit your assessment</h2>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item">
+                    {% is_all_objectives_complete draft_assessment.assessment_id as all_objectives_complete %}
+                    {% current_user_can_submit_assessment current_profile as can_submit_assessment %}
                     <div class="govuk-task-list__name-and-hint">
                         <div>
-                            Complete the full assessment
+                            {% if all_objectives_complete and can_submit_assessment %}
+                                <a class="govuk-link govuk-task-list__link"
+                                   href={% url 'objective-confirmation' %}
+                                >Complete the full self-assessment</a>
+                            {% else %}
+                                Complete the full self-assessment
+                            {% endif %}
+
                         </div>
                     </div>
                     <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet"
                          id="first-section-1-status">
-                        {% is_all_objectives_complete draft_assessment.assessment_id as all_objectives_complete %}
-                        {% current_user_can_submit_assessment current_profile as can_submit_assessment %}
                         {% if all_objectives_complete and can_submit_assessment %}
-                            <a class="govuk-link govuk-task-list__link"
-                               href={% url 'objective-confirmation' %}
-                            >
-                                View and submit
-                            </a>
+                            <strong class="govuk-tag govuk-tag--blue">
+                                Incomplete
+                            </strong>
                         {% else %}
                             Cannot start yet
                         {% endif %}

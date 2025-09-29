@@ -197,6 +197,52 @@ class Assessment(models.Model):
 
         return routers[self.framework]
 
+    def is_complete(self):
+        """
+        Check if all objectives are completed.
+
+        :return: True if all objectives are completed, False otherwise
+        """
+        for objective in self.get_router().get_sections():
+            objective_id = objective["code"]
+            if not self.is_objective_complete(objective_id):
+                return False
+        return True
+
+    def is_objective_complete(
+        self,
+        objective_id: str,
+    ):
+        """
+        Checks if an objective is completed based on provided sections. An objective is considered complete
+        if all its outcomes have a corresponding "confirmation" in the provided sections.
+
+        :param objective_id: The unique identifier of the objective to check.
+        :type objective_id: str
+        :return: True if the objective is complete, otherwise False.
+        :rtype: bool
+        """
+        sections = self.get_sections_by_objective_id(objective_id)
+        if sections:
+            objective = self.get_router().get_section(objective_id)
+            if objective is None or "principles" not in objective:
+                return False
+            all_outcomes = [
+                outcome["code"]
+                for principle in objective["principles"].values()
+                for outcome in principle["outcomes"].values()
+            ]
+            completed_outcomes = [
+                completed_section[0]
+                for completed_section in sections
+                if
+                # Only consider as complete if we have the confirm_outcome attribute in the confirmation
+                "confirmation" in completed_section[1]
+                and completed_section[1]["confirmation"].get("confirm_outcome", None) == "confirm"
+            ]
+            return set(all_outcomes) == set(completed_outcomes)
+        return False
+
 
 class UserProfile(models.Model):
     ROLE_ACTIONS = {

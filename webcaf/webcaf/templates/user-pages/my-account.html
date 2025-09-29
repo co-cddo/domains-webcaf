@@ -65,6 +65,10 @@
                     <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
                     </p>
                 {% else %}
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
+                        You have {{ completed_assessment_count }} draft assessment{{ completed_assessment_count  | pluralize }} ready to
+                        send
+                    </p>
                     <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
                             View {{ draft_systems| length }} draft assessment{{ draft_systems | length | pluralize }}

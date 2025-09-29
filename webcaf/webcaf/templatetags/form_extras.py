@@ -156,8 +156,7 @@ def is_objective_complete(assessment_id, objective_id):
     :rtype: bool
     """
     assessment = Assessment.objects.get(id=assessment_id)
-    sections = assessment.get_sections_by_objective_id(objective_id)
-    return _check_objective_complete(assessment, sections, objective_id)
+    return assessment.is_objective_complete(objective_id)
 
 
 @register.simple_tag()
@@ -176,50 +175,8 @@ def is_all_objectives_complete(assessment_id):
     :rtype: bool
     """
     if assessment_id:
-        assessment = Assessment.objects.get(id=assessment_id)
-        for objective in assessment.get_router().get_sections():
-            objective_id = objective["code"]
-            sections = assessment.get_sections_by_objective_id(objective_id)
-            if not _check_objective_complete(assessment, sections, objective_id):
-                return False
-        return True
-    return False
+        return Assessment.objects.get(id=assessment_id).is_complete()
 
-
-def _check_objective_complete(
-    assessment: Assessment,
-    sections: list[tuple[str, Any]] | None,
-    objective_id: str,
-):
-    """
-    Checks if an objective is completed based on provided sections. An objective is considered complete
-    if all its outcomes have a corresponding "confirmation" in the provided sections.
-
-    :param objective_id: The unique identifier of the objective to check.
-    :type objective_id: str
-    :param sections: A list of tuples where each tuple represents a completed section and
-        its associated confirmation status.
-    :type sections: list[tuple[str, Any]] | None
-    :return: True if the objective is complete, otherwise False.
-    :rtype: bool
-    """
-    if sections:
-        objective = assessment.get_router().get_section(objective_id)
-        if objective is None or "principles" not in objective:
-            return False
-        all_outcomes = [
-            outcome["code"]
-            for principle in objective["principles"].values()
-            for outcome in principle["outcomes"].values()
-        ]
-        completed_outcomes = [
-            completed_section[0]
-            for completed_section in sections
-            if
-            # Only consider as complete if we have the confirm_outcome attribute in the confirmation
-            "confirmation" in completed_section[1] and "confirm_outcome" in completed_section[1]["confirmation"]
-        ]
-        return set(all_outcomes) == set(completed_outcomes)
     return False
 
 
