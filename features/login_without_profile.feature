@@ -1,4 +1,4 @@
-Feature: User login with a profile
+Feature: User login without a profile
 
   Background:
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
@@ -12,5 +12,5 @@ Feature: User login with a profile
     Then they should see page title "<page_title>"
     And page contains text "<page_text>" in banner
     Examples:
-      | user_name            | password | page_title         | page_text                                                                               |
-      | alice@example.gov.uk | password | My account - alice | You do not have a profile set up. Please create one by contacting your GovAssure lead.. |
+      | user_name            | password | page_title         | page_text                                                                              |
+      | alice@example.gov.uk | password | My account - alice | You do not have a profile set up. Please create one by contacting your GovAssure lead. |

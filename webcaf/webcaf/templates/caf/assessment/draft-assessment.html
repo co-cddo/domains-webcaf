@@ -99,7 +99,7 @@
                                 {% with draft_assessment.framework|add:'_objective_'|add:objective.code as objective_id %}
                                     <a class="govuk-link govuk-task-list__link"
                                        href="{% url objective_id %}"
-                                       aria-describedby="first-section-2-status">
+                                       aria-describedby="second-section-1-status">
                                         Objective {{ objective.code }}: {{ objective.title }}
                                     </a>
                                 {% endwith %}
