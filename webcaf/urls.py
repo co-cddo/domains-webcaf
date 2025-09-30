@@ -110,8 +110,8 @@ urlpatterns = [
     path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
     path("remove-profile/<int:user_profile_id>", RemoveUserProfileView.as_view(), name="remove-profile"),
     path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
-    path("data-usage-policy/", TemplateView.as_view(template_name="data-policy.html")),
-    path("cookies/", TemplateView.as_view(template_name="cookies.html")),
-    path("privacy/", TemplateView.as_view(template_name="privacy.html")),
-    path("help/", TemplateView.as_view(template_name="help.html")),
+    path("data-usage-policy/", TemplateView.as_view(template_name="data-policy.html"), name="data-usage-policy"),
+    path("cookies/", TemplateView.as_view(template_name="cookies.html"), name="cookies"),
+    path("privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
+    path("help/", TemplateView.as_view(template_name="help.html"), name="help"),
 ]
