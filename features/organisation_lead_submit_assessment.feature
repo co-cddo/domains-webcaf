@@ -9,12 +9,12 @@ Feature: Organisation lead can submit assessment
     And there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "25/26" in "draft" status and data "alice_completed_assessment.json"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
-  Scenario: Organisation lead can remove user
+  Scenario: Organisation lead can can submit a completed assessment
     Given Think time 2 seconds
     Then they should see page title "My account - other"
     And click link with text "View 1 draft assessment"
     And click link in table row containing value "System 1" with text "View"
-    And click link with text "View and submit"
+    And click link with text "Complete the full self-assessment"
     And click button with text "Save and send for review"
     # This will check the information stored for the current assessment
     # matches the information displayed on the confirmation page as well

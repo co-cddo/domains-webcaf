@@ -44,7 +44,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
             data["system_count"] = System.objects.filter(organisation=data["current_profile"].organisation).count()
             data["draft_systems"] = list(
                 Assessment.objects.filter(system__organisation=data["current_profile"].organisation, status="draft")
-                .values(
+                .only(
                     "id",
                     "system__name",
                     "caf_profile",
@@ -53,13 +53,18 @@ class AccountView(LoginRequiredMixin, TemplateView):
                     "last_updated",
                     "assessment_period",
                     "created_by__username",
+                    "assessments_data",
                 )
                 .all()
             )
+            data["completed_assessment_count"] = sum(
+                1 for draft_assessment in data["draft_systems"] if draft_assessment.is_complete()
+            )
+
             # Make swap the id to the label names
             profiles = dict(Assessment.PROFILE_CHOICES)
             for item in data["draft_systems"]:
-                item["caf_profile"] = profiles.get(item["caf_profile"])
+                item.caf_profile = profiles.get(item.caf_profile)
         return data
 
     def get(self, request, *args, **kwargs):

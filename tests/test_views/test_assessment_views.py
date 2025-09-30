@@ -26,7 +26,6 @@ class SetupAssessmentTestData(BaseViewTest):
 class TestCreateAssessmentViews(SetupAssessmentTestData):
     def setUp(self):
         super().setUp()
-        self.edit_review_type_url = reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_id": 1})
 
     def test_create_system(self):
         response = self.client.get(self.create_system_url)
@@ -78,15 +77,18 @@ class TestCreateAssessmentViews(SetupAssessmentTestData):
 
         # form data
         valid_data = {"caf_profile": "enhanced"}
-        response = self.client.post(self.create_profile_url, valid_data)
+        response = self.client.post(self.create_profile_url, valid_data, follow=True)
 
-        # we can now test that submission o the profile form has created the correct reviewtype in
+        # we can now test that submission of the profile form has created the correct reviewtype in
         # the assessment
-        assessment = Assessment.objects.get(id=1)
+        assessment = Assessment.objects.get(id=response.context_data["draft_assessment"]["assessment_id"])
         self.assertEqual(assessment.review_type, "independent")
+        edit_review_type_url = reverse(
+            "edit-draft-assessment-choose-review-type", kwargs={"assessment_id": assessment.id}
+        )
 
         # We should also be redirected to the review page to be shown this review type is mandatory for an enhanced profile
-        self.assertRedirects(response, self.edit_review_type_url)
+        self.assertRedirects(response, edit_review_type_url)
 
 
 class TestEditAssessmentViews(SetupAssessmentTestData):

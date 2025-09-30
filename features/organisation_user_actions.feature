@@ -105,5 +105,5 @@ Feature: Organisation user filling assessments
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
     And Fill outcome "D2.b Using Incidents to Drive Improvements " with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
-    Then click button with text "Review assessment"
+    Then click button with text "Back to draft assessment"
     And confirm the current assessment has expected data "alice_completed_assessment.json"
