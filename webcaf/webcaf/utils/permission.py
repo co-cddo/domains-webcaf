@@ -133,6 +133,23 @@ class PermissionUtil:
             otherwise False.
         :rtype: bool
         """
+        return user_profile and user_profile.role in ["organisation_lead"]
+
+    @staticmethod
+    def current_user_can_view_submitted_assessment(user_profile: UserProfile):
+        """
+        Checks if the current user has permissions to view submitted assessments.
+
+        This method evaluates whether the given user profile corresponds to a user role
+        that is allowed to view submitted assessments. Only users with the role
+        "organisation_lead" are granted this permission.
+
+        :param user_profile: The profile of the user being checked for permission.
+        :type user_profile: UserProfile
+        :return: True if the user has the permission to submit an assessment,
+            otherwise False.
+        :rtype: bool
+        """
         return user_profile and user_profile.role in [
             "organisation_lead",
         ]

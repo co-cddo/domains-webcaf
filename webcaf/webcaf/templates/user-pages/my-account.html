@@ -16,9 +16,8 @@
                     <div class="govuk-notification-banner__content">
 
                         <p class="govuk-notification-banner__heading">
-                            Before starting a new CAF self-assessment, you must have a completed and signed off scoping
-                            document
-                            for stage 1 and 2 of the GovAssure process.
+                            You cannot start a new draft assessment, until your scoping document is signed off
+                             and your system has been added to WebCAF by a cyber adviser.
                         </p>
 
                     </div>
@@ -34,6 +33,7 @@
             </div>
             {% current_user_can_create_system current_profile as can_create_systems %}
             {% current_user_can_view_assessments current_profile as can_view_assessments %}
+            {% current_user_can_view_submitted_assessment current_profile as can_view_submittted_assessments %}
             {% if can_create_systems %}
                 <form action="{% url 'create-new-system' %}" method="GET">
                     {% csrf_token %}
@@ -78,7 +78,7 @@
                         </a>
                     </p>
                 {% endif %}
-                {% if current_user_can_submit_assessment %}
+                {% if can_view_submittted_assessments %}
                     <h3 class="govuk-heading-m">
                         Assessments sent for review
                     </h3>
