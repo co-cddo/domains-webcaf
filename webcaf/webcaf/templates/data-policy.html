@@ -26,7 +26,7 @@
       <p class="govuk-body">The lead(s) for each government organisation ("organisation leads") are able to set up and assign users and assessors to relevant assessments, giving them the appropriate permissions. Organisations are responsible for ensuring roles and access rights allocated to individuals are appropriate and proportionate to the individual, using the principle of least privilege.
       </P>
       <p class="govuk-body">From WebCAF, datasets will be generated that are anonymised for the names of and references to specific organisations and systems. These datasets will be used to produce reporting on government security for the Cabinet Office, and to measure progress against the
-        <a href="https://www.gov.uk/government/publications/government-cyber-security-strategy-2022-to-2030/government-cyber-security-strategy-2022-to-2030-html" class="govuk-link--no-visited-state">Government Cyber Security Strategy</a>
+        <a href="https://www.gov.uk/government/publications/government-cyber-security-strategy-2022-to-2030/government-cyber-security-strategy-2022-to-2030-html" target="_blank" rel="noreferrer noopener" class="govuk-link--no-visited-state">Government Cyber Security Strategy (opens in a new tab)</a>
         This process will include sharing anonymised data with the National Cyber Security Centre (NCSC), the Cyber Government Security Centre (GSeC), the Government Cyber Coordination Centre (GC3), and the Central Digital and Data Office (CDDO).
       </p>
       <h3 class="govuk-heading-m">
@@ -47,12 +47,12 @@
       </h2>
 
       <p class="govuk-body">WebCAF has passed the Cabinet Office digital approvals process. Throughout the build of WebCAF, the National Cyber Security Centre has provided technical expertise and guidance. The development of WebCAF aligns and adheres with the
-         <a class="govuk-link" href="https://www.gov.uk/guidance/the-technology-code-of-practice">CDDO's Service Standard and Technology Code of Practice</a>; for example, the application has appropriate access controls, uses continuous integration and deployment from GitHub, logs and monitors usage and audit data, integrates continuous static and dynamic code analysis to identify vulnerability and configuration issues, and runs via iterative development process to quickly remediate issues and adapt features.</p>
-      <p class="govuk-body">A <a class="govuk-link" href="privacy">privacy notice</a> is available around the use of personal data which is linked with a Data Protection Impact Assessment that the GSG and CDDO team have performed with support from Cabinet Office Data Protection Office.
+         <a class="govuk-link" target="_blank" rel="noreferrer noopener" href="https://www.gov.uk/guidance/the-technology-code-of-practice">CDDO's Service Standard and Technology Code of Practice (opens in a new tab)</a>; for example, the application has appropriate access controls, uses continuous integration and deployment from GitHub, logs and monitors usage and audit data, integrates continuous static and dynamic code analysis to identify vulnerability and configuration issues, and runs via iterative development process to quickly remediate issues and adapt features.</p>
+      <p class="govuk-body">A <a class="govuk-link" href="{% url 'privacy' %}">privacy notice</a> is available around the use of personal data which is linked with a Data Protection Impact Assessment that the GSG and CDDO team have performed with support from Cabinet Office Data Protection Office.
       </p>
 
       <p class="govuk-body">For more help on WebCAF, including contact details for the GovAssure and WebCAF teams and information on user roles, please visit the
-        <a class="govuk-link" href="help">help page</a>.
+        <a class="govuk-link" href="{% url 'help' %}">help page</a>.
       </p>
 
     </div>
