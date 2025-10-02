@@ -4,6 +4,11 @@
 {% load form_extras %}
 
 {% block title %}Manage Assessment - {{ user.first_name }} {% endblock %}
+
+{% block with_progress %}
+    {% include "caf/partials/progress_indicator.html" with assessment=assessment %}
+{% endblock %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

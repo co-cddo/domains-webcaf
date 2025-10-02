@@ -54,6 +54,13 @@ class ObjectiveView(FormViewWithBreadcrumbs):
             return redirect(reverse(f"{assessment.framework}_objective_{form.cleaned_data['next_objective']}"))
         return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        assessment = SessionUtil.get_current_assessment(self.request)
+        data["progress"] = True
+        data["assessment"] = assessment
+        return data
+
 
 class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
     """
