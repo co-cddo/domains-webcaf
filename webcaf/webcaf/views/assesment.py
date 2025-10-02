@@ -54,6 +54,8 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         data.update(
             {
                 "draft_assessment": draft_assessment,
+                "assessment": assessment,
+                "progress": True,
                 "objectives": assessment.get_router().get_sections(),
                 "breadcrumbs": [
                     {"url": reverse("my-account"), "text": "My account"},
@@ -306,6 +308,9 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             {"url": reverse("my-account"), "text": "My account"},
         ] + self.breadcrumbs()
         data["profile"] = profile
+        data["progress"] = True
+        # this is empty until after being created
+        data["assessment"] = Assessment
         data["draft_assessment"] = self.request.session.get("draft_assessment", {})
         # Show only the systems needing new drafts
         data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(

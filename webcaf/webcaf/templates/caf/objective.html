@@ -5,6 +5,11 @@
 {% load form_extras %}
 {% block title %} {{ title }}{% endblock %}
 
+
+{% block with_progress %}
+    {% include "caf/partials/progress_indicator.html" with assessment=assessment %}
+{% endblock %}
+
 {% block content %}
     {% get_assessment request as assessment %}
     <div class="govuk-grid-row">
