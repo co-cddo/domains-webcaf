@@ -22,21 +22,19 @@ class SystemForm(ModelForm):
         model = System
         fields = [
             "name",
-            "description",
             "system_owner",
             "system_type",
             "hosting_type",
-            "internet_facing",
             "last_assessed",
+            "corporate_services",
         ]
         labels = {
             "name": "System name",
             "system_type": "System type",
-            "description": "Essential services",
             "system_owner": "System ownership",
             "hosting_type": "Hosting and connectivity",
-            "internet_facing": "Internet facing",
             "last_assessed": "GovAssure year",
+            "corporate_services": "Corporate services",
         }
 
     def __init__(self, *args, **kwargs):
@@ -53,7 +51,7 @@ class SystemContextDataMixin:
         data["owner_types"] = System.OWNER_TYPES
         data["hosting_types"] = System.HOSTING_TYPES
         data["assessed_periods"] = System.ASSESSED_CHOICES
-        data["internet_facing"] = System.INTERNET_FACING
+        data["corporate_services"] = System.CORPORATE_SERVICES
         return data
 
     def form_invalid(self, form):
