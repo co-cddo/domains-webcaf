@@ -326,60 +326,87 @@ objectives:
                     or are applied from a control catalogue without consideration
                     of how they contribute to the security of the essential function(s).
                   ncsc-index: A2.a.NA.7
-              partially-achieved:
                 A2.a.8:
+                  description: Risks remain unresolved on a register for prolonged periods
+                    of time awaiting senior decision-making or resource allocation to resolve.
+                  ncsc-index: A2.a.NA.8
+              partially-achieved:
+                A2.a.9:
                   description: Your organisational process ensures that security risks
                     to network and information systems relevant to essential function(s)
                     are identified, analysed, prioritised, and managed.
                   ncsc-index: A2.a.PA.1
-                A2.a.9:
+                A2.a.10:
                   description: Your risk assessments are informed by an understanding
                     of the vulnerabilities in the network and information systems
                     supporting your essential function(s).
                   ncsc-index: A2.a.PA.2
-                A2.a.10:
+                A2.a.11:
                   description: The output from your risk management process is a clear
                     set of security requirements that will address the risks in line
                     with your organisational approach to security.
                   ncsc-index: A2.a.PA.3
-                A2.a.11:
+                A2.a.12:
                   description: Significant conclusions reached in the course of your
                     risk management process are communicated to key security decision-makers
                     and accountable individuals.
                   ncsc-index: A2.a.PA.4
-                A2.a.12:
+                A2.a.13:
                   description: You conduct risk assessments when significant events
                     potentially affect the essential function(s), such as replacing
                     a system or a change in the cyber security threat.
                   ncsc-index: A2.a.PA.5
+                A2.a.14:
+                  description: You perform threat analysis and understand how generic 
+                    threats apply to your organisation.
+                  ncsc-index: A2.a.PA.6
               achieved:
-                A2.a.13:
+                A2.a.15:
                   description: Your organisational process ensures that security risks
                     to network and information systems relevant to essential function(s)
                     are identified, analysed, prioritised, and managed.
                   ncsc-index: A2.a.A.1
-                A2.a.14:
+                A2.a.16:
                   description: Your approach to risk is focused on the possibility
                     of adverse impact to your essential function(s), leading to a
                     detailed understanding of how such impact might arise as a consequence
                     of possible attacker actions and the security properties of your
                     network and information systems.
                   ncsc-index: A2.a.A.2
-                A2.a.15:
+                A2.a.17:
                   description: Your risk assessments are based on a clearly understood
                     set of threat assumptions, informed by an up-to-date understanding
                     of security threats to your essential function(s) and your sector.
                   ncsc-index: A2.a.A.3
-                A2.a.16:
+                A2.a.18:
                   description: Your risk assessments are informed by an understanding
                     of the vulnerabilities in the network and information systems
                     supporting your essential function(s).
                   ncsc-index: A2.a.A.4
-                A2.a.17:
+                A2.a.19:
                   description: The output from your risk management process is a clear
                     set of security requirements that will address the risks in line
                     with your organisational approach to security.
                   ncsc-index: A2.a.A.5
+                A2.a.20:
+                  description: Significant conclusions reached in the course of your risk 
+                    management process are communicated to key security decision-makers 
+                    and accountable individuals.
+                  ncsc-index: A2.a.A.6
+                A2.a.21:
+                  description: Your risk assessments are dynamic and updated in the light of 
+                    relevant changes which may include technical changes to network and 
+                    information systems, change of use and new threat information.
+                  ncsc-index: A2.a.A.7
+                A2.a.22:
+                  description: The effectiveness of your risk management process is reviewed 
+                    regularly, and improvements made as required.
+                  ncsc-index: A2.a.A.8
+                A2.a.23:
+                  description: You perform detailed threat analysis and understand how this 
+                     applies to your organisation in the context of the threat to your sector 
+                     and the wider CNI.
+                  ncsc-index: A2.a.A.9
             assessment-rules: *standard-rules
             min_profile_requirement:
               baseline: *partially_achieved
@@ -471,26 +498,29 @@ objectives:
                     recovery of the essential function(s) is held by one or two key
                     individuals with no succession plan.
                   ncsc-index: A3.a.NA.4
-              achieved:
                 A3.a.5:
+                  description: Asset inventories are neglected and out of date.
+                  ncsc-index: A3.a.NA.5
+              achieved:
+                A3.a.6:
                   description: All assets relevant to the secure operation of essential
                     function(s) are identified and inventoried (at a suitable level
                     of detail). The inventory is kept up-to-date.
                   ncsc-index: A3.a.A.1
-                A3.a.6:
+                A3.a.7:
                   description: Dependencies on supporting infrastructure (e.g. power,
                     cooling etc) are recognised and recorded.
                   ncsc-index: A3.a.A.2
-                A3.a.7:
+                A3.a.8:
                   description: You have prioritised your assets according to their
                     importance to the operation of the essential function(s).
                   ncsc-index: A3.a.A.3
-                A3.a.8:
+                A3.a.9:
                   description: You have assigned responsibility for managing all assets,
                     including physical assets, relevant to the operation of the essential
                     function(s).
                   ncsc-index: A3.a.A.4
-                A3.a.9:
+                A3.a.10:
                   description: Assets relevant to the essential function(s) are managed
                     with cyber security in mind throughout their lifecycle, from creation
                     through to eventual decommissioning or disposal.
@@ -580,7 +610,7 @@ objectives:
                   description: You understand which contracts are relevant and you
                     include appropriate security obligations in relevant contracts.
                     You have a proactive approach to contract management which may
-                    include a contract management.
+                    include a contract management plan for relevant contracts.
                   ncsc-index: A4.a.A.4
                 A4.a.15:
                   description: Customer / supplier ownership of responsibilities is
