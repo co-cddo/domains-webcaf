@@ -76,6 +76,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "webcaf.session.CafSessionTimeoutMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
@@ -250,6 +251,8 @@ if SSO_MODE.lower() == "external":
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
     LOGOUT_REDIRECT_URL = env.str("LOGOUT_REDIRECT_URL")
+    SESSION_EXPIRED_LOGOUT_URL = f"{OIDC_OP_LOGOUT_ENDPOINT}?to_client={OIDC_RP_CLIENT_ID}"
+
 else:
     sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"
@@ -261,6 +264,7 @@ else:
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
     OIDC_OP_LOGOUT_ENDPOINT = "http://localhost:5556/auth/logout"
+    SESSION_EXPIRED_LOGOUT_URL = OIDC_OP_LOGOUT_ENDPOINT
     LOGOUT_REDIRECT_URL = "http://localhost:8010/"
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
@@ -277,3 +281,6 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('DOMAIN_NAME', 'localhost')}"]
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
+
+USER_IDLE_TIMEOUT = 90 * 60
+SESSION_SAVE_EVERY_REQUEST = True

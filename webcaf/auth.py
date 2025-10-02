@@ -53,6 +53,7 @@ class LoginRequiredMiddleware:
             or request.path.startswith("/static/")
             or request.path.startswith("/media/")
             or request.path.startswith("/logout/")
+            or request.path.startswith("/session-expired/")
             or request.user.is_authenticated
         ):
             self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)

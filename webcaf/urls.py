@@ -41,6 +41,10 @@ from webcaf.webcaf.views.sections import (
     SectionConfirmationView,
     ShowSubmissionConfirmationView,
 )
+from webcaf.webcaf.views.session_expired import (
+    session_expired_logout_user,
+    session_expired_page,
+)
 from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
     EditSystemView,
@@ -114,4 +118,6 @@ urlpatterns = [
     path("cookies/", TemplateView.as_view(template_name="cookies.html"), name="cookies"),
     path("privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
     path("help/", TemplateView.as_view(template_name="help.html"), name="help"),
+    path("logout-expire-session/", session_expired_logout_user, name="expire-session"),
+    path("session-expired/", session_expired_page, name="session-expired"),
 ]
