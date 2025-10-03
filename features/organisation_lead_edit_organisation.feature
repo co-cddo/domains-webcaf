@@ -13,7 +13,7 @@ Feature: Organisation lead can edit an organisation's details
         Given Think time 2 seconds
         Then they should see page title "My account - other"
         And check user is logged in against organisation "Ministry of Agriculture"
-        And a button with text "Start a draft assessment"
+        And a button with text "Start a self-assessment"
         And link with text "Your organisation details"
         And link with text "Manage users"
         When click link with text "Your organisation details"

@@ -263,8 +263,8 @@ class UserProfile(models.Model):
         "cyber_advisor": """On this page you can add new systems, modify existing systems and manage users within an
                     organisation.""",
         "organisation_lead": """On this page you can manage users within an
-                    organisation, continue a draft assessment and view assessments already sent for review.""",
-        "organisation_user": "On this page you can continue a draft assessment and view assessments already sent for review.",
+                    organisation, continue a draft self-assessment and view self-assessments already sent for review.""",
+        "organisation_user": "On this page you can continue a draft self-assessment and view self-assessments already sent for review.",
     }
     ROLE_CHOICES = [
         ("cyber_advisor", "GDS cyber advisor"),

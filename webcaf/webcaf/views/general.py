@@ -53,7 +53,7 @@ class FormViewWithBreadcrumbs(FormView):
         """
         return [
             {
-                "text": "Edit draft assessment",
+                "text": "Edit draft self-assessment",
                 "url": reverse_lazy(
                     "edit-draft-assessment",
                     kwargs={"assessment_id": self.request.session["draft_assessment"]["assessment_id"]},

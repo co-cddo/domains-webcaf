@@ -12,7 +12,7 @@ Feature: Create and edit a new user for the organisation
     Given Think time 2 seconds
     Then they should see page title "My account - other"
     And check user is logged in against organisation "Ministry of Agriculture"
-    And a button with text "Start a draft assessment"
+    And a button with text "Start a self-assessment"
     And link with text "Your organisation details"
     And link with text "Manage users"
     When click link with text "Manage users"
@@ -36,7 +36,7 @@ Feature: Create and edit a new user for the organisation
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     Given Think time 2 seconds
     Then they should see page title "My account - other"
-    And a button with text "Start a draft assessment"
+    And a button with text "Start a self-assessment"
     And link with text "Your organisation details"
     And link with text "Manage users"
     When click link with text "Manage users"

@@ -7,7 +7,7 @@
   {% generate_assessment_progress_indicators assessment as progress_indicators %}
 {% endif %}
 
-<div class="progress-container" role="region" aria-label="Assessment Progress">
+<div class="progress-container" role="region" aria-label="Self-assessment progress">
   {% if principle_id %}
   <p class="govuk-hint">Principle {{progress_indicators.question_number}} of {{progress_indicators.principles_in_section}}<br><strong>Principle: {{ progress_indicators.principle }} {{ progress_indicators.principle_name }}</strong>
     <br></p>

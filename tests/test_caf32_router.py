@@ -137,7 +137,7 @@ class TestCAF32Router(unittest.TestCase):
         context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertEqual(breadcrumbs[-2]["text"], "My account")
-        self.assertEqual(breadcrumbs[-1]["text"], "Edit draft assessment")
+        self.assertEqual(breadcrumbs[-1]["text"], "Edit draft self-assessment")
 
     def test_outcome_breadcrumbs(self):
         factory = RequestFactory()
@@ -160,7 +160,7 @@ class TestCAF32Router(unittest.TestCase):
                 context = view.get_context_data()
         breadcrumbs = context.get("breadcrumbs")
         self.assertEqual(breadcrumbs[0]["text"], "My account")
-        self.assertEqual(breadcrumbs[1]["text"], "Edit draft assessment")
+        self.assertEqual(breadcrumbs[1]["text"], "Edit draft self-assessment")
         self.assertEqual(breadcrumbs[2]["text"], "Objective A - Detecting cyber security events")
         self.assertEqual(breadcrumbs[3]["text"], "Objective A1.a - Monitoring Coverage")
 
