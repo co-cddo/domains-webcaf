@@ -3,7 +3,7 @@
 {% load csp %}
 {% load form_extras %}
 
-{% block title %}Manage self-assessment - {{ user.first_name }} {% endblock %}
+{% block title %}Manage self-assessment - {{ user.first_name }} {{ block.super }}{% endblock %}
 
 {% block with_progress %}
     {% include "caf/partials/progress_indicator.html" with assessment=assessment %}

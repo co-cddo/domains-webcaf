@@ -4,7 +4,7 @@
 {% load csp %}
 {% load form_extras %}
 
-{% block title %}Complete the full assessment{% endblock %}
+{% block title %}Complete the full assessment {{ block.super }}{% endblock %}
 {% block content %}
     {% get_assessment request as assessment %}
     {% include 'partials/error_message.html' %}
