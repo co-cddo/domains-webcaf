@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load tz %}
 {% load govuk_frontend_django %}
 {% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
 {% block content %}
@@ -18,16 +19,18 @@
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                {% for draft in draft_systems %}
+                {% for draft in draft_assessments %}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell" data-label="System name">
                             {{ draft.system.name }}
                         </td>
                         <td class="govuk-table__cell" data-label="CAF profile">
-                            {{ draft.caf_profile }}
+                            {{ draft.get_caf_profile_display }}
                         </td>
                         <td class="govuk-table__cell" data-label="Last updated">
-                            {{ draft.last_updated }}
+                            {% timezone "Europe/London" %}
+                                {{ draft.last_updated|date:"d M Y, P T" }}
+                            {% endtimezone %}
                         </td>
                         <td class="govuk-table__cell">
                             <a href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
