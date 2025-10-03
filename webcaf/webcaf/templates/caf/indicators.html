@@ -12,7 +12,7 @@
 
 {% block content %}
     <span class="govuk-caption-l">{{ assessment.system.name }}</span>
-    <h3 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h3>
+    <h1 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h1>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% include "partials/error_message.html" %}
@@ -33,9 +33,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="a3aAc-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h1 class="govuk-fieldset__heading">
-                                Achieved statements
-                            </h1>
+                          Achieved statements
                         </legend>
                         <div id="a3aAc-hint" class="govuk-hint">
                             You will achieve this outcome if you select all statements.
@@ -51,9 +49,7 @@
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset" aria-describedby="pa3aAc-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                <h1 class="govuk-fieldset__heading">
-                                    Partially achieved statements
-                                </h1>
+                              Partially achieved statements
                             </legend>
                             <div id="pa3aAc-hint" class="govuk-hint">
                                 You will partially achieve this outcome if you select all statements.
@@ -69,9 +65,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="a3aNa-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h1 class="govuk-fieldset__heading">
-                                Not achieved statements
-                            </h1>
+                          Not achieved statements
                         </legend>
                         <div id="a3aNa-hint" class="govuk-hint">
                             You will not achieve this outcome if you select any of these statements.
