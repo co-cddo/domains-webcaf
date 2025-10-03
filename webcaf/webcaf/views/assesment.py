@@ -260,6 +260,11 @@ class EditAssessmentSystemView(EditAssessmentView):
 
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
+        current_user_profile = SessionUtil.get_current_user_profile(self.request)
+        if form.cleaned_data["system"].organisation != current_user_profile.organisation:
+            # Just to make sure that the user is sending back the correct system
+            # From the allowed systems for the organisation.
+            raise PermissionError("You do not have access to this system")
         draft_assessment["system"] = form.cleaned_data["system"].id
         self.request.session.save()
         return super().form_valid(form)
