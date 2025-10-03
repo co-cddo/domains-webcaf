@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
 
-{% block title %}Cookies - Title - GOV.UK{% endblock %}
+{% block title %}Cookies {{ block.super }}{% endblock %}
 
 {% block content %}
     <div class="govuk-grid-row">
@@ -67,7 +67,7 @@
                 <div class="govuk-form-group govuk-!-margin-bottom-6" id="cookies-analytics">
                     <fieldset class="govuk-fieldset" aria-describedby="hint-0c454062">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h2 class="govuk-fieldset__heading">Cookies that measure website use</h2>
+                            <h3 class="govuk-fieldset__heading">Cookies that measure website use</h3>
                         </legend>
 
                         <div id="hint-0c454062" class="govuk-hint">
@@ -101,9 +101,9 @@
                     </button>
                 </div>
             {% endif %}
-            <h2 class="govuk-heading-m">
+            <h3 class="govuk-heading-m">
                 Essential cookies
-            </h2>
+            </h3>
             <p class="govuk-body">We use some essential cookies to make this service work.
             </p>
             <p class="govuk-body">
@@ -135,9 +135,9 @@
                 </tr>
                 </tbody>
             </table>
-            <h3 class="govuk-heading-l">
+            <h2 class="govuk-heading-l">
                 Government services and external websites
-            </h3>
+            </h2>
             <p class="govuk-body">
                 Most services we link to are run by different government departments, or external websites for example
                 Government Digital Service (GDS) or the Nominet website. These services may set additional cookies and,
