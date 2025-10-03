@@ -7,7 +7,7 @@ Feature: Organisation lead can edit an organisation's details
     And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
     And the application is running
     And the user logs in with username  "other@example.gov.uk" and password "password"
-    And click button with text "Start a draft assessment"
+    And click button with text "Start a self-assessment"
     And click link with text "Provide system details"
     And select select box with value "System 2"
     And click button with text "Save and continue"

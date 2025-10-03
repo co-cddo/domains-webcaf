@@ -12,7 +12,7 @@ Feature: Organisation lead can submit assessment
   Scenario: Organisation lead can can submit a completed assessment
     Given Think time 2 seconds
     Then they should see page title "My account - other"
-    And click link with text "View 1 draft assessment"
+    And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
     And click button with text "Save and send for review"

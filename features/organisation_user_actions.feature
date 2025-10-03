@@ -12,7 +12,7 @@ Feature: Organisation user filling assessments
   Scenario: Organisation user complete assessment process
     Given Think time 2 seconds
     Then they should see page title "My account - alice"
-    And click link with text "View 1 draft assessment"
+    And click link with text "View 1 draft self-assessment"
     And page has heading "Your draft self-assessments"
     And click link in table row containing value "System 1" with text "View"
     Then page has heading "Submit a WebCAF self-assessment"
@@ -105,5 +105,5 @@ Feature: Organisation user filling assessments
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
     And Fill outcome "D2.b Using Incidents to Drive Improvements " with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
-    Then click button with text "Back to draft assessment"
+    Then click button with text "Back to draft self-assessment"
     And confirm the current assessment has expected data "alice_completed_assessment.json"
