@@ -15,29 +15,29 @@
                     <th scope="col" class="govuk-table__header">System name</th>
                     <th scope="col" class="govuk-table__header">Profile</th>
                     <th scope="col" class="govuk-table__header">Last updated on</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                {% for draft in draft_assessments %}
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell" data-label="System name">
-                            {{ draft.system.name }}
-                        </td>
-                        <td class="govuk-table__cell" data-label="CAF profile">
-                            {{ draft.get_caf_profile_display }}
-                        </td>
-                        <td class="govuk-table__cell" data-label="Last updated">
-                            {% timezone "Europe/London" %}
-                                {{ draft.last_updated|date:"d M Y, P T" }}
-                            {% endtimezone %}
-                        </td>
-                        <td class="govuk-table__cell">
-                            <a href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
-                               title="Continue editing the assessment">View</a>
-                        </td>
-                    </tr>
-                {% endfor %}
+                    {% for draft in draft_assessments %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell" data-label="System name">
+                                {{ draft.system.name }}
+                            </td>
+                            <td class="govuk-table__cell" data-label="CAF profile">
+                                {{ draft.get_caf_profile_display }}
+                            </td>
+                            <td class="govuk-table__cell" data-label="Last updated">
+                                {% timezone "Europe/London" %}
+                                    {{ draft.last_updated|date:"d M Y, P T" }}
+                                {% endtimezone %}
+                            </td>
+                            <td class="govuk-table__cell">
+                                <a href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
+                                   title="Continue editing the assessment">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -5,29 +5,26 @@
 {% block title %}Page not found {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">Page not found</h1>
-        <p class="govuk-body">
-          There is no page at <strong>{{ request.path }}</strong>
-        </p>
-        <p class="govuk-body">This may be because:</p>
-        <ul class="govuk-list govuk-list--bullet">
-          <li>you typed or pasted the web address incorrectly</li>
-          <li>you followed a web address from a search engine which does not exist </li>
-          <li>you followed a web address from the GOV.UK website which does not exist </li>
-          <li>you followed a web address from an external website which does not exist </li>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">Page not found</h1>
+            <p class="govuk-body">
+              There is no page at <strong>{{ request.path }}</strong>
+            </p>
+            <p class="govuk-body">This may be because:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>you typed or pasted the web address incorrectly</li>
+                <li>you followed a web address from a search engine which does not exist </li>
+                <li>you followed a web address from the GOV.UK website which does not exist </li>
+                <li>you followed a web address from an external website which does not exist </li>
+            </ul>
+            <p class="govuk-body">
+                If the web address is correct or you selected a link or button, email <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code> for help.
+            </p>
 
-        </ul>
-        <p class="govuk-body">
-          If the web address is correct or you selected a link or button, email <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code> for help.
-        </p>
-
-        <p class="govuk-body">
-          <a href="/" class="govuk-link--no-visited-state">You can go back to the service's home page</a>.
-        </p>
-
-
+            <p class="govuk-body">
+                <a href="/" class="govuk-link--no-visited-state">You can go back to the service's home page</a>.
+            </p>
+        </div>
     </div>
-  </div>
 {% endblock %}

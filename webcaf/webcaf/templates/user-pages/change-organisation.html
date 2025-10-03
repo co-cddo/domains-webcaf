@@ -15,23 +15,23 @@
                     </tr>
                     </thead>
                     <tbody class="govuk-table__body">
-                    {% for profile in profiles %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">
-                                <span class="govuk-body">{{ profile.organisation.name|upper }}</span>
-                            </th>
-                            <td class="govuk-table__cell">
-                                {% if request.session.current_profile_id == profile.id %}
-                                    Logged in
-                                {% else %}
-                                    <button type="submit" class="govuk-button" data-module="govuk-button"
-                                            name="profile_id" value="{{ profile.id }}">
-                                        Login
-                                    </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
+                        {% for profile in profiles %}
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">
+                                    <span class="govuk-body">{{ profile.organisation.name|upper }}</span>
+                                </th>
+                                <td class="govuk-table__cell">
+                                    {% if request.session.current_profile_id == profile.id %}
+                                        Logged in
+                                    {% else %}
+                                        <button type="submit" class="govuk-button" data-module="govuk-button"
+                                                name="profile_id" value="{{ profile.id }}">
+                                            Login
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </form>
