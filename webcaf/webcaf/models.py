@@ -56,7 +56,6 @@ class System(models.Model):
         ("customer_relationship_management", "Customer relationship management"),
         ("help_desk_it_support", "Help desk / IT support"),
         ("data_management_analytics", "Data management / analytics"),
-        ("other", "Other"),
         ("none", "None of the above"),
     ]
     SYSTEM_TYPES = [

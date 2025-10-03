@@ -8,18 +8,18 @@
                 {% csrf_token %}
                 <input type="hidden" name="action_confirmed" value="true">
                 <input type="hidden" name="name" value="{{ form.name.value }}">
-                <input type="hidden" name="description" value="{{ form.description.value }}">
+                <input type="hidden" name="system_type" value="{{ form.system_type.value }}">
+                <input type="hidden" name="last_assessed" value="{{ form.last_assessed.value }}">
                 {% for owner in form.system_owner.value %}
                     <input type="hidden" name="system_owner" value="{{ owner }}">
                 {% endfor %}
-                <input type="hidden" name="system_type" value="{{ form.system_type.value }}">
                 {% for hosting_type in form.hosting_type.value %}
                     <input type="hidden" name="hosting_type" value="{{ hosting_type }}">
                 {% endfor %}
-                <input type="hidden" name="last_assessed" value="{{ form.last_assessed.value }}">
                 {% for service in form.corporate_services.value %}
                     <input type="hidden" name="corporate_services" value="{{ service }}">
                 {% endfor %}
+
                 <h1 class="govuk-heading-l">Check your system details</h1>
                 <div class="govuk-summary-card">
                     <div class="govuk-summary-card__title-wrapper">
@@ -45,7 +45,7 @@
                                                 {{ field.label }}
                                             </dt>
                                             <dd class="govuk-summary-list__value">
-                                                {% if field.name == 'system_owner' or field.name == 'hosting_type' %}
+                                                {% if field.name == 'corporate_services' %}
                                                     <ul class="govuk-list govuk-list--bullet">
                                                         {% with instance|get_display:field.name|split as parts %}
                                                             {% for item in parts %}

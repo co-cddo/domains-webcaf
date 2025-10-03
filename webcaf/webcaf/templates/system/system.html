@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
+{% load static %}
+
 {% block title %}Manage System - {{ user.first_name }} {% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
@@ -26,7 +28,7 @@
                            value="{{ form.name.value|default:'' }}">
                 </div>
                 <h2 class="govuk-heading-m">
-                    System type
+                    System description
                 </h2>
                 <div class="govuk-form-group" id="id_system_type">
                     <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">
@@ -136,16 +138,17 @@
                         <div id="corporate_services-hint" class="govuk-hint">
                             Select all that apply
                         </div>
-                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             {% for service in corporate_services %}
                                 <div class="govuk-checkboxes__item">
-                                    <input class="govuk-checkboxes__input" id="system_owner_{{ forloop.counter }}"
+                                    <input class="govuk-checkboxes__input" id="corporate_service_{{ service.0 }}"
                                            name="corporate_services"
                                            type="checkbox"
                                            {% if service.0 in form.corporate_services.value %}checked{% endif %}
-                                           value="{{ service.0 }}">
+                                           value="{{ service.0 }}"
+                                           {% if service.0 == 'none' %}data-behaviour="exclusive"{% endif %}>
                                     <label class="govuk-label govuk-checkboxes__label"
-                                           for="service{{ forloop.counter }}">
+                                           for="corporate_service_{{ service.0 }}">
                                         {{ service.1 }}
                                     </label>
                                 </div>
