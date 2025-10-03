@@ -19,7 +19,7 @@
                         <span class="govuk-heading-m">System name</span>
                     </label>
                     <div id="govsysmanual-hint" class="govuk-hint">
-                        System name
+                        Add a new system name
                     </div>
                     <input class="govuk-input govuk-input--width-30" id="id_name" name="name" type="text"
                            spellcheck="false"
@@ -30,11 +30,7 @@
                 </h2>
                 <div class="govuk-form-group" id="id_system_type">
                     <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">
-                        <legend class="govuk-fieldset__legend govuk-body">
-                            <h1 class="govuk-fieldset__heading">
-                                What best describes this system?
-                            </h1>
-                        </legend>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What does this system do?</legend>
                         <div id="system_type-hint" class="govuk-hint">
                             Select one option
                         </div>
@@ -49,113 +45,8 @@
                                 <label class="govuk-label govuk-radios__label" for="system_type_{{ forloop.counter }}">
                                     {{ system_type.1 }}
                                 </label>
-                                <div id="system_type-item-hint_{{ forloop.counter }}"
-                                     class="govuk-hint govuk-radios__hint">
-                                    {{ system_type.2 }}
-                                </div>
                             {% endfor %}
                             </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="govuk-form-group">
-                    <h1 class="govuk-label-wrapper">
-                        <label class="govuk-label govuk-heading-s" for="id_description">
-                            What essential service does this system support?
-                        </label>
-                    </h1>
-                    <div id="id_description-hint" class="govuk-hint">
-                        Describe what essential service this system supports.
-                    </div>
-                    <textarea class="govuk-textarea" id="id_description" name="description" rows="5"
-                              aria-describedby="id_description-hint"
-                              autocomplete="string">{{ form.description.value|default:'' }}</textarea>
-
-                </div>
-                <h2 class="govuk-heading-m">
-                    System owner
-                </h2>
-                <div class="govuk-form-group" id="id_system_owner">
-                    <fieldset class="govuk-fieldset" aria-describedby="system_owner-hint">
-                        <legend class="govuk-fieldset__legend govuk-body">
-                            <h1 class="govuk-fieldset__heading">
-                                Who owns this system?
-                            </h1>
-                        </legend>
-                        <div id="system_owner-hint" class="govuk-hint">
-                            Select all that apply
-                        </div>
-                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
-                            {% for owner in owner_types %}
-                                <div class="govuk-checkboxes__item">
-                                    <input class="govuk-checkboxes__input" id="system_owner_{{ forloop.counter }}"
-                                           name="system_owner"
-                                           type="checkbox"
-                                           {% if owner.0 in form.system_owner.value %}checked{% endif %}
-                                           value="{{ owner.0 }}">
-                                    <label class="govuk-label govuk-checkboxes__label"
-                                           for="system_owner_{{ forloop.counter }}">
-                                        {{ owner.1 }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                </div>
-                <h2 class="govuk-heading-m">
-                    System hosting type and connectivity
-                </h2>
-                <div class="govuk-form-group" id="id_hosting_type">
-                    <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">
-                        <legend class="govuk-fieldset__legend govuk-body">
-                            <h1 class="govuk-fieldset__heading">
-                                How is the system hosted?
-                            </h1>
-                        </legend>
-                        <div id="hosting_type-hint" class="govuk-hint">
-                            Select all that apply
-                        </div>
-                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
-                            {% for hosting_type in hosting_types %}
-                                <div class="govuk-checkboxes__item">
-                                    <input class="govuk-checkboxes__input" id="hosting_type_{{ forloop.counter }}"
-                                           name="hosting_type"
-                                           type="checkbox"
-                                           {% if hosting_type.0 in form.hosting_type.value %}checked{% endif %}
-                                           value="{{ hosting_type.0 }}">
-                                    <label class="govuk-label govuk-checkboxes__label"
-                                           for="hosting_type_{{ forloop.counter }}">
-                                        {{ hosting_type.1 }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                </div>
-                <div id="id_internet_facing" class="govuk-form-group">
-                    <fieldset class="govuk-fieldset" aria-describedby="internet_facing-hint">
-                        <legend class="govuk-fieldset__legend govuk-body">
-                            <h1 class="govuk-fieldset__heading">
-                                Is the system internet-facing?
-                            </h1>
-                        </legend>
-                        <div id="internet_facing-hint" class="govuk-hint">
-                            Select one option
-                        </div>
-                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
-                             data-govuk-radios-init="">
-                            {% for option in internet_facing %}
-                                <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="internet_facing_{{ forloop.counter }}"
-                                           name="internet_facing"
-                                           {% if option.0 == form.internet_facing.value %}checked{% endif %}
-                                           type="radio" value="{{ option.0 }}">
-                                    <label class="govuk-label govuk-radios__label"
-                                           for="internet_facing_{{ forloop.counter }}">
-                                        {{ option.1 }}
-                                    </label>
-                                </div>
-                            {% endfor %}
                         </div>
                     </fieldset>
                 </div>
@@ -164,11 +55,7 @@
                 </h2>
                 <div class="govuk-form-group" id="id_last_assessed">
                     <fieldset class="govuk-fieldset" aria-describedby="govassure_year-hint">
-                        <legend class="govuk-fieldset__legend govuk-body">
-                            <h1 class="govuk-fieldset__heading">
-                                Has this system been assessed before 2025/26?
-                            </h1>
-                        </legend>
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Has this system been assessed before 2025/26?</legend>
                         <div id="govassure_year-hint" class="govuk-hint">
                             Select one option
                         </div>
@@ -184,7 +71,85 @@
                                            for="govassure_year_{{ forloop.counter }}">
                                         {{ assessed_period.1 }}
                                     </label>
+
                                 </div>
+                                {% if forloop.revcounter == 2 %}<div class="govuk-radios__divider">or</div>{% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h2 class="govuk-heading-m">
+                    System owner
+                </h2>
+                <div class="govuk-form-group" id="id_system_owner">
+                    <fieldset class="govuk-fieldset" aria-describedby="system_owner-hint">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Who owns this system?</legend>
+                        <div id="system_owner-hint" class="govuk-hint">
+                            Select one option
+                        </div>
+                        <div class="govuk-radios govuk-radios" data-module="govuk-radios">
+                            {% for owner in owner_types %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="system_owner_{{ forloop.counter }}"
+                                        name="system_owner" type="radio"
+                                        value="{{ owner.0 }}"
+                                        {% if owner.0 in form.system_owner.value %}checked{% endif %}
+                                        aria-describedby="system_owner-item-hint_{{ forloop.counter }}">
+                                    <label class="govuk-label govuk-radios__label" for="system_owner_{{ forloop.counter }}">
+                                        {{ owner.1 }}
+                                    </label>
+                                </div> {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h2 class="govuk-heading-m">
+                    System hosting and connectivity
+                </h2>
+                <div class="govuk-form-group" id="id_hosting_type">
+                    <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">How is the system hosted?</legend>
+                        <div id="hosting_type-hint" class="govuk-hint">
+                            Select one option
+                        </div>
+                        <div class="govuk-radios govuk-radios" data-module="govuk-radios">
+                            {% for hosting_type in hosting_types %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="hosting_type_{{ forloop.counter }}"
+                                           name="hosting_type"
+                                           type="radio" {% if hosting_type.0 in form.hosting_type.value %}checked{% endif %}
+                                           value="{{ hosting_type.0 }}">
+                                    <label class="govuk-label govuk-radios__label"
+                                           for="hosting_type_{{ forloop.counter }}">
+                                        {{ hosting_type.1 }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <h2 class="govuk-heading-m">
+                    Corporate services
+                </h2>
+                <div id="id_corporate_services" class="govuk-form-group">
+                    <fieldset class="govuk-fieldset" aria-describedby="corporate_services-hint">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What corporate or internal end-user services does this system provide?</legend>
+                        <div id="corporate_services-hint" class="govuk-hint">
+                            Select all that apply
+                        </div>
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                            {% for service in corporate_services %}
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="system_owner_{{ forloop.counter }}"
+                                           name="corporate_services"
+                                           type="checkbox"
+                                           {% if service.0 in form.corporate_services.value %}checked{% endif %}
+                                           value="{{ service.0 }}">
+                                    <label class="govuk-label govuk-checkboxes__label"
+                                           for="service{{ forloop.counter }}">
+                                        {{ service.1 }}
+                                    </label>
+                                </div>
+                            {% if forloop.revcounter == 2 %}<div class="govuk-radios__divider">or</div> {% endif %}
                             {% endfor %}
                         </div>
                     </fieldset>

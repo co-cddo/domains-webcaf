@@ -16,9 +16,10 @@
                 {% for hosting_type in form.hosting_type.value %}
                     <input type="hidden" name="hosting_type" value="{{ hosting_type }}">
                 {% endfor %}
-                <input type="hidden" name="internet_facing" value="{{ form.internet_facing.value }}">
                 <input type="hidden" name="last_assessed" value="{{ form.last_assessed.value }}">
-
+                {% for service in form.corporate_services.value %}
+                    <input type="hidden" name="corporate_services" value="{{ service }}">
+                {% endfor %}
                 <h1 class="govuk-heading-l">Check your system details</h1>
                 <div class="govuk-summary-card">
                     <div class="govuk-summary-card__title-wrapper">

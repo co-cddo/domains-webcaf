@@ -46,46 +46,51 @@ class Organisation(models.Model):
 
 
 class System(models.Model):
-    INTERNET_FACING = [("yes", "Yes"), ("no", "No")]
+    CORPORATE_SERVICES = [
+        ("email_and_communication", "Email and communication"),
+        ("office_productivity", "Office productivity"),
+        ("document_storage_and_management", "Document storage and management"),
+        ("hr", "HR"),
+        ("payroll", "Payroll"),
+        ("procurement_and_contract_management", "Procurement and contract management"),
+        ("customer_relationship_management", "Customer relationship management"),
+        ("help_desk_it_support", "Help desk / IT support"),
+        ("data_management_analytics", "Data management / analytics"),
+        ("other", "Other"),
+        ("none", "None of the above"),
+    ]
     SYSTEM_TYPES = [
         (
-            "directly_supports_organisation_mission",
-            """The system directly supports the organisation mission""",
+            "directly_delivers_public_services",
+            """It directly delivers public services""",
             """for example, Universal Credit""",
         ),
         (
             "supports_other_critical_systems",
-            """The system is a corporate or enterprise system or network that supports other critical systems""",
+            """It provides core infrastructure essential for other critical systems to function""",
             """for example, hosting platform or network, Active Directory""",
         ),
         (
             "is_critical_for_day_to_day_operations",
-            """The system is a corporate or enterprise system deemed critical for day-to-day operations""",
+            """It provides corporate services or functions required for day-to-day operations for example, payroll""",
             """for example, Microsoft Office 365, telephony, corporate website""",
-        ),
-        (
-            "hosted_externally_or_by_commercial_providers_or_other_departments",
-            """The system is hosted externally, including by commercial providers or other departments""",
-            """for example, shared services""",
         ),
     ]
     OWNER_TYPES = [
         ("owned_by_organisation_being_assessed", """The organisation being assessed"""),
         ("owned_by_another_government_organisation", """Another government organisation"""),
         ("owned_by_third_party_company", """Third-party company"""),
-        ("owned_by_other", """Other"""),
     ]
     HOSTING_TYPES = [
         ("hosted_on_premises", "On premises"),
         ("hosted_on_cloud", "Cloud hosted"),
         ("hosted_hybrid", "Hybrid"),
-        ("hosted_by_third_party", "Commercially hosted by third-party"),
     ]
     ASSESSED_CHOICES = [
-        ("assessed_in_2324", "Yes, assessed in 2023/24"),
-        ("assessed_in_2425", "Yes, assessed in 2024/25"),
-        ("assessed_in_2324_and_2425", "Yes, assessed in both 2023/24 and 2024/25"),
-        ("assessed_not_done", "No"),
+        ("assessed_in_2324", "Yes, in 2023/24"),
+        ("assessed_in_2425", "Yes, in 2024/25"),
+        ("assessed_in_2324_and_2425", "Yes, in both 2023/24 and 2024/25"),
+        ("assessed_not_done", "No, it has not been assessed before"),
     ]
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
@@ -94,9 +99,9 @@ class System(models.Model):
     )
     system_owner = MultiSelectField(choices=OWNER_TYPES, null=True, blank=True, max_length=255)
     hosting_type = MultiSelectField(choices=HOSTING_TYPES, null=True, blank=True, max_length=255)
-    internet_facing = models.CharField(choices=INTERNET_FACING, null=True, blank=True)
     last_assessed = models.CharField(choices=ASSESSED_CHOICES, max_length=255, null=True, blank=True)
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
+    corporate_services = MultiSelectField(choices=CORPORATE_SERVICES, null=True, blank=True, max_length=255)
 
     class Meta:
         unique_together = ["name", "organisation"]

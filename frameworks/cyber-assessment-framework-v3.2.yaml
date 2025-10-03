@@ -357,7 +357,7 @@ objectives:
                     a system or a change in the cyber security threat.
                   ncsc-index: A2.a.PA.5
                 A2.a.14:
-                  description: You perform threat analysis and understand how generic 
+                  description: You perform threat analysis and understand how generic
                     threats apply to your organisation.
                   ncsc-index: A2.a.PA.6
               achieved:
@@ -389,22 +389,22 @@ objectives:
                     with your organisational approach to security.
                   ncsc-index: A2.a.A.5
                 A2.a.20:
-                  description: Significant conclusions reached in the course of your risk 
-                    management process are communicated to key security decision-makers 
+                  description: Significant conclusions reached in the course of your risk
+                    management process are communicated to key security decision-makers
                     and accountable individuals.
                   ncsc-index: A2.a.A.6
                 A2.a.21:
-                  description: Your risk assessments are dynamic and updated in the light of 
-                    relevant changes which may include technical changes to network and 
+                  description: Your risk assessments are dynamic and updated in the light of
+                    relevant changes which may include technical changes to network and
                     information systems, change of use and new threat information.
                   ncsc-index: A2.a.A.7
                 A2.a.22:
-                  description: The effectiveness of your risk management process is reviewed 
+                  description: The effectiveness of your risk management process is reviewed
                     regularly, and improvements made as required.
                   ncsc-index: A2.a.A.8
                 A2.a.23:
-                  description: You perform detailed threat analysis and understand how this 
-                     applies to your organisation in the context of the threat to your sector 
+                  description: You perform detailed threat analysis and understand how this
+                     applies to your organisation in the context of the threat to your sector
                      and the wider CNI.
                   ncsc-index: A2.a.A.9
             assessment-rules: *standard-rules
