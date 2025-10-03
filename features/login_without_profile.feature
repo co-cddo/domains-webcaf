@@ -12,5 +12,5 @@ Feature: User login without a profile
     Then they should see page title "<page_title>"
     And page contains text "<page_text>" in banner
     Examples:
-      | user_name            | password | page_title         | page_text                                                                              |
-      | alice@example.gov.uk | password | My account - alice | You do not have a profile set up. Please create one by contacting your GovAssure lead. |
+      | user_name            | password | page_title                                                      | page_text                                                                              |
+      | alice@example.gov.uk | password | My account - alice - Complete a WebCAF self-assessment - GOV.UK | You do not have a profile set up. Please create one by contacting your GovAssure lead. |

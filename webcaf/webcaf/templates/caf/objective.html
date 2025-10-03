@@ -3,7 +3,7 @@
 {% load static %}
 {% load csp %}
 {% load form_extras %}
-{% block title %} {{ title }}{% endblock %}
+{% block title %} {{ title }} {{ block.super }}{% endblock %}
 
 
 {% block with_progress %}

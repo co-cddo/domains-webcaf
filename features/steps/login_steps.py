@@ -9,7 +9,7 @@ from features.util import get_model, run_async_orm
 @step("the application is running")
 def go_to_landing_page(context):
     context.page.goto(context.config.userdata["base_url"])
-    expect(context.page).to_have_title("Start page  - Submit a CAF self-assessment for a system")
+    expect(context.page).to_have_title("Start page  - Complete a WebCAF self-assessment - GOV.UK")
 
 
 @given("Think time {time} seconds")

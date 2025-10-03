@@ -2,7 +2,7 @@
 {% load govuk_frontend_django %}
 {% load static %}
 
-{% block title %}Manage System - {{ user.first_name }} {% endblock %}
+{% block title %}Manage System - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

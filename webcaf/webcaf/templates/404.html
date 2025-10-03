@@ -2,7 +2,7 @@
 {% load govuk_frontend_django %}
 {% load static %}
 
-{% block title %}Page not found{% endblock %}
+{% block title %}Page not found {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="govuk-grid-row">

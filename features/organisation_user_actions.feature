@@ -11,7 +11,7 @@ Feature: Organisation user filling assessments
 
   Scenario: Organisation user complete assessment process
     Given Think time 2 seconds
-    Then they should see page title "My account - alice"
+    Then they should see page title "My account - alice - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And page has heading "Your draft self-assessments"
     And click link in table row containing value "System 1" with text "View"

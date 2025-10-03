@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load form_extras %}
-{% block title %}Manage User - {{ user.first_name }} {% endblock %}
+{% block title %}Manage user - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

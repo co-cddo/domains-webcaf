@@ -11,7 +11,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead can can submit a completed assessment
     Given Think time 2 seconds
-    Then they should see page title "My account - other"
+    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
