@@ -16,7 +16,7 @@
                     <div class="govuk-notification-banner__content">
 
                         <p class="govuk-notification-banner__heading">
-                            You cannot start a new draft assessment, until your scoping document is signed off
+                            You cannot start a new draft self-assessment, until your scoping document is signed off
                              and your system has been added to WebCAF by a cyber adviser.
                         </p>
 
@@ -53,36 +53,36 @@
                 <form action="{% url 'create-draft-assessment' %}" method="GET">
                     {% csrf_token %}
                     <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                        Start a draft assessment
+                        Start a self-assessment
                     </button>
                 </form>
             {% endif %}
             {% if can_view_assessments %}
                 <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
-                    Continue a draft assessment
+                    Continue a self-assessment
                 </h3>
                 {% if not draft_systems %}
-                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any draft assessments.
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any self-assessments.
                     </p>
                 {% else %}
                     {% if completed_assessment_count > 0 %}
                         <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
                             You have {{ completed_assessment_count }} draft
-                            assessment{{ completed_assessment_count  | pluralize }} ready to
+                            self-assessment{{ completed_assessment_count  | pluralize }} ready to
                             send
                         </p>
                     {% endif %}
                     <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_systems| length }} draft assessment{{ draft_systems | length | pluralize }}
+                            View {{ draft_systems| length }} draft self-assessment{{ draft_systems | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
                 {% if can_view_submittted_assessments %}
                     <h3 class="govuk-heading-m">
-                        Assessments sent for review
+                        Self-assessments sent for review
                     </h3>
-                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit an assessment.
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit a self-assessment.
                 {% endif %}
             {% endif %}
         </div>

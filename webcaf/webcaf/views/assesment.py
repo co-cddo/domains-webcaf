@@ -134,7 +134,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
 
     def breadcrumbs(self, assessment_id: int):
-        return [{"url": "#", "text": "Edit draft assessment"}]
+        return [{"url": "#", "text": "Edit draft self-assessment"}]
 
 
 class AssessmentProfileForm(ModelForm):
@@ -234,7 +234,7 @@ class EditAssessmentProfileView(EditAssessmentView):
                         "assessment_id": assessment_id,
                     },
                 ),
-                "text": "Edit draft assessment",
+                "text": "Edit draft self-assessment",
             },
             {"url": "#", "text": "Choose Profile"},
         ]
@@ -273,7 +273,7 @@ class EditAssessmentSystemView(EditAssessmentView):
                         "assessment_id": assessment_id,
                     },
                 ),
-                "text": "Edit draft assessment",
+                "text": "Edit draft self-assessment",
             },
             {"url": "#", "text": "Choose System"},
         ]
@@ -509,7 +509,7 @@ class EditAssessmentReviewTypeView(EditAssessmentView):
                         "assessment_id": assessment_id,
                     },
                 ),
-                "text": "Edit draft assessment",
+                "text": "Edit draft self-assessment",
             },
             {"url": "#", "text": "Choose review type"},
         ]
