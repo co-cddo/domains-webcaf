@@ -5,7 +5,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
-from webcaf.webcaf.forms.general import NextActionForm, UserProfileForm
+from webcaf.webcaf.forms.general import NextActionForm
+from webcaf.webcaf.forms.user_profile import UserProfileForm
 from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
@@ -75,11 +76,23 @@ class UserProfileView(UserRoleCheckMixin, FormView):
             current_profile_id = self.request.session.get("current_profile_id")
             current_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
             return render(self.request, "users/user-confirm.html", {"form": form, "current_profile": current_profile})
+        # Remove the action field from the form. This is required to prevent
+        # the form to be taken through the confirmation screens only.
+        form.errors.pop("action", None)
         return super().form_invalid(form)
 
 
 class CreateUserProfileView(UserProfileView):
     def get_object(self):
+        """
+        Summary: This method retrieves the current object.
+
+        Detailed Description:
+
+        This method is designed to provide access to the current instance of an object.
+        It returns the object without any additional processing or modification.
+        """
+        # Always None as we are creating a new object
         return None
 
     def form_valid(self, form):
@@ -89,6 +102,7 @@ class CreateUserProfileView(UserProfileView):
             return super().form_invalid(form)
 
         user_email = form.cleaned_data["email"]
+        # This will create a new user if it doesn't exist.
         user, created = User.objects.get_or_create(
             email=user_email,
             defaults={"username": user_email},

@@ -9,7 +9,7 @@
             <ul class="govuk-list govuk-error-summary__list">
                 {% for field in form %}
                     {% for error in field.errors %}
-                        <li><a href="#id_{{ field.name|safe_id }}">{{ error }}</a></li>
+                        <li><a href="#id_{{ field.name|safe_id }}">{{ field.label }} : {{ error }}</a></li>
                     {% endfor %}
                 {% endfor %}
                 {% for error in form.non_field_errors %}
