@@ -1,5 +1,6 @@
 import re
-from typing import Any, Optional
+from collections import namedtuple
+from typing import Any, Literal, Optional
 
 from django import template
 from django.forms import Form
@@ -302,3 +303,68 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
     progress_dict["percentage"] = int((completed_outcomes / total_outcomes) * 100)
 
     return progress_dict
+
+
+OutcomeAnswers = namedtuple("OutcomeAnswers", ["answers", "confirm_comment", "total_questions"])
+Answer = namedtuple("Answer", ["idx", "answer", "comment", "indicator_txt"])
+QuestionCategory = namedtuple("QuestionCategory", ["category", "label"])
+
+
+@register.simple_tag
+def get_answers(
+    assessment: Assessment, outcome: dict[str, Any], category: Literal["achieved", "partially-achieved", "not-achieved"]
+) -> OutcomeAnswers:
+    """
+    Retrieve and process indicator answers for a given assessment outcome and category.
+
+    This function identifies and processes answers related to a specified category
+    ('achieved', 'partially-achieved', 'not-achieved') from the assessments data stored
+    in the given assessment. It filters relevant indicators, retrieves descriptions and
+    optional comments linked to those indicators, and computes the total number of
+    questions for the provided category.
+
+    :param assessment: The assessment object containing assessment data.
+    :type assessment: Assessment
+    :param outcome: A dictionary containing the assessment outcome details, including
+        outcome code and indicator information.
+    :type outcome: dict[str, Any]
+    :param category: The category of indicators to process, limited to 'achieved',
+        'partially-achieved', or 'not-achieved'.
+    :type category: Literal['achieved', 'partially-achieved', 'not-achieved']
+    :return: An OutcomeAnswers object containing the processed list of answers, the
+        outcome confirmation comment, and the total questions count for the category.
+    :rtype: OutcomeAnswers
+    """
+    indicators_ = assessment.assessments_data[outcome["code"]]["indicators"]
+    category_answers = [i for i in indicators_ if i.startswith(category) and not i.endswith("comment")]
+    ticked_answers = []
+    total_questions = 0
+    for idx, answer in enumerate(category_answers, start=1):
+        if indicators_[answer]:
+            indicator_txt = outcome["indicators"][category][answer.replace(f"{category}_", "")]["description"]
+            # We do indicators_.get(f"{answer}_comment","") as we do not have
+            # comments for not-achieved indicators
+            ticked_answers.append(Answer(idx, answer, indicators_.get(f"{answer}_comment", ""), indicator_txt))
+        total_questions += 1
+    return OutcomeAnswers(
+        ticked_answers,
+        assessment.assessments_data[outcome["code"]]["confirmation"]["confirm_outcome_confirm_comment"],
+        total_questions=total_questions,
+    )
+
+
+@register.simple_tag
+def get_question_categories() -> list[QuestionCategory]:
+    """
+    Generates a list of question categories as tuples containing a category identifier
+    and its corresponding human-readable name.
+
+    :return: A list of tuples representing question categories with their identifiers
+        and human-readable names.
+    :rtype: list[QuestionCategory]
+    """
+    return [
+        QuestionCategory("achieved", "Achieved"),
+        QuestionCategory("partially-achieved", "Partially achieved"),
+        QuestionCategory("not-achieved", "Not achieved"),
+    ]

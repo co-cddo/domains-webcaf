@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
@@ -42,8 +43,10 @@ class AccountView(LoginRequiredMixin, TemplateView):
             data["current_profile"] = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
             data["profile_count"] = self.request.session.get("profile_count", 1)
             data["system_count"] = System.objects.filter(organisation=data["current_profile"].organisation).count()
-            data["draft_systems"] = list(
-                Assessment.objects.filter(system__organisation=data["current_profile"].organisation, status="draft")
+            all_assessments = list(
+                Assessment.objects.filter(
+                    system__organisation=data["current_profile"].organisation, status__in=["draft", "submitted"]
+                )
                 .only(
                     "id",
                     "system__name",
@@ -57,14 +60,15 @@ class AccountView(LoginRequiredMixin, TemplateView):
                 )
                 .all()
             )
+            data["draft_assessments"] = [assessment for assessment in all_assessments if assessment.status == "draft"]
+            data["submitted_assessments"] = [
+                assessment for assessment in all_assessments if assessment.status == "submitted"
+            ]
             data["completed_assessment_count"] = sum(
-                1 for draft_assessment in data["draft_systems"] if draft_assessment.is_complete()
+                1 for draft_assessment in data["draft_assessments"] if draft_assessment.is_complete()
             )
+            data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
 
-            # Make swap the id to the label names
-            profiles = dict(Assessment.PROFILE_CHOICES)
-            for item in data["draft_systems"]:
-                item.caf_profile = profiles.get(item.caf_profile)
         return data
 
     def get(self, request, *args, **kwargs):
@@ -83,7 +87,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-class AccountViewAssessmentsView(AccountView):
+class ViewDraftAssessmentsView(AccountView):
     """
     Represents a view for displaying draft assessments in the user's account.
 

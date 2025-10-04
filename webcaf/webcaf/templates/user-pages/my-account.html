@@ -61,7 +61,7 @@
                 <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
                     Continue a self-assessment
                 </h3>
-                {% if not draft_systems %}
+                {% if not draft_assessments %}
                     <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any self-assessments.
                     </p>
                 {% else %}
@@ -72,9 +72,9 @@
                             send
                         </p>
                     {% endif %}
-                    <p class="govuk-body" title="View {{ draft_systems| length }} draft assessment(s)">
+                    <p class="govuk-body" title="View {{ draft_assessments| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_systems| length }} draft self-assessment{{ draft_systems | length | pluralize }}
+                            View {{ draft_assessments| length }} draft self-assessment{{ draft_assessments | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
@@ -83,6 +83,23 @@
                         Self-assessments sent for review
                     </h3>
                     <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You didn't submit a self-assessment.
+                {% endif %}
+                <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    Assessments sent for review
+                </h3>
+                {% if not submitted_assessments %}
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted assessments.
+                    </p>
+                {% else %}
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
+                        You have {{ submitted_assessments|length }} submitted
+                        assessment{{ submitted_assessments|length  | pluralize }} send for review.
+                    </p>
+                    <p class="govuk-body" title="View {{ submitted_assessments| length }} submitted assessment(s)">
+                        <a href="{% url 'view-submitted-assessments' %}" class="govuk-link govuk-link--no-visited-state">
+                            View assessments sent for review
+                        </a>
+                    </p>
                 {% endif %}
             {% endif %}
         </div>

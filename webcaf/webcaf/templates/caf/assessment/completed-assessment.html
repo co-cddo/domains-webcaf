@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load tz %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+{% block title %}View completed assessment - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form class="form" method="get"
+                  action="{% url 'download-submitted-assessment' assessment_id=assessment.id %}"
+                  target="_blank">
+                {% csrf_token %}
+                <span class="govuk-caption-l">{{ assessment.system.name }} ({{ assessment.reference }})
+                        </span>
+                <h1 class="govuk-heading-l">
+                    Self-assessment summary
+                </h1>
+                <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                        data-govuk-button-init="">
+                    Download as PDF
+                </button>
+
+                <div class="govuk-summary-card" id="top">
+                    <div class="govuk-summary-card__title-wrapper">
+                        <h2 class="govuk-summary-card__title">
+                            <span class="govuk-heading-m">About the self-assessment</span>
+                        </h2>
+                    </div>
+                    <div class="govuk-summary-card__content page-break-after">
+                        <dl class="govuk-summary-list govuk-summary-list">
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    Self-assessment status
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.get_status_display }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    Reference number
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.reference }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    Organisation name
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.system.organisation.name }}
+                                </dd>
+                            </div>
+
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    System details
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.system.name }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Government CAF profile
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.get_caf_profile_display }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Review type
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.get_review_type_display }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    CAF version
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ assessment.get_framework_display }}
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Sent for review by
+                                </dt>
+                                {% timezone "Europe/London" %}
+                                    <dd class="govuk-summary-list__value">
+                                        {{ first_submitted.1 }} <br/>
+                                        {{ first_submitted.0|date:"d M Y, P T" }}
+                                    </dd>
+                                {% endtimezone %}
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                {% for objective in objectives %}
+                    {% include "partials/objective-card.html" with objective_data=objective %}
+                {% endfor %}
+                <div class="app-back-to-top" data-module="app-back-to-top" data-app-back-to-top-init="">
+                    <a class="govuk-link govuk-link--no-visited-state app-back-to-top__link" href="#top">
+                        <svg role="presentation" focusable="false" class="app-back-to-top__icon govuk-!-padding-right-1"
+                             xmlns="http://www.w3.org/2000/svg" width="13" height="17" viewBox="0 0 13 17">
+                            <path fill="currentColor" d="M6.5 0L0 6.5 1.4 8l4-4v12.7h2V4l4.3 4L13 6.4z"></path>
+                        </svg>
+                        Back to top
+                    </a>
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                            data-govuk-button-init="">
+                        Download as PDF
+                    </button>
+                    <a class="govuk-link" href="{% url 'my-account' %}">Back to my account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
