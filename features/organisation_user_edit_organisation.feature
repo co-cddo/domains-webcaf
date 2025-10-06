@@ -19,7 +19,7 @@ Feature: Organisation user can edit an organisation's details
     And click link with text "Your organisation details"
     Then they should see a summary card with header "About the organisation" keys "Name, Type, Parent organisation" and values "Ministry of Agriculture, -, -"
     Then they should see a summary card with header "Additional contact information" keys "Name, Role, Email address" and values "None, None, None"
-    And click link in summary car row "Type" with text "Change"
+    And click link in summary card row "Type" with text "Change"
     And select radio with value "public-corporation"
     And click button with text "Continue"
     And enter text "Tess Tester" for id "contact_name"

@@ -3,6 +3,7 @@ import json
 import re
 from collections import defaultdict
 from pathlib import Path
+from time import sleep
 from typing import Literal, Optional
 
 from behave import step, then
@@ -41,6 +42,8 @@ def click_button_with_text(context: Context, text: str):
     :param context: The current context object containing the necessary data for the scenario.
     :return: None
     """
+    if "think_time" in context:
+        sleep(context.think_time)
     page = context.page
     page.get_by_role("button", name=text).click()
 
@@ -50,11 +53,13 @@ def click_link_with_text(context: Context, text: str):
     """
     :type context:Context
     """
+    if "think_time" in context:
+        sleep(context.think_time)
     page = context.page
     page.get_by_role("link", name=text).click()
 
 
-@step('click link in summary car row "{key}" with text "{text}"')
+@step('click link in summary card row "{key}" with text "{text}"')
 def click_summary_card_link_with_text(context: Context, key: str, text: str):
     page = context.page
     row = page.locator(".govuk-summary-list__row", has_text=key)
