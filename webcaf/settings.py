@@ -62,10 +62,12 @@ INSTALLED_APPS = [
     "csp",
     "mozilla_django_oidc",
     "simple_history",
+    "axes",
 ]
 
 AUTHENTICATION_BACKENDS = (
     "webcaf.auth.OIDCBackend",
+    "axes.backends.AxesStandaloneBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
 
@@ -77,6 +79,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "axes.middleware.AxesMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
@@ -278,6 +281,15 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('DOMAIN_NAME', 'localhost')}"]
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
+
+# Admin site login attempt limit
+
+AXES_LOCKOUT_PARAMETERS = ["username"]
+
+# Optional: lockout time in hours
+AXES_COOLOFF_TIME = 1
+AXES_FAILURE_LIMIT = 5
+AXES_LOCKOUT_TEMPLATE = "429.html"
 
 
 SENTRY_DSN = env.str("SENTRY_DSN", default=None)
