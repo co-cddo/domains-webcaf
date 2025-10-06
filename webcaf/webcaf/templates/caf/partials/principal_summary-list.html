@@ -15,7 +15,7 @@
                     <dd class="govuk-summary-list__value govuk-!-width-one-third">
                         {% get_tag_for_status outcome_details.override_status|default:outcome_details.outcome_status as tag_colour %}
                         <strong class="govuk-tag  govuk-tag--{{ tag_colour }}">{{ outcome_details.override_status|default:outcome_details.outcome_status }}</strong>
-                        {% indicator_min_profile_requirement_met assessment principal.code outcome.code outcome_details.override_status|default:outcome_details.outcome_status as profile_met %}
+                        {% indicator_min_profile_requirement_met assessment principal.code outcome.code outcome_details.outcome_status as profile_met %}
                         {% if profile_met == 'Not met' %}
                             <br>
                             <br>
