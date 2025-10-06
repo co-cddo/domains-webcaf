@@ -44,6 +44,7 @@ if SECRET_KEY == "not_set" and not DEBUG:  # pragma: allowlist secret
 
 APPEND_SLASH = True
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+ENVIRONMENT = env.str("ENVIRONMENT", default=None)
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -277,3 +278,32 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('DOMAIN_NAME', 'localhost')}"]
     # CSRF_FAILURE_VIEW = "webcaf.request.views.csrf_failure_view"
     SESSION_COOKIE_SECURE = True
+
+
+SENTRY_DSN = env.str("SENTRY_DSN", default=None)
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.types import SamplingContext
+
+    def traces_sampler(sampling_context: SamplingContext) -> float:
+        """
+        Sets up custom sampling rate for specific scenarios.
+
+        :param: sampling_context: Internal interface from Sentry for sampling callback
+        :return: sampling rate
+        """
+        # Disable health Check trace sampling
+        if (
+            sampling_context["transaction_context"]["name"] == "generic WSGI request"
+            and sampling_context["wsgi_environ"]["HTTP_USER_AGENT"] == "ELB-HealthChecker/2.0"
+        ):
+            return 0.0
+        else:
+            # Any other trace sampling rate - prod: 100%, non-prod: 20%
+            return 0.2 if ENVIRONMENT != "prod" else 1.0
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=ENVIRONMENT,
+        traces_sampler=traces_sampler,
+    )

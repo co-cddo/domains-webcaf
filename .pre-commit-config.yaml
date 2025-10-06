@@ -58,3 +58,4 @@ repos:
           - openpyxl
           - python-dotenv
           - django-simple-history
+          - 'sentry-sdk[django]'
