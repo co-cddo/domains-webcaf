@@ -87,3 +87,116 @@ span.govuk-header__logotype-text {
     transition: width 0.5s ease-out;
     border-right: 3px solid #e0e0e0;
 }
+
+/*Style for assessment summary*/
+.assessment_summary_row {
+    margin-top: 5% !important;
+    margin-bottom: 5% !important;
+}
+
+.page-break-before {
+    page-break-before: always;
+}
+
+/* Force a page break after an element */
+.page-break-after {
+    page-break-after: always;
+}
+
+/* Avoid breaking inside an element */
+.avoid-break {
+    page-break-inside: avoid;
+}
+
+.app-back-to-top {
+    padding-bottom: 5% !important;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 65% 35% !important;
+    gap: 0;
+}
+
+.summary-grid__cell {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #b1b4b6;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Make the first column cells left-aligned */
+.summary-grid__cell:nth-child(2n+1) {
+    text-align: left;
+}
+
+/* Make the second column cells also align left (optional, GOV.UK often does this) */
+.summary-grid__cell:nth-child(2n) {
+    text-align: right;
+}
+
+/* Full-width rows spanning both columns */
+.summary-grid__cell--full {
+    text-align: left;
+    padding: 0.75rem 0;
+    border-bottom: none;
+    font-size: 16px;
+    grid-column: 1 / -1;
+}
+
+.summary-grid__cell--full--with-border {
+    text-align: left;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #b1b4b6;
+    font-size: 16px;
+    grid-column: 1 / -1;
+}
+
+@media print {
+    /*Elements to hide when printing*/
+    .no_print,
+    form input,
+    form textarea,
+    form select,
+    form button,
+    breadcrumbs,
+    a,
+    .cookie-banner,
+    header,
+    footer {
+        display: none;
+        visibility: hidden;
+    }
+
+    .summary-grid {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .summary-grid__cell {
+        display: table-cell;
+        width: auto;
+        padding: 4pt 0;
+        border: none; /* cleaner for paper */
+    }
+
+    .summary-grid__cell--full {
+        text-align: left;
+        display: table-row;
+        font-size: 16px;
+        padding: 4pt 0;
+    }
+
+    .summary-grid__cell--full--with-border {
+        text-align: left;
+        display: table-row;
+        font-size: 16px;
+        padding: 4pt 0;
+        border-bottom: 1px solid #b1b4b6;
+    }
+
+    .summary-container > .summary-grid:last-of-type {
+        margin-bottom: 5%;
+    }
+}

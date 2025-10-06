@@ -1,11 +1,11 @@
-from .account import AccountView, AccountViewAssessmentsView
-from .assesment import EditAssessmentReviewTypeView  # noqa
+from .account import AccountView, ViewDraftAssessmentsView
 from .assesment import (
     CreateAssessmentProfileView,
     CreateAssessmentReviewTypeView,
     CreateAssessmentSystemView,
     CreateAssessmentView,
     EditAssessmentProfileView,
+    EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
 )
@@ -16,6 +16,7 @@ from .organisation import (
     OrganisationContactView,
     OrganisationTypeView,
 )
+from .sections import ViewSubmittedAssessmentsView
 
 __all__ = [
     # Assessment views
@@ -26,17 +27,18 @@ __all__ = [
     "EditAssessmentView",
     "CreateAssessmentView",
     "CreateAssessmentReviewTypeView",
-    "EditAssessmentReviewTypeView"
+    "EditAssessmentReviewTypeView",
     # General views
     "logout_view",
     # Account views
     "Index",
     "AccountView",
-    "AccountViewAssessmentsView",
+    "ViewDraftAssessmentsView",
     # Organisation views
     "MyOrganisationView",
     "OrganisationContactView",
     "OrganisationTypeView",
     "ChangeActiveProfileView",
     # Workflow views
+    "ViewSubmittedAssessmentsView",
 ]

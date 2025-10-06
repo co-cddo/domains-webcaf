@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load tz %}
+{% load govuk_frontend_django %}
+{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                Your assessments sent for review
+            </h1>
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--m">View a sent assessment</caption>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">System name</th>
+                    <th scope="col" class="govuk-table__header">Sent on</th>
+                    <th scope="col" class="govuk-table__header">Action</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for submitted in submitted_assessments %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell" data-label="System name">
+                            {{ submitted.0.system.name }} ({{ submitted.0.reference }})
+                        </td>
+                        {% timezone "Europe/London" %}
+                            <td class="govuk-table__cell" data-label="Sent on">
+                                {{ submitted.1.0|date:"d M Y, P T" }}
+                            </td>
+                        {% endtimezone %}
+                        <td class="govuk-table__cell">
+                            <a href="{% url 'view-submitted-assessment' assessment_id=submitted.0.id %}"
+                               title="View submitted assessment with id {{ submitted.0.id }}">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}
