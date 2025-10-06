@@ -1,0 +1,95 @@
+{% load form_extras %}
+{% for principal in objective_data.principles.values %}
+    <div class="govuk-summary-card page-break-after">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+                <span class="govuk-heading-m">Objective {{ objective_data.code }}</span><span>Principle: {{ principal.code }} {{ principal.title }}</span>
+            </h2>
+        </div>
+        <div class="govuk-summary-card__content ">
+            {% for outcome in principal.outcomes.values %}
+                <span class="summary-container">
+                {% get_outcome_details assessment outcome.code as outcome_details %}
+                <div class="summary-grid">
+                    <div class="summary-grid__cell">
+                        <span class="govuk-heading-s">{{ outcome.code }} {{ outcome.title }}</span>
+                    </div>
+                    {% get_tag_for_status outcome_details.override_status|default:outcome_details.outcome_status as tag_colour %}
+                    <div class="summary-grid__cell">
+                        <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ outcome_details.outcome_status }}</strong>
+                        {% indicator_min_profile_requirement_met assessment principal.code outcome.code outcome_details.outcome_status as profile_met %}
+                        {% if profile_met == 'Not met' %}
+                            <br>
+                            <br>
+                            <p>
+                            <strong class="govuk-heading-s">{{ assessment.get_caf_profile_display }} profile</strong>
+                            </p>
+                            <p>
+                                <strong class="govuk-tag govuk-tag--grey govuk-!-margin-top-1">
+                                {{ profile_met }}
+                                </strong>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% get_question_categories as question_categories %}
+                    {% for question_category in question_categories %}
+                        {% get_answers assessment outcome question_category.category as outcome_answers %}
+                        {% if outcome_answers.answers %}
+                            {% for answer in outcome_answers.answers %}
+                                <div class="summary-grid">
+                                    <div class="summary-grid__cell">
+                                        <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statement {{ answer.idx }}:<br>
+                                            {{ answer.indicator_txt }}
+                                        </span>
+                                    </div>
+                                    <div class="summary-grid__cell">
+                                        <span class="govuk-body govuk-!-font-size-16">Selected</span>
+                                    </div>
+                                    {% if answer.comment %}
+                                        <div class="summary-grid__cell--full--with-border">
+                                            <div class="govuk-inset-text">
+                                            <span class="govuk-body govuk-!-font-size-16 ">
+                                                <strong>Alternative control for {{ question_category.label }} statement {{ answer.idx }}:<br></strong>
+                                                {{ answer.comment }}
+                                            </span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% if outcome_answers.total_questions %}
+                                <div class="summary-grid">
+                                <div class="summary-grid__cell">
+                                    <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></span>
+                                </div>
+                                <div class="summary-grid__cell">
+                                    <span class="govuk-body govuk-!-font-size-16">None Selected</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                        {#                        Only write the summary after the last element, which is not-achieved#}
+                        {% if outcome_answers.total_questions and  question_category.category == 'not-achieved' %}
+                            <div class="summary-grid outcome-summary">
+                            <div class="summary-grid__cell--full">
+                                    <span class="govuk-body govuk-!-font-size-16 key-full">Contributing outcome summary
+                                    </span>
+                                <br/>
+                                <span class="govuk-body govuk-!-font-size-16">
+                                    {{ outcome_answers.confirm_comment }}
+                                    It will be ignored since only the first encountered file is collected. If this
+                                    is
+                                    not what you want, make sure every static file has a unique path.
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endfor %}

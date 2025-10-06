@@ -21,7 +21,6 @@ from django.views.generic import TemplateView
 
 from webcaf.webcaf.views import (
     AccountView,
-    AccountViewAssessmentsView,
     ChangeActiveProfileView,
     CreateAssessmentProfileView,
     CreateAssessmentReviewTypeView,
@@ -35,11 +34,15 @@ from webcaf.webcaf.views import (
     MyOrganisationView,
     OrganisationContactView,
     OrganisationTypeView,
+    ViewDraftAssessmentsView,
+    ViewSubmittedAssessmentsView,
 )
 from webcaf.webcaf.views.general import logout_view
 from webcaf.webcaf.views.sections import (
+    DownloadSubmittedAssessmentPdf,
     SectionConfirmationView,
     ShowSubmissionConfirmationView,
+    ViewSubmittedAssessment,
 )
 from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
@@ -58,7 +61,7 @@ from webcaf.webcaf.views.user_profiles import (
 urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("my-account/", AccountView.as_view(), name="my-account"),
-    path("my-account/view-draft-assessments/", AccountViewAssessmentsView.as_view(), name="view-draft-assessments"),
+    path("my-account/view-draft-assessments/", ViewDraftAssessmentsView.as_view(), name="view-draft-assessments"),
     path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
     path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
     path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
@@ -96,6 +99,17 @@ urlpatterns = [
         name="edit-draft-assessment-choose-review-type",
     ),
     path("objective-confirmation/", SectionConfirmationView.as_view(), name="objective-confirmation"),
+    path("view-submitted-assessments/", ViewSubmittedAssessmentsView.as_view(), name="view-submitted-assessments"),
+    path(
+        "view-submitted-assessment/<int:assessment_id>",
+        ViewSubmittedAssessment.as_view(),
+        name="view-submitted-assessment",
+    ),
+    path(
+        "download-submitted-assessment/<int:assessment_id>",
+        DownloadSubmittedAssessmentPdf.as_view(),
+        name="download-submitted-assessment",
+    ),
     path(
         "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
     ),
