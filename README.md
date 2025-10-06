@@ -40,6 +40,7 @@ and to run the local server:
 ``` shell
 poetry run dotenv run ./manage.py runserver
 ```
+
 ### SSO settings
 We use the `SSO_MODE` environment variable to decide which SSO implementation should be used.
 - if set to `dex`, then the application will connect to the [DEX](https://dexidp.io/) instance deployed locally in the docker compose setup.
@@ -51,6 +52,14 @@ This will have two users configured:
  - Admin user called Tin, admin@example.gov.uk
 
 Both the users have the same password set to 'password'
+
+### Seed Data
+
+Once migrations have been run the following command will add an admin user ("admin", "password"), an organisation and two systems. If you have already logged in with either of the SSO users, the command will set up a UserProfile for each and attach it to the Organisation. If you have not logged in with one of the SSO users then as far as Django is concerned it does not exist and this step is skipped. See the terminal output for more information.
+
+```
+python manage.py add_seed_data
+```
 
 ### End-to-end testing
 
