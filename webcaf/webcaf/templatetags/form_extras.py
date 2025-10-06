@@ -6,7 +6,7 @@ from django import template
 from django.forms import Form
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, System
+from webcaf.webcaf.models import Assessment, System, UserProfile
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -368,3 +368,13 @@ def get_question_categories() -> list[QuestionCategory]:
         QuestionCategory("partially-achieved", "Partially achieved"),
         QuestionCategory("not-achieved", "Not achieved"),
     ]
+
+
+@register.filter()
+def get_role_display(role_key: str):
+    """
+    Convert the role key to a display name
+    :param role_key:
+    :return:
+    """
+    return UserProfile.get_role_label(role_key)
