@@ -4,9 +4,29 @@ from multiselectfield import MultiSelectField
 from simple_history.models import HistoricalRecords
 
 from webcaf.webcaf.abcs import FrameworkRouter
+from webcaf.webcaf.utils.references import generate_reference
 
 
-class Organisation(models.Model):
+class ReferenceGeneratorMixin:
+    """
+    Mixin to automatically generate a unique reference for models.
+    Requires a 'reference' field on the model.
+    """
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            model_name = self.__class__.__name__.lower()
+            if self.pk is None:
+                super().save(*args, **kwargs)
+                self.reference = generate_reference(self.pk, prime_set=model_name)
+                super().save(update_fields=["reference"])
+                return
+            else:
+                self.reference = generate_reference(self.pk, prime_set=model_name)
+        super().save(*args, **kwargs)
+
+
+class Organisation(ReferenceGeneratorMixin, models.Model):
     ORGANISATION_TYPE_CHOICES = sorted(
         [
             ("ad-hoc-advisory-group", "Ad-hoc advisory group"),
@@ -24,6 +44,7 @@ class Organisation(models.Model):
         ]
     ) + [("other", "Other")]
     name = models.CharField(max_length=255, unique=True)
+    reference = models.CharField(max_length=20, null=True, unique=True)
     organisation_type = models.CharField(
         max_length=255, null=True, blank=True, choices=ORGANISATION_TYPE_CHOICES, default=None
     )
@@ -45,7 +66,7 @@ class Organisation(models.Model):
         return None
 
 
-class System(models.Model):
+class System(ReferenceGeneratorMixin, models.Model):
     CORPORATE_SERVICES = [
         ("email_and_communication", "Email and communication"),
         ("office_productivity", "Office productivity"),
@@ -92,6 +113,7 @@ class System(models.Model):
         ("assessed_not_done", "No, it has not been assessed before"),
     ]
     name = models.CharField(max_length=255)
+    reference = models.CharField(max_length=20, null=True, unique=True)
     description = models.TextField(null=True, blank=True)
     system_type = models.CharField(
         choices=[(s_type[0], s_type[1]) for s_type in SYSTEM_TYPES], null=True, blank=True, max_length=255
@@ -106,7 +128,7 @@ class System(models.Model):
         unique_together = ["name", "organisation"]
 
 
-class Assessment(models.Model):
+class Assessment(ReferenceGeneratorMixin, models.Model):
     STATUS_CHOICES = [
         ("draft", "Draft"),
         ("submitted", "Submitted"),
@@ -136,7 +158,7 @@ class Assessment(models.Model):
     ]
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default="Draft")
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name="assessments")
-    reference = models.CharField(max_length=20, null=True, blank=True)
+    reference = models.CharField(max_length=20, null=True, unique=True)
     framework = models.CharField(max_length=255, choices=FRAMEWORK_CHOICES, default="caf32")
     caf_profile = models.CharField(
         max_length=255,
