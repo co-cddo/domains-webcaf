@@ -2,7 +2,7 @@
 {% load govuk_frontend_django %}
 {% load static %}
 
-{% block title %}Manage System - {{ user.first_name }} {% endblock %}
+{% block title %}Manage System - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -158,11 +158,11 @@
                     </fieldset>
                 </div>
                 <div class="govuk-button-group">
-                        <span class="govuk-body govuk-!-font-size-24">
-                            <button type="submit" class="govuk-button" data-module="govuk-button">
-                                Save and continue
-                            </button>
-                        </span>
+                    <span class="govuk-body govuk-!-font-size-24">
+                        <button type="submit" class="govuk-button" data-module="govuk-button">
+                            Save and continue
+                        </button>
+                    </span>
                 </div>
             </form>
         </div>

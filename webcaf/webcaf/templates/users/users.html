@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Manage Users - {{ user.first_name }} {% endblock %}
+{% block title %}Manage users - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">

@@ -2,7 +2,7 @@
 {% load govuk_frontend_django %}
 {% load static %}
 {% load form_extras %}
-{% block title %}Manage Organisation - {{ user.first_name }} {% endblock %}
+{% block title %}Manage Organisation - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -22,9 +22,7 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="cafprofile-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                            <h1 class="govuk-fieldset__heading">
-                                Choose a profile for this self-assessment
-                            </h1>
+                            Choose a profile for this self-assessment
                         </legend>
                         <div id="cafprofile-hint" class="govuk-hint">
                             Select one

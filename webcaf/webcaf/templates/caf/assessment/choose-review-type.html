@@ -3,7 +3,7 @@
 {% load csp %}
 {% load form_extras %}
 
-{% block title %}Choose review type for your self-assessment{% endblock %}
+{% block title %}Choose review type for your self-assessment {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -33,9 +33,7 @@
                     <div class="govuk-form-group">
                         <fieldset class="govuk-fieldset" aria-describedby="review-type-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                                <h1 class="govuk-fieldset__heading">
-                                    Describe the type of review
-                                </h1>
+                                Describe the type of review
                             </legend>
                             <div id="review-type-hint" class="govuk-hint">
                                 Select one
@@ -62,11 +60,11 @@
                         </strong>
                     </div>
                     <div class="govuk-button-group">
-                            <span class="govuk-body govuk-!-font-size-24">
-                                <button type="submit" class="govuk-button" data-module="govuk-button">
-                                    Save and continue
-                                </button>
-                            </span>
+                        <span class="govuk-body govuk-!-font-size-24">
+                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                                Save and continue
+                            </button>
+                        </span>
                     </div>
                 </form>
             </div>

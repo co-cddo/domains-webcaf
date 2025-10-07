@@ -4,7 +4,7 @@
 {% load csp %}
 {% load form_extras %}
 
-{% block title %}Complete the full assessment{% endblock %}
+{% block title %}Complete the full assessment {{ block.super }}{% endblock %}
 {% block content %}
     {% get_assessment request as assessment %}
     {% include 'partials/error_message.html' %}
@@ -17,9 +17,9 @@
             <p class="govuk-body">Based on your answers, you can review the status of individual outcomes below for each
                 principle. You can go back and change your answers.</p>
             {% for objective in objectives %}
-                <h1 class="govuk-heading-l">
+                <h2 class="govuk-heading-l">
                     Objective&nbsp;{{ objective.code }}&nbsp;-&nbsp;{{ objective.title }}
-                </h1>
+                </h2>
                 {% include "partials/principal_summary-list.html" with objective_data=objective %}
             {% endfor %}
             {% is_all_objectives_complete assessment.id as all_objectives_complete %}

@@ -2,24 +2,22 @@
 {% load govuk_frontend_django %}
 {% load static %}
 
-{% block title %}Problem with the service{% endblock %}
+{% block title %}Problem with the service {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
-        <p class="govuk-body">Try again later.</p>
-        <p class="govuk-body">We did not save your answers, you must answer them again. </p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">Sorry, there is a problem with the service</h1>
+            <p class="govuk-body">Try again later.</p>
+            <p class="govuk-body">We did not save your answers, you must answer them again. </p>
 
-        <p class="govuk-body">
-        Email <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code> if you need support with your WebCAF self-assessment. </p>
+            <p class="govuk-body">
+                Email <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code> if you need support with your WebCAF self-assessment.
+            </p>
 
-        <p class="govuk-body">
-          <a href="/" class="govuk-link--no-visited-state">You can go back to the service's home page</a>.
-        </p>
-
-
-
+            <p class="govuk-body">
+                <a href="/" class="govuk-link--no-visited-state">You can go back to the service's home page</a>.
+            </p>
+        </div>
     </div>
-  </div>
 {% endblock %}

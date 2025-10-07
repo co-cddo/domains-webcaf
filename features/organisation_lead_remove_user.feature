@@ -12,10 +12,10 @@
 
     Scenario: Organisation lead can remove user
         Given Think time 2 seconds
-        Then they should see page title "My account - other"
+        Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
         And check user is logged in against organisation "Ministry of Agriculture"
         When click link with text "Manage users"
-        Then they should see page title "Manage Users - other"
+        Then they should see page title "Manage users - other - Complete a WebCAF self-assessment - GOV.UK"
         Then they should see a table including value "alice@example.gov.uk"
         And link with text "Change"
         And link with text "Remove"

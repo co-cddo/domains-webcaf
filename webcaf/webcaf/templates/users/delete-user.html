@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Manage User - {{ user.first_name }} {% endblock %}
+{% block title %}Manage user - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <form action="" method="post">
         {% csrf_token %}
@@ -9,10 +9,8 @@
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset" aria-describedby="removeUser-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                            <h1 class="govuk-fieldset__heading">
-                                Do you want to
-                                remove {{ user_profile_to_delete.user.first_name }} {{ user_profile_to_delete.user.last_name }}?
-                            </h1>
+                            Do you want to
+                            remove {{ user_profile_to_delete.user.first_name }} {{ user_profile_to_delete.user.last_name }}?
                         </legend>
                         <div id="removeUser-hint" class="govuk-hint">
                         </div>

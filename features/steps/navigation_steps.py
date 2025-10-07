@@ -338,10 +338,10 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
 def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment: str):
     page = context.page
     # We are on the confirmation page now
-    heading_element = page.locator("h3").filter(has_text=f"{context.outcome_text} Outcome")
+    heading_element = page.locator("h1").filter(has_text=f"{context.outcome_text} Outcome")
     assert heading_element.is_visible(), f"Heading {context.outcome_text} not found on page"
 
-    status_element = page.locator("h1").filter(has_text=f"Status: {outcome_status}")
+    status_element = page.locator("h2").filter(has_text=f"Status: {outcome_status}")
     assert status_element.is_visible(), f"Status {outcome_status} not found on page"
 
     # Load all radio on the page

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Manage Systems - {{ user.first_name }} {% endblock %}
+{% block title %}Manage Systems - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -16,24 +16,24 @@
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                {% for system in systems %}
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">
-                            <span class="govuk-body">
-                                <a class="govuk-link" href="{% url 'edit-system' system_id=system.id %}"> {{ system.name }} </a>
-                            </span>
-                        </th>
-                        <td class="govuk-table__cell">
-                            {% if system.assessments.all|length == 0 %}
-                                No self-assessment started
-                            {% else %}
-                                {% with system.assessments.all|slice:"-1:" as last_item %}
-                                    {{ last_item.0.status|capfirst }}
-                                {% endwith %}
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+                    {% for system in systems %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">
+                                <span class="govuk-body">
+                                    <a href="{% url 'edit-system' system_id=system.id %}"> {{ system.name }} </a>
+                                </span>
+                            </th>
+                            <td class="govuk-table__cell">
+                                {% if system.assessments.all|length == 0 %}
+                                    No self-assessment started
+                                {% else %}
+                                    {% with system.assessments.all|slice:"-1:" as last_item %}
+                                        {{ last_item.0.status|capfirst }}
+                                    {% endwith %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
             <form class="form" action="{% url 'create-or-skip-new-system' %}" method="POST">
