@@ -22,18 +22,19 @@ class SystemForm(ModelForm):
         model = System
         fields = [
             "name",
-            "system_owner",
             "system_type",
-            "hosting_type",
             "last_assessed",
+            "system_owner",
+            "hosting_type",
             "corporate_services",
         ]
+
         labels = {
             "name": "System name",
-            "system_type": "System type",
+            "system_type": "System description",
+            "last_assessed": "Previous GovAssure self-assessments",
             "system_owner": "System ownership",
             "hosting_type": "Hosting and connectivity",
-            "last_assessed": "GovAssure year",
             "corporate_services": "Corporate services",
         }
 
@@ -77,6 +78,9 @@ class SystemView(UserRoleCheckMixin, SystemContextDataMixin, FormView):
     def form_valid(self, form):
         current_profile_id = self.request.session.get("current_profile_id")
         current_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
+        if form.cleaned_data["action"] == "change":
+            return self.form_invalid(form)
+
         if System.objects.filter(organisation=current_profile.organisation, name=form.cleaned_data["name"]).exists():
             form.add_error("name", f"A system with this name {form.cleaned_data['name']} already exists.")
             return self.form_invalid(form)
