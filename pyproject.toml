@@ -39,7 +39,7 @@ pypdf = "^6.0.0"
 playwright = "^1.54.0"
 pytest = "^8.4.1"
 pytest-playwright = "^0.7.0"
-behave = "1.2.6"
+behave = "==1.2.6"
 ruamel-yaml = "^0.18.15"
 
 [tool.isort]
