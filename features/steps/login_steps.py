@@ -1,6 +1,7 @@
 from time import sleep
 
 from behave import given, step, then
+from django.db import connection
 from playwright.sync_api import Page, expect
 
 from features.util import get_model, run_async_orm
@@ -10,6 +11,12 @@ from features.util import get_model, run_async_orm
 def go_to_landing_page(context):
     context.page.goto(context.config.userdata["base_url"])
     expect(context.page).to_have_title("Start page  - Complete a WebCAF self-assessment - GOV.UK")
+
+
+@step("the user is on the admin login page")
+def go_to_admin_landing_page(context):
+    context.page.goto(context.config.userdata["base_url"] + "/admin/")
+    expect(context.page).to_have_title("Log in | Django site admin")
 
 
 @given("Think time {time} seconds")
@@ -23,6 +30,39 @@ def confirm_user_exists(context, user_name):
 
     print(f"Creating user {user_name}")
     user, _ = run_async_orm(User.objects.get_or_create, email=user_name, username=user_name)
+    print(f"user = {user} is in the system now")
+
+
+@step('no login attempt blocks for the user "{user_name}"')
+def clear_login_attempt_blocks(context, user_name):
+    def reset_user():
+        with connection.cursor() as cursor:
+            cursor.execute("delete from axes_accessattempt where username = %s", [user_name])
+            print(f"Deleted {cursor.rowcount} rows")
+            cursor.execute("delete from axes_accessfailurelog where username = %s", [user_name])
+            print(f"Deleted {cursor.rowcount} rows")
+
+    run_async_orm(reset_user)
+
+
+@given('the user "{user_name}" with the "{password}" exists in the backend')
+def confirm_backend_user_exists(context, user_name, password):
+    from django.contrib.auth.models import User
+
+    print(f"Creating user {user_name}")
+
+    def create_user():
+        the_user, _ = User.objects.get_or_create(
+            username=user_name,
+        )
+        the_user.set_password(password)
+        the_user.is_active = True
+        the_user.is_superuser = True
+        the_user.is_staff = True
+        the_user.save()
+        return the_user
+
+    user = run_async_orm(create_user)
     print(f"user = {user} is in the system now")
 
 
@@ -90,7 +130,8 @@ def user_logging_in(context, user_name, password):
 
 @then('they should see page title "{page_title}"')
 def check_page_title(context, page_title):
-    sleep(context.think_time)
+    if "think_time" in context:
+        sleep(context.think_time)
     page = context.page
     expect(page).to_have_title(page_title)
 

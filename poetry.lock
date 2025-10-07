@@ -711,6 +711,25 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-axes"
+version = "8.0.0"
+description = "Keep track of failed login attempts in Django-powered sites."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "django_axes-8.0.0-py3-none-any.whl", hash = "sha256:7ddc55f21b704b7e9b3e793a75deac01ff16cb67f561649b04336e1e96980035"},
+    {file = "django_axes-8.0.0.tar.gz", hash = "sha256:f95b6ae67fd77d44cc688818cef174914c4ad98c48daf65020b6f03f37220e45"},
+]
+
+[package.dependencies]
+asgiref = ">=3.6.0"
+django = ">=4.2"
+
+[package.extras]
+ipware = ["django-ipware (>=3)"]
+
+[[package]]
 name = "django-csp"
 version = "4.0"
 description = "Django Content Security Policy support."
@@ -2759,4 +2778,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "84ea01a54d6ecc268ffd872ba9e84d2b3eaac231394055ab41686330ed8be63c"
+content-hash = "af9945fb338afc2f45f991ac4414af81fb3e6fa98f272f5fedd600ad430f0c8d"
