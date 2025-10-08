@@ -165,6 +165,17 @@ def click_link_in_table_role_with_value(context: Context, link_text: str, value:
     row.get_by_role("link", name=link_text).click()
 
 
+@then('they should see an error message saying "{value}"')
+def error_message(context: Context, value: str):
+    """
+    Checks that an error summary is displayed
+    """
+    page = context.page
+    error_summary = page.locator(".govuk-error-summary")
+    expect(error_summary).to_be_visible()
+    expect(error_summary.all_text_contents().to_contain_text(value))
+
+
 @then('they should see a table including value "{value}"')
 def table_with_value(context: Context, value: str):
     """

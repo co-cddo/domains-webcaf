@@ -39,3 +39,12 @@ Feature: Organisation lead can edit an organisation's details
     And page has heading "You have chosen an enhanced CAF profile for this system"
     And click button with text "Continue"
     Then confirm initial assessment has system "System 1" caf profile "enhanced" and review type "independent"
+
+  Scenario: Org lead setup a draft assessment but doesn't indicate profile
+    Given Think time 1 seconds
+    And get assessment id from url and add to context
+    And click link with text "Provide system details"
+    And select select box with value "System 1"
+    And click button with text "Save and continue"
+    And click link with text "Choose your government CAF profile"
+    And click button with text "Save and continue"

@@ -43,7 +43,7 @@ poetry run dotenv run ./manage.py runserver
 ### SSO settings
 We use the `SSO_MODE` environment variable to decide which SSO implementation should be used.
 - if set to `dex`, then the application will connect to the [DEX](https://dexidp.io/) instance deployed locally in the docker compose setup.
-- set it to `local`if you want to the application to connect to a DEX instance running on the host machine (at `localhost:5556`)
+- set it to `local` if you want to the application to connect to a DEX instance running on the host machine (at `localhost:5556`)
 - otherwise it'll take from `OIDC_*` environment variables (see `settings.py`)
 
 This will have two users configured:
@@ -58,8 +58,8 @@ This service uses pytest-playwright to perform browser-based end-to-end tests. I
 follow the steps above to install poetry and run a local server, then in a terminal:
 
 ``` shell
-cd end-to-end-tests
-poetry run pytest # add "--headed" to see the browser window
+cd features
+poetry run behave # add "--headed" to see the browser window
 ```
 
 ### Deployment strategy
