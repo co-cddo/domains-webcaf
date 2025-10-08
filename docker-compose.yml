@@ -18,7 +18,7 @@ services:
     platform: linux/amd64
     <<: *api-base
     ports:
-      - "8010:8000"
+      - "8000:8000"
     #Added the reload flag so the application will be reloaded when the source is modified.
     entrypoint: [ "/usr/local/bin/gunicorn", "webcaf.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-", "--reload" ]
     environment:

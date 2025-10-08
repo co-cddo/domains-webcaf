@@ -265,7 +265,7 @@ else:
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
     OIDC_OP_LOGOUT_ENDPOINT = "http://localhost:5556/auth/logout"
-    LOGOUT_REDIRECT_URL = "http://localhost:8010/"
+    LOGOUT_REDIRECT_URL = "http://localhost:8000/"
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")

@@ -104,7 +104,7 @@ jobs:
         env:
           SECRET_KEY: unused
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
-          DOMAIN_NAME: http://localhost:8010
+          DOMAIN_NAME: http://localhost:8000
           SSO_MODE: localhost
         run: |
           poetry run ./manage.py collectstatic --noinput
@@ -138,12 +138,12 @@ jobs:
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
           SSO_MODE: localhost
         run: |
-          echo "Starting the server on port 8010..."
-          poetry run python manage.py runserver 0.0.0.0:8010 &
+          echo "Starting the server on port 8000..."
+          poetry run python manage.py runserver 0.0.0.0:8000 &
 
           echo "Waiting for server to be ready..."
           for i in {1..20}; do
-            if curl -s http://localhost:8010/ > /dev/null; then
+            if curl -s http://localhost:8000/ > /dev/null; then
               echo "Server is up!"
               break
             fi

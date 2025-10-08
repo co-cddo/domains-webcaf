@@ -48,7 +48,7 @@ jobs:
         env:
           SECRET_KEY: blah
           DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
-          DOMAIN_NAME: http://localhost:8010
+          DOMAIN_NAME: http://localhost:8000
           SSO_MODE: localhost
         run: |
           poetry run ./manage.py collectstatic --noinput
@@ -85,4 +85,4 @@ jobs:
           ENVIRONMENT: 'local'
           SSO_MODE: localhost
         run: |
-          SECRET_KEY=unneeded DOMAIN_NAME=http://localhost:8010 poetry run python manage.py test -v 2
+          SECRET_KEY=unneeded DOMAIN_NAME=http://localhost:8000 poetry run python manage.py test -v 2
