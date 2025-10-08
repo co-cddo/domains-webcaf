@@ -9,7 +9,7 @@ Feature: Organisation user can edit an organisation's details
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
   Scenario: Organisation user can login and has correct paths available for role in my account page
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And check user is logged in against organisation "Ministry of Agriculture"
     And link with text "Guidance"

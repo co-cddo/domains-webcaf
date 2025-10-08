@@ -58,31 +58,45 @@ jobs:
       - name: Install Playwright system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-          libgtk-4-1 \
-          libgraphene-1.0-0 \
-          libwoff1 \
-          libvpx9 \
-          libevent-2.1-7 \
-          libopus0 \
+          sudo apt-get install -y --no-install-recommends \
+          ca-certificates \
+          fonts-liberation \
+          libasound2t64 \
+          libatk-bridge2.0-0 \
+          libatk1.0-0 \
+          libcups2 \
+          libdbus-1-3 \
+          libdrm2 \
+          libgbm1 \
+          libglib2.0-0 \
+          libnspr4 \
+          libnss3 \
+          libx11-6 \
+          libx11-xcb1 \
+          libxcomposite1 \
+          libxdamage1 \
+          libxext6 \
+          libxfixes3 \
+          libxrandr2 \
+          libxshmfence1 \
+          libxkbcommon0 \
+          libpango-1.0-0 \
+          libcairo2 \
+          libgdk-pixbuf-2.0-0 \
+          libgtk-3-0 \
           gstreamer1.0-libav \
           gstreamer1.0-plugins-base \
           gstreamer1.0-plugins-good \
           gstreamer1.0-plugins-bad \
           gstreamer1.0-plugins-ugly \
-          gstreamer1.0-gl \
-          gstreamer1.0-gtk3 \
           gstreamer1.0-pulseaudio \
-          gstreamer1.0-tools \
-          gstreamer1.0-x \
-          libflite1 \
-          libavif16 \
-          libharfbuzz-icu0 \
           libsecret-1-0 \
-          libhyphen0 \
           libmanette-0.2-0 \
+          libharfbuzz-icu0 \
+          libavif16 \
+          libhyphen0 \
           mesa-utils \
-          libx264-dev
+          && sudo rm -rf /var/lib/apt/lists/*
       - name: Install Playwright browsers
         run: poetry run playwright install
 
@@ -139,3 +153,15 @@ jobs:
 
           echo "=================== Running tests ==================="
           SSO_MODE=localhost DATABASE_URL=postgresql://webcaf:webcaf@localhost:5432/webcaf poetry run behave
+      - name: Show test output
+        if: failure()
+        run: |
+          ls -la
+          cat /home/runner/work/domains-webcaf/domains-webcaf/artifacts/*.html
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-logs
+          path: |
+            /home/runner/work/domains-webcaf/domains-webcaf/artifacts/

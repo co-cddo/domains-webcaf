@@ -9,7 +9,7 @@ Feature: User login with a profile
 
   Scenario Outline: Valid user logs in <user_name>
     Given the application is running
-    And Think time 5 seconds
+    And Think time 1 seconds
     When the user logs in with username  "<user_name>" and password "<password>"
     Then they should see page title "<page_title>"
     And page contains text "<page_text>" in banner

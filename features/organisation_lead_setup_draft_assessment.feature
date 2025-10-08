@@ -20,12 +20,12 @@ Feature: Organisation lead can edit an organisation's details
 
 
   Scenario: Org lead setup a draft assessment with basic profile
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     And get assessment id from url and add to context
     Then confirm initial assessment has system "System 2" caf profile "baseline" and review type "peer_review"
 
   Scenario: Org lead setup a draft assessment with basic profile and then edit its values
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     And get assessment id from url and add to context
     And click link with text "Provide system details"
     And select select box with value "System 1"

@@ -10,7 +10,7 @@ Feature: Organisation lead can edit an organisation's details
 
 
     Scenario: Organisation lead can edit organisation
-        Given Think time 2 seconds
+        Given Think time 1 seconds
         Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
         And check user is logged in against organisation "Ministry of Agriculture"
         And a button with text "Start a self-assessment"

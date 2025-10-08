@@ -10,7 +10,7 @@ Feature: Organisation lead can submit assessment
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
   Scenario: Organisation lead can can submit a completed assessment
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
