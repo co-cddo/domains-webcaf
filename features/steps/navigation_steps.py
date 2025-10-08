@@ -275,7 +275,11 @@ def select_objective(context: Context, objective_text: str):
     :type context: behave.runner.Context
     """
     page = context.page
+    # Confirm we are on the edit page
+    page.goto(f"{context.config.userdata.get('base_url')}edit-draft-assessment/{context.current_assessment_id}/")
+    page.wait_for_load_state("load")
     objective_links = page.locator("a").filter(has_text=re.compile("Objective"))
+    objective_links.last.wait_for(state="visible")
     for i in range(objective_links.count()):
         text = objective_links.nth(i).inner_text()
         if objective_text.strip() == text.strip():
@@ -293,6 +297,7 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
     page = context.page
     # Navigate to the section
     divs = page.locator("div.govuk-summary-list__row")
+    divs.last.wait_for(state="visible")
     div = None
     div = find_div_with_text(div, divs, outcome_text, "dt")
 
@@ -313,6 +318,7 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
         zip([s.strip() for s in section_keys.split(",")], [s.strip() for s in section_values.split(",")])
     )
     checkboxes = page.locator("input[class='govuk-checkboxes__input']")
+    checkboxes.last.wait_for(state="visible")
     checkbox_elements_by_category = defaultdict(list)
     for i in range(checkboxes.count()):
         checkbox = checkboxes.nth(i)
@@ -347,11 +353,12 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
 def find_div_with_text(div: Any | None, divs, child_text: str, child_container: str) -> Any:
     for i in range(divs.count()):
         text = divs.nth(i).locator(child_container).inner_text()
+        print(f"Checking {text} with {child_text}")
         if child_text.strip() == replace_html_spaces(text):
             print("Found:", text)
             div = divs.nth(i)
             break
-    assert div is not None, f"No div found with text {child_text}"
+    assert div is not None, f"No div found with text {child_text} divs {divs.all_inner_texts()}"
     div.wait_for(state="visible")
     return div
 
@@ -372,6 +379,7 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
 
     # Load all radio on the page
     radios = page.locator("input[type='radio']")
+    radios.last.wait_for(state="visible")
     radio_checked = False
     for i in range(radios.count()):
         radio = radios.nth(i)

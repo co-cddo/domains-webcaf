@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 
 import django
+from behave.model_type import Status
 from django.db.models import F, Value
 from django.db.models.functions import Lower, Replace
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import Page, sync_playwright
 
 from features.util import ORM_EXECUTOR, run_async_orm
 
@@ -63,7 +65,27 @@ def before_scenario(context, scenario):
 
 
 def after_scenario(context, scenario):
-    pass
+    print(f"After Scenario: {scenario.status}")
+    if scenario.status == Status.failed:
+        parent_path = Path(__file__).parent.parent
+        print(f"Saving screenshot and HTML for failed scenario {parent_path} {scenario.name}")
+        os.makedirs(parent_path / "artifacts", exist_ok=True)  # Folder for all failure artifacts
+
+        if hasattr(context, "page") and isinstance(context.page, Page):
+            # Generate safe filename
+            safe_name = scenario.name.replace(" ", "_").replace("/", "_")
+
+            # Save screenshot
+            screenshot_path = f"artifacts/{safe_name}.png"
+            context.page.screenshot(path=screenshot_path, full_page=True)
+
+            # Save HTML
+            html_path = f"artifacts/{safe_name}.html"
+            with open(html_path, "w", encoding="utf-8") as f:
+                f.write(context.page.content())
+
+            print(f"📸 Screenshot saved: {screenshot_path}")
+            print(f"💾 HTML saved: {html_path}")
 
 
 def after_all(context):
