@@ -24,6 +24,8 @@ def before_all(context):
 def before_scenario(context, scenario):
     context.page.context.clear_cookies()
     context.page.context.clear_permissions()
+    if "think_time" in context:
+        delattr(context, "think_time")
 
     # Also clear storage for all origins
     context.page.context.add_cookies([])  # Wipe all cookies

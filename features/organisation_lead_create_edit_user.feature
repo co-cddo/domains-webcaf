@@ -9,7 +9,7 @@ Feature: Create and edit a new user for the organisation
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
   Scenario: Organisation lead can see option to create users and create an Organisation user and then edit
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And check user is logged in against organisation "Ministry of Agriculture"
     And a button with text "Start a self-assessment"
@@ -34,7 +34,7 @@ Feature: Create and edit a new user for the organisation
   Scenario: Organisation lead can edit user profile role
     Given the user "alice@example.gov.uk" exists
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And a button with text "Start a self-assessment"
     And link with text "Your organisation details"

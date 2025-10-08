@@ -11,7 +11,7 @@
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
     Scenario: Organisation lead can remove user
-        Given Think time 2 seconds
+        Given Think time 1 seconds
         Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
         And check user is logged in against organisation "Ministry of Agriculture"
         When click link with text "Manage users"

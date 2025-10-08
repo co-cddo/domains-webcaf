@@ -4,7 +4,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 from time import sleep
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from behave import step, then
 from behave.runner import Context
@@ -63,6 +63,7 @@ def click_link_with_text(context: Context, text: str):
 def click_summary_card_link_with_text(context: Context, key: str, text: str):
     page = context.page
     row = page.locator(".govuk-summary-list__row", has_text=key)
+    expect(row).to_be_visible()
     row.get_by_role("link", name=text).click()
 
 
@@ -126,6 +127,7 @@ def select_checkbox(context: Context, value: str):
 def select_select(context: Context, value: str):
     page = context.page
     selector = page.locator(".govuk-select")
+    expect(selector).to_be_visible()
     selector.select_option(value)
 
 
@@ -144,6 +146,7 @@ def summary_card_with_content(context: Context, header: str, keys: str, values: 
     rows = summary_card.locator(".govuk-summary-list__row").all()
     actual = {}
     for row in rows:
+        expect(row).to_be_visible()
         key = row.locator(".govuk-summary-list__key").inner_text()
         value = row.locator(".govuk-summary-list__value").inner_text()
 
@@ -158,6 +161,7 @@ def click_link_in_table_role_with_value(context: Context, link_text: str, value:
     """
     page = context.page
     row = page.locator("tr").filter(has_text=value)
+    expect(row).to_be_visible()
     row.get_by_role("link", name=link_text).click()
 
 
@@ -168,6 +172,7 @@ def table_with_value(context: Context, value: str):
     """
     page = context.page
     table = page.locator(".govuk-table")
+    expect(table).to_be_visible()
     value_cell = table.get_by_text(value)
     expect(value_cell).to_be_visible()
 
@@ -179,6 +184,7 @@ def table_without_value(context: Context, value: str):
     """
     page = context.page
     table = page.locator(".govuk-table")
+    expect(table).to_be_visible()
     value_cell = table.get_by_text(value)
     expect(value_cell).to_have_count(0)
 
@@ -260,7 +266,7 @@ def confirm_heading_on_page(context: Context, heading: str):
     """
     page = context.page
     heading_element = page.locator("h1").filter(has_text=heading)
-    assert heading_element.is_visible(), f"Heading {heading} not found on page"
+    expect(heading_element).to_be_visible()
 
 
 @then('navigate to "{objective_text}"')
@@ -269,7 +275,7 @@ def select_objective(context: Context, objective_text: str):
     :type context: behave.runner.Context
     """
     page = context.page
-    objective_links = page.locator("a").filter(has_text="Objective")
+    objective_links = page.locator("a").filter(has_text=re.compile("Objective"))
     for i in range(objective_links.count()):
         text = objective_links.nth(i).inner_text()
         if objective_text.strip() == text.strip():
@@ -286,10 +292,13 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
     """
     page = context.page
     # Navigate to the section
-    div = page.locator("div", has=page.locator("a", has_text=outcome_text))
+    divs = page.locator("div.govuk-summary-list__row")
+    div = None
+    div = find_div_with_text(div, divs, outcome_text, "dt")
 
     # Inside that div, find the <a> with "Add your answers"
     link = div.locator("a")
+    link.wait_for(state="visible")
     for i in range(link.count()):
         text = link.nth(i).inner_text()
         if "Add answers to" in text.strip() and re.sub(r"[^A-Za-z0-9]", "", outcome_text) in re.sub(
@@ -331,7 +340,24 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
             print(f"Not selecting any elements for {key} as {value} is set")
     context.outcome_text = outcome_text
     # Now submit the form
+    page.locator("button[type='submit']").wait_for(state="visible")
     page.locator("button[type='submit']").click()
+
+
+def find_div_with_text(div: Any | None, divs, child_text: str, child_container: str) -> Any:
+    for i in range(divs.count()):
+        text = divs.nth(i).locator(child_container).inner_text()
+        if child_text.strip() == replace_html_spaces(text):
+            print("Found:", text)
+            div = divs.nth(i)
+            break
+    assert div is not None, f"No div found with text {child_text}"
+    div.wait_for(state="visible")
+    return div
+
+
+def replace_html_spaces(text) -> str:
+    return text.replace("&nbsp;", " ").replace("\xa0", " ").strip()
 
 
 @step('Fill outcome confirm status "{outcome_status}" with "{outcome_comment}"')
@@ -339,10 +365,10 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
     page = context.page
     # We are on the confirmation page now
     heading_element = page.locator("h1").filter(has_text=f"{context.outcome_text} Outcome")
-    assert heading_element.is_visible(), f"Heading {context.outcome_text} not found on page"
+    heading_element.wait_for(state="visible")
 
     status_element = page.locator("h2").filter(has_text=f"Status: {outcome_status}")
-    assert status_element.is_visible(), f"Status {outcome_status} not found on page"
+    status_element.wait_for(state="visible")
 
     # Load all radio on the page
     radios = page.locator("input[type='radio']")
@@ -359,6 +385,7 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
 
     assert radio_checked, "No radio button found for confirming outcome"
     enter_text(context, outcome_comment, "id_confirm_outcome_confirm_comment")
+    page.locator("button[type='submit']").wait_for(state="visible")
     page.locator("button[type='submit']").click()
 
 

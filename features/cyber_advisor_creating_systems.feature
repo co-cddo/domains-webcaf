@@ -12,7 +12,7 @@ Feature: Cyber advisor can maintain systems
 
 
   Scenario: GDS cyber advisor can see option to create systems
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add new system"
@@ -25,9 +25,9 @@ Feature: Cyber advisor can maintain systems
     And link with text "System 3"
 
   Scenario: GDS cyber advisor can crete new System
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
-    And current organisation is set to "Ministry o:wf Agriculture"
+    And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add new system"
     And link with text "View systems"
     And link with text "Manage users"
@@ -54,7 +54,7 @@ Feature: Cyber advisor can maintain systems
 
 
   Scenario: GDS cyber advisor can update a System
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add new system"
@@ -80,7 +80,7 @@ Feature: Cyber advisor can maintain systems
     And System "does" exist with name "System 3" for organisation "Ministry of Agriculture"
 
   Scenario: GDS cyber advisor can crete new System, review summary card and change
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add new system"
@@ -113,7 +113,7 @@ Feature: Cyber advisor can maintain systems
     And System "does" exist with name "My system" for organisation "Ministry of Agriculture"
 
   Scenario: GDS cyber advisor can update and then change a System
-    Given Think time 2 seconds
+    Given Think time 1 seconds
     Then they should see page title "My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add new system"
