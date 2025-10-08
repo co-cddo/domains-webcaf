@@ -1,8 +1,14 @@
-FROM public.ecr.aws/docker/library/python:3.12
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 ARG POETRY_ARGS="--no-root --no-ansi --only main"
 
-RUN useradd -u 1000 webcaf
+RUN dnf -y install python3.12 python3.12-devel python3-pip shadow-utils
+RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 100
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
+
+RUN useradd -u 1000 -m webcaf
 
 RUN pip install poetry gunicorn
 
@@ -31,9 +37,6 @@ RUN SSO_MODE=none /app/manage.py collectstatic --no-input
 
 RUN mkdir /var/run/webcaf && \
     chown webcaf:webcaf /var/run/webcaf
-
-RUN mkdir /home/webcaf && \
-    chown webcaf:webcaf /home/webcaf
 
 USER webcaf
 
