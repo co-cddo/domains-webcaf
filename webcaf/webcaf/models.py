@@ -278,10 +278,17 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES)
 
     @classmethod
-    def get_role_id(cls, role_name):
+    def get_role_id(cls, role_name) -> str | None:
         for role in cls.ROLE_CHOICES:
             if role[1] == role_name:
                 return role[0]
+        return None
+
+    @classmethod
+    def get_role_label(cls, role_key) -> str | None:
+        for role in cls.ROLE_CHOICES:
+            if role[0] == role_key:
+                return role[1]
         return None
 
 

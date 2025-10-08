@@ -79,7 +79,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                     for choice in status_choices
                 ],
                 "required": True,
-                "label": "",
+                "label": "Confirm outcome",
             },
         ] + [
             # Add justification_text for the confirmation choice list

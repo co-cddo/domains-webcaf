@@ -26,7 +26,7 @@ Feature: Create and edit a new user for the organisation
     And select radio with value "organisation_user"
     And click button with text "Save and continue"
     Then they should see page title "Manage user - other - Complete a WebCAF self-assessment - GOV.UK"
-    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "The Tester, the.tester@example.gov.uk, organisation_user"
+    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "The Tester, the.tester@example.gov.uk, Organisation user"
     And a button with text "Change"
     And click button with text "Save and continue"
     Then User model with email "the.tester@example.gov.uk" should exist with "organisation_user" user role
@@ -50,7 +50,7 @@ Feature: Create and edit a new user for the organisation
     And select radio with value "organisation_lead"
     And click button with text "Save and continue"
     Then they should see page title "Manage user - other - Complete a WebCAF self-assessment - GOV.UK"
-    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "alice Tester, alice@example.gov.uk, organisation_lead"
+    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "alice Tester, alice@example.gov.uk, Organisation lead"
     And a button with text "Change"
     And click button with text "Save and continue"
     Then User model with email "alice@example.gov.uk" should exist with "organisation_lead" user role

@@ -48,7 +48,7 @@
                                     User role
                                 </dt>
                                 <dd class="govuk-summary-list__value">
-                                    {{ form.role.value }}
+                                    {{ form.role.value | get_role_display }}
                                 </dd>
                             </div>
                         </dl>
