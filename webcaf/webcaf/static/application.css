@@ -49,8 +49,8 @@ span.govuk-header__logotype-text {
 }
 
 .govspeak-code {
-    color:#d13118;
-    background-color:#f3f2f1;
+    color: #d13118;
+    background-color: #f3f2f1;
     padding: 0 5px;
     font-size: 16px;
 }
@@ -58,7 +58,7 @@ span.govuk-header__logotype-text {
 .progress-container {
     max-width: 899px;
     width: 100%;
-    background-color:#f5f5f5;
+    background-color: #f5f5f5;
     border-radius: 0;
     padding-top: 10px;
     padding-bottom: 25px;
@@ -152,6 +152,32 @@ span.govuk-header__logotype-text {
     grid-column: 1 / -1;
 }
 
+@media screen {
+    .govuk-watermark {
+        position: relative;
+        overflow: hidden; /* ensure watermark doesn’t leak outside */
+    }
+
+    /* background watermark layer */
+    .govuk-watermark::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeat url('images/govuk-watermark.svg');
+        background-size: 100%; /* scale watermark */
+        opacity: 0.05; /* 👈 control transparency here */
+        pointer-events: none; /* allow clicks through */
+        z-index: 0;
+    }
+
+    /* ensure actual content stays above */
+    .govuk-watermark > * {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+
 @media print {
     /*Elements to hide when printing*/
     .no_print,
@@ -199,4 +225,12 @@ span.govuk-header__logotype-text {
     .summary-container > .summary-grid:last-of-type {
         margin-bottom: 5%;
     }
+
+    .govuk-watermark {
+        background: url('images/govuk-watermark.svg') no-repeat center center;
+        background-size: 50%;
+        /*opacity: 0.1;          !* background transparency *!*/
+        /*z-index: 0;           !* behind content *!*/
+    }
+
 }

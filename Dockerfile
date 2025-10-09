@@ -3,6 +3,11 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 ARG POETRY_ARGS="--no-root --no-ansi --only main"
 
 RUN dnf -y install python3.12 python3.12-devel python3-pip shadow-utils
+
+# Libraries used for PDF generation
+RUN dnf -y install pango gcc gcc-c++ zlib-devel libjpeg-devel openjpeg2-devel libffi-devel
+
+
 RUN ln -s /usr/bin/python3.12 /usr/bin/python
 RUN python3.12 -m ensurepip
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
