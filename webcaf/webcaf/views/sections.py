@@ -1,8 +1,5 @@
 import logging
-import random
-import string
 from collections import namedtuple
-from datetime import datetime
 from typing import Any
 
 from django.forms import Form
@@ -50,20 +47,6 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         data["user_profile"] = SessionUtil.get_current_user_profile(self.request)
         return data
 
-    def generate_reference(self) -> str:
-        """
-        Generate application reference with the following format:
-        CAF + date in DDMMYYYY + random 4 letter alphabetical characters ( which don't have vowels and Y )
-        e.g. 'CAF12042024TRFT'
-
-        Returns:
-            str: application reference.
-        """
-
-        random_letters = [letter for letter in string.ascii_uppercase if letter not in "AEIOUY"]
-        random_string = "".join(random.choices(random_letters, k=4))
-        return ("CAF") + datetime.today().strftime("%d%m%Y") + random_string
-
     def form_valid(self, form):
         """
         Validates the submitted form and handles assessment processing.
@@ -88,7 +71,6 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         if assessment:
             if is_all_objectives_complete(assessment.id):
                 if assessment.status == "draft":
-                    assessment.reference = self.generate_reference()
                     assessment.last_updated_by = self.request.user
                     assessment.status = "submitted"
                     assessment.save()
