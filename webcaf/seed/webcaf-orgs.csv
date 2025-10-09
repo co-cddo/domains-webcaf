@@ -1,0 +1,100 @@
+organisation_name,organisation_type_description,old_organisation_name,old_organisation_id
+Attorney General's Office,Ministerial department,Attorney General's Office,41
+British Business Bank,Agency or other public body,British Business Bank,55
+British Library,Agency or other public body,British Library,60
+British Museum,Agency or other public body,British Museum,61
+Cabinet Office,Ministerial department,Cabinet Office,1
+Cafcass,Agency or other public body,Cafcass,70
+Civil Aviation Authority,Public corporation,Civil Aviation Authority,87
+Civil Nuclear Constabulary,High profile group,Civil Nuclear Constabulary,89
+Companies House,Agency or other public body,Companies House,172
+Competition and Markets Authority,Non-ministerial department,Competition and Markets Authority,175
+Crown Commercial Service,Agency or other public body,Crown Commercial Service,193
+Crown Prosecution Service,Non-ministerial department,Crown Prosecution Service,194
+Debt Management Office,Agency or other public body,Debt Management Office,719
+Department for Business and Trade,Ministerial department,Department for Business and Trade,208
+"Department for Culture, Media and Sport",Ministerial department,"Department for Culture, Media and Sport",211
+Department for Education,Ministerial department,Department for Education,212
+Department for Energy Security and Net Zero,Ministerial department,Department for Energy Security and Net Zero,213
+"Department for Environment, Food & Rural Affairs",Ministerial department,"Department for Environment, Food & Rural Affairs",214
+"Department for Science, Innovation and Technology",Ministerial department,"Department for Science, Innovation and Technology",218
+Department for Transport,Ministerial department,Department for Transport,220
+Department for Work and Pensions,Ministerial department,Department for Work and Pensions,221
+Department of Health and Social Care,Ministerial department,Department of Health and Social Care,226
+Driver and Vehicle Licensing Agency,Agency or other public body,Driver and Vehicle Licensing Agency,236
+Driver and Vehicle Standards Agency,Agency or other public body,Driver and Vehicle Standards Agency,237
+FCDO Services,Agency or other public body,FCDO Services,260
+Food Standards Agency,Non-ministerial department,Food Standards Agency,280
+"Foreign, Commonwealth & Development Office",Ministerial department,"Foreign, Commonwealth & Development Office",281
+Forestry Commission,Non-ministerial department,Forestry Commission,284
+Government Digital Service,High profile group,Government Digital Service,301
+Government Internal Audit Agency,Agency or other public body,Government Internal Audit Agency,307
+Government Legal Department,Non-ministerial department,Government Legal Department,309
+Government Property Agency,Agency or other public body,Government Property Agency,318
+HM Courts & Tribunals Service,Agency or other public body,HM Courts & Tribunals Service,339
+HM Land Registry,Non-ministerial department,HM Land Registry,345
+HM Revenue & Customs,Non-ministerial department,HM Revenue & Customs,350
+HM Treasury,Ministerial department,HM Treasury,351
+Health and Safety Executive,Agency or other public body,Health and Safety Executive,331
+Historic England,Agency or other public body,Historic England,337
+Home Office,Ministerial department,Home Office,352
+Homes England,Agency or other public body,Homes England,353
+Imperial War Museum,Agency or other public body,Imperial War Museum,362
+Information Commissioner's Office (ICO),Agency or other public body,Information Commissioner's Office (ICO),383
+Intellectual Property Office,Agency or other public body,Intellectual Property Office,390
+Judicial Appointments Commission,Agency or other public body,Judicial Appointments Commission,400
+Judicial Office,Agency or other public body,Judicial Office,401
+Maritime and Coastguard Agency,Agency or other public body,Maritime and Coastguard Agency,425
+Met Office,Agency or other public body,Met Office,430
+"Ministry of Housing, Communities and Local Government",Ministerial department,"Ministry of Housing, Communities and Local Government",217
+Ministry of Justice,Ministerial department,Ministry of Justice,435
+Money and Pensions Service,Agency or other public body,Money and Pensions Service,437
+Department of Finance (Northern Ireland),Devolved administration,"Northern Ireland Civil Service, NICS (DoF)",723
+Office for National Statistics,Agency or other public body,Office for National Statistics,505
+Office for Nuclear Regulation,Public corporation,Office for Nuclear Regulation,506
+Office of Rail and Road,Non-ministerial department,Office of Rail and Road,515
+Ofgem,Non-ministerial department,Ofgem,531
+Ofqual,Non-ministerial department,Ofqual,532
+Ofsted,Non-ministerial department,Ofsted,533
+Ordnance Survey,Public corporation,Ordnance Survey,537
+Planning Inspectorate,Agency or other public body,Planning Inspectorate,546
+Science Museum Group,Agency or other public body,Science Museum Group,597
+Serious Fraud Office,Non-ministerial department,Serious Fraud Office,608
+Student Loans Company,Agency or other public body,Student Loans Company,627
+Tate,Agency or other public body,Tate,631
+The Charity Commission,Non-ministerial department,The Charity Commission,639
+The Insolvency Service,Agency or other public body,The Insolvency Service,645
+The National Archives,Non-ministerial department,The National Archives,648
+The Pensions Regulator,Agency or other public body,The Pensions Regulator,654
+The Water Services Regulation Authority (Ofwat),Non-ministerial department,The Water Services Regulation Authority (Ofwat),661
+UK Export Finance,Ministerial department,UK Export Finance,676
+UK Research and Innovation,Agency or other public body,UK Research and Innovation,684
+UK Shared Business Services Ltd,Agency or other public body,UK Shared Business Services Ltd,685
+UK Space Agency,Agency or other public body,UK Space Agency,686
+Vehicle Certification Agency,Agency or other public body,Vehicle Certification Agency,699
+Youth Justice Board for England and Wales,Agency or other public body,Youth Justice Board for England and Wales,718
+Air,High profile group,[MOD] Air (Ministry of Defence),810
+Army,High profile group,[MOD] Army,812
+Atomic Weapons Establishment,Agency or other public body,[MOD] Atomic Weapons Establishment,40
+Defence Business Services,High profile group,[MOD] Defence Business Services,809
+Defence Electronics and Components Agency,Agency or other public body,[MOD] Defence Electronics and Components Agency,199
+Defence Equipment and Support,Agency or other public body,[MOD] Defence Equipment and Support,200
+Defence Infrastructure Organisation,High profile group,[MOD] Defence Infrastructure Organisation,201
+Defence Intelligence,High profile group,[MOD] Defence Intelligence,815
+Defence Science and Technology Laboratory,Agency or other public body,[MOD] Defence Science and Technology Laboratory,205
+Defence Support,High profile group,[MOD] Defence Support,814
+Head Office and Corporate Services,High profile group,[MOD] Head Office and Corporate Services,813
+Ministry of Defence,Ministerial department,[MOD] Ministry of Defence,434
+Ministry of Defence Police,High profile group,[MOD] Ministry of Defence Police,817
+Navy,High profile group,[MOD] Navy,811
+Permanent Joint Headquarters,High profile group,[MOD] Permanent Joint Headquarters,816
+The Oil and Pipelines Agency,Public corporation,[MOD] The Oil and Pipelines Agency,650
+UK Hydrographic Office,Agency or other public body,[MOD] UK Hydrographic Office,680
+Department for Communities (Northern Ireland),Devolved administration,[NI] Department for Communities,726
+Department of Justice (Northern Ireland),Devolved administration,[NI] Department of Justice,731
+Department for Infrastructure (Northern Ireland),Devolved administration,[NI] Department for Infrastructure,730
+Department for the Economy (Northern Ireland),Devolved administration,[NI] Department for the Economy,727
+"Department of Agriculture, Environment and Rural Affairs (Northern Ireland)",Devolved administration,"[NI] Department of Agriculture, Environment and Rural Affairs",725
+Department of Education (Northern Ireland),Devolved administration,[NI] Department of Education,728
+Department of Health (Northern Ireland),Devolved administration,[NI] Department of Health,729
+The Executive Office (Northern Ireland),Devolved administration,[NI] The Executive Office,732
