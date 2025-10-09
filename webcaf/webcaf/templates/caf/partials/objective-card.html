@@ -1,14 +1,15 @@
 {% load form_extras %}
 {% for principal in objective_data.principles.values %}
-    <div class="govuk-summary-card page-break-after">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">
-                <span class="govuk-heading-m">Objective {{ objective_data.code }}</span><span>Principle: {{ principal.code }} {{ principal.title }}</span>
-            </h2>
-        </div>
-        <div class="govuk-summary-card__content ">
-            {% for outcome in principal.outcomes.values %}
-                <span class="summary-container">
+    <div class="govuk-watermark">
+        <div class="govuk-summary-card page-break-after ">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">
+                    <span class="govuk-heading-m">Objective {{ objective_data.code }}</span><span>Principle: {{ principal.code }} {{ principal.title }}</span>
+                </h2>
+            </div>
+            <div class="govuk-summary-card__content ">
+                {% for outcome in principal.outcomes.values %}
+                    <span class="summary-container">
                 {% get_outcome_details assessment outcome.code as outcome_details %}
                 <div class="summary-grid">
                     <div class="summary-grid__cell">
@@ -33,11 +34,11 @@
                     </div>
                 </div>
                 {% get_question_categories as question_categories %}
-                    {% for question_category in question_categories %}
-                        {% get_answers assessment outcome question_category.category as outcome_answers %}
-                        {% if outcome_answers.answers %}
-                            {% for answer in outcome_answers.answers %}
-                                <div class="summary-grid">
+                        {% for question_category in question_categories %}
+                            {% get_answers assessment outcome question_category.category as outcome_answers %}
+                            {% if outcome_answers.answers %}
+                                {% for answer in outcome_answers.answers %}
+                                    <div class="summary-grid">
                                     <div class="summary-grid__cell">
                                         <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statement {{ answer.idx }}:<br>
                                             {{ answer.indicator_txt }}
@@ -46,8 +47,8 @@
                                     <div class="summary-grid__cell">
                                         <span class="govuk-body govuk-!-font-size-16">Selected</span>
                                     </div>
-                                    {% if answer.comment %}
-                                        <div class="summary-grid__cell--full--with-border">
+                                        {% if answer.comment %}
+                                            <div class="summary-grid__cell--full--with-border">
                                             <div class="govuk-inset-text">
                                             <span class="govuk-body govuk-!-font-size-16 ">
                                                 <strong>Alternative control for {{ question_category.label }} statement {{ answer.idx }}:<br></strong>
@@ -55,12 +56,12 @@
                                             </span>
                                             </div>
                                         </div>
-                                    {% endif %}
+                                        {% endif %}
                                 </div>
-                            {% endfor %}
-                        {% else %}
-                            {% if outcome_answers.total_questions %}
-                                <div class="summary-grid">
+                                {% endfor %}
+                            {% else %}
+                                {% if outcome_answers.total_questions %}
+                                    <div class="summary-grid">
                                 <div class="summary-grid__cell">
                                     <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></span>
                                 </div>
@@ -68,11 +69,11 @@
                                     <span class="govuk-body govuk-!-font-size-16">None Selected</span>
                                 </div>
                             </div>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        {#                        Only write the summary after the last element, which is not-achieved#}
-                        {% if outcome_answers.total_questions and  question_category.category == 'not-achieved' %}
-                            <div class="summary-grid outcome-summary">
+                            {#                        Only write the summary after the last element, which is not-achieved#}
+                            {% if outcome_answers.total_questions and  question_category.category == 'not-achieved' %}
+                                <div class="summary-grid outcome-summary">
                             <div class="summary-grid__cell--full">
                                     <span class="govuk-body govuk-!-font-size-16 key-full">Contributing outcome summary
                                     </span>
@@ -85,10 +86,11 @@
                                 </span>
                             </div>
                         </div>
-                        {% endif %}
-                    {% endfor %}
+                            {% endif %}
+                        {% endfor %}
                 </span>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 
