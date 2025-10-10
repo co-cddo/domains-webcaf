@@ -378,3 +378,13 @@ def get_role_display(role_key: str):
     :return:
     """
     return UserProfile.get_role_label(role_key)
+
+
+@register.filter()
+def format_with_breaks(text_chunk: str):
+    """
+    Break the text into lines with <br>
+    :param text_chunk:
+    :return:
+    """
+    return text_chunk.replace("\n", "<br/>")

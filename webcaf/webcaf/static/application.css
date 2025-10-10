@@ -152,31 +152,33 @@ span.govuk-header__logotype-text {
     grid-column: 1 / -1;
 }
 
-@media screen {
-    .govuk-watermark {
-        position: relative;
-        overflow: hidden; /* ensure watermark doesn’t leak outside */
-    }
-
-    /* background watermark layer */
-    .govuk-watermark::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: repeat url('images/govuk-watermark.svg');
-        background-size: 100%; /* scale watermark */
-        opacity: 0.05; /* 👈 control transparency here */
-        pointer-events: none; /* allow clicks through */
-        z-index: 0;
-    }
-
-    /* ensure actual content stays above */
-    .govuk-watermark > * {
-        position: relative;
-        z-index: 1;
-    }
+.warning-text-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    padding-bottom: 0;
 }
 
+.bottom-banner, #bottom-banner {
+    position: fixed !important; /* override GOV.UK positioning */
+    bottom: 0;
+    left: 0;
+    width: 100vw; /* ensure it spans the full viewport width */
+    background: #1d70b8; /* GOV.UK blue */
+    color: #fff;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 16px;
+    z-index: 10000; /* above footer */
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media screen {
+    .warning-text-container-printing {
+        display: none;
+        visibility: hidden;
+    }
+}
 
 @media print {
     /*Elements to hide when printing*/
@@ -226,11 +228,26 @@ span.govuk-header__logotype-text {
         margin-bottom: 5%;
     }
 
-    .govuk-watermark {
-        background: url('images/govuk-watermark.svg') no-repeat center center;
-        background-size: 50%;
-        /*opacity: 0.1;          !* background transparency *!*/
-        /*z-index: 0;           !* behind content *!*/
+    .warning-text-container-printing {
+        display: block;
+        visibility: visible;
+        justify-content: center;
+        margin-top: 1.5rem;
     }
-
+    .bottom-banner, #bottom-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #1d70b8; /* GOV.UK blue */
+        color: #fff;
+        border-top: 1px solid #000;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 12px;
+    }
+    /* Give space for the banner */
+    body, main, .govuk-main-wrapper {
+        padding-bottom: 60px !important; /* Adjust to match banner height */
+    }
 }

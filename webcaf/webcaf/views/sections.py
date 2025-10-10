@@ -233,7 +233,7 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         # Return as PDF response
         response = HttpResponse(pdf_file, content_type="application/pdf")
         assessment_ = context["assessment"]
-        response["Content-Disposition"] = f'inline; filename="{assessment_.reference}.pdf"'
+        response["Content-Disposition"] = f'inline; filename="UK-OFFICIAL-SENSITIVE-{assessment_.reference}.pdf"'
         return response
 
 
