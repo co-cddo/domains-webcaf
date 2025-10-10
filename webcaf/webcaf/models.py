@@ -102,7 +102,7 @@ class System(ReferenceGeneratorMixin, models.Model):
         ("owned_by_third_party_company", """Third-party company"""),
     ]
     HOSTING_TYPES = [
-        ("hosted_on_premises", "On premises"),
+        ("hosted_on_premises", "On-premises"),
         ("hosted_on_cloud", "Cloud hosted"),
         ("hosted_hybrid", "Hybrid"),
     ]
