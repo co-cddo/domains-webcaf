@@ -27,6 +27,11 @@
                     Confirm you agree with this status, or go back and change your response to the IGP statements.
                 </p>
             </div>
+            {% if form.errors.confirm_outcome %}
+                <p id="confirmation-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must confirm you agree with the status or change your response.
+                </p>
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
@@ -86,13 +91,17 @@
                                                 </p>
                                             </div>
                                         </details>
+                                        {% if form.errors.confirm_outcome_confirm_comment %}
+                                            <p id="confirmation-summary-error" class="govuk-error-message">
+                                            <span class="govuk-visually-hidden">Error:</span> You must provide a summary
+                                            </p>
+                                        {% endif %}
                                         <div id="{{ the_field_comment.auto_id|safe_id }}-{{ forloop.counter }}_outer"
                                              class="govuk-form-group govuk-character-count"
                                              data-module="govuk-character-count"
                                              data-maxwords={{ the_field_comment.field.widget.attrs.max_words }}>
                                             <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
                                                    for="{{ the_field_comment.auto_id|safe_id }}">
-                                                {{ the_field_comment.label }}
                                             </label>
                                             <!-- @formatter:off -->
                                             {# Disable formatting the text area as it introduces spaces if wrongly formatted#}

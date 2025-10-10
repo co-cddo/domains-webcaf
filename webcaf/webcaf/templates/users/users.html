@@ -4,6 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
+            {% include "partials/error_message.html" %}
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
                     has {{ current_profile.organisation.members.all |length|default:0 }} users
@@ -51,32 +52,30 @@
             </table>
             <form class="form" action="{% url 'create-or-skip-new-profile' %}" method="POST">
                 {% csrf_token %}
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if form.errors.add_new_user %}govuk-form-group--error{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="create_new_user-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                             Add another user?
                         </legend>
                         <div id="create_new_user-hint" class="govuk-hint">
                         </div>
+                        {% if form.errors.add_new_user %}
+                            <p id="add-new-user-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select yes or no
+                            </p>
+                        {% endif %}
                         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
-                             data-govuk-radios-init="">
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="create_new_user" name="action"
-                                       type="radio" value="confirm"
-                                       checked
-                                >
-                                <label class="govuk-label govuk-radios__label" for="create_new_user">
-                                    Yes
-                                </label>
-
-                            </div>
-                            <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="create_new_user-2" name="action"
-                                       type="radio" value="skip">
-                                <label class="govuk-label govuk-radios__label" for="create_new_user-2">
-                                    No
-                                </label>
-                            </div>
+                             data-govuk-radios-init="" id="id_add_new_user">
+                            {% for choice in form.fields.add_new_user.choices %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input"
+                                        id="add_new_user{{ forloop.counter }}"
+                                        value="{{ choice.0 }}"
+                                        name="add_new_user"
+                                        type="radio">
+                                    <label class="govuk-label govuk-radios__label" for="add_new_user{{ forloop.counter }}">{{choice.1}}</label>
+                                </div>
+                            {% endfor %}
                         </div>
                     </fieldset>
                 </div>

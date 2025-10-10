@@ -14,35 +14,55 @@
 
             <form class="form" method="post">
                 {% csrf_token %}
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="system_name">
+                <div class="govuk-form-group {% if form.errors.first_name %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label" for="first_name" id="id_first_name">
                         First name
                     </label>
+                    {% if form.errors.first_name %}
+                        <p id="user-first-name-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> You must add a first name
+                        </p>
+                    {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="first_name" name="first_name" type="text"
                            spellcheck="false"
                            value="{{ form.first_name.value|default:'' }}">
                 </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="last_name">
+                <div class="govuk-form-group {% if form.errors.last_name %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label" for="last_name" id="id_last_name" >
                         Last name
                     </label>
+                    {% if form.errors.last_name %}
+                        <p id="user-last-name-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> You must add a last name
+                        </p>
+                    {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="last_name" name="last_name" type="text"
                            spellcheck="false"
                            value="{{ form.last_name.value|default:'' }}">
                 </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="email">
+                <div class="govuk-form-group {% if form.errors.email %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label" for="email", id="id_email">
                         Email address
                     </label>
-                    <input class="govuk-input govuk-input--width-20" id="email" name="email" type="text"
+                    {% if form.errors.email %}
+                        <p id="user-email-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> You must add a valid email address
+                        </p>
+                    {% endif %}
+                    <input class="govuk-input govuk-input--width-20" id="email" name="email" type="email"
                            spellcheck="false"
                            value="{{ form.email.value|default:'' }}">
                 </div>
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if form.errors.role %}govuk-form-group--error{% endif %}">
                     <h3 class="govuk-heading-m">
                         Select a user role
                     </h3>
-                    <p class="govuk-hint">Select one that applies</p>
+                    <p class="govuk-hint" id="id_role">Select one that applies</p>
+                    {% if form.errors.role %}
+                        <p id="user-role-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> You must select a user role
+                        </p>
+                    {% endif %}
                     <div class="govuk-radios" data-module="govuk-radios">
                         <ul id="role" class="govuk-list">
                             {% for role in roles %}
