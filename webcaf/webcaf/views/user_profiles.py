@@ -1,9 +1,10 @@
 import logging
 
+from django import forms
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
@@ -12,9 +13,18 @@ from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
 
-class UserProfilesView(UserRoleCheckMixin, TemplateView):
+class AddNewUserForm(forms.Form):
+    """
+    Represents a form for selecting Yes or No.
+    """
+
+    add_new_user = forms.ChoiceField(choices=[("yes", "Yes"), ("no", "No")], required=True, label="Add another user")
+
+
+class UserProfilesView(UserRoleCheckMixin, FormView):
     template_name = "users/users.html"
     login_url = "/oidc/authenticate/"
+    form_class = AddNewUserForm
 
     def get_allowed_roles(self) -> list[str]:
         return ["cyber_advisor", "organisation_lead"]
@@ -116,26 +126,34 @@ class CreateUserProfileView(UserProfileView):
         return super().form_valid(form)
 
 
-class CreateOrSkipUserProfileView(UserRoleCheckMixin, FormView):
+class CreateOrSkipUserProfileView(UserProfilesView):
     """
     Utility action to decide to create a new user or go back to the
     home screen.
     """
 
-    form_class = NextActionForm
+    template_name = "users/users.html"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        user_profile = SessionUtil.get_current_user_profile(self.request)
+        data["current_profile"] = user_profile
+        return data
 
     def get_allowed_roles(self) -> list[str]:
         return ["cyber_advisor", "organisation_lead"]
 
-    def form_valid(self, form):
-        action = self.request.POST.get("action")
-        if action == "confirm":
-            return redirect(reverse("create-new-profile"))
+    def get_success_url(self):
+        if self.request.POST.get("add_new_user") == "yes":
+            return reverse("create-new-profile")
+        else:
+            return reverse("my-account")
 
-        return redirect(reverse("my-account"))
+    def form_valid(self, form):
+        return super().form_valid(form)
 
     def form_invalid(self, form):
-        return redirect(reverse("view-profiles"))
+        return super().form_invalid(form)
 
 
 class RemoveUserProfileView(UserRoleCheckMixin, FormView):

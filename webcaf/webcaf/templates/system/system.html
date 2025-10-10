@@ -16,13 +16,18 @@
 
             <form class="form" method="post">
                 {% csrf_token %}
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if form.errors.name %}govuk-form-group--error{% endif %}">
                     <label class="govuk-label" for="name">
                         <span class="govuk-heading-m">System name</span>
                     </label>
                     <div id="govsysmanual-hint" class="govuk-hint">
                         Add a new system name
                     </div>
+                    {% if form.errors.name %}
+                        <p id="system-name-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> You must add a new system name
+                        </p>
+                    {% endif %}
                     <input class="govuk-input govuk-input--width-30" id="id_name" name="name" type="text"
                            spellcheck="false"
                            value="{{ form.name.value|default:'' }}">
@@ -30,12 +35,18 @@
                 <h2 class="govuk-heading-m">
                     System description
                 </h2>
-                <div class="govuk-form-group" id="id_system_type">
+
+                <div class="govuk-form-group {% if form.errors.system_type %}govuk-form-group--error{% endif %}" id="id_system_type">
                     <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What does this system do?</legend>
                         <div id="system_type-hint" class="govuk-hint">
                             Select one option
                         </div>
+                        {% if form.errors.system_type %}
+                            <p id="system-description-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select a system description
+                            </p>
+                        {% endif %}
                         <div class="govuk-radios govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
                             {% for system_type in system_types %}
                                 <div class="govuk-radios__item">
@@ -55,12 +66,17 @@
                 <h2 class="govuk-heading-m">
                     Year when system was last GovAssure assessed
                 </h2>
-                <div class="govuk-form-group" id="id_last_assessed">
+                <div class="govuk-form-group {% if form.errors.last_assessed %}govuk-form-group--error{% endif %}" id="id_last_assessed">
                     <fieldset class="govuk-fieldset" aria-describedby="govassure_year-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Has this system been assessed before 2025/26?</legend>
                         <div id="govassure_year-hint" class="govuk-hint">
                             Select one option
                         </div>
+                        {% if form.errors.last_assessed %}
+                            <p id="system-last-assessed-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select one option
+                            </p>
+                        {% endif %}
                         <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
                             {% for assessed_period in assessed_periods %}
                                 <div class="govuk-radios__item">
@@ -83,12 +99,17 @@
                 <h2 class="govuk-heading-m">
                     System owner
                 </h2>
-                <div class="govuk-form-group" id="id_system_owner">
+                <div class="govuk-form-group {% if form.errors.system_owner %}govuk-form-group--error{% endif %}" id="id_system_owner">
                     <fieldset class="govuk-fieldset" aria-describedby="system_owner-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Who owns this system?</legend>
                         <div id="system_owner-hint" class="govuk-hint">
                             Select one option
                         </div>
+                        {% if form.errors.system_owner %}
+                            <p id="system-owner-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select a system owner
+                            </p>
+                        {% endif %}
                         <div class="govuk-radios govuk-radios" data-module="govuk-radios">
                             {% for owner in owner_types %}
                                 <div class="govuk-radios__item">
@@ -107,12 +128,17 @@
                 <h2 class="govuk-heading-m">
                     System hosting and connectivity
                 </h2>
-                <div class="govuk-form-group" id="id_hosting_type">
+                <div class="govuk-form-group {% if form.errors.hosting_type %}govuk-form-group--error{% endif %}" id="id_hosting_type">
                     <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">How is the system hosted?</legend>
                         <div id="hosting_type-hint" class="govuk-hint">
                             Select one option
                         </div>
+                        {% if form.errors.hosting_type %}
+                            <p id="system-hosting-type-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select one option
+                            </p>
+                        {% endif %}
                         <div class="govuk-radios govuk-radios" data-module="govuk-radios">
                             {% for hosting_type in hosting_types %}
                                 <div class="govuk-radios__item">
@@ -132,12 +158,17 @@
                 <h2 class="govuk-heading-m">
                     Corporate services
                 </h2>
-                <div id="id_corporate_services" class="govuk-form-group">
+                <div id="id_corporate_services" class="govuk-form-group {% if form.errors.corporate_services %}govuk-form-group--error{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="corporate_services-hint">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What corporate or internal end-user services does this system provide?</legend>
                         <div id="corporate_services-hint" class="govuk-hint">
                             Select all that apply
                         </div>
+                        {% if form.errors.corporate_services %}
+                            <p id="system-corporate-services-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select all that apply
+                            </p>
+                        {% endif %}
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             {% for service in corporate_services %}
                                 <div class="govuk-checkboxes__item">

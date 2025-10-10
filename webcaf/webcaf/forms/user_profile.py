@@ -7,6 +7,7 @@ class UserProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, required=True)
     last_name = forms.CharField(max_length=150, required=True)
     email = forms.CharField(max_length=150, required=True)
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
     # By default we do not pass the action field in the initial form, which makes the validation failure
     # and we capture that ant and redirect the user to the confirmation page.
     action = forms.ChoiceField(choices=[("change", "Change"), ("confirm", "Confirm")], required=True)

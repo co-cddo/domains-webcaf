@@ -17,7 +17,7 @@ Feature: Create and edit a new user for the organisation
     And link with text "Manage users"
     When click link with text "Manage users"
     Then they should see page title "Manage users - other - Complete a WebCAF self-assessment - GOV.UK"
-    And select radio with value "confirm"
+    And select radio with value "yes"
     And click button with text "Continue"
     Then they should see page title "Manage user - other - Complete a WebCAF self-assessment - GOV.UK"
     And enter text "The" for id "first_name"

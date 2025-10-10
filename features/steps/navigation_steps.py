@@ -402,3 +402,19 @@ def add_assessment_id_to_context(context: Context):
     url = context.page.url
     assessment_id = url.strip("/").split("/")[-1]
     context.current_assessment_id = assessment_id
+
+
+@then('should see an error summary with error link text "{text}"')
+def error_summary_with_link_text(context: Context, text: str):
+    page = context.page
+    error_summary = page.locator(".govuk-error-summary")
+    expect(error_summary).to_be_visible()
+    error_link = error_summary.locator("a", has_text=text)
+    expect(error_link).to_be_visible()
+
+
+@then('should see an error message with text "{text}"')
+def error_message_with_text(context: Context, text: str):
+    page = context.page
+    error_message = page.locator(".govuk-error-message", has_text=text)
+    expect(error_message).to_be_visible()

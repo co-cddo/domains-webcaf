@@ -2,10 +2,11 @@
 {% load govuk_frontend_django %}
 {% load static %}
 {% load form_extras %}
-{% block title %}Manage Organisation - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}Choose your CAF profile - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% include "partials/error_message.html" %}
             {% if draft_assessment.system %}
                 <span class="govuk-caption-l">{{ draft_assessment.system | get_system_name_from_id }}</span>
             {% endif %}
@@ -19,7 +20,7 @@
                 <a class="govuk-link" href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-2-in-scope-systems-and-assigning-target-caf-profile/#section_5_assign-caf-profiles-to-your-systems" target="new" class="govuk-lik"> assign CAF profiles to your systems guidance (opens in new tab). </a></p>
             <form class="form" method="post">
                 {% csrf_token %}
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if form.errors.caf_profile %}govuk-form-group--error{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="cafprofile-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                             Choose a profile for this self-assessment
@@ -27,7 +28,12 @@
                         <div id="cafprofile-hint" class="govuk-hint">
                             Select one
                         </div>
-                        <div class="govuk-radios" data-module="govuk-radios">
+                        {% if form.errors.caf_profile %}
+                            <p id="caf-profile-missing-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> You must select a profile.
+                            </p>
+                        {% endif %}
+                        <div class="govuk-radios" data-module="govuk-radios" id="id_caf_profile">
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="caf_profile" name="caf_profile" type="radio"
                                         {% if draft_assessment.caf_profile == 'baseline' %}
