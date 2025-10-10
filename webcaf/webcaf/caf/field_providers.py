@@ -85,8 +85,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
             # Add justification_text for the confirmation choice list
             {
                 "name": f"confirm_outcome_{status_choice.value}_comment",
-                # Label will be added on the UI
-                "label": "",
+                "label": "Confirm outcome summary",
                 "type": "text",
                 "required": False,
                 "widget_attrs": {
