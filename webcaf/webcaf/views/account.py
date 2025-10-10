@@ -67,7 +67,6 @@ class AccountView(LoginRequiredMixin, TemplateView):
             data["completed_assessment_count"] = sum(
                 1 for draft_assessment in data["draft_assessments"] if draft_assessment.is_complete()
             )
-            data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
 
         return data
 
@@ -101,3 +100,8 @@ class ViewDraftAssessmentsView(AccountView):
     """
 
     template_name = "user-pages/draft-assessments.html"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
+        return data
