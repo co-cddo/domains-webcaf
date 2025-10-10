@@ -20,3 +20,21 @@ Feature: Organisation lead can submit assessment
     # matches the information displayed on the confirmation page as well
     # as confirming the assessment is in submitted stage.
     And confirm current assessment is in "submitted" state
+
+  Scenario: Organisation lead can download the pdf assessment after submitting it
+    Given Think time 1 seconds
+    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    And click link with text "View 1 draft self-assessment"
+    And click link in table row containing value "System 1" with text "View"
+    And click link with text "Complete the full self-assessment"
+    And click button with text "Save and send for review"
+    # This will check the information stored for the current assessment
+    # matches the information displayed on the confirmation page as well
+    # as confirming the assessment is in submitted stage.
+    And confirm current assessment is in "submitted" state
+    Then navigate to page "/my-account"
+    And click link with text "View assessments sent for review"
+      #There will only be one assessment to view
+    And click link with text "View"
+    Then download file by clicking button "Download as PDF"
+    Then confirm current assessment information is on the downloaded pdf

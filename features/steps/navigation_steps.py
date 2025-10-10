@@ -1,6 +1,8 @@
 import csv
 import json
+import os
 import re
+import uuid
 from collections import defaultdict
 from pathlib import Path
 from time import sleep
@@ -9,6 +11,7 @@ from typing import Any, Literal, Optional
 from behave import step, then
 from behave.runner import Context
 from playwright.sync_api import expect
+from pypdf import PdfReader
 
 from features.util import delete_model, exists_model, get_model, run_async_orm
 
@@ -418,3 +421,48 @@ def error_message_with_text(context: Context, text: str):
     page = context.page
     error_message = page.locator(".govuk-error-message", has_text=text)
     expect(error_message).to_be_visible()
+
+
+@step('navigate to page "{target_page}"')
+def navigate_to_given_page(context: Context, target_page: str):
+    context.page.goto(context.config.userdata["base_url"] + target_page)
+    context.page.wait_for_load_state("load")
+
+
+@step('download file by clicking button "{button_text}"')
+def download_by_clicking_button(context: Context, button_text: str):
+    page = context.page
+    parent_path = Path(__file__).parent.parent.parent / "artifacts"
+    # If download fails (inline PDF / opens new tab)
+    with page.expect_popup() as popup_info:
+        button = page.get_by_role("button", name=button_text)
+        button.first.wait_for(state="visible")
+        button.first.click()
+    popup = popup_info.value
+
+    pdf_url = popup.url
+
+    # Fetch using the same browser session (keeps cookies)
+    response = page.request.get(pdf_url)
+    pdf_bytes = response.body()
+    os.makedirs(parent_path / "pdfs", exist_ok=True)
+    file_path = Path(parent_path / f"pdfs/{uuid.uuid4()}.pdf")
+    file_path.write_bytes(pdf_bytes)
+    popup.close()
+    context.pdf_file_path = file_path
+    print(f"Downloaded PDF to {parent_path}")
+
+
+@step("confirm current assessment information is on the downloaded pdf")
+def check_pdf_contains_text(context: Context):
+    pdf_file_path = context.pdf_file_path
+    from webcaf.webcaf.models import Assessment
+
+    with open(pdf_file_path, "rb") as f:
+        pdf_reader = PdfReader(f)
+        page = pdf_reader.pages[0]
+        text = page.extract_text()
+        print(text)
+        current_assessment_id = context.current_assessment_id
+        current_assessment = get_model(Assessment, id=current_assessment_id)
+        assert current_assessment.reference in text, "Expecting {current_assessment.reference} in PDF"
