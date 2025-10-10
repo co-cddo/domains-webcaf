@@ -433,16 +433,18 @@ def navigate_to_given_page(context: Context, target_page: str):
 def download_by_clicking_button(context: Context, button_text: str):
     page = context.page
     parent_path = Path(__file__).parent.parent.parent / "artifacts"
-    # If download fails (inline PDF / opens new tab)
+    # download the PDF in a tab. It is not possible to directly access the content with playwright
     with page.expect_popup() as popup_info:
         button = page.get_by_role("button", name=button_text)
         button.first.wait_for(state="visible")
         button.first.click()
     popup = popup_info.value
+    popup.wait_for_load_state("networkidle")
 
-    pdf_url = popup.url
-
-    # Fetch using the same browser session (keeps cookies)
+    # Download the PDF directly and save it to the artefacts folder
+    # This is necessary as the PDF is not available in the browser directly (it is inlined)
+    pdf_url = context.config.userdata["base_url"] + f"download-submitted-assessment/{context.current_assessment_id}"
+    print("Using pdf url: ", pdf_url)
     response = page.request.get(pdf_url)
     pdf_bytes = response.body()
     os.makedirs(parent_path / "pdfs", exist_ok=True)

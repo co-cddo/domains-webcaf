@@ -215,6 +215,8 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         from django.conf import settings
         from weasyprint import HTML
 
+        # Disable style warnings from weasyprint
+        logging.getLogger("weasyprint").setLevel(logging.ERROR)
         # Render the template as HTML
         context = self.get_context_data(**kwargs)
         html_string = render_to_string(self.template_name, context, request=request)
