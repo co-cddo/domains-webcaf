@@ -37,7 +37,7 @@
                         {% get_answers assessment outcome question_category.category as outcome_answers %}
                         {% if outcome_answers.answers %}
                             {% for answer in outcome_answers.answers %}
-                                <div class="summary-grid">
+                                <div class="summary-grid avoid-break">
                                     <div class="summary-grid__cell">
                                         <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statement {{ answer.idx }}:<br>
                                             {{ answer.indicator_txt }}
