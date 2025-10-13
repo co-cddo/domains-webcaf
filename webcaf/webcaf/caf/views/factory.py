@@ -307,7 +307,7 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
             return False
 
         if not if_any_selected():
-            form.add_error(None, ValidationError("You need to select at least one statement to answer."))
+            form.add_error(None, ValidationError("You need to select at least one statement to answer"))
             return super().form_invalid(form)
         return super().form_valid(form)
 
@@ -350,7 +350,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             comment_for_the_change = cleaned_data.get(f"confirm_outcome_{outcome}_comment")
             if not comment_for_the_change:
                 form.initial.update(form.cleaned_data)
-                form.add_error("confirm_outcome", ValidationError("You must provide a summary."))
+                form.add_error(f"confirm_outcome_{outcome}_comment", ValidationError("You must provide a summary."))
             # We directly call super as we don't want to call form_invalid here.'This is because
             # form_invalid will us purly to capture non selected questions and we cannot have
             # optional logic to handle this.

@@ -3,13 +3,22 @@ import logging
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Subquery
-from django.forms import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, System, UserProfile
 from webcaf.webcaf.utils.session import SessionUtil
+
+
+class BaseAssessmentForm(forms.ModelForm):
+    """
+    Blank form for the base FormView classes
+    """
+
+    class Meta:
+        model = Assessment
+        fields: list = []
 
 
 class EditAssessmentView(LoginRequiredMixin, FormView):
@@ -137,7 +146,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         return [{"url": "#", "text": "Edit draft self-assessment"}]
 
 
-class AssessmentProfileForm(ModelForm):
+class AssessmentProfileForm(BaseAssessmentForm):
     """
     Represents a ModelForm for the `Assessment` model to handle the input and
     validation of the `caf_profile` field.
@@ -154,9 +163,10 @@ class AssessmentProfileForm(ModelForm):
     class Meta:
         model = Assessment
         fields = ["caf_profile"]
+        labels = {"caf_profile": "CAF profile"}
 
 
-class AssessmentSystemForm(ModelForm):
+class AssessmentSystemForm(BaseAssessmentForm):
     """
     Form for handling assessment system data.
 
@@ -178,7 +188,7 @@ class AssessmentSystemForm(ModelForm):
         fields = ["system"]
 
 
-class AssessmentReviewTypeForm(ModelForm):
+class AssessmentReviewTypeForm(BaseAssessmentForm):
     """
     Form for handling the assessment review type data
     """
@@ -302,11 +312,12 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
     login_url = "/oidc/authenticate/"  # OIDC login route
     template_name = "assessment/draft-assessment.html"
     logger = logging.Logger("CreateAssessmentView")
+    form_class = BaseAssessmentForm
 
     def get_context_data(self, **kwargs):
         from webcaf.webcaf.frameworks import routers
 
-        data = {}
+        data = super().get_context_data(**kwargs)
         profile_id = self.request.session["current_profile_id"]
         profile = UserProfile.objects.get(user=self.request.user, id=profile_id)
         data["breadcrumbs"] = [
@@ -401,6 +412,10 @@ class CreateAssessmentProfileView(CreateAssessmentView):
     form_class = AssessmentProfileForm
     template_name = "assessment-profile.html"
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        return data
+
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
         draft_assessment["caf_profile"] = form.cleaned_data["caf_profile"]
@@ -408,6 +423,9 @@ class CreateAssessmentProfileView(CreateAssessmentView):
             draft_assessment["review_type"] = "independent"
         self.request.session.save()
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
     def breadcrumbs(self):
         return [
@@ -468,11 +486,18 @@ class CreateAssessmentReviewTypeView(CreateAssessmentView):
     form_class = AssessmentReviewTypeForm
     template_name = "assessment/choose-review-type.html"
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        return data
+
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
         draft_assessment["review_type"] = form.cleaned_data["review_type"]
         self.request.session.save()
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
     def breadcrumbs(self):
         return [
