@@ -378,3 +378,17 @@ def get_role_display(role_key: str):
     :return:
     """
     return UserProfile.get_role_label(role_key)
+
+
+@register.simple_tag()
+def format_with_breaks(text_chunk: str):
+    """
+    Break the text into lines and return them.
+    the return value is not safe to render directly in template as it is user input data.
+    Should always be used with safe output.
+    :param text_chunk:
+    :return:
+    """
+    for section in text_chunk.split("\n"):
+        if section.strip():
+            yield section.strip()

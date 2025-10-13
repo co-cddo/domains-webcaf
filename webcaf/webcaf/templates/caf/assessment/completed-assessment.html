@@ -4,6 +4,13 @@
 {% load csp %}
 {% load form_extras %}
 {% block title %}View completed assessment - {{ user.first_name }} {% endblock %}
+
+{% block footer %}
+    <div class="bottom-banner" id="bottom-banner">
+        UK OFFICIAL-SENSITIVE
+    </div>
+    {{ block.super }}
+{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -11,6 +18,13 @@
                   action="{% url 'download-submitted-assessment' assessment_id=assessment.id %}"
                   target="_blank">
                 {% csrf_token %}
+                    <div class="govuk-warning-text ">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            UK OFFICIAL-SENSITIVE
+                        </strong>
+                    </div>
                 <span class="govuk-caption-l">{{ assessment.system.name }} ({{ assessment.reference }})
                         </span>
                 <h1 class="govuk-heading-l">
