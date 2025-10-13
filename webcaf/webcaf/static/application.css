@@ -82,7 +82,7 @@ span.govuk-header__logotype-text {
     text-align: center;
     line-height: 10px;
     color: white;
-    padding: 0 0px;
+    padding: 0 0;
     box-sizing: border-box;
     transition: width 0.5s ease-out;
     border-right: 3px solid #e0e0e0;
@@ -114,7 +114,7 @@ span.govuk-header__logotype-text {
 
 .summary-grid {
     display: grid;
-    grid-template-columns: 65% 35% !important;
+    grid-template-columns: 75% 25% !important;
     gap: 0;
 }
 
@@ -173,6 +173,10 @@ span.govuk-header__logotype-text {
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.statement-para {
+    text-align: justify;
+}
+
 @media screen {
     .warning-text-container-printing {
         display: none;
@@ -187,7 +191,7 @@ span.govuk-header__logotype-text {
     form textarea,
     form select,
     form button,
-    breadcrumbs,
+    .breadcrumbs,
     a,
     .cookie-banner,
     header,
@@ -224,8 +228,10 @@ span.govuk-header__logotype-text {
         border-bottom: 1px solid #b1b4b6;
     }
 
-    .summary-container > .summary-grid:last-of-type {
-        margin-bottom: 5%;
+    .statement-para {
+        text-align: justify;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
     }
 
     .warning-text-container-printing {
@@ -234,6 +240,7 @@ span.govuk-header__logotype-text {
         justify-content: center;
         margin-top: 1.5rem;
     }
+
     .bottom-banner, #bottom-banner {
         position: fixed;
         bottom: 0;
@@ -246,6 +253,7 @@ span.govuk-header__logotype-text {
         padding: 8px 0;
         font-size: 12px;
     }
+
     /* Give space for the banner */
     body, main, .govuk-main-wrapper {
         padding-bottom: 60px !important; /* Adjust to match banner height */

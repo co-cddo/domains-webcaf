@@ -33,7 +33,7 @@ Feature: Organisation lead can submit assessment
     # as confirming the assessment is in submitted stage.
     And confirm current assessment is in "submitted" state
     Then navigate to page "/my-account"
-    And click link with text "View assessments sent for review"
+    And click link with text "View self-assessments sent for review"
       #There will only be one assessment to view
     And click link with text "View"
     Then download file by clicking button "Download as PDF"

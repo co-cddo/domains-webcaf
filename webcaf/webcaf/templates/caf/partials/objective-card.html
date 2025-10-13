@@ -39,9 +39,9 @@
                             {% for answer in outcome_answers.answers %}
                                 <div class="summary-grid avoid-break">
                                     <div class="summary-grid__cell">
-                                        <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statement {{ answer.idx }}:<br>
+                                        <p class="govuk-body govuk-!-font-size-16 statement-para">{{ question_category.label }} statement {{ answer.idx }}:<br>
                                             {{ answer.indicator_txt }}
-                                        </span>
+                                        </p>
                                     </div>
                                     <div class="summary-grid__cell">
                                         <span class="govuk-body govuk-!-font-size-16">Selected</span>
@@ -51,7 +51,10 @@
                                             <div class="govuk-inset-text">
                                             <span class="govuk-body govuk-!-font-size-16 ">
                                                 <strong>Alternative control for {{ question_category.label }} statement {{ answer.idx }}:<br></strong>
-                                                {{ answer.comment|format_with_breaks|safe }}
+                                                {% format_with_breaks answer.comment as sections %}
+                                                {% for section in sections %}
+                                                    <p class="govuk-body govuk-!-font-size-16 avoid-break statement-para">{{ section }}</p>
+                                                {% endfor %}
                                             </span>
                                             </div>
                                         </div>
@@ -73,15 +76,16 @@
                         {#                        Only write the summary after the last element, which is not-achieved#}
                         {% if outcome_answers.total_questions and  question_category.category == 'not-achieved' %}
                             <div class="summary-grid outcome-summary">
-                            <div class="summary-grid__cell--full">
+                                <div class="summary-grid__cell--full">
                                     <span class="govuk-body govuk-!-font-size-16 key-full">Contributing outcome summary
                                     </span>
                                 <br/>
-                                <span class="govuk-body govuk-!-font-size-16">
-                                    {{ outcome_answers.confirm_comment|format_with_breaks|safe }}
-                                </span>
+                                    {% format_with_breaks outcome_answers.confirm_comment as sections %}
+                                    {% for section in sections %}
+                                        <p class="govuk-body govuk-!-font-size-16 avoid-break statement-para">{{ section }}</p>
+                                    {% endfor %}
                             </div>
-                        </div>
+                            </div>
                         {% endif %}
                     {% endfor %}
                 </span>
