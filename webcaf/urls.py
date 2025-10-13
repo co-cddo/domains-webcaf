@@ -128,4 +128,5 @@ urlpatterns = [
     path("cookies/", TemplateView.as_view(template_name="cookies.html"), name="cookies"),
     path("privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
     path("help/", TemplateView.as_view(template_name="help.html"), name="help"),
+    path("accessibility/", TemplateView.as_view(template_name="accessibility.html"), name="accessibility"),
 ]
