@@ -16,7 +16,7 @@
                     <div class="govuk-notification-banner__content">
 
                         <p class="govuk-notification-banner__heading">
-                            You cannot start a new draft self-assessment, until your scoping document is signed off
+                            You cannot start a new self-assessment, until your scoping document is signed off
                              and your system has been added to WebCAF by a cyber adviser.
                         </p>
 
@@ -59,7 +59,7 @@
             {% endif %}
             {% if can_view_assessments %}
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
-                    Continue a self-assessment
+                    Continue a draft self-assessment
                 </h2>
                 {% if not draft_assessments %}
                     <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any self-assessments.
@@ -86,8 +86,8 @@
                             <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted assessments.</p>
                         {% else %}
                         <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
-                            You have {{ submitted_assessments|length }} submitted
-                            assessment{{ submitted_assessments|length  | pluralize }} sent for review.
+                            You have sent {{ submitted_assessments|length }}
+                            self-assessment{{ submitted_assessments|length  | pluralize }} for review.
                         </p>
                         <p class="govuk-body" title="View {{ submitted_assessments| length }} submitted assessment(s)">
                             <a href="{% url 'view-submitted-assessments' %}" class="govuk-link govuk-link--no-visited-state">

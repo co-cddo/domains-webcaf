@@ -15,9 +15,9 @@
             {% if draft_assessment.system %}
                 <span class="govuk-caption-l">{{ draft_assessment.system | get_system_name_from_id }}</span>
             {% endif %}
-            <h1 class="govuk-heading-l">Submit a WebCAF self-assessment
+            <h1 class="govuk-heading-l">Complete a WebCAF self-assessment
             </h1>
-            <p class="govuk-body"><strong>Draft assessment</strong></p>
+            <p class="govuk-body"><strong>Draft self-assessment</strong></p>
             <div class="govuk-inset-text">
                 For it to be assessed in GovAssure 2025/26 your stage 4 review must be completed by
                 <strong>11:59pm</strong> on <strong>31 March 2026</strong>.
@@ -92,7 +92,7 @@
                 </li>
             </ul>
 
-            <h2 class="govuk-heading-m govuk-!-margin-top-5">2. Create your assessment</h2>
+            <h2 class="govuk-heading-m govuk-!-margin-top-5">2. Create your self-assessment</h2>
             <p class="govuk-body">Take time to select your answers for each outcome. They will be assessed against
                 your
                 system and
@@ -133,7 +133,7 @@
                     </li>
                 {% endfor %}
             </ul>
-            <h2 class="govuk-heading-m govuk-!-margin-top-5">3. Submit your assessment</h2>
+            <h2 class="govuk-heading-m govuk-!-margin-top-5">3. Complete your self-assessment</h2>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item">
                     {% is_all_objectives_complete draft_assessment.assessment_id as all_objectives_complete %}

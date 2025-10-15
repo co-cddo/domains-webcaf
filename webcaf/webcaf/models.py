@@ -273,12 +273,12 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
 class UserProfile(models.Model):
     ROLE_ACTIONS = {
         "organisation_lead": [
-            "start a new assessment",
-            "continue a draft assessment",
-            "view assessments already sent for review",
+            "start a new self-assessment",
+            "continue a draft self-assessment",
+            "view self-assessments already sent for review",
             "add organisation users",
         ],
-        "organisation_user": ["continue a draft assessment", "view assessments already sent for review"],
+        "organisation_user": ["continue a draft self-assessment", "view self-assessments already sent for review"],
     }
     ROLE_DESCRIPTIONS = {
         "cyber_advisor": """On this page you can add new systems, modify existing systems and manage users within an
