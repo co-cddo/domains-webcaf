@@ -36,7 +36,6 @@
                         </strong>
                         </div>
 
-                        <p><br></p>
                         <div class="govuk-button-group">
                         <span class="govuk-body govuk-!-font-size-24">
                             <button type="submit" class="govuk-button" data-module="govuk-button">
@@ -48,11 +47,16 @@
 
                 </form>
             {% else %}
-                <p title="No systems available to crete draft assessment" class="govuk-body">
-                    You do not have any systems available to create a draft assessment. Please contact your GovAssure
-                    lead or
-                    check the my account page to see available draft assessments.
-                </p>
+                 <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            You do not have any systems available to create a draft assessment. Please contact your GovAssure
+                            lead or
+                            check the my account page to see available draft assessments.
+                        </strong>
+                    </div>
+
             {% endif %}
         </div>
     </div>

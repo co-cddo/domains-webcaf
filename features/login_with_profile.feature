@@ -15,4 +15,4 @@ Feature: User login with a profile
     And page contains text "<page_text>" in banner
     Examples:
       | user_name            | password | page_title                                                      | page_text                                                                                                                                        |
-      | admin@example.gov.uk | password | My account - admin - Complete a WebCAF self-assessment - GOV.UK | You cannot start a new draft self-assessment, until your scoping document is signed off and your system has been added to WebCAF by a cyber adviser. |
+      | admin@example.gov.uk | password | My account - admin - Complete a WebCAF self-assessment - GOV.UK | You cannot start a new self-assessment, until your scoping document is signed off and your system has been added to WebCAF by a cyber adviser. |
