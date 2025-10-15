@@ -15,7 +15,7 @@ Feature: Organisation user filling assessments
     And click link with text "View 1 draft self-assessment"
     And page has heading "Your draft self-assessments"
     And click link in table row containing value "System 1" with text "View"
-    Then page has heading "Submit a WebCAF self-assessment"
+    Then page has heading "Complete a WebCAF self-assessment"
     And get assessment id from url and add to context
     #    Fill objective A
     Then navigate to "Objective A: Managing security risk"
