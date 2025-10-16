@@ -18,14 +18,6 @@ class Index(TemplateView):
 
     template_name = "index.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        """Redirect authenticated users away from the landing page."""
-
-        # if user is authenticated redirect to my account page
-        if request.user.is_authenticated:
-            return redirect("my-account")
-        return super().dispatch(request, *args, **kwargs)
-
 
 class FormViewWithBreadcrumbs(FormView):
     """
