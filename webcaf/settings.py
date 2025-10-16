@@ -273,7 +273,7 @@ if DEBUG:
     OIDC_VERIFY_SSL = False
 
 ALLOW_LOGOUT_GET_METHOD = True
-LOGIN_REDIRECT_URL = "/my-account"
+LOGIN_REDIRECT_URL = "/my-account/"
 
 if not DEBUG:
     CSRF_COOKIE_SECURE = True
