@@ -110,9 +110,9 @@
                                         Guidance
                                     </a>
                                 </li>
-                                <li class="govuk-header__navigation-item {% if request.path|slice:':-1' == '/my-account' or request.path == '/my-account' %} govuk-header__navigation-item--active {% endif %}">
-                                    <a class="govuk-header__link" href="/my-account"
-                                            {% if request.path|slice:":-1" == "/my-account" or request.path == "/my-account" %}
+                                <li class="govuk-header__navigation-item {% if request.path|slice:':-1' == '/my-account/' or request.path == '/my-account/' %} govuk-header__navigation-item--active {% endif %}">
+                                    <a class="govuk-header__link" href="/my-account/"
+                                            {% if request.path|slice:":-1" == "/my-account/" or request.path == "/my-account/" %}
                                        aria-current="page" {% endif %}>
                                         My account
                                     </a>
