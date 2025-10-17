@@ -57,6 +57,7 @@ class LoginRequiredMiddleware:
             or request.path.startswith("/cookies/")
             or request.path.startswith("/accessibility/")
             or request.path.startswith("/help/")
+            or request.path.startswith("/data-usage-policy/")
             or request.user.is_authenticated
         ):
             self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)
