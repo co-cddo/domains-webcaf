@@ -32,11 +32,19 @@ jobs:
       - name: Ensure release tag is from main
         if: startsWith(github.ref_name, 'release-')
         run: |
-          if [ "${GITHUB_EVENT_BASE_REF}" != "refs/heads/main" ]; then
-            echo "❌ Release tags must be created from main branch only."
-            echo "This tag (${GITHUB_REF_NAME}) came from ${GITHUB_EVENT_BASE_REF}"
+            # Fetch the main branch to compare
+            git fetch origin main --depth=1
+
+            TAG_COMMIT=$(git rev-list -n 1 "${GITHUB_REF_NAME}")
+            MAIN_COMMIT=$(git rev-parse origin/main)
+
+            # Check if the tag commit exists in the main branch history
+            if git merge-base --is-ancestor "$TAG_COMMIT" "origin/main"; then
+            echo "✅ Tag ${GITHUB_REF_NAME} is based on main."
+            else
+            echo "❌ Tag ${GITHUB_REF_NAME} is NOT based on main."
             exit 1
-          fi
+            fi
       - name: Configure AWS credentials (Prod)
         if: startsWith(github.ref_name, 'release-')
         uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
