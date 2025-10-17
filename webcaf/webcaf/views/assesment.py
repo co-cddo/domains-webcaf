@@ -61,6 +61,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         self.request.session["draft_assessment"] = draft_assessment
         user_profile = SessionUtil.get_current_user_profile(self.request)
         configuration = Configuration.objects.get_default_config()
+
         data.update(
             {
                 "draft_assessment": draft_assessment,
@@ -74,8 +75,15 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                 "systems": (
                     System.objects.filter(organisation=current_organisation)
                     .exclude(
-                        # Exclude any systems that already have draft assessments assigned
-                        id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
+                        # Exclude any systems that already have assessments assigned for the current year
+                        id__in=[
+                            Subquery(
+                                Assessment.objects.filter(
+                                    status__in=["draft", "submitted", "completed"],
+                                    assessment_period__in=[configuration.get_current_assessment_period()],
+                                ).values("system_id")
+                            )
+                        ]
                     )
                     .union(System.objects.filter(id=assessment.system_id))
                 ),
@@ -332,20 +340,29 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         # this is empty until after being created
         data["assessment"] = Assessment
         data["draft_assessment"] = self.request.session.get("draft_assessment", {})
-        # Show only the systems needing new drafts
-        data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
-            id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
-        )
+
         # Hard code the router class version for now
         router = routers["caf32"]
         data["objectives"] = router.get_sections()
         data["review_form"] = AssessmentReviewTypeForm
 
         configuration = Configuration.objects.get_default_config()
-        data["current_assessment_period"] = configuration.get_current_assessment_period()
+        current_assessment_period = configuration.get_current_assessment_period()
+        data["current_assessment_period"] = current_assessment_period
         data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p")
         data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
 
+        data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
+            # Exclude any systems that already have assessments assigned for the current year
+            id__in=[
+                Subquery(
+                    Assessment.objects.filter(
+                        status__in=["draft", "submitted", "completed"],
+                        assessment_period__in=[current_assessment_period],
+                    ).values("system_id")
+                )
+            ]
+        )
         return data
 
     def get_success_url(self):
