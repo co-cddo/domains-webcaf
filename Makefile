@@ -14,3 +14,7 @@ test:
 	docker compose run --rm --service-ports --entrypoint "python manage.py test -v 2" web
 build:
 	BUILDKIT_PROGRESS=plain docker compose build
+
+behave:
+	docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml build --build-arg BUILDKIT_INLINE_CACHE=1 && \
+	docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml run --rm feature-tests

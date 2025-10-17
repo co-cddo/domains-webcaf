@@ -59,7 +59,7 @@ def click_link_with_text(context: Context, text: str):
     if "think_time" in context:
         sleep(context.think_time)
     page = context.page
-    page.get_by_role("link", name=text).click()
+    page.get_by_role("link", name=text, exact=True).click()
 
 
 @step('click link in summary card row "{key}" with text "{text}"')
@@ -146,8 +146,10 @@ def summary_card_with_content(context: Context, header: str, keys: str, values: 
     expected = {key_list[i]: value_list[i] for i in range(len(key_list))}
     page = context.page
     summary_card = page.locator(".govuk-summary-card", has_text=header)
+    expect(summary_card).to_be_visible()
     rows = summary_card.locator(".govuk-summary-list__row").all()
     actual = {}
+    print(f"Summary card: {summary_card.inner_html()} row count: {len(rows)}")
     for row in rows:
         expect(row).to_be_visible()
         key = row.locator(".govuk-summary-list__key").inner_text()
@@ -279,7 +281,7 @@ def select_objective(context: Context, objective_text: str):
     """
     page = context.page
     # Confirm we are on the edit page
-    page.goto(f"{context.config.userdata.get('base_url')}edit-draft-assessment/{context.current_assessment_id}/")
+    page.goto(f"{context.config.userdata.get('base_url')}/edit-draft-assessment/{context.current_assessment_id}/")
     page.wait_for_load_state("load")
     objective_links = page.locator("a").filter(has_text=re.compile("Objective"))
     objective_links.last.wait_for(state="visible")
@@ -443,7 +445,7 @@ def download_by_clicking_button(context: Context, button_text: str):
 
     # Download the PDF directly and save it to the artefacts folder
     # This is necessary as the PDF is not available in the browser directly (it is inlined)
-    pdf_url = context.config.userdata["base_url"] + f"download-submitted-assessment/{context.current_assessment_id}"
+    pdf_url = context.config.userdata["base_url"] + f"/download-submitted-assessment/{context.current_assessment_id}"
     print("Using pdf url: ", pdf_url)
     response = page.request.get(pdf_url)
     pdf_bytes = response.body()

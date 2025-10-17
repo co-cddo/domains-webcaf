@@ -11,6 +11,8 @@ staticClients:
     redirectURIs:
       - 'http://localhost:8010/oidc/callback/'
       - 'http://localhost:8010/'
+      - 'http://web:8000/oidc/callback/'
+      - 'http://web:8000/'
     name: "My Django App"
     secret: my-django-secret #    pragma: allowlist secret
 enablePasswordDB: true

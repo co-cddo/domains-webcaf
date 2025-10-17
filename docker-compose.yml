@@ -61,7 +61,7 @@ services:
       - "5556:5556"  # Dex HTTP server
     volumes:
       - ./oauth-stub:/etc/dex
-    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    command: [ "dex", "serve", "/etc/dex/config.yaml" ]
 
   init:
     <<: *api-base
