@@ -468,3 +468,11 @@ def check_pdf_contains_text(context: Context):
         current_assessment_id = context.current_assessment_id
         current_assessment = get_model(Assessment, id=current_assessment_id)
         assert current_assessment.reference in text, "Expecting {current_assessment.reference} in PDF"
+
+
+@then('should see "{options}" in select box options')
+def expected_options_in_select_box(context: Context, options: str):
+    page = context.page
+    options_locator = page.locator("#system_id > option")
+    options_list = options.split(",")
+    expect(options_locator).to_have_text(options_list)
