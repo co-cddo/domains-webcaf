@@ -482,3 +482,11 @@ def step_impl(context: Context, cookie_choice: str):
     else:
         context.page.get_by_role("button", name="Reject analytics cookies").click()
     context.page.get_by_role("button", name="Hide this message").click()
+
+
+@then('should see "{options}" in select box options')
+def expected_options_in_select_box(context: Context, options: str):
+    page = context.page
+    options_locator = page.locator("#system_id > option")
+    options_list = options.split(",")
+    expect(options_locator).to_have_text(options_list)

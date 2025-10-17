@@ -328,10 +328,10 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         # this is empty until after being created
         data["assessment"] = Assessment
         data["draft_assessment"] = self.request.session.get("draft_assessment", {})
-        # Show only the systems needing new drafts
-        data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
-            id__in=[Subquery(Assessment.objects.filter(status="draft").values("system_id"))]
-        )
+        # Show only the systems needing new drafts and not already completed
+        excluded_ids = Subquery(Assessment.objects.filter(status__in=["draft", "submitted"]).values("system_id"))
+        data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(id__in=excluded_ids)
+
         # Hard code the router class version for now
         router = routers["caf32"]
         data["objectives"] = router.get_sections()

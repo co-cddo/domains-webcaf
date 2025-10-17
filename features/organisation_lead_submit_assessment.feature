@@ -39,3 +39,20 @@ Feature: Organisation lead can submit assessment
     And click link with text "View"
     Then download file by clicking button "Download as PDF"
     Then confirm current assessment information is on the downloaded pdf
+
+  Scenario: Organisation lead cannot start a new assessment for an already submitted system
+    Given Think time 1 seconds
+    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    And click link with text "View 1 draft self-assessment"
+    And click link in table row containing value "System 1" with text "View"
+    And click link with text "Complete the full self-assessment"
+    And click button with text "Save and send for review"
+    # This will check the information stored for the current assessment
+    # matches the information displayed on the confirmation page as well
+    # as confirming the assessment is in submitted stage.
+    And confirm current assessment is in "submitted" state
+    And click link with text "My account"
+    And click button with text "Start a self-assessment"
+    And get assessment id from url and add to context
+    And click link with text "Provide system details"
+    And should see "System 2, System 3" in select box options
