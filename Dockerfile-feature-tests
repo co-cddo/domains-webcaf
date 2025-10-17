@@ -1,0 +1,38 @@
+# Playwright base image with all browser dependencies pre-installed
+FROM mcr.microsoft.com/playwright/python:v1.55.0-jammy
+
+# Install Python 3.12 via deadsnakes PPA
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    software-properties-common gnupg \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
+    && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3.12 python3.12-venv python3.12-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Point python3 to 3.12 and install pip
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 20 && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
+    python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+WORKDIR /app
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+
+# Install deps early for better caching
+COPY pyproject.toml poetry.lock ./
+RUN poetry config virtualenvs.create false && poetry install --no-root --no-ansi
+
+# Set Playwright browsers path outside /app to avoid volume mount overwriting
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Install Playwright browsers for Python 3.12
+RUN poetry run playwright install chromium --with-deps && \
+    echo "Playwright installation complete" && \
+    poetry run playwright --version
+
+# Copy the rest
+COPY . .
+
+CMD ["bash", "-lc", "pytest -q"]
