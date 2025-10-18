@@ -16,5 +16,4 @@ build:
 	BUILDKIT_PROGRESS=plain docker compose build
 
 behave:
-	docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml build --build-arg BUILDKIT_INLINE_CACHE=1 && \
-	docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml run --rm feature-tests
+	FEATURE_TEST_ARGS="$(FEATURE_TEST_ARGS)" docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml up --build --abort-on-container-exit --exit-code-from feature-tests feature-tests
