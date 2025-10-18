@@ -470,3 +470,15 @@ def check_pdf_contains_text(context: Context):
         current_assessment_id = context.current_assessment_id
         current_assessment = get_model(Assessment, id=current_assessment_id)
         assert current_assessment.reference in text, "Expecting {current_assessment.reference} in PDF"
+
+
+@step('cookies have been "{cookie_choice}"')
+def step_impl(context: Context, cookie_choice: str):
+    """
+    :type context: behave.runner.Context
+    """
+    if cookie_choice == "accepted":
+        context.page.get_by_role("button", name="Accept analytics cookies").click()
+    else:
+        context.page.get_by_role("button", name="Reject analytics cookies").click()
+    context.page.get_by_role("button", name="Hide this message").click()

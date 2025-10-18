@@ -8,6 +8,7 @@
     And the user "alice@example.gov.uk" exists
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     And the application is running
+    And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
     Scenario: Organisation lead can remove user

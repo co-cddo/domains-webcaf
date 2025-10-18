@@ -7,6 +7,7 @@ Feature: Cyber advisor can maintain systems
     And the user "cyber_advisor@example.gov.uk" exists
     And User "cyber_advisor@example.gov.uk" has the profile "GDS cyber advisor" assigned in "Ministry of Agriculture"
     And the application is running
+    And cookies have been "accepted"
     And the user logs in with username  "cyber_advisor@example.gov.uk" and password "password"
     And there is no system with name "My system" for organisation "Ministry of Agriculture"
 
