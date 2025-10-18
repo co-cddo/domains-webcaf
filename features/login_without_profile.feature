@@ -7,6 +7,7 @@ Feature: User login without a profile
 
   Scenario Outline: Valid user logs in <user_name>
     Given the application is running
+    And cookies have been "accepted"
     And Think time 1 seconds
     When the user logs in with username  "<user_name>" and password "<password>"
     Then they should see page title "<page_title>"

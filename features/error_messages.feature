@@ -5,6 +5,7 @@ Feature: Test user error messages appear as expected
     And the user "other@example.gov.uk" exists
     And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
     And the application is running
+    And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
 Scenario: New assessment no profile is selected

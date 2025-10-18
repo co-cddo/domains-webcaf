@@ -258,14 +258,16 @@ else:
     sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"
     OIDC_RP_CLIENT_SECRET = "my-django-secret"  # pragma: allowlist secret
-    OIDC_OP_AUTHORIZATION_ENDPOINT = "http://localhost:5556/auth"
+    # We need to override the host to docker compose container name
+    # When we run behave tests in docker
+    OIDC_OP_AUTHORIZATION_ENDPOINT = f"http://{env.str('OVERRIDE_SSO_HOST', 'localhost')}:5556/auth"
     OIDC_OP_TOKEN_ENDPOINT = f"http://{sso_host}:5556/token"
     OIDC_OP_USER_ENDPOINT = f"http://{sso_host}:5556/userinfo"
     OIDC_OP_JWKS_ENDPOINT = f"http://{sso_host}:5556/keys"
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
-    OIDC_OP_LOGOUT_ENDPOINT = "http://localhost:5556/auth/logout"
-    LOGOUT_REDIRECT_URL = "http://localhost:8010/"
+    OIDC_OP_LOGOUT_ENDPOINT = f"http://{env.str('OVERRIDE_SSO_HOST', 'localhost')}:5556/auth/logout"
+    LOGOUT_REDIRECT_URL = f"http://{env.str('OVERRIDE_APP_HOST', 'localhost')}:8010/"
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")

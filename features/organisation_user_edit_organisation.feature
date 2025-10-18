@@ -6,6 +6,7 @@ Feature: Organisation user can edit an organisation's details
     And the user "other@example.gov.uk" exists
     And User "other@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     And the application is running
+    And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
   Scenario: Organisation user can login and has correct paths available for role in my account page
