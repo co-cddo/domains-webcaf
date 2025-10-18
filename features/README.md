@@ -12,5 +12,18 @@ You will need to add ```-D headless_testing=false``` to the main command to get 
 
 Command to run.
 ```shell
-  SSO_MODE: localhost DATABASE_URL=<db connection> poetry run behave
+#  This will run the tests in headless mode.
+  make behave
+
+  #  This will run the selected tests in headless mode.
+  make behave FEATURE_TEST_ARGS="-i admin-login.feature"
+
+  # If you want to see the browser window, then you will need to invoke
+  # behave directly from the command line.
+  # Single command: start containers and run the tests with browser visible.
+  docker compose -f docker-compose.yml up -d && \
+    SSO_MODE=localhost \
+    DATABASE_URL=postgresql://webcaf:webcaf@localhost:54321/webcaf \  #  pragma: allowlist secret
+    SECRET_KEY=unused \
+    poetry run behave -D headless_testing=false
 ```
