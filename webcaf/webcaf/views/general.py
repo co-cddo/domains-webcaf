@@ -73,11 +73,7 @@ def logout_view(request):
     :return:
     """
     logout_view_logger.info(f"Logging out user {request.user.username}")
-    id_token = request.session.get("oidc_id_token")  # make sure you store it at login
     # 1. Log out Django session
     django_logout(request)
     oidc_logout_url = settings.OIDC_OP_LOGOUT_ENDPOINT
-    client_id = settings.OIDC_RP_CLIENT_ID
-    redirect_url = settings.LOGOUT_REDIRECT_URL
-    logout_url = f"{oidc_logout_url}?id_token_hint={id_token}&client_id={client_id}&redirect_uri={redirect_url}"
-    return redirect(logout_url)
+    return redirect(oidc_logout_url)

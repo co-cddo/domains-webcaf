@@ -1,0 +1,76 @@
+@startuml SessionManagement
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+skinparam responseMessageBelowArrow true
+
+actor User as U
+participant Browser as B
+participant Django as DJ
+participant "Session Expiration Detector MW" as SED
+participant "Last Accessed Time MW" as LATM
+participant "Secured View" as V
+participant "Session Expired View" as SEV
+participant "Index View" as IDX
+participant "OIDC Provider" as OIDC
+database "LastAccessedTime (id, accessed_time, useremail)" as DB
+
+box "Secured request flow"
+U -> B: Click /secured
+B -> DJ: GET /secured
+DJ -> SED: process_request()
+alt Path is NOT secured
+  SED --> DJ: allow
+  DJ -> LATM: process_request()
+  LATM --> DJ: allow (no-op)
+  DJ -> V: dispatch()
+  V --> DJ: 200 OK
+  DJ --> B: Response
+else Path IS secured
+  alt User not authenticated
+    SED --> DJ: allow (login handled elsewhere)
+    DJ -> LATM: process_request()
+    LATM --> DJ: allow (not logged in)
+    DJ -> V: dispatch()
+    V --> DJ: 302 to login
+    DJ --> B: Redirect
+  else User authenticated
+    SED -> DB: Get by useremail
+    alt Record exists AND now - accessed_time <= 30m
+      SED --> DJ: allow
+      DJ -> LATM: process_request()
+      alt Secured path AND user logged in
+        LATM -> DB: Upsert accessed_time = now
+        LATM --> DJ: allow
+      else Otherwise
+        LATM --> DJ: allow (no-op)
+      end
+      DJ -> V: dispatch()
+      V --> DJ: 200 OK
+      DJ --> B: Response
+    else No record OR inactivity > 30m
+      SED --> DJ: 302 to /session-expired
+      DJ --> B: Redirect
+      B -> DJ: GET /session-expired
+      DJ -> SEV: render()
+      note right of SEV
+        Message: inactive for 30 minutes
+        Link: http://<oidc server>/sign-out?to_client=<client id>
+      end note
+      SEV --> B: 200 OK
+      U -> B: Click OIDC sign-out link
+      B -> OIDC: GET /sign-out?to_client=<client id>
+      OIDC --> B: 302 Redirect to Index
+      B -> DJ: GET /
+      DJ -> IDX: render()
+      note right of IDX
+        Check Referer is OIDC sign-out URL
+        If user in session, update LastAccessedTime to now
+      end note
+      IDX -> DB: (Conditional) Upsert accessed_time = now
+      IDX --> B: 200 OK (Index)
+    end
+  end
+end
+end box
+
+@enduml

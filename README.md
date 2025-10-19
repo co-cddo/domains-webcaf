@@ -102,3 +102,14 @@ the image is rebuilt and deployed to production. This is handled by the prod-ecr
       --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 --profile <profile>
       ```
      NOTE: if the github changes the thumbprint, you will need to run the above command with the new value.
+
+
+## Architecture diagrams
+
+The session inactivity and logout flow sequence diagram is available in docs/diagrams:
+- Mermaid: docs/diagrams/session-management-sequence.md (rendered directly by many Markdown viewers)
+- PlantUML: docs/diagrams/session-management-sequence.puml
+
+Rendering tips:
+- Mermaid: Use VS Code Mermaid extension or mermaid-cli (mmdc) to export images.
+- PlantUML: Use any PlantUML viewer or the PlantUML extension in your IDE.
