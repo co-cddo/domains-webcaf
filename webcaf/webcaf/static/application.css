@@ -125,6 +125,12 @@ span.govuk-header__logotype-text {
     line-height: 1.5;
 }
 
+.no-bottom-border {
+    border-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 /* Make the first column cells left-aligned */
 .summary-grid__cell:nth-child(2n+1) {
     text-align: left;
@@ -152,12 +158,6 @@ span.govuk-header__logotype-text {
     grid-column: 1 / -1;
 }
 
-.warning-text-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.5rem;
-    padding-bottom: 0;
-}
 
 .bottom-banner, #bottom-banner {
     position: fixed !important; /* override GOV.UK positioning */
@@ -177,12 +177,6 @@ span.govuk-header__logotype-text {
     text-align: justify;
 }
 
-@media screen {
-    .warning-text-container-printing {
-        display: none;
-        visibility: hidden;
-    }
-}
 
 @media print {
     /*Elements to hide when printing*/
@@ -204,12 +198,13 @@ span.govuk-header__logotype-text {
         display: table;
         width: 100%;
         border-collapse: collapse;
+        padding-bottom: 5pt;
     }
 
     .summary-grid__cell {
         display: table-cell;
         width: auto;
-        padding: 4pt 0;
+        padding: 1pt 0;
         border: none; /* cleaner for paper */
     }
 
@@ -217,28 +212,25 @@ span.govuk-header__logotype-text {
         text-align: left;
         display: table-row;
         font-size: 16px;
-        padding: 4pt 0;
+        padding: 1pt 0;
     }
 
     .summary-grid__cell--full--with-border {
         text-align: left;
         display: table-row;
         font-size: 16px;
-        padding: 4pt 0;
+        padding: 1pt 0;
         border-bottom: 1px solid #b1b4b6;
     }
 
     .statement-para {
         text-align: justify;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
+        padding-bottom: 10pt;
     }
 
-    .warning-text-container-printing {
-        display: block;
-        visibility: visible;
-        justify-content: center;
-        margin-top: 1.5rem;
+    .single-row {
+        margin-top: 10pt;
+        margin-bottom: 10pt;
     }
 
     .bottom-banner, #bottom-banner {
