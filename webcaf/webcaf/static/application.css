@@ -228,6 +228,10 @@ span.govuk-header__logotype-text {
         padding-bottom: 10pt;
     }
 
+    .single-row {
+        margin-top: 10pt;
+        margin-bottom: 10pt;
+    }
 
     .bottom-banner, #bottom-banner {
         position: fixed;

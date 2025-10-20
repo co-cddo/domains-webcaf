@@ -65,14 +65,14 @@
                             {% endfor %}
                         {% else %}
                             {% if outcome_answers.total_questions %}
-                                <div class="summary-grid">
-                                <div class="summary-grid__cell">
-                                    <span class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></span>
+                                <div class="summary-grid avoid-break single-row">
+                                    <div class="summary-grid__cell">
+                                        <p class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></p>
+                                    </div>
+                                    <div class="summary-grid__cell">
+                                        <p class="govuk-body govuk-!-font-size-16">None Selected</p>
+                                    </div>
                                 </div>
-                                <div class="summary-grid__cell">
-                                    <span class="govuk-body govuk-!-font-size-16">None Selected</span>
-                                </div>
-                            </div>
                             {% endif %}
                         {% endif %}
                         {#                        Only write the summary after the last element, which is not-achieved#}
