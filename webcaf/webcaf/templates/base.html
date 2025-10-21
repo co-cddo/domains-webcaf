@@ -1,215 +1,259 @@
 {% load static i18n govuk_frontend_django csp %}<!DOCTYPE html>
 <html lang="en" class="govuk-template govuk-template--rebranded">
-    <head>
-        {% if GOOGLE_ANALYTICS_ID %}
-            <!-- Google Tag Manager -->
-            <script type="unknown/type" id="gtm-script" nonce="{{ request.csp_nonce }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<head>
+    {% if GOOGLE_ANALYTICS_ID %}
+        <!-- Google Tag Manager -->
+        <script type="unknown/type" id="gtm-script" nonce="{{ request.csp_nonce }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','{{ GOOGLE_ANALYTICS_ID }}');
-            </script>
-            <!-- End Google Tag Manager -->
-        {% endif %}
-        <title>{% block title %} - Complete a WebCAF self-assessment - GOV.UK{% endblock %}</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-        <meta name="theme-color" content="#0b0c0c">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-        <link rel="icon" sizes="48x48" href="{% static 'images/favicon.ico' %}">
-        <link rel="icon" sizes="any" href="{% static 'rebrand/images/favicon.svg' %}" type="image/svg+xml">
-        <link rel="mask-icon" href="{% static 'rebrand/images/govuk-icon-mask.svg' %}" color="#1d70b8">
-        <link rel="apple-touch-icon" href="{% static 'rebrand/images/govuk-icon-180.png' %}">
-        <link rel="manifest" href="{% static 'rebrand/manifest.json' %}">
-        <link rel="stylesheet" href="{% static 'govuk-frontend-5.11.1.min.css' %}">
-        <link rel="stylesheet" href="{% static 'application.css' %}">
-
-        {% block extra_stylesheets %}
-        {% endblock %}
-
-    </head>
-    <body class="govuk-template__body govuk-template__body--rebranded">
-        <script nonce="{{ request.csp_nonce }}">
-            document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
         </script>
-        {% if GOOGLE_ANALYTICS_ID %}
-            <!-- Google Tag Manager (noscript) -->
-            <noscript>
-                <iframe nonce="{{ request.csp_nonce }}"
-                        src="https://www.googletagmanager.com/ns.html?id={{ GOOGLE_ANALYTICS_ID }}"
-                        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-            </noscript>
-            <!-- End Google Tag Manager (noscript) -->
-        {% endif %}
+        <!-- End Google Tag Manager -->
+    {% endif %}
+    <title>{% block title %} - Complete a WebCAF self-assessment - GOV.UK{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0c0c">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-        {% block skip_link %}
-            <a href="#main-content" class="govuk-skip-link">{% trans 'Skip to main content' %}</a>
-        {% endblock %}
+    <link rel="icon" sizes="48x48" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" sizes="any" href="{% static 'rebrand/images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="mask-icon" href="{% static 'rebrand/images/govuk-icon-mask.svg' %}" color="#1d70b8">
+    <link rel="apple-touch-icon" href="{% static 'rebrand/images/govuk-icon-180.png' %}">
+    <link rel="manifest" href="{% static 'rebrand/manifest.json' %}">
+    <link rel="stylesheet" href="{% static 'govuk-frontend-5.11.1.min.css' %}">
+    <link rel="stylesheet" href="{% static 'application.css' %}">
 
-        {% block header %}
-            {% if GOOGLE_ANALYTICS_ID %}
-                <style nonce="{{ request.csp_nonce }}">
-                    .cookie-banner {
-                        display: none
-                    }
-                </style>
-                <div class="cookie-banner" id="cookie-banner">
-                    {% gds_cookie_banner %}
-                        {% gds_cookie_banner_message headingText="Cookies on the Title service" %}
-                            <p class="govuk-body">We use essential cookies to make this website work.</p>
-                            <p class="govuk-body">We want to set additional cookies to remember your settings, understand how
-                                people use the
-                                service, and make improvements.</p>
-                            {% gds_cookie_banner_message_action text="Accept analytics cookies" %}
-                            {% gds_cookie_banner_message_action text="Reject analytics cookies" %}
-                            {% gds_cookie_banner_message_action text="View cookies" href="/cookies" %}
-                        {% endgds_cookie_banner_message %}
-                    {% endgds_cookie_banner %}
-                </div>
+    {% block extra_stylesheets %}
+    {% endblock %}
 
-                <div class="cookie-banner" id="cookie-banner-done">
-                    {% gds_cookie_banner %}
-                        {% gds_cookie_banner_message %}
-                            <p class="govuk-body">You have accepted additional cookies. You can <a href="/cookies">change your
-                                cookie
-                                settings</a> at any time.</p>
-                            {% gds_cookie_banner_message_action text="Hide this message" %}
-                        {% endgds_cookie_banner_message %}
-                    {% endgds_cookie_banner %}
-                </div>
-            {% endif %}
+</head>
+<body class="govuk-template__body govuk-template__body--rebranded">
+<script nonce="{{ request.csp_nonce }}">
+    document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+</script>
+{% if GOOGLE_ANALYTICS_ID %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe nonce="{{ request.csp_nonce }}"
+                src="https://www.googletagmanager.com/ns.html?id={{ GOOGLE_ANALYTICS_ID }}"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+{% endif %}
 
-            <header class="govuk-header " role="banner" data-module="govuk-header">
-                <div class="govuk-header__container govuk-width-container">
-                    <div class="govuk-header__logo">
-                        <a href="https://security.gov.uk" class="govuk-header__link govuk-header__link--homepage">
+{% block skip_link %}
+    <a href="#main-content" class="govuk-skip-link">{% trans 'Skip to main content' %}</a>
+{% endblock %}
+
+{% block header %}
+    {% if GOOGLE_ANALYTICS_ID %}
+        <style nonce="{{ request.csp_nonce }}">
+            .cookie-banner {
+                display: none
+            }
+        </style>
+        <div class="cookie-banner" id="cookie-banner">
+            {% gds_cookie_banner %}
+                {% gds_cookie_banner_message headingText="Cookies on the Title service" %}
+                    <p class="govuk-body">We use essential cookies to make this website work.</p>
+                    <p class="govuk-body">We want to set additional cookies to remember your settings, understand how
+                        people use the
+                        service, and make improvements.</p>
+                    {% gds_cookie_banner_message_action text="Accept analytics cookies" %}
+                    {% gds_cookie_banner_message_action text="Reject analytics cookies" %}
+                    {% gds_cookie_banner_message_action text="View cookies" href="/cookies" %}
+                {% endgds_cookie_banner_message %}
+            {% endgds_cookie_banner %}
+        </div>
+
+        <div class="cookie-banner" id="cookie-banner-done">
+            {% gds_cookie_banner %}
+                {% gds_cookie_banner_message %}
+                    <p class="govuk-body">You have accepted additional cookies. You can <a href="/cookies">change your
+                        cookie
+                        settings</a> at any time.</p>
+                    {% gds_cookie_banner_message_action text="Hide this message" %}
+                {% endgds_cookie_banner_message %}
+            {% endgds_cookie_banner %}
+        </div>
+    {% endif %}
+
+    <header class="govuk-header " role="banner" data-module="govuk-header">
+        <div class="govuk-header__container govuk-width-container">
+            <div class="govuk-header__logo">
+                <a href="https://security.gov.uk" class="govuk-header__link govuk-header__link--homepage">
                             <span class="govuk-header__logotype">
                                 <svg aria-hidden="true" focusable="false" class="govuk-header__logotype-crown"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30" height="30" width="32">
+                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 30" height="30" width="32">
                                     <path fill="currentColor" fill-rule="evenodd"
                                           d="M22.6 10.4c-1 .4-2-.1-2.4-1-.4-.9.1-2 1-2.4.9-.4 2 .1 2.4 1s-.1 2-1 2.4m-5.9 6.7c-.9.4-2-.1-2.4-1-.4-.9.1-2 1-2.4.9-.4 2 .1 2.4 1s-.1 2-1 2.4m10.8-3.7c-1 .4-2-.1-2.4-1-.4-.9.1-2 1-2.4.9-.4 2 .1 2.4 1s0 2-1 2.4m3.3 4.8c-1 .4-2-.1-2.4-1-.4-.9.1-2 1-2.4.9-.4 2 .1 2.4 1s-.1 2-1 2.4M17 4.7l2.3 1.2V2.5l-2.3.7-.2-.2.9-3h-3.4l.9 3-.2.2c-.1.1-2.3-.7-2.3-.7v3.4L15 4.7c.1.1.1.2.2.2l-1.3 4c-.1.2-.1.4-.1.6 0 1.1.8 2 1.9 2.2h.7c1-.2 1.9-1.1 1.9-2.1 0-.2 0-.4-.1-.6l-1.3-4c-.1-.2 0-.2.1-.3m-7.6 5.7c.9.4 2-.1 2.4-1 .4-.9-.1-2-1-2.4-.9-.4-2 .1-2.4 1s0 2 1 2.4m-5 3c.9.4 2-.1 2.4-1 .4-.9-.1-2-1-2.4-.9-.4-2 .1-2.4 1s.1 2 1 2.4m-3.2 4.8c.9.4 2-.1 2.4-1 .4-.9-.1-2-1-2.4-.9-.4-2 .1-2.4 1s0 2 1 2.4m14.8 11c4.4 0 8.6.3 12.3.8 1.1-4.5 2.4-7 3.7-8.8l-2.5-.9c.2 1.3.3 1.9 0 2.7-.4-.4-.8-1.1-1.1-2.3l-1.2 4c.7-.5 1.3-.8 2-.9-1.1 2.5-2.6 3.1-3.5 3-1.1-.2-1.7-1.2-1.5-2.1.3-1.2 1.5-1.5 2.1-.1 1.1-2.3-.8-3-2-2.3 1.9-1.9 2.1-3.5.6-5.6-2.1 1.6-2.1 3.2-1.2 5.5-1.2-1.4-3.2-.6-2.5 1.6.9-1.4 2.1-.5 1.9.8-.2 1.1-1.7 2.1-3.5 1.9-2.7-.2-2.9-2.1-2.9-3.6.7-.1 1.9.5 2.9 1.9l.4-4.3c-1.1 1.1-2.1 1.4-3.2 1.4.4-1.2 2.1-3 2.1-3h-5.4s1.7 1.9 2.1 3c-1.1 0-2.1-.2-3.2-1.4l.4 4.3c1-1.4 2.2-2 2.9-1.9-.1 1.5-.2 3.4-2.9 3.6-1.9.2-3.4-.8-3.5-1.9-.2-1.3 1-2.2 1.9-.8.7-2.3-1.2-3-2.5-1.6.9-2.2.9-3.9-1.2-5.5-1.5 2-1.3 3.7.6 5.6-1.2-.7-3.1 0-2 2.3.6-1.4 1.8-1.1 2.1.1.2.9-.3 1.9-1.5 2.1-.9.2-2.4-.5-3.5-3 .6 0 1.2.3 2 .9l-1.2-4c-.3 1.1-.7 1.9-1.1 2.3-.3-.8-.2-1.4 0-2.7l-2.9.9C1.3 23 2.6 25.5 3.7 30c3.7-.5 7.9-.8 12.3-.8"></path>
                                 </svg>
                                 <span class="govuk-header__logotype-text"><strong>UK Government Security</strong></span>
                             </span>
-                        </a>
-                    </div>
-                    <div class="govuk-header__content">
-                        <a href="/"
-                           class="govuk-header__link govuk-header__link--service-name govuk-body govuk-!-font-size-24"><strong>Complete
-                            a WebCAF self-assessment</strong></a>
-                        <nav aria-label="Menu" class="govuk-header__navigation ">
-                            <button type="button" class="govuk-header__menu-button govuk-js-header-toggle"
-                                    aria-controls="navigation" aria-label="Show or hide menu" aria-expanded="false">Menu
-                            </button>
-                            <ul id="navigation" class="govuk-header__navigation-list" hidden="">
-                                <li class="govuk-header__navigation-item">
-                                    <a class="govuk-header__link"
-                                       href="https://www.security.gov.uk/policy-and-guidance/govassure/"
-                                       target="_blank">
-                                        Guidance
-                                    </a>
-                                </li>
-                                <li class="govuk-header__navigation-item {% if request.path|slice:':-1' == '/my-account/' or request.path == '/my-account/' %} govuk-header__navigation-item--active {% endif %}">
-                                    <a class="govuk-header__link" href="/my-account/"
-                                            {% if request.path|slice:":-1" == "/my-account/" or request.path == "/my-account/" %}
-                                       aria-current="page" {% endif %}>
-                                        My account
-                                    </a>
-                                </li>
-                                {% if request.user.is_authenticated %}
-                                    <li class="govuk-header__navigation-item">
-                                        <a class="govuk-header__link" href="{% url 'logout' %}">
-                                            Logout <span class="govuk-visually-hidden">
+                </a>
+            </div>
+            <div class="govuk-header__content">
+                <a href="/"
+                   class="govuk-header__link govuk-header__link--service-name govuk-body govuk-!-font-size-24"><strong>Complete
+                    a WebCAF self-assessment</strong></a>
+                <nav aria-label="Menu" class="govuk-header__navigation ">
+                    <button type="button" class="govuk-header__menu-button govuk-js-header-toggle"
+                            aria-controls="navigation" aria-label="Show or hide menu" aria-expanded="false">Menu
+                    </button>
+                    <ul id="navigation" class="govuk-header__navigation-list" hidden="">
+                        <li class="govuk-header__navigation-item">
+                            <a class="govuk-header__link"
+                               href="https://www.security.gov.uk/policy-and-guidance/govassure/"
+                               target="_blank">
+                                Guidance
+                            </a>
+                        </li>
+                        <li class="govuk-header__navigation-item {% if request.path|slice:':-1' == '/my-account/' or request.path == '/my-account/' %} govuk-header__navigation-item--active {% endif %}">
+                            <a class="govuk-header__link" href="/my-account/"
+                                    {% if request.path|slice:":-1" == "/my-account/" or request.path == "/my-account/" %}
+                               aria-current="page" {% endif %}>
+                                My account
+                            </a>
+                        </li>
+                        {% if request.user.is_authenticated %}
+                            <li class="govuk-header__navigation-item">
+                                <a class="govuk-header__link" href="{% url 'logout' %}">
+                                    Logout <span class="govuk-visually-hidden">
                                         {{ request.user.username }}
                                          </span>
-                                        </a>
+                                </a>
 
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </header>
-        {% endblock %}
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+{% endblock %}
 
-        {% block phase_banner %}
-            <div class="govuk-phase-banner govuk-width-container">
-                <div class="govuk-phase-banner__content">
-                    <strong class="govuk-tag {{ PHASE_CLASS }} govuk-phase-banner__content__tag">
-                        {% block phase_banner__tag %}
-                            {{ PHASE_HEADER }}
-                        {% endblock %}
-                    </strong>
-                    <span class="govuk-phase-banner__text">
+{% block phase_banner %}
+    <div class="govuk-phase-banner govuk-width-container">
+        <div class="govuk-phase-banner__content">
+            <strong class="govuk-tag {{ PHASE_CLASS }} govuk-phase-banner__content__tag">
+                {% block phase_banner__tag %}
+                    {{ PHASE_HEADER }}
+                {% endblock %}
+            </strong>
+            <span class="govuk-phase-banner__text">
                   {% block phase_banner__text %}
                       {% autoescape off %}
                           {{ PHASE_CONTENT }}
                       {% endautoescape %}
                   {% endblock %}
                 </span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_header %}
+{% endblock %}
+
+{% block main %}
+    <div class="govuk-width-container">
+        {% if breadcrumbs %}
+            <div class="govuk-breadcrumbs">
+                <ol class="govuk-breadcrumbs__list">
+                    {% for crumb in breadcrumbs %}
+                        <li class="govuk-breadcrumbs__list-item">
+                            {% if crumb.url %}
+                                <a class="{{ crumb.class|default:'govuk-breadcrumbs__link' }}"
+                                   href="{{ crumb.url }}">{{ crumb.text }}</a>
+                            {% else %}
+                                {{ crumb.text }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        {% endif %}
+        {% if progress %}
+            {% block with_progress %}{% endblock %}
+        {% endif %}
+        {% block beforeContent %}{% endblock %}
+
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <footer class="govuk-footer">
+        <div class="govuk-width-container">
+            <div class="govuk-footer__meta">
+                <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+                    <h2 class="govuk-visually-hidden">Support links</h2>
+                    <ul class="govuk-footer__inline-list">
+                        <li class="govuk-footer__inline-list-item">
+                            <a class="govuk-footer__link" href="{% url 'privacy' %}">
+                                Privacy
+                            </a>
+                        </li>
+                        <li class="govuk-footer__inline-list-item">
+                            <a class="govuk-footer__link" href="{% url 'cookies' %}">
+                                Cookies
+                            </a>
+                        </li>
+                        <li class="govuk-footer__inline-list-item">
+                            <a class="govuk-footer__link" href="{% url 'accessibility' %}">
+                                Accessibility statement
+                            </a>
+                        </li>
+                        <li class="govuk-footer__inline-list-item">
+                            <a class="govuk-footer__link" href="{% url 'data-usage-policy' %}">
+                                Data usage policy
+                            </a>
+                        </li>
+                        <li class="govuk-footer__inline-list-item">
+                            <a class="govuk-footer__link" href="{% url 'help' %}">
+                                Help
+                            </a>
+                        </li>
+                    </ul>
+                    <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo"
+                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">
+                        <path fill="currentColor"
+                              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"></path>
+                    </svg>
+                    <span class="govuk-footer__licence-description">
+                        All content is available under the
+                      <a class="govuk-footer__link"
+                         href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                         rel="license">Open Government Licence v3.0</a>, except where otherwise stated
+
+                    </span>
+                </div>
+                <div class="govuk-footer__meta-item">
+                    <a class="govuk-footer__link govuk-footer__copyright-logo"
+                       href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">
+                        © Crown copyright
+                    </a>
                 </div>
             </div>
-        {% endblock %}
+        </div>
+    </footer>
+{% endblock %}
 
-        {% block extra_header %}
-        {% endblock %}
+{% block extra_script %}
+{% endblock %}
 
-        {% block main %}
-            <div class="govuk-width-container">
-                {% if breadcrumbs %}
-                    <div class="govuk-breadcrumbs">
-                        <ol class="govuk-breadcrumbs__list">
-                            {% for crumb in breadcrumbs %}
-                                <li class="govuk-breadcrumbs__list-item">
-                                    {% if crumb.url %}
-                                        <a class="{{ crumb.class|default:'govuk-breadcrumbs__link' }}"
-                                           href="{{ crumb.url }}">{{ crumb.text }}</a>
-                                    {% else %}
-                                        {{ crumb.text }}
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ol>
-                    </div>
-                {% endif %}
-                {% if progress %}
-                    {% block with_progress %}{% endblock %}
-                {% endif %}
-                {% block beforeContent %}{% endblock %}
+{% if GOOGLE_ANALYTICS_ID %}
+    <script nonce="{{ request.csp_nonce }}" src='{% static "js.cookie.min.js" %}'></script>
+    <script nonce="{{ request.csp_nonce }}" src='{% static "cookies.js" %}'></script>
+{% endif %}
+<script type="module" nonce="{{ request.csp_nonce }}">
+    import {initAll} from '{% static "govuk-frontend-5.11.1.min.js" %}'
 
-                <main class="govuk-main-wrapper" id="main-content" role="main">
-                    {% block content %}
-                    {% endblock %}
-                </main>
-            </div>
-        {% endblock %}
-
-        {% block footer %}
-            {% gds_footer %}
-                {% gds_footer_meta %}
-                    {% gds_footer_meta_item href="/privacy/" text="Privacy" %}
-                    {% gds_footer_meta_item href="/cookies/" text="Cookies" %}
-                    {% gds_footer_meta_item href="/accessibility/" text="Accessibility statement" %}
-                    {% gds_footer_meta_item href="/data-usage-policy/" text="Data usage policy" %}
-                    {% gds_footer_meta_item href="/help/" text="Help" %}
-                {% endgds_footer_meta %}
-            {% endgds_footer %}
-        {% endblock %}
-
-        {% block extra_script %}
-        {% endblock %}
-
-        {% if GOOGLE_ANALYTICS_ID %}
-            <script nonce="{{ request.csp_nonce }}" src='{% static "js.cookie.min.js" %}'></script>
-            <script nonce="{{ request.csp_nonce }}" src='{% static "cookies.js" %}'></script>
-        {% endif %}
-        <script type="module" nonce="{{ request.csp_nonce }}" src='{% static "govuk-frontend-5.11.1.min.js" %}'></script>
-        <script type="module" nonce="{{ request.csp_nonce }}">
-            import {initAll} from '{% static "govuk-frontend-5.11.1.min.js" %}'
-
-            initAll()
-        </script>
-    </body>
+    initAll()
+</script>
+</body>
 </html>
