@@ -66,7 +66,7 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     print(f"After Scenario: {scenario.status}")
-    if scenario.status == Status.failed:
+    if scenario.status in [Status.failed, Status.error]:
         parent_path = Path(__file__).parent.parent
         print(f"Saving screenshot and HTML for failed scenario {parent_path} {scenario.name}")
         os.makedirs(parent_path / "artifacts", exist_ok=True)  # Folder for all failure artifacts

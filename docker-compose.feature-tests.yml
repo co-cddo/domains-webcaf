@@ -1,0 +1,36 @@
+# This file extends the base docker-compose.yml. It only defines/overrides
+# what is needed to run feature tests in a dedicated container.
+services:
+  web:
+    environment:
+      OVERRIDE_SSO_HOST: dex
+      OVERRIDE_APP_HOST: web
+      SSO_MODE: dex
+
+  feature-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile-feature-tests
+      args:
+        BUILDKIT_INLINE_CACHE: "1"
+    depends_on:
+      - web
+      - oauth
+      - postgres
+    environment:
+      SECRET_KEY: unused # pragma: allowlist secret
+      DATABASE_URL: postgresql://webcaf:webcaf@postgres:5432/webcaf # pragma: allowlist secret
+      SSO_MODE: localhost
+      DOMAIN_NAME: http://web:8010
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      OVERRIDE_SSO_HOST: dex
+      OVERRIDE_APP_HOST: web
+      FEATURE_TEST_ARGS: ${FEATURE_TEST_ARGS:-}
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: > # pragma: allowlist secret
+      bash -lc "
+        echo 'Services ready. Starting tests...' &&
+        DATABASE_URL=postgresql://webcaf:webcaf@postgres:5432/webcaf poetry run behave -D base_url=http://web:8000 $FEATURE_TEST_ARGS
+      "

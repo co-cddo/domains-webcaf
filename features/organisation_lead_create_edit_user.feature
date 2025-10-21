@@ -6,6 +6,7 @@ Feature: Create and edit a new user for the organisation
     And the user "other@example.gov.uk" exists
     And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
     And the application is running
+    And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
   Scenario: Organisation lead can see option to create users and create an Organisation user and then edit
