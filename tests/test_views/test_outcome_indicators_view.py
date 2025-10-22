@@ -186,13 +186,14 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         :return:
         """
 
-        session = self.client.session
         # Assume the credentials of the same user role, but different organisation
         other_user_profile = UserProfile.objects.get(role=self.user_role, organisation__name="Medium organisation")
+        self.client.force_login(other_user_profile.user)
+
+        session = self.client.session
         session["current_profile_id"] = other_user_profile.id
         session["draft_assessment"] = {"assessment_id": self.assessment.id}
         session.save()
-        self.client.force_login(other_user_profile.user)
 
         form_data = {
             "achieved_A1.a.5": False,
@@ -204,7 +205,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             response = self.client.post(self.url, data=form_data)
         self.assertEqual(response.status_code, 404)
         self.assertIn(
-            "ERROR:SessionUtil:Unable to retrieve assessment with id None for user organisation_user@mediumorganisation.gov.uk",
+            f"ERROR:SessionUtil:Unable to retrieve assessment with id {self.assessment.id} for user organisation_user@mediumorganisation.gov.uk",
             cm.output[0],
         )
 

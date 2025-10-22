@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+
+{% block content_title %}
+    {{ block.super }}
+    <div style="margin-top: 0.5em; font-weight: bold; color: #555;">
+        <h2>NOTE:</h2>
+        <p>
+            Make sure you have a valid configuration for a given year.
+        </p>
+        <p>
+            Application will pick the configuration based on the current date, it will pick the configuration
+            with the closest higher end date to the current date.
+            System has automatically created two configurations for 2025 and 2026 assessment years.
+        </p>
+    </div>
+{% endblock %}
