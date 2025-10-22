@@ -59,7 +59,6 @@ from webcaf.webcaf.views.user_profiles import (
 )
 
 urlpatterns = [
-    path("", Index.as_view(), name="index"),
     path("my-account/", AccountView.as_view(), name="my-account"),
     path("my-account/view-draft-assessments/", ViewDraftAssessmentsView.as_view(), name="view-draft-assessments"),
     path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
@@ -67,7 +66,6 @@ urlpatterns = [
     path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
     path("view-organisations/", ChangeActiveProfileView.as_view(), name="view-organisations"),
     path("change-organisation/", ChangeActiveProfileView.as_view(), name="change-organisation"),
-    path("logout/", logout_view, name="logout"),
     path("admin/", admin.site.urls),
     path("oidc/", include("mozilla_django_oidc.urls")),
     #     Assessment paths
@@ -124,9 +122,13 @@ urlpatterns = [
     path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
     path("remove-profile/<int:user_profile_id>", RemoveUserProfileView.as_view(), name="remove-profile"),
     path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
-    path("data-usage-policy/", TemplateView.as_view(template_name="data-policy.html"), name="data-usage-policy"),
-    path("cookies/", TemplateView.as_view(template_name="cookies.html"), name="cookies"),
-    path("privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
-    path("help/", TemplateView.as_view(template_name="help.html"), name="help"),
-    path("accessibility/", TemplateView.as_view(template_name="accessibility.html"), name="accessibility"),
+    # Public pages
+    path("public/data-usage-policy/", TemplateView.as_view(template_name="data-policy.html"), name="data-usage-policy"),
+    path("public/cookies/", TemplateView.as_view(template_name="cookies.html"), name="cookies"),
+    path("public/privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
+    path("public/help/", TemplateView.as_view(template_name="help.html"), name="help"),
+    path("public/accessibility/", TemplateView.as_view(template_name="accessibility.html"), name="accessibility"),
+    # Application pages that does not need login
+    path("logout/", logout_view, name="logout"),
+    path("", Index.as_view(), name="index"),
 ]
