@@ -55,6 +55,8 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
         "self", on_delete=models.SET_NULL, related_name="sub_organisations", null=True, blank=True
     )
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.name
 
@@ -123,6 +125,8 @@ class System(ReferenceGeneratorMixin, models.Model):
     last_assessed = models.CharField(choices=ASSESSED_CHOICES, max_length=255, null=True, blank=True)
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
     corporate_services = MultiSelectField(choices=CORPORATE_SERVICES, null=True, blank=True, max_length=255)
+
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ["name", "organisation"]
@@ -298,6 +302,8 @@ class UserProfile(models.Model):
         Organisation, on_delete=models.CASCADE, related_name="members", null=True, blank=True
     )
     role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES)
+
+    history = HistoricalRecords()
 
     @classmethod
     def get_role_id(cls, role_name) -> str | None:
