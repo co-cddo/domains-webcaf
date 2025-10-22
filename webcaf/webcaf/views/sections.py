@@ -1,5 +1,6 @@
 import logging
 from collections import namedtuple
+from pathlib import Path
 from typing import Any
 
 from django.forms import Form
@@ -8,6 +9,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
+from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import Assessment
 from webcaf.webcaf.templatetags.form_extras import (
@@ -199,7 +201,7 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
         data: dict[str, Any] = {
             "assessment": assessment,
             "objectives": assessment.get_router().get_sections(),
-            "breadcrumbs": [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}],
+            "breadcrumbs": [{"url": reverse("view-submitted-assessments"), "text": "back", "class": "govuk-back-link"}],
             "first_submitted": first_submitted_on,
         }
         return data
@@ -219,17 +221,17 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         logging.getLogger("weasyprint").setLevel(logging.ERROR)
         # Render the template as HTML
         context = self.get_context_data(**kwargs)
+        context["pdf_printing"] = True
         html_string = render_to_string(self.template_name, context, request=request)
 
         # Generate PDF
         # Need to set the absolute path to the static files as pdf generation does not work with relative paths
-        html_string = html_string.replace(
-            "/assets/govuk-frontend-5.11.1.min.css", f"file://{settings.STATIC_ROOT}/govuk-frontend-5.11.1.min.css"
-        )
-        html_string = html_string.replace("/assets/application.css", f"file://{settings.STATIC_ROOT}/application.css")
-        pdf = HTML(
-            string=html_string,
-        ).write_pdf()
+        def custom_url_fetcher(url, timeout=10, ssl_context=None, http_headers=None):
+            return default_url_fetcher(
+                Path(settings.STATIC_ROOT + "/" + url.split("assets/")[-1]).as_uri(), timeout, ssl_context, http_headers
+            )
+
+        pdf = HTML(string=html_string, url_fetcher=custom_url_fetcher, base_url=Path(settings.STATIC_ROOT)).write_pdf()
         pdf_file = pdf
 
         # Return as PDF response

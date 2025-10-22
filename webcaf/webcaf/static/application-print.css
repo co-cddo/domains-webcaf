@@ -1,0 +1,73 @@
+@media print {
+    /*Elements to hide when printing*/
+    .no_print,
+    form input,
+    form textarea,
+    form select,
+    form button,
+    .breadcrumbs,
+    a,
+    .cookie-banner,
+    header,
+    footer {
+        display: none;
+        visibility: hidden;
+    }
+
+    .summary-grid {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        padding-bottom: 5pt;
+    }
+
+    .summary-grid__cell {
+        display: table-cell;
+        width: auto;
+        padding: 1pt 0;
+        border: none; /* cleaner for paper */
+    }
+
+    .summary-grid__cell--full {
+        text-align: left;
+        display: table-row;
+        padding: 1pt 0;
+    }
+
+    .summary-grid__cell--full--with-border {
+        text-align: left;
+        display: table-row;
+        padding: 1pt 0;
+        border-bottom: 1px solid #b1b4b6;
+    }
+
+    .statement-para {
+        text-align: justify;
+        padding-bottom: 14pt;
+    }
+
+    .single-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        margin-bottom: 12pt !important;
+    }
+
+    .bottom-banner, #bottom-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #1d70b8; /* GOV.UK blue */
+        color: #fff;
+        border-top: 1px solid #000;
+        text-align: center;
+        padding: 6pt 0;
+        font-size: 9pt;
+        opacity: 0.9;
+    }
+
+    /* Give space for the banner */
+    body, main, .govuk-main-wrapper {
+        padding-bottom: 45pt !important; /* Adjust to match banner height */
+    }
+}

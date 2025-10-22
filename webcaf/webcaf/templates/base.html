@@ -25,6 +25,10 @@
     <link rel="stylesheet" href="{% static 'govuk-frontend-5.11.1.min.css' %}">
     <link rel="stylesheet" href="{% static 'application.css' %}">
 
+    {% if pdf_printing %}
+        <link rel="stylesheet" href="{% static 'application-print.css' %}">
+    {% endif %}
+
     {% block extra_stylesheets %}
     {% endblock %}
 
