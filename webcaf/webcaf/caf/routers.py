@@ -220,7 +220,7 @@ class CAF32Router(CAFLoader):
                 name=element["short_name"],
             )
             urls.urlpatterns.append(url_to_add)
-        self.logger.info(f"Added {url_to_add}")
+        self.logger.debug(f"Added {url_to_add}")
 
     def _process_outcome(self, element) -> None:
         if element.get("stage") == "indicators":
