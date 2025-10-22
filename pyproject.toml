@@ -42,6 +42,7 @@ pytest = "^8.4.1"
 pytest-playwright = "^0.7.0"
 behave = "^1.2.6"
 ruamel-yaml = "^0.18.15"
+behave-html-formatter = "^0.9.10"
 
 [tool.isort]
 profile = "black"

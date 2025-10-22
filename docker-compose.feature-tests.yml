@@ -32,5 +32,5 @@ services:
     command: > # pragma: allowlist secret
       bash -lc "
         echo 'Services ready. Starting tests...' &&
-        DATABASE_URL=postgresql://webcaf:webcaf@postgres:5432/webcaf poetry run behave -D base_url=http://web:8000 $FEATURE_TEST_ARGS
+        DATABASE_URL=postgresql://webcaf:webcaf@postgres:5432/webcaf poetry run behave -f behave_html_formatter:HTMLFormatter -o reports/report.html -D base_url=http://web:8000 $FEATURE_TEST_ARGS
       "
