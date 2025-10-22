@@ -12,14 +12,14 @@ clear-db:
 
 test:
 	docker compose run --rm --service-ports --entrypoint "python manage.py test -v 2" web
+	docker compose down
 build:
 	BUILDKIT_PROGRESS=plain docker compose build
 
 behave:
 	FEATURE_TEST_ARGS="$(FEATURE_TEST_ARGS)" docker compose -f docker-compose.yml -f docker-compose.feature-tests.yml up --build --abort-on-container-exit --exit-code-from feature-tests feature-tests
-
-down:
 	docker compose down
 
 up_dex:
+	#	Bring up dex container for working with local development
 	docker compose -f docker-compose.yml up -d oauth

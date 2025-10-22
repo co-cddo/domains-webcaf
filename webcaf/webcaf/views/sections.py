@@ -1,5 +1,7 @@
 import logging
+import zoneinfo
 from collections import namedtuple
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -11,11 +13,7 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Assessment
-from webcaf.webcaf.templatetags.form_extras import (
-    get_assessment,
-    is_all_objectives_complete,
-)
+from webcaf.webcaf.models import Assessment, Configuration
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -42,7 +40,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        assessment = get_assessment(self.request)
+        assessment = SessionUtil.get_current_assessment(self.request)
         # Come back to this.
         if assessment:
             data["objectives"] = assessment.get_router().get_sections()
@@ -71,18 +69,22 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         """
         assessment = SessionUtil.get_current_assessment(self.request)
         if assessment:
-            if is_all_objectives_complete(assessment.id):
+            if assessment.is_complete():
                 if assessment.status == "draft":
                     assessment.last_updated_by = self.request.user
                     assessment.status = "submitted"
                     assessment.save()
-                    self.logger.info(f"Assessment {assessment.id} reference {assessment.reference} generated")
+                    uk_tz = zoneinfo.ZoneInfo("Europe/London")
+                    self.logger.info(
+                        f"Assessment {assessment.id} reference {assessment.reference} submitted"
+                        f" at {datetime.now(tz=uk_tz).strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
                 else:
                     self.logger.info(f"Assessment {assessment.id} already submitted")
                 return redirect(reverse("show-submission-confirmation"))
             else:
                 # User has not completed all objectives and should not have reached this page
-                self.logger.info(
+                self.logger.error(
                     f"User {self.request.user.username} has not completed all objectives, but tried to submit {assessment.id}"
                 )
         else:
@@ -110,9 +112,17 @@ class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
         return ["organisation_lead"]
 
     def get_context_data(self, **kwargs):
-        assessment = get_assessment(self.request, "submitted")
+        assessment = SessionUtil.get_current_assessment(self.request, "submitted")
+        configuration = Configuration.objects.get_default_config()
         if assessment:
-            return {"assessment_ref": assessment.reference}
+            return {
+                "assessment_ref": assessment.reference,
+                "current_assessment_period": configuration.get_current_assessment_period(),
+                # Format it to this pattern 11:59pm on 31 March 2026
+                "cutoff_date_time": assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
+                if assessment.submission_due_date
+                else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y"),
+            }
         return {}
 
 
