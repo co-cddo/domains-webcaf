@@ -92,11 +92,13 @@
                                              data-module="govuk-character-count"
                                              data-maxwords={{ the_field_comment.field.widget.attrs.max_words }}>
                                             <label class="govuk-label comments_label div_id_{{ item.name }}_comments_label"
-                                                   for="{{ the_field_comment.auto_id|safe_id }}">
+                                                   for="{{the_field_comment.auto_id|safe_id}}">
+                                                <span class="govuk-visually-hidden">Confirm outcome summary :</span>
                                             </label>
                                             <!-- @formatter:off -->
                                             {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
                                             <textarea class="govuk-textarea comments_textarea govuk-js-character-count"
+                                                      aria-describedby="{{ the_field_comment.auto_id|safe_id }}-info"
                                                       id="{{the_field_comment.auto_id|safe_id}}"
                                                       name="{{ the_field_comment.name }}"
                                                       rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>

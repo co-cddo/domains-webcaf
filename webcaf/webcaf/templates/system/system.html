@@ -17,7 +17,7 @@
             <form class="form" method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group {% if form.errors.name %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label" for="name">
+                    <label class="govuk-label" for="id_name">
                         <span class="govuk-heading-m">System name</span>
                     </label>
                     <div id="govsysmanual-hint" class="govuk-hint">

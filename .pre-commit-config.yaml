@@ -60,3 +60,4 @@ repos:
           - django-simple-history
           - django-axes
           - 'sentry-sdk[django]'
+          - weasyprint

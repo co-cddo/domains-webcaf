@@ -10,7 +10,7 @@
             {% for outcome in principal.outcomes.values %}
                 <span class="summary-container">
                 {% get_outcome_details assessment outcome.code as outcome_details %}
-                <div class="summary-grid">
+                <div class="summary-grid avoid-break single-row">
                     <div class="summary-grid__cell">
                         <span class="govuk-heading-s">{{ outcome.code }} {{ outcome.title }}</span>
                     </div>

@@ -458,5 +458,5 @@ def create_form_view(
         )
 
     FormViewClass = type(class_name, parent_classes, class_attrs)
-    create_form_view_logger.info(f"Creating view class {class_name} with parent classes {parent_classes}")
+    create_form_view_logger.debug(f"Creating view class {class_name} with parent classes {parent_classes}")
     return FormViewClass
