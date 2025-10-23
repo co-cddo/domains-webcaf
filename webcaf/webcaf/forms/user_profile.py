@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 
 from webcaf.webcaf.models import UserProfile
@@ -11,6 +13,8 @@ class UserProfileForm(forms.ModelForm):
     # By default we do not pass the action field in the initial form, which makes the validation failure
     # and we capture that ant and redirect the user to the confirmation page.
     action = forms.ChoiceField(choices=[("change", "Change"), ("confirm", "Confirm")], required=True)
+
+    logger = logging.getLogger("UserProfileForm")
 
     class Meta:
         model = UserProfile
@@ -63,6 +67,7 @@ class UserProfileForm(forms.ModelForm):
         if user.email != self.cleaned_data["email"]:
             user.email = self.cleaned_data["email"]
             user.username = user.email
+            self.logger.info(f"Updated user {user.username} email to {user.email}")
         if commit:
             user.save()
             profile.save()

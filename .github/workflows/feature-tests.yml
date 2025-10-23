@@ -30,6 +30,9 @@ jobs:
         run: |
           mkdir -p artifacts
           make behave
+      - name: Save Docker logs
+        if: failure()
+        run: docker compose logs --no-color > artifacts/docker-compose.log
 
       - name: Upload artifacts on failure
         if: failure()
