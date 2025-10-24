@@ -478,7 +478,12 @@ def step_impl(context: Context, cookie_choice: str):
     :type context: behave.runner.Context
     """
     if cookie_choice == "accepted":
-        context.page.get_by_role("button", name="Accept analytics cookies").click()
+        button = context.page.get_by_role("button", name="Accept analytics cookies")
+
     else:
-        context.page.get_by_role("button", name="Reject analytics cookies").click()
-    context.page.get_by_role("button", name="Hide this message").click()
+        button = context.page.get_by_role("button", name="Reject analytics cookies")
+    if button.is_visible():
+        button.click()
+    hide_message_button = context.page.get_by_role("button", name="Hide this message")
+    if hide_message_button.is_visible():
+        hide_message_button.click()

@@ -1,5 +1,10 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import F, Func, Value
+from django.db.models.functions import Cast
+from django.utils.timezone import make_aware
 from multiselectfield import MultiSelectField
 from simple_history.models import HistoricalRecords
 
@@ -131,6 +136,9 @@ class System(ReferenceGeneratorMixin, models.Model):
     class Meta:
         unique_together = ["name", "organisation"]
 
+    def __str__(self):
+        return self.name
+
 
 class Assessment(ReferenceGeneratorMixin, models.Model):
     STATUS_CHOICES = [
@@ -172,6 +180,10 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     assessment_period = models.CharField(max_length=255)
     created_on = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+
+    # This is calculated based on the current end date of the assessment period
+    submission_due_date = models.DateTimeField(null=True, blank=True)
+
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assessments_created"
     )
@@ -273,6 +285,9 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
             return set(all_outcomes) == set(completed_outcomes)
         return False
 
+    def __str__(self):
+        return self.reference or self.id
+
 
 class UserProfile(models.Model):
     ROLE_ACTIONS = {
@@ -320,11 +335,67 @@ class UserProfile(models.Model):
         return None
 
 
+class ConfigurationManager(models.Manager):
+    def get_default_config(self):
+        """
+        Summary:
+        Retrieves the default configuration based on the current date and time.
+        This will check all existing configurations that have the assessment_period_end
+        value that is greater than or equal to the current date and time, and pick
+        the closest value to the current date+time.
+
+        :return: The default configuration if found, otherwise None.
+        """
+        now = make_aware(datetime.now())
+        # Annotate the model with a datetime parsed from JSON field
+        qs = (
+            self.get_queryset()
+            .annotate(
+                # Extract the key "assessment_period_end" from the JSON field and cast to text
+                assessment_period_end_text=Cast(
+                    F("config_data__assessment_period_end"), output_field=models.TextField()
+                )
+            )
+            .annotate(
+                # Remove the quotes from the string
+                assessment_period_end_dt=Func(
+                    Func(F("assessment_period_end_text"), Value('"'), Value(""), function="replace"),
+                    Value("DD Month YYYY HH12:MIpm"),  # Adjust format to match your string
+                    function="to_timestamp",
+                    output_field=models.DateTimeField(),
+                )
+            )
+        )
+
+        # Filter configs where assessment_period_end >= now and get the earliest one
+        default_config = qs.filter(assessment_period_end_dt__gte=now).order_by("assessment_period_end_dt").first()
+        return default_config
+
+
 class Configuration(models.Model):
     config_data = models.JSONField(default=dict)
+    name = models.CharField(max_length=255, unique=True)
+    # custom manager to get the default config
+    objects = ConfigurationManager()
 
     def get_current_assessment_period(self):
         return self.config_data.get("current_assessment_period")
 
     def get_assessment_period_end(self):
         return self.config_data.get("assessment_period_end")
+
+    def get_default_framework(self):
+        return self.config_data.get("default_framework")
+
+    def get_submission_due_date(self):
+        """
+        Convert the get_assessment_period_end in to a datetime object.
+        The format is 31 March 2026 11:59pm.
+        :return:
+        """
+        assessment_period_end = self.get_assessment_period_end()
+        # Parse the date string in format "31 March 2026 11:59pm"
+        return make_aware(datetime.strptime(assessment_period_end, "%d %B %Y %I:%M%p"))
+
+    def __str__(self):
+        return self.name
