@@ -117,6 +117,7 @@ class LoginRequiredMiddleware:
             "/static/",
             "/media",
             "/public/",
+            "/session-expired/",
         ]
         self.exempt_exact_urls = [
             # index page

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Session expired{% endblock %}
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Your session has ended due to inactivity</h1>
+        <p class="govuk-body">
+          Your session has ended because you haven't done anything for 90 minutes.
+          Any pages you have saved earlier will be stored.</p>
+
+      <div class="govuk-inset-text">
+  We have deleted your responses on pages which you did not save.
+</div>
+
+  <a href="/" role="button" draggable="false" class="govuk-button">
+    Continue
+  </a>
+
+{% endblock %}

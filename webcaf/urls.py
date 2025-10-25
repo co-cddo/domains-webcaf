@@ -44,6 +44,7 @@ from webcaf.webcaf.views.sections import (
     ShowSubmissionConfirmationView,
     ViewSubmittedAssessment,
 )
+from webcaf.webcaf.views.session_expired import session_expired
 from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
     EditSystemView,
@@ -131,4 +132,5 @@ urlpatterns = [
     # Application pages that does not need login
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),
+    path("session-expired/", session_expired, name="session-expired"),
 ]

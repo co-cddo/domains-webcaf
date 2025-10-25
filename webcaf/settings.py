@@ -80,6 +80,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "axes.middleware.AxesMiddleware",
+    "webcaf.session.CafSessionTimeoutMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
@@ -321,3 +322,8 @@ if SENTRY_DSN:
         environment=ENVIRONMENT,
         traces_sampler=traces_sampler,
     )
+
+# sets session timeout at 90 minutes
+USER_IDLE_TIMEOUT = 90 * 60
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
