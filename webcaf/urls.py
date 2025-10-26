@@ -51,6 +51,7 @@ from webcaf.webcaf.views.system import (
     SystemView,
     ViewSystemsView,
 )
+from webcaf.webcaf.views.two_factor_auth import Verify2FATokenView
 from webcaf.webcaf.views.user_profiles import (
     CreateOrSkipUserProfileView,
     CreateUserProfileView,
@@ -133,4 +134,5 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),
     path("session-expired/", session_expired, name="session-expired"),
+    path("verify-2fa-token/", Verify2FATokenView.as_view(), name="verify-2fa-token"),
 ]

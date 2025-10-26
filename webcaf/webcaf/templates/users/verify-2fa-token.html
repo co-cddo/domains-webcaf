@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Verify Your Identity{% endblock %}
+
+{% block content %}
+{% include 'partials/error_message.html' %}
+  <h1 class="govuk-heading-l">Two-Factor Verification Required</h2>
+  <p class="govuk-body">
+    Please enter the 6-digit code sent to you user account email address to continue.
+  </p>
+
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="govuk-form-group">
+
+        {{ form.otp_token }}
+
+    </div>
+
+    <button type="submit" class="govuk-button">
+        Continue
+    </button>
+
+</form>
+
+<p class="govuk-body">If you have not recieved a OTP you can click the button below to resend</p>
+<a href="/verify-2fa-token/"class="govuk-button" draggable="false"
+               data-module="govuk-button">Resend Code</a>
+{% endblock %}

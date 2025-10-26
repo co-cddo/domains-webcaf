@@ -1,15 +1,22 @@
+import logging
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F, Func, Value
 from django.db.models.functions import Cast
 from django.utils.timezone import make_aware
+from django_otp.plugins.otp_email.models import EmailDevice
 from multiselectfield import MultiSelectField
+from notifications_python_client.notifications import NotificationsAPIClient
 from simple_history.models import HistoricalRecords
 
 from webcaf.webcaf.abcs import FrameworkRouter
 from webcaf.webcaf.utils.references import generate_reference
+
+# Set up a logger for any Notify errors
+logger = logging.getLogger(__name__)
 
 
 class ReferenceGeneratorMixin:
@@ -399,3 +406,74 @@ class Configuration(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GovNotifyEmailDevice(EmailDevice):
+    """
+    A proxy model for ``django_otp.plugins.otp_email.models.EmailDevice``.
+
+    This subclass overrides the token sending mechanism to use the
+    GOV.UK Notify service instead of Django's built-in email backend,
+    which is configurable via settings.
+    """
+
+    def send_mail(self, token, **kwargs):
+        """
+        Overrides the default ``send_mail`` method to send the OTP token.
+
+        This method is called by django-otp's ``generate_challenge`` after
+        a token is generated.
+
+        If ``settings.SSO_MODE`` is not set to "external", it falls back
+        to the parent class's ``send_mail`` method (which typically prints
+        the token to the console in development).
+
+        If ``settings.SSO_MODE`` is "external", it attempts to send the
+        token using the GOV.UK Notify API. Any exceptions during this
+        process are caught and logged, preventing a hard failure.
+
+        :param token: The one-time password (OTP) token to be sent.
+        :type token: str
+        :param **kwargs: Arbitrary keyword arguments passed from the
+                         calling method. Not used in this implementation.
+        """
+        # if not external sso mode then we can print the token in the console for
+        # local development
+        if not settings.SSO_MODE == "external":
+            logger.debug("SSO_MODE is not 'external'. Using default send_mail.")
+            return super().send_mail(token, **kwargs)
+
+        if NotificationsAPIClient is None:
+            logger.error("GOV.UK Notify: notifications_python_client is not installed. " "Cannot send OTP email.")
+            return
+
+        try:
+            notify_client = NotificationsAPIClient(settings.NOTIFY_API_KEY)
+
+            personalisation_data = {
+                "token": token,
+                "first_name": self.user.first_name,
+                "last_name": self.user.last_name,
+            }
+
+            # Send the token using the Gov Notify template
+            notify_client.send_email_notification(
+                email_address=self.email,
+                template_id=settings.NOTIFY_OTP_TEMPLATE_ID,
+                personalisation=personalisation_data,
+            )
+            logger.info(f"GOV.UK Notify: Successfully sent OTP to {self.email}")
+        except Exception as e:
+            logger.exception(f"GOV.UK Notify: Failed to send OTP to {self.email}: {e}")
+            pass
+
+    class Meta:
+        """
+        Meta options for the GovNotifyEmailDevice model.
+
+        ``proxy = True`` ensures that this model does not create its own
+        database table. Instead, it operates on the existing
+        ``otp_email_emaildevice`` table from the ``django-otp`` app.
+        """
+
+        proxy = True
