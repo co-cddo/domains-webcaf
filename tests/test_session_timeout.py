@@ -2,9 +2,10 @@ import time
 
 from django.test import Client, override_settings
 from django.urls import reverse
+from django_otp import DEVICE_ID_SESSION_KEY
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.models import GovNotifyEmailDevice, UserProfile
 from webcaf.webcaf.views.account import AccountView
 
 
@@ -18,8 +19,10 @@ class SetupSessionTestData(BaseViewTest):
         self.my_account_url = reverse("my-account")
         self.session_timeout_url = reverse("session-expired")
         self.user_profile = UserProfile.objects.get(user=self.test_user)
+        self.device = GovNotifyEmailDevice.objects.create(user=self.test_user, email=self.test_user.email)
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
+        session[DEVICE_ID_SESSION_KEY] = self.device.persistent_id
         session.save()
 
 
