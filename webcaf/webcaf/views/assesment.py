@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
 
-from webcaf.webcaf.models import Assessment, System, UserProfile
+from webcaf.webcaf.models import Assessment, Configuration, System, UserProfile
 from webcaf.webcaf.utils.session import SessionUtil
 
 
@@ -336,6 +336,12 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         router = routers["caf32"]
         data["objectives"] = router.get_sections()
         data["review_form"] = AssessmentReviewTypeForm
+
+        configuration = Configuration.objects.get_default_config()
+        data["current_assessment_period"] = configuration.get_current_assessment_period()
+        data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p")
+        data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
+
         return data
 
     def get_success_url(self):
@@ -364,16 +370,18 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             # create the assessment instance in the database. This enables us to
             # forward the user to the editing screen with an known assessment id.
             system = System.objects.get(id=draft_assessment["system"], organisation=current_organisation)
+            configuration = Configuration.objects.get_default_config()
             assessment, _ = Assessment.objects.get_or_create(
                 status="draft",
-                assessment_period="25/26",
+                assessment_period=configuration.get_current_assessment_period(),
                 system=system,
-                framework="caf32",
+                framework=configuration.get_default_framework(),
                 defaults={
                     "created_by": self.request.user,
                     "caf_profile": draft_assessment["caf_profile"],
                     "last_updated_by": self.request.user,
                     "review_type": draft_assessment["review_type"],
+                    "submission_due_date": configuration.get_submission_due_date(),
                 },
             )
             draft_assessment["assessment_id"] = assessment.id
