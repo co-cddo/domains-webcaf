@@ -1,31 +1,42 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Verify Your Identity{% endblock %}
+{% block title %}Two-factor authentication{% endblock %}
 
 {% block content %}
 {% include 'partials/error_message.html' %}
-  <h1 class="govuk-heading-l">Two-Factor Verification Required</h2>
-  <p class="govuk-body">
-    Please enter the 6-digit code sent to you user account email address to continue.
-  </p>
+
+ <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">
+        Check your email
+      </h1>
+      <div class="govuk-inset-text">
+        We have sent a one-time code to the email address you registered with <b>WebCAF</b>.
+      </div>
+
+      <p class="govuk-body">
+        It might take a few minutes to arrive. The code will expire after 5 minutes. <br>
+        If you request a new code it will be sent 1 minute after the last request.
+      </p>
 
 
-<form method="post">
-    {% csrf_token %}
+      <form method="post">
+          {% csrf_token %}
 
-    <div class="govuk-form-group">
+          <div class="govuk-form-group">
+          <label class="govuk-label" for="width-5">
+              Enter the 6 digit code
+          </label>
+              {{ form.otp_token }}
 
-        {{ form.otp_token }}
-
-    </div>
-
-    <button type="submit" class="govuk-button">
-        Continue
-    </button>
-
-</form>
-
-<p class="govuk-body">If you have not recieved a OTP you can click the button below to resend</p>
-<a href="/verify-2fa-token/"class="govuk-button" draggable="false"
-               data-module="govuk-button">Resend Code</a>
+          </div>
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button">
+                Continue
+            </button>
+            <a class="govuk-link" href="/verify-2fa-token/">Resend the code</a>
+          </div>
+      </form>
+  </div>
+</div>
 {% endblock %}
