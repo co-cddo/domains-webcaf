@@ -487,3 +487,11 @@ def step_impl(context: Context, cookie_choice: str):
     hide_message_button = context.page.get_by_role("button", name="Hide this message")
     if hide_message_button.is_visible():
         hide_message_button.click()
+
+
+@then('should see "{options}" in select box options')
+def expected_options_in_select_box(context: Context, options: str):
+    page = context.page
+    options_locator = page.locator("#system_id > option")
+    options_list = options.split(",")
+    expect(options_locator).to_have_text(options_list)
