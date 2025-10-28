@@ -1,8 +1,9 @@
 from django.test import Client
 from django.urls import reverse
+from freezegun import freeze_time
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import Assessment
+from webcaf.webcaf.models import Assessment, Configuration
 
 
 class SetupAssessmentTestData(BaseViewTest):
@@ -149,3 +150,57 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
         assessment = Assessment.objects.get(id=self.assessment.id)
         self.assertEqual(assessment.review_type, "independent")
         self.assertRedirects(response, self.edit_review_type_url)
+
+    @freeze_time("2050-01-15 10:00:00")
+    def test_edit_assessment_context_contains_correct_assessment_period_and_cutoff_values(self):
+        """
+        Test that EditAssessmentView context contains correct values for:
+        - current_assessment_period
+        - cutoff_time
+        - cutoff_date
+
+        Uses freezegun to set the current date to 2050 to avoid clashes with existing data.
+        """
+        # Create a configuration for the 2050 assessment period
+        Configuration.objects.create(
+            name="2050 Assessment Period",
+            config_data={
+                "current_assessment_period": "49/50",
+                "assessment_period_end": "31 March 2050 11:59pm",
+                "default_framework": "caf32",
+            },
+        )
+
+        # Create a draft assessment for the 2050 period
+        assessment_2050 = Assessment.objects.create(
+            system=self.test_system,
+            status="draft",
+            assessment_period="49/50",
+            review_type="peer_review",
+            framework="caf32",
+            caf_profile="baseline",
+        )
+
+        edit_url = reverse("edit-draft-assessment", kwargs={"assessment_id": assessment_2050.id})
+
+        # login to authenticate test user
+        self.client.force_login(self.test_user)
+        session = self.client.session
+        session["current_profile_id"] = self.user_profile.id
+        session.save()
+
+        # Make the GET request
+        response = self.client.get(edit_url)
+
+        # Assert the response is successful
+        self.assertEqual(response.status_code, 200)
+
+        # Verify context contains the expected values
+        self.assertIn("current_assessment_period", response.context)
+        self.assertIn("cutoff_time", response.context)
+        self.assertIn("cutoff_date", response.context)
+
+        # Check the actual values match what we set in the configuration
+        self.assertEqual(response.context["current_assessment_period"], "49/50")
+        self.assertEqual(response.context["cutoff_time"], "11:59PM")
+        self.assertEqual(response.context["cutoff_date"], "31 March 2050")
