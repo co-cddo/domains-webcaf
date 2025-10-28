@@ -60,6 +60,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         # We need to access this information later in the assessment editing stages.
         self.request.session["draft_assessment"] = draft_assessment
         user_profile = SessionUtil.get_current_user_profile(self.request)
+        configuration = Configuration.objects.get_default_config()
         data.update(
             {
                 "draft_assessment": draft_assessment,
@@ -80,6 +81,9 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                 ),
                 "current_profile": user_profile,
                 "review_form": AssessmentReviewTypeForm,
+                "current_assessment_period": configuration.get_current_assessment_period(),
+                "cutoff_time": configuration.get_submission_due_date().strftime("%I:%M%p"),
+                "cutoff_date": configuration.get_submission_due_date().strftime("%d %B %Y"),
             }
         )
 
