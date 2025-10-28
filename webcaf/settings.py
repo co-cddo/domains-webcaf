@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     "govuk_frontend_django",
     "webcaf.webcaf.apps.WebcafConfig",
     "csp",
+    "django_otp",
+    "django_otp.plugins.otp_email",
     "mozilla_django_oidc",
     "simple_history",
     "axes",
@@ -80,6 +82,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "axes.middleware.AxesMiddleware",
+    "django_otp.middleware.OTPMiddleware",
+    "webcaf.session.CafSessionTimeoutMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
@@ -254,6 +258,9 @@ if SSO_MODE.lower() == "external":
     OIDC_STORE_ID_TOKEN = True
     OIDC_STORE_ACCESS_TOKEN = True
     LOGOUT_REDIRECT_URL = env.str("LOGOUT_REDIRECT_URL")
+    NOTIFY_API_KEY = env.str("NOTIFY_API_KEY", "")
+    NOTIFY_OTP_TEMPLATE_ID = env.str("NOTIFY_OTP_TEMPLATE_ID", "")
+    ENABLED_2FA = True
 else:
     sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"
@@ -268,6 +275,11 @@ else:
     OIDC_STORE_ACCESS_TOKEN = True
     OIDC_OP_LOGOUT_ENDPOINT = f"http://{env.str('OVERRIDE_SSO_HOST', 'localhost')}:5556/auth/logout"
     LOGOUT_REDIRECT_URL = f"http://{env.str('OVERRIDE_APP_HOST', 'localhost')}:8010/"
+    # if we enable 2fa locally for testing this ensures we capture the token in the local console
+    # rather than attempting to a send gov notify email
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    ENABLED_2FA = False
+
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")
@@ -321,3 +333,8 @@ if SENTRY_DSN:
         environment=ENVIRONMENT,
         traces_sampler=traces_sampler,
     )
+
+# sets session timeout at 90 minutes
+USER_IDLE_TIMEOUT = 90 * 60
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

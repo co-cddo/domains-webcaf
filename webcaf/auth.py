@@ -7,6 +7,7 @@ for enforcing authentication requirements across the application.
 
 import logging
 
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
@@ -117,6 +118,9 @@ class LoginRequiredMiddleware:
             "/static/",
             "/media",
             "/public/",
+            "/session-expired/",
+            "/verify-2fa-token/",
+            "/logout/",
         ]
         self.exempt_exact_urls = [
             # index page
@@ -138,12 +142,23 @@ class LoginRequiredMiddleware:
             HttpResponse: Either the response from the next middleware/view or
                 a redirect to the authentication initialization endpoint.
         """
+        # handle the local dev for when 2FA is disabled
+        if not settings.ENABLED_2FA and request.user.is_authenticated:
+            self.logger.debug("Allowing access for local development or testing")
+            return self.get_response(request)
+
         if (
-            not request.user.is_authenticated
+            not request.user.is_verified()
             and not any(request.path.startswith(url) for url in self.exempt_url_prefixes)
             and request.path not in self.exempt_exact_urls
         ):
-            self.logger.debug("Force authentication for %s", request.path)
-            return redirect("oidc_authentication_init")
+            if not request.user.is_authenticated:
+                self.logger.debug("Force authentication for %s", request.path)
+                return redirect("oidc_authentication_init")
+
+            verify_url = reverse("verify-2fa-token")
+
+            return redirect(verify_url)
+
         self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)
         return self.get_response(request)

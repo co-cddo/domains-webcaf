@@ -1,11 +1,19 @@
-# your_app/tests.py
+"""
+We override the settings.ENABLED_2FA to be True in these test classes
+
+This ensures we mimic a production like enviroment where both SSO and
+2FA authentications are required.
+"""
+
 import logging
 
-from django.test import Client
-from django.urls import reverse
+from django.test import Client, override_settings
+from django.urls import get_resolver, reverse
+from django_otp import DEVICE_ID_SESSION_KEY
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import UserProfile
+from webcaf.auth import LoginRequiredMiddleware
+from webcaf.webcaf.models import GovNotifyEmailDevice, UserProfile
 
 
 class SetupPermissionsData(BaseViewTest):
@@ -28,6 +36,11 @@ class SetupPermissionsData(BaseViewTest):
         self.submit_a_review_url = reverse("objective-confirmation")
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
+
+        # This mocks conditions required for a 2fa verified user
+        device = GovNotifyEmailDevice.objects.create(user=self.test_user, email=self.test_user.email)
+        session[DEVICE_ID_SESSION_KEY] = device.persistent_id
+
         session.save()
         self.req_logger = logging.getLogger("django.request")
 
@@ -37,11 +50,26 @@ class SetupPermissionsData(BaseViewTest):
         self.req_logger.setLevel(logging.ERROR)
         self.client.force_login(self.test_user)
 
+        login = LoginRequiredMiddleware(None)
+
+        self.non_auth_urls = login.exempt_url_prefixes + login.exempt_exact_urls
+        # list of urls that should require authentication from both sso and 2fa to view
+        self.url_names_requiring_auth = [
+            url_pattern.pattern.name
+            for url_pattern in get_resolver().url_patterns
+            if not any(
+                True if url_pattern.pattern._route in non_auth_url else False for non_auth_url in self.non_auth_urls
+            )
+            and not url_pattern.pattern._route.startswith("public")
+            and "<int:" not in url_pattern.pattern._route
+        ]
+
     def tearDown(self):
         # restore the original logging level after these tests run
         self.req_logger.setLevel(self.original_level)
 
 
+@override_settings(ENABLED_2FA=True)
 class OrgUserProfilePermissionTest(SetupPermissionsData):
     """
     tests that assert the organisational user cannot access pages they are not
@@ -93,7 +121,27 @@ class OrgUserProfilePermissionTest(SetupPermissionsData):
         response = self.client.get(self.create_or_skip_new_system_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_non_verified_org_user_cannot_access_private_pages(self):
+        """
+        Test an org users redirected to verify token if not a verified
+        user (i.e. has not already supplied a valid OTP token)
+        """
+        # make the user not verified
+        session = self.client.session
+        device_id = session.pop(DEVICE_ID_SESSION_KEY)
+        session.save()
+        for url_name in self.url_names_requiring_auth:
+            if url_name and not url_name == "verify-2fa-token":
+                response = self.client.get(reverse(url_name))
+                self.assertRedirects(response, reverse("verify-2fa-token"))
 
+        # re-add verified user
+        session = self.client.session
+        session[DEVICE_ID_SESSION_KEY] = device_id
+        session.save()
+
+
+@override_settings(ENABLED_2FA=True)
 class OrgLeadPermssionsTests(SetupPermissionsData):
     """
     tests that assert the organisational lead cannot access pages they are not
@@ -105,6 +153,7 @@ class OrgLeadPermssionsTests(SetupPermissionsData):
         self.user_profile.role = "organisation_lead"
         self.user_profile.save()
 
+    @override_settings(ENABLED_2FA=True)
     def test_org_lead_cannot_access_create_or_skip_system(self):
         """
         Test that a user with organisation lead profile gets a 403 forbidden status
@@ -127,7 +176,27 @@ class OrgLeadPermssionsTests(SetupPermissionsData):
         response = self.client.get(self.view_systems_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_non_verified_org_lead_cannot_access_private_pages(self):
+        """
+        Test an org lead is redirected to verify token if not a verified
+        user (i.e. has not already supplied a valid OTP token)
+        """
+        # make the user not verified
+        session = self.client.session
+        device_id = session.pop(DEVICE_ID_SESSION_KEY)
+        session.save()
+        for url_name in self.url_names_requiring_auth:
+            if url_name and not url_name == "verify-2fa-token":
+                response = self.client.get(reverse(url_name))
+                self.assertRedirects(response, reverse("verify-2fa-token"))
 
+        # re-add verified user
+        session = self.client.session
+        session[DEVICE_ID_SESSION_KEY] = device_id
+        session.save()
+
+
+@override_settings(ENABLED_2FA=True)
 class CyberAdvisorPermssionsTests(SetupPermissionsData):
     def setUp(self):
         super().setUp()
@@ -140,3 +209,22 @@ class CyberAdvisorPermssionsTests(SetupPermissionsData):
         """
         response = self.client.get(self.submit_a_review_url)
         self.assertEqual(response.status_code, 403)
+
+    def test_non_verified_cyber_advisor_cannot_access_private_pages(self):
+        """
+        Test an cyber advisor is redirected to verify token if not a verified
+        user (i.e. has not already supplied a valid OTP token)
+        """
+        # make the user not verified
+        session = self.client.session
+        device_id = session.pop(DEVICE_ID_SESSION_KEY)
+        session.save()
+        for url_name in self.url_names_requiring_auth:
+            if url_name and not url_name == "verify-2fa-token":
+                response = self.client.get(reverse(url_name))
+                self.assertRedirects(response, reverse("verify-2fa-token"))
+
+        # re-add verified user
+        session = self.client.session
+        session[DEVICE_ID_SESSION_KEY] = device_id
+        session.save()
