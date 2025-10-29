@@ -60,7 +60,7 @@ class OrganisationView(LoginRequiredMixin, FormView):
         profile_id = self.kwargs.get("id")
         # Ensure that the claimed profile belongs to teh current user
         profile = UserProfile.objects.get(user=self.request.user, id=profile_id)
-        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         data["profile"] = profile
         return data
 
@@ -149,7 +149,7 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         profiles = UserProfile.objects.filter(user=self.request.user)
-        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         data["profiles"] = profiles
         return data
 

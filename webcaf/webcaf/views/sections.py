@@ -178,7 +178,7 @@ class ViewSubmittedAssessmentsView(UserRoleCheckMixin, TemplateView):
             else:
                 self.logger.warning(f"Assessment {assessment.id} has no submitted date")
                 data["submitted_assessments"].append((assessment,))
-        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         return data
 
 
@@ -211,7 +211,7 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
         data: dict[str, Any] = {
             "assessment": assessment,
             "objectives": assessment.get_router().get_sections(),
-            "breadcrumbs": [{"url": reverse("view-submitted-assessments"), "text": "back", "class": "govuk-back-link"}],
+            "breadcrumbs": [{"url": reverse("view-submitted-assessments"), "text": "Back", "class": "govuk-back-link"}],
             "first_submitted": first_submitted_on,
         }
         return data

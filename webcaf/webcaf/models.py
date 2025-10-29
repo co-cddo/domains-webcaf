@@ -302,7 +302,7 @@ class UserProfile(models.Model):
             "start a new self-assessment",
             "continue a draft self-assessment",
             "view self-assessments already sent for review",
-            "add organisation users",
+            "add and remove organisation users",
         ],
         "organisation_user": ["continue a draft self-assessment", "view self-assessments already sent for review"],
     }
