@@ -38,7 +38,7 @@ types-markdown = "^3.6.0.20240316"
 parameterized = "^0.9.0"
 mypy = "^1.15.0"
 django-stubs = { extras = ["compatible-mypy"], version = "^5.1.3" }
-pypdf = "^6.0.0"
+pypdf = "^6.1.3"
 playwright = "^1.55.0"
 pytest = "^8.4.1"
 pytest-playwright = "^0.7.0"
