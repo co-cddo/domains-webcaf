@@ -1,13 +1,19 @@
+import csv
+import logging
 from datetime import datetime
+from io import BytesIO, StringIO, TextIOWrapper
 from typing import Any, Optional
 
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.db.models import Model
+from django.db.models import Model, Q
 from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import path
 from simple_history.admin import SimpleHistoryAdmin
 
 from webcaf.webcaf.models import (
@@ -37,6 +43,7 @@ class UserProfileAdmin(SimpleHistoryAdmin):
     model = UserProfile
     search_fields = ["organisation__name", "user__email"]
     list_display = ["user__email", "organisation__name", "role"]
+    list_filter = ["role", "user__email", "organisation__name"]
 
 
 @admin.register(Organisation)
@@ -46,6 +53,182 @@ class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: 
     list_display = ["name", "reference"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
+
+    logger = logging.getLogger("OrganisationAdmin")
+    csv_headers = [
+        "Organisation",
+        "Lead Government Department",
+        "Reference",
+        "Type",
+        "Email1",
+        "Email2",
+        "Email3",
+        "Email4",
+        "Email5",
+        "Email6",
+    ]
+
+    # Add custom URL for the import view
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path("import-org-csv/", self.admin_site.admin_view(self.import_csv), name="import-org-csv"),
+            path(
+                "import-org-csv-template/",
+                self.admin_site.admin_view(self.import_csv_template),
+                name="import-org-csv-template",
+            ),
+        ]
+        return custom_urls + urls
+
+    def import_csv_template(self, request):
+        """
+        Creates and serves a CSV file as a downloadable response. The CSV file acts
+        as a template for importing organisation data, containing specific headers
+        which must be adhered to for proper processing during an import operation.
+
+        :param request: The HTTP request object.
+        :return: An HTTP response containing the generated CSV file.
+        """
+        csv_buffer = StringIO()
+        writer = csv.DictWriter(
+            csv_buffer,
+            fieldnames=self.csv_headers,
+            quoting=csv.QUOTE_ALL,
+        )
+        writer.writeheader()
+        csv_buffer.seek(0)
+        csv_bytes = BytesIO(csv_buffer.getvalue().encode("utf-8"))
+        response = HttpResponse(content_type="text/csv")
+        response.write(csv_bytes.getvalue())
+        response["Content-Disposition"] = 'attachment; filename="organisation_import_template.csv"'
+        return response
+
+    def import_csv(self, request):
+        """
+        Handles the import of a CSV file through a POST request, processes its data to create or update
+        organisations and users in the database, and associates organisations with a designated parent
+        organisation.
+        The header row is expected to contain the fields defined in `csv_headers`:
+        Each email field represents a cyber advisor for a particular organisation.
+
+        This method expects a CSV file containing organisation and user information. It reads and processes
+        this file to create the necessary records in the database while maintaining proper associations between
+        users, organisations, and their parent organisations.
+
+        :param request: The HTTP request object that includes the CSV file to be processed.
+        :type request: HttpRequest
+        :return: A redirect to the organisation admin page upon successful file processing or renders a
+            form to upload the CSV file if the request method is not POST.
+        :rtype: HttpResponse
+        """
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            decoded = TextIOWrapper(csv_file.file, encoding="utf-8")
+            reader = csv.DictReader(decoded)
+
+            # Check headers
+            headers = reader.fieldnames
+            if set(headers) != set(self.csv_headers):
+                self.message_user(
+                    request, f"The CSV file is missing required headers {self.csv_headers}.", messages.ERROR
+                )
+                return redirect("..")
+
+            count = 0
+            # Import the organisations
+            for row in reader:
+                count += 1
+                organisation = self.find_organisation(row)
+
+                # If still not found, then create a new organisation
+                if not organisation:
+                    self.logger.info(
+                        f"Creating {row['Organisation']} as not found in the database"
+                        f"reference: {row['Reference']}"
+                        f"name: {row['Organisation']}."
+                    )
+                    self.message_user(
+                        request, f"Creating {row['Organisation']} as not found in the database", messages.WARNING
+                    )
+                    organisation_type = row.get("Type", "").strip()
+                    if org_type_id := Organisation.get_type_id(organisation_type):
+                        organisation = Organisation.objects.create(
+                            name=row["Organisation"], organisation_type=org_type_id
+                        )
+                    else:
+                        organisation = Organisation.objects.create(name=row["Organisation"])
+
+                for email in ["Email1", "Email2", "Email3", "Email4", "Email5", "Email6"]:
+                    email_ = row.get(email, "").strip()
+                    if email_:
+                        user = User.objects.filter(email=email_).first()
+                        if not user:
+                            self.logger.info(f"Creating {email_} as not found in the database.")
+                            self.message_user(
+                                request, f"Creating {email_} as not found in the database.", messages.WARNING
+                            )
+                            # If not found, create a new user
+                            user = User.objects.create_user(email_, email_)
+                        profile, _created = UserProfile.objects.get_or_create(
+                            user=user, organisation=organisation, role="cyber_advisor"
+                        )
+
+                        if not _created:
+                            msg = f"The user with email {email_} already exists in the database for the organisation {organisation}."
+                            self.logger.warning(msg)
+                            self.logger.info(msg)
+
+            # Now set the parent organisation
+            # Reset the reader
+            decoded.seek(0)
+            reader = csv.DictReader(decoded)
+            for row in reader:
+                parent_organisation = Organisation.objects.filter(Q(name=row["Lead Government Department"])).first()
+                if parent_organisation:
+                    organisation = self.find_organisation(row)
+                    if organisation != parent_organisation:
+                        # No parent if this is the parent organisation
+                        organisation.parent_organisation = parent_organisation
+                        organisation.save()
+                    else:
+                        organisation.parent_organisation = None
+                        organisation.save()
+
+            self.message_user(request, f"✅ Imported {count} Organisations.", messages.SUCCESS)
+            return redirect("..")
+
+        opts = self.model._meta
+        context = {
+            **self.admin_site.each_context(request),  # adds admin context
+            "opts": opts,
+            "app_label": opts.app_label,
+            "title": "Import Organisations from CSV",
+        }
+        # Render upload form
+        return render(request, "admin/webcaf/organisation/import_csv.html", context)
+
+    def find_organisation(self, row: dict[str | Any, str | Any]) -> Organisation | None:
+        """
+        Finds and returns an Organisation instance based on the provided row data.
+
+        This method attempts to retrieve an Organisation object by first using the
+        `Reference` field. If the organisation cannot be found using the reference,
+        it falls back to searching by the organisation's name.
+
+        :param row: A dictionary containing data for finding an organisation. Keys
+            include `Reference` and `Organisation`.
+        :return: An Organisation object if found, otherwise None.
+        """
+        organisation: Organisation | None = None
+        # first try to get the organisation by reference
+        if row["Reference"]:
+            organisation = Organisation.objects.filter(Q(reference=row["Reference"])).first()
+
+        # If fails try to get the organisation by name
+        if not organisation and row["Organisation"]:
+            organisation = Organisation.objects.filter(Q(name=row["Organisation"])).first()
+        return organisation
 
 
 @admin.register(System)

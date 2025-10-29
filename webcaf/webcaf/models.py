@@ -293,7 +293,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
         return False
 
     def __str__(self):
-        return f"{self.reference=} {self.id=}"
+        return f"reference={self.reference if self.reference else '-'}, id={self.id}"
 
 
 class UserProfile(models.Model):
