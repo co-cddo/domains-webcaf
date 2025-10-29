@@ -30,7 +30,7 @@
                             </td>
                         {% endtimezone %}
                         <td class="govuk-table__cell">
-                            <a href="{% url 'view-submitted-assessment' assessment_id=submitted.0.id %}"
+                            <a class="govuk-link" href="{% url 'view-submitted-assessment' assessment_id=submitted.0.id %}"
                                title="View submitted assessment with id {{ submitted.0.id }}">View</a>
                         </td>
                     </tr>

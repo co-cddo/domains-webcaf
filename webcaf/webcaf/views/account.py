@@ -103,5 +103,5 @@ class ViewDraftAssessmentsView(AccountView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "back", "class": "govuk-back-link"}]
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         return data
