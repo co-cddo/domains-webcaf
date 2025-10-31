@@ -114,12 +114,12 @@ class LoginRequiredMiddleware:
             reverse("oidc_logout"),
             # Admin authentication is done separately
             "/admin/",
+            # public pages and static assets
             "/assets/",
             "/static/",
             "/media",
             "/public/",
             "/session-expired/",
-            "/verify-2fa-token/",
             "/logout/",
         ]
         self.exempt_exact_urls = [
@@ -142,23 +142,33 @@ class LoginRequiredMiddleware:
             HttpResponse: Either the response from the next middleware/view or
                 a redirect to the authentication initialization endpoint.
         """
-        # handle the local dev for when 2FA is disabled
-        if not settings.ENABLED_2FA and request.user.is_authenticated:
-            self.logger.debug("Allowing access for local development or testing")
-            return self.get_response(request)
-
         if (
-            not request.user.is_verified()
-            and not any(request.path.startswith(url) for url in self.exempt_url_prefixes)
+            not any(request.path.startswith(url) for url in self.exempt_url_prefixes)
             and request.path not in self.exempt_exact_urls
         ):
-            if not request.user.is_authenticated:
+            # you need to be authenticated to access any page outside the non secure list
+            if not request.user.is_authenticated or request.user.is_anonymous:
+                if request.path == reverse("verify-2fa-token") and request.method == "POST":
+                    # The only possibility of this happening is that the session timing out
+                    # while the user is trying to submit the 2FA token.
+                    # So, reset the flow and get a new token
+                    self.logger.info("Session expired while submitting 2FA token. Redirecting to session-expired")
+                    return redirect("session-expired")
                 self.logger.debug("Force authentication for %s", request.path)
                 return redirect("oidc_authentication_init")
 
-            verify_url = reverse("verify-2fa-token")
-
-            return redirect(verify_url)
+            # If the user is authenticated, check if they're verified'
+            if not settings.ENABLED_2FA:
+                # handle the local dev for when 2FA is disabled
+                self.logger.debug("Allowing access for local development or testing")
+                return self.get_response(request)
+            elif not request.user.is_verified():
+                # Allow access to the verification page
+                if request.path == reverse("verify-2fa-token"):
+                    return self.get_response(request)
+                # Any other unverified user access to urls is redirected to the verification page
+                verify_url = reverse("verify-2fa-token")
+                return redirect(verify_url)
 
         self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)
         return self.get_response(request)
