@@ -231,7 +231,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
+            "level": ("INFO" if not DEBUG else "DEBUG"),
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
