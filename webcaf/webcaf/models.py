@@ -9,10 +9,11 @@ from django.db.models.functions import Cast
 from django.utils.timezone import make_aware
 from django_otp.plugins.otp_email.models import EmailDevice
 from multiselectfield import MultiSelectField
-from notifications_python_client.notifications import NotificationsAPIClient
 from simple_history.models import HistoricalRecords
 
 from webcaf.webcaf.abcs import FrameworkRouter
+from webcaf.webcaf.notification import send_notify_email
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.references import generate_reference
 
 # Set up a logger for any Notify errors
@@ -443,28 +444,16 @@ class GovNotifyEmailDevice(EmailDevice):
             logger.debug("SSO_MODE is not 'external'. Using default send_mail.")
             return super().send_mail(token, **kwargs)
 
-        if NotificationsAPIClient is None:
-            logger.error("GOV.UK Notify: notifications_python_client is not installed. " "Cannot send OTP email.")
-            return
-
         try:
-            notify_client = NotificationsAPIClient(settings.NOTIFY_API_KEY)
-
             personalisation_data = {
                 "token": token,
                 "first_name": self.user.first_name,
                 "last_name": self.user.last_name,
             }
-
-            # Send the token using the Gov Notify template
-            notify_client.send_email_notification(
-                email_address=self.email,
-                template_id=settings.NOTIFY_OTP_TEMPLATE_ID,
-                personalisation=personalisation_data,
-            )
-            logger.info(f"GOV.UK Notify: Successfully sent OTP to {self.email}")
+            send_notify_email([self.email], personalisation_data, settings.NOTIFY_OTP_TEMPLATE_ID)
+            logger.info(mask_email(f"GOV.UK Notify: Successfully sent OTP to {self.email}"))
         except Exception as e:
-            logger.exception(f"GOV.UK Notify: Failed to send OTP to {self.email}: {e}")
+            logger.exception(mask_email(f"GOV.UK Notify: Failed to send OTP to {self.email}: {e}"))
             pass
 
     class Meta:
