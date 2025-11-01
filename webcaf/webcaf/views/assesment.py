@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.views.generic import FormView
 
 from webcaf.webcaf.models import Assessment, Configuration, System, UserProfile
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.session import SessionUtil
 
 
@@ -117,7 +118,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
             assessment.caf_profile = draft_assessment["caf_profile"]
 
             assessment.save()
-            self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
+            self.logger.info(mask_email(f"Assessment {assessment.id} changed by {self.request.user.username}"))
             if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
                 return redirect(
                     reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_id": assessment.id})
@@ -407,7 +408,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
             )
             draft_assessment["assessment_id"] = assessment.id
             draft_assessment["framework"] = assessment.framework
-            self.logger.info(f"Assessment {assessment.id} created by {self.request.user.username}")
+            self.logger.info(mask_email(f"Assessment {assessment.id} created by {self.request.user.username}"))
             # Forward to editing the draft now.
             if self.form_class == AssessmentProfileForm and draft_assessment["caf_profile"] == "enhanced":
                 return redirect(

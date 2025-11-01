@@ -85,10 +85,12 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
             else:
                 # User has not completed all objectives and should not have reached this page
                 self.logger.error(
-                    f"User {self.request.user.username} has not completed all objectives, but tried to submit {assessment.id}"
+                    mask_email(
+                        f"User {self.request.user.username} has not completed all objectives, but tried to submit {assessment.id}"
+                    )
                 )
         else:
-            self.logger.info(f"No assessment found in session {self.request.user.username}")
+            self.logger.info(mask_email(f"No assessment found in session {self.request.user.username}"))
 
         return redirect(reverse("my-account"))
 
@@ -221,7 +223,9 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
     template_name = "caf/assessment/completed-assessment.html"
 
     def get(self, request, *args, **kwargs):
-        self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.username}")
+        self.logger.info(
+            mask_email(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.username}")
+        )
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings

@@ -205,7 +205,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             response = self.client.post(self.url, data=form_data)
         self.assertEqual(response.status_code, 404)
         self.assertIn(
-            f"ERROR:SessionUtil:Unable to retrieve assessment with id {self.assessment.id} for user organisation_user@mediumorganisation.gov.uk",
+            f"ERROR:SessionUtil:Unable to retrieve assessment with id {self.assessment.id} for user or***@mediumorganisation.gov.uk",
             cm.output[0],
         )
 

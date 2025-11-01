@@ -9,6 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import FormView, TemplateView
 
+from webcaf.webcaf.utils import mask_email
+
 
 @method_decorator(never_cache, name="dispatch")
 class Index(TemplateView):
@@ -72,7 +74,7 @@ def logout_view(request):
     :param request:
     :return:
     """
-    logout_view_logger.info(f"Logging out user {request.user.username}")
+    logout_view_logger.info(mask_email(f"Logging out user {request.user.username}"))
     id_token = request.session.get("oidc_id_token")  # make sure you store it at login
     # 1. Log out Django session
     django_logout(request)

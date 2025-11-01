@@ -16,6 +16,7 @@ from django.views.generic import FormView
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.forms.general import ContinueForm, NextActionForm
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.views.general import FormViewWithBreadcrumbs
@@ -364,7 +365,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             assessment.assessments_data[self.class_id]
         )
         form.cleaned_data.update(**status_for_indicator)
-        self.logger.info(f"Saving outcome confirmation {self.class_id} form {self.request.user.username}")
+        self.logger.info(mask_email(f"Saving outcome confirmation {self.class_id} form {self.request.user.username}"))
         return super().form_valid(form)
 
     def build_breadcrumbs(self):

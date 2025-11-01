@@ -3,6 +3,7 @@ import logging
 from django import forms
 
 from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.utils import mask_email
 
 
 class UserProfileForm(forms.ModelForm):
@@ -67,7 +68,7 @@ class UserProfileForm(forms.ModelForm):
         if user.email != self.cleaned_data["email"]:
             user.email = self.cleaned_data["email"]
             user.username = user.email
-            self.logger.info(f"Updated user {user.username} email to {user.email}")
+            self.logger.info(mask_email(f"Updated user {user.username} email to {user.email}"))
         if commit:
             user.save()
             profile.save()
