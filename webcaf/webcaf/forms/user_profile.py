@@ -68,7 +68,7 @@ class UserProfileForm(forms.ModelForm):
         if user.email != self.cleaned_data["email"]:
             user.email = self.cleaned_data["email"]
             user.username = user.email
-            self.logger.info(mask_email(f"Updated user {user.username} email to {user.email}"))
+            self.logger.info(mask_email(f"Updated user {user.pk} email to {user.email}"))
         if commit:
             user.save()
             profile.save()

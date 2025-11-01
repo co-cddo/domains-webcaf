@@ -9,7 +9,6 @@ from django.views.generic import FormView
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
 from webcaf.webcaf.models import UserProfile
-from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -191,23 +190,17 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
                 )
                 if profile_to_delete.organisation != current_user_profile.organisation:
                     self.logger.error(
-                        mask_email(
-                            f"User {self.request.user.username} is not allowed to delete this user profile {self.kwargs['user_profile_id']} in {profile_to_delete.organisation} organisation"
-                        )
+                        f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']} in {profile_to_delete.organisation} organisation"
                     )
                     raise PermissionError("You are not allowed to delete this user profile in a different organisation")
 
                 self.logger.info(
-                    mask_email(
-                        f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.username}"
-                    )
+                    f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}"
                 )
                 profile_to_delete.delete()
             else:
                 self.logger.error(
-                    mask_email(
-                        f"User {self.request.user.username} is not allowed to delete this user profile {self.kwargs['user_profile_id']}"
-                    )
+                    f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']}"
                 )
                 raise PermissionError("You are not allowed to delete this user profile")
         return redirect(reverse("view-profiles"))

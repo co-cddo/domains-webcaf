@@ -1,8 +1,6 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from webcaf.webcaf.utils import mask_email
-
 if TYPE_CHECKING:
     from webcaf.webcaf.models import Assessment, UserProfile
 
@@ -66,7 +64,5 @@ class SessionUtil:
                     )
                     return assessment
             except Exception:  # type: ignore[catching-any]
-                SessionUtil.logger.error(
-                    mask_email(f"Unable to retrieve assessment with id {id_} for user {request.user.username}")
-                )
+                SessionUtil.logger.error(f"Unable to retrieve assessment with id {id_} for user {request.user.pk}")
         return None

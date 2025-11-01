@@ -84,7 +84,9 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     )
                     if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
                         self.logger.info(
-                            f"Sending confirmation email for {assessment.id} to {mask_email(self.request.user.email)}"
+                            mask_email(
+                                f"Sending confirmation email for {assessment.id} to {self.request.user.pk} {self.request.user.email}"
+                            )
                         )
                         try:
                             send_notify_email(
@@ -104,7 +106,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                         except Exception:  # type: ignore
                             self.logger.exception(
                                 mask_email(
-                                    f"GOV.UK Notify: Failed to send confirmation email for {assessment.id} user {self.request.user.email}"
+                                    f"GOV.UK Notify: Failed to send confirmation email for {assessment.id} user {self.request.user.pk}"
                                 )
                             )
 
@@ -115,11 +117,11 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                 # User has not completed all objectives and should not have reached this page
                 self.logger.error(
                     mask_email(
-                        f"User {self.request.user.username} has not completed all objectives, but tried to submit {assessment.id}"
+                        f"User {self.request.user.pk} has not completed all objectives, but tried to submit {assessment.id}"
                     )
                 )
         else:
-            self.logger.info(mask_email(f"No assessment found in session {self.request.user.username}"))
+            self.logger.info(f"No assessment found in session {self.request.user.pk}")
 
         return redirect(reverse("my-account"))
 
@@ -252,9 +254,7 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
     template_name = "caf/assessment/completed-assessment.html"
 
     def get(self, request, *args, **kwargs):
-        self.logger.info(
-            mask_email(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.username}")
-        )
+        self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.pk}")
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings

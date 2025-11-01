@@ -66,14 +66,17 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         try:
             device, created = GovNotifyEmailDevice.objects.get_or_create(user=request.user, email=request.user.email)
             if created:
-                logger.info(mask_email(f"Created new GovNotifyEmailDevice for user {request.user.email}"))
+                logger.info(f"Created new GovNotifyEmailDevice for user {request.user.pk}")
 
             device.generate_challenge()
-            logger.info(mask_email(f"Generated new 2FA token challenge for user {request.user.email}"))
+            logger.info(f"Generated new 2FA token challenge for user {request.user.pk}")
 
         except Exception as e:
             logger.error(
-                mask_email(f"Error in Verify2FATokenView.dispatch for user {request.user.email}: {e}"), exc_info=True
+                mask_email(
+                    f"Error in Verify2FATokenView.dispatch for user {request.user.pk} {request.user.email}: {e}"
+                ),
+                exc_info=True,
             )
 
         return super().get(request, *args, **kwargs)
@@ -87,7 +90,7 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         """
         logger.warning(
             mask_email(
-                f"Invalid 2FA form submission for user {self.request.user.email}. " f"Errors: {form.errors.as_json()}"
+                f"Invalid 2FA form submission for user {self.request.user.pk}. " f"Errors: {form.errors.as_json()}"
             )
         )
         return super().form_invalid(form)
@@ -103,27 +106,23 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         token = form.cleaned_data.get("otp_token")
         if not token:
             # Handle empty token submission as 'required=False'
-            logger.warning(mask_email(f"Empty 2FA token submitted for user {self.request.user.email}"))
+            logger.warning(f"Empty 2FA token submitted for user {self.request.user.pk}")
             form.add_error("otp_token", "Please enter your 6-digit code.")
             return self.form_invalid(form)
 
         try:
             device = GovNotifyEmailDevice.objects.get(user=self.request.user, email=self.request.user.email)
         except GovNotifyEmailDevice.DoesNotExist:
-            logger.error(
-                mask_email(
-                    f"CRITICAL: GovNotifyEmailDevice not found for user {self.request.user.email} during form_valid."
-                )
-            )
+            logger.error(f"CRITICAL: GovNotifyEmailDevice not found for user {self.request.user.pk} during form_valid.")
             form.add_error(None, "An unexpected error occurred. Please try again.")
             return self.form_invalid(form)
 
         allow_access = device.verify_token(token)
         if not allow_access:
-            logger.warning(mask_email(f"Invalid 2FA token attempt for user {self.request.user.email}"))
+            logger.warning(f"Invalid 2FA token attempt for user {self.request.user.pk}")
             form.add_error("otp_token", "Invalid token")
             return self.form_invalid(form)
 
-        logger.info(f"Successful 2FA verification for user {self.request.user.email}")
+        logger.info(f"Successful 2FA verification for user {self.request.user.pk}")
         otp_login(self.request, device)
         return super().form_valid(form)

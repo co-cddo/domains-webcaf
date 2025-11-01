@@ -12,6 +12,8 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
+from webcaf.webcaf.utils import mask_email
+
 
 class OIDCBackend(OIDCAuthenticationBackend):
     """
@@ -50,13 +52,14 @@ class OIDCBackend(OIDCAuthenticationBackend):
                 'name': 'John Doe'
             }
         """
-        self.logger.info(f"Create user for {claims.get('email')}")
+        self.logger.info(mask_email(f"Create user for {claims.get('email')}"))
         user = super().create_user(claims)
         user.email = claims.get("email")
         user.username = claims.get("email")
         user.first_name = claims.get("given_name", claims.get("name", ""))
         user.last_name = claims.get("family_name", "")
         user.save()
+        self.logger.info(mask_email(f"Created user {user.pk} {user.email}"))
         return user
 
     def update_user(self, user, claims):
@@ -77,7 +80,7 @@ class OIDCBackend(OIDCAuthenticationBackend):
         Note:
             Falls back to existing user values if claims are missing or empty.
         """
-        self.logger.info(f"User  {user.username} logged in to the system")
+        self.logger.info(mask_email(f"User  {user.id} {user.email} logged in to the system"))
         user.first_name = claims.get("given_name", user.first_name) or claims.get("name", user.first_name)
         user.last_name = claims.get("family_name", user.last_name)
         user.save()
