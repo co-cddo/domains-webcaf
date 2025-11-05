@@ -190,17 +190,17 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
                 )
                 if profile_to_delete.organisation != current_user_profile.organisation:
                     self.logger.error(
-                        f"User {self.request.user.username} is not allowed to delete this user profile {self.kwargs['user_profile_id']} in {profile_to_delete.organisation} organisation"
+                        f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']} in {profile_to_delete.organisation} organisation"
                     )
                     raise PermissionError("You are not allowed to delete this user profile in a different organisation")
 
                 self.logger.info(
-                    f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.username}"
+                    f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}"
                 )
                 profile_to_delete.delete()
             else:
                 self.logger.error(
-                    f"User {self.request.user.username} is not allowed to delete this user profile {self.kwargs['user_profile_id']}"
+                    f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']}"
                 )
                 raise PermissionError("You are not allowed to delete this user profile")
         return redirect(reverse("view-profiles"))

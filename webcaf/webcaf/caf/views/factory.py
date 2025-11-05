@@ -364,7 +364,8 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
             assessment.assessments_data[self.class_id]
         )
         form.cleaned_data.update(**status_for_indicator)
-        self.logger.info(f"Saving outcome confirmation {self.class_id} form {self.request.user.username}")
+        self.logger.info(f"Saving outcome confirmation {self.class_id} form {self.request.user.pk}")
+
         return super().form_valid(form)
 
     def build_breadcrumbs(self):

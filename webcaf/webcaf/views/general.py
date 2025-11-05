@@ -72,7 +72,7 @@ def logout_view(request):
     :param request:
     :return:
     """
-    logout_view_logger.info(f"Logging out user {request.user.username}")
+    logout_view_logger.info(f"Logging out user {request.user.pk}")
     id_token = request.session.get("oidc_id_token")  # make sure you store it at login
     # 1. Log out Django session
     django_logout(request)

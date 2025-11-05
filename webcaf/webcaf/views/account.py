@@ -58,7 +58,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
                     "created_by__username",
                     "assessments_data",
                 )
-                .all()
+                .order_by("-created_on")
             )
             data["draft_assessments"] = [assessment for assessment in all_assessments if assessment.status == "draft"]
             data["submitted_assessments"] = [

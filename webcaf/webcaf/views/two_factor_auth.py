@@ -7,6 +7,7 @@ from django.views.generic.edit import FormView
 from django_otp import login as otp_login
 
 from webcaf.webcaf.models import GovNotifyEmailDevice
+from webcaf.webcaf.utils import mask_email
 
 # Get an instance of a logger for this module
 logger = logging.getLogger(__name__)
@@ -53,9 +54,9 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
     form_class = TokenForm
     success_url = reverse_lazy("my-account")
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
-        Overrides dispatch to send an OTP token on every page load.
+        Overrides get to send an OTP token on every page load.
 
         This method ensures that a `GovNotifyEmailDevice` exists for the
         user (creating one if necessary) and then calls
@@ -65,15 +66,20 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         try:
             device, created = GovNotifyEmailDevice.objects.get_or_create(user=request.user, email=request.user.email)
             if created:
-                logger.info(f"Created new GovNotifyEmailDevice for user {request.user.id}")
+                logger.info(f"Created new GovNotifyEmailDevice for user {request.user.pk}")
 
             device.generate_challenge()
-            logger.info(f"Generated new 2FA token challenge for user {request.user.id}")
+            logger.info(f"Generated new 2FA token challenge for user {request.user.pk}")
 
         except Exception as e:
-            logger.error(f"Error in Verify2FATokenView.dispatch for user {request.user.id}: {e}", exc_info=True)
+            logger.error(
+                mask_email(
+                    f"Error in Verify2FATokenView.dispatch for user {request.user.pk} {request.user.email}: {e}"
+                ),
+                exc_info=True,
+            )
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def form_invalid(self, form):
         """
@@ -83,7 +89,9 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         `form_valid` returns `self.form_invalid(form)`.
         """
         logger.warning(
-            f"Invalid 2FA form submission for user {self.request.user.id}. " f"Errors: {form.errors.as_json()}"
+            mask_email(
+                f"Invalid 2FA form submission for user {self.request.user.pk}. " f"Errors: {form.errors.as_json()}"
+            )
         )
         return super().form_invalid(form)
 
@@ -96,27 +104,25 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         logs them into the OTP session or adds a form error.
         """
         token = form.cleaned_data.get("otp_token")
+        if not token:
+            # Handle empty token submission as 'required=False'
+            logger.warning(f"Empty 2FA token submitted for user {self.request.user.pk}")
+            form.add_error("otp_token", "Please enter your 6-digit code.")
+            return self.form_invalid(form)
 
         try:
             device = GovNotifyEmailDevice.objects.get(user=self.request.user, email=self.request.user.email)
         except GovNotifyEmailDevice.DoesNotExist:
-            logger.error(f"CRITICAL: GovNotifyEmailDevice not found for user {self.request.user.id} during form_valid.")
+            logger.error(f"CRITICAL: GovNotifyEmailDevice not found for user {self.request.user.pk} during form_valid.")
             form.add_error(None, "An unexpected error occurred. Please try again.")
             return self.form_invalid(form)
 
-        if not token:
-            # Handle empty token submission, as 'required=False'
-            logger.warning(f"Empty 2FA token submitted for user {self.request.user.email}")
-            form.add_error("otp_token", "Please enter your 6-digit code.")
-            return self.form_invalid(form)
-
         allow_access = device.verify_token(token)
-        if allow_access:
-            logger.info(f"Successful 2FA verification for user {self.request.user.email}")
-            otp_login(self.request, device)
-        else:
-            logger.warning(f"Invalid 2FA token attempt for user {self.request.user.email}")
+        if not allow_access:
+            logger.warning(f"Invalid 2FA token attempt for user {self.request.user.pk}")
             form.add_error("otp_token", "Invalid token")
             return self.form_invalid(form)
 
+        logger.info(f"Successful 2FA verification for user {self.request.user.pk}")
+        otp_login(self.request, device)
         return super().form_valid(form)

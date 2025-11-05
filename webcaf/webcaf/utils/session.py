@@ -64,7 +64,5 @@ class SessionUtil:
                     )
                     return assessment
             except Exception:  # type: ignore[catching-any]
-                SessionUtil.logger.error(
-                    f"Unable to retrieve assessment with id {id_} for user {request.user.username}"
-                )
+                SessionUtil.logger.error(f"Unable to retrieve assessment with id {id_} for user {request.user.pk}")
         return None

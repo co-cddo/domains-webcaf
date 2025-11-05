@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from django.conf import settings
 from django.forms import Form
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -14,6 +15,8 @@ from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import Assessment, Configuration
+from webcaf.webcaf.notification import send_notify_email
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -79,16 +82,46 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                         f"Assessment {assessment.id} reference {assessment.reference} submitted"
                         f" at {datetime.now(tz=uk_tz).strftime('%Y-%m-%d %H:%M:%S')}"
                     )
+                    if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
+                        self.logger.info(
+                            mask_email(
+                                f"Sending confirmation email for {assessment.id} to {self.request.user.pk} {self.request.user.email}"
+                            )
+                        )
+                        try:
+                            send_notify_email(
+                                [self.request.user.email],
+                                {
+                                    "first_name": self.request.user.first_name,
+                                    "last_name": self.request.user.last_name,
+                                    "submitted_by": self.request.user.email,
+                                    "submitted_on": datetime.now(tz=uk_tz).strftime("%Y-%m-%d %H:%M:%S"),
+                                    "reference": assessment.reference,
+                                    "system_name": assessment.system.name,
+                                    "organisation_name": assessment.system.organisation.name,
+                                    "caf_version": assessment.framework,
+                                },
+                                settings.NOTIFY_CONFIRMATION_TEMPLATE_ID,
+                            )
+                        except Exception:  # type: ignore
+                            self.logger.exception(
+                                mask_email(
+                                    f"GOV.UK Notify: Failed to send confirmation email for {assessment.id} user {self.request.user.pk}"
+                                )
+                            )
+
                 else:
                     self.logger.info(f"Assessment {assessment.id} already submitted")
                 return redirect(reverse("show-submission-confirmation"))
             else:
                 # User has not completed all objectives and should not have reached this page
                 self.logger.error(
-                    f"User {self.request.user.username} has not completed all objectives, but tried to submit {assessment.id}"
+                    mask_email(
+                        f"User {self.request.user.pk} has not completed all objectives, but tried to submit {assessment.id}"
+                    )
                 )
         else:
-            self.logger.info(f"No assessment found in session {self.request.user.username}")
+            self.logger.info(f"No assessment found in session {self.request.user.pk}")
 
         return redirect(reverse("my-account"))
 
@@ -221,7 +254,7 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
     template_name = "caf/assessment/completed-assessment.html"
 
     def get(self, request, *args, **kwargs):
-        self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.username}")
+        self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.pk}")
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings

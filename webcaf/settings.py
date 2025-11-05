@@ -144,6 +144,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Django Whitenoise Configuration
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [".map"]
 WHITENOISE_ALLOW_ALL_ORIGINS = False
+if not DEBUG:
+    WHITENOISE_AUTOREFRESH = False  # Don't auto-reload in production
+    WHITENOISE_MAX_AGE = 86400  # 24 hours (in seconds)
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
@@ -231,7 +234,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
+            "level": ("INFO" if not DEBUG else "DEBUG"),
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
@@ -280,6 +283,9 @@ else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     ENABLED_2FA = False
 
+# Confirmation email template ID
+# System will not send a confirmation email if this is not set
+NOTIFY_CONFIRMATION_TEMPLATE_ID = env.str("NOTIFY_CONFIRMATION_TEMPLATE_ID", "")
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")
@@ -304,7 +310,6 @@ AXES_LOCKOUT_PARAMETERS = ["username"]
 AXES_COOLOFF_TIME = 1
 AXES_FAILURE_LIMIT = 5
 AXES_LOCKOUT_TEMPLATE = "429.html"
-
 
 SENTRY_DSN = env.str("SENTRY_DSN", default=None)
 if SENTRY_DSN:

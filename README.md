@@ -62,6 +62,22 @@ and to run the local server:
 poetry run dotenv run ./manage.py runserver
 ```
 
+### Privacy and Logging Best Practices
+
+**IMPORTANT:** When logging user information (emails, usernames, or any personally identifiable information), always use the `mask_email` utility function to protect user privacy.
+
+```python
+from webcaf.webcaf.utils import mask_email
+
+# Good - email is masked
+logger.info(f"Sent verification to {mask_email(user.email)}")
+
+# Bad - exposes full email address
+logger.info(f"Sent verification to {user.email}")
+```
+
+The `mask_email` function replaces email addresses with a masked version (e.g., `us***@example.com`), showing only the first two characters of the username while preserving the domain for debugging purposes.
+
 ### SSO settings
 
 We use the `SSO_MODE` environment variable to decide which SSO implementation should be used.
