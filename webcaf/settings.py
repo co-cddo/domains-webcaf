@@ -81,6 +81,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "webcaf.middleware.RequestLoggingMiddleware",
     "axes.middleware.AxesMiddleware",
     "django_otp.middleware.OTPMiddleware",
     "webcaf.session.CafSessionTimeoutMiddleware",
@@ -225,10 +226,13 @@ LOGGING = {
         "require_debug_false": {
             "()": "django.utils.log.RequireDebugFalse",
         },
+        "request_context": {
+            "()": "webcaf.logging_filters.RequestLogFilter",
+        },
     },
     "formatters": {
         "verbose": {
-            "format": "[%(asctime)s] [%(process)d:%(threadName)s] [%(levelname)s] [%(name)s] %(message)s",
+            "format": "[%(asctime)s] [%(process)d:%(threadName)s] [user=%(user_id)s sess=%(session_id)s] [%(levelname)s] [%(name)s] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S %z",
         },
     },
@@ -237,6 +241,7 @@ LOGGING = {
             "level": ("INFO" if not DEBUG else "DEBUG"),
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+            "filters": ["request_context"],
         },
     },
     "loggers": {
