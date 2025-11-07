@@ -22,7 +22,7 @@ class SessionUtilTests(SimpleTestCase):
         request = SimpleNamespace(session={"current_profile_id": 99})
 
         with patch("webcaf.webcaf.models.UserProfile.objects.get", side_effect=Exception("db error")):
-            with self.assertLogs("SessionUtil", level="ERROR") as cm:
+            with self.assertLogs("SessionUtil", level="WARN") as cm:
                 result = SessionUtil.get_current_user_profile(request)
 
         self.assertIsNone(result)
@@ -59,7 +59,7 @@ class SessionUtilTests(SimpleTestCase):
         with patch.object(SessionUtil, "get_current_user_profile", return_value=fake_profile), patch(
             "webcaf.webcaf.models.Assessment.objects.get", side_effect=Exception("not found")
         ):
-            with self.assertLogs("SessionUtil", level="ERROR") as cm:
+            with self.assertLogs("SessionUtil", level="WARN") as cm:
                 result = SessionUtil.get_current_assessment(request)
 
         self.assertIsNone(result)
