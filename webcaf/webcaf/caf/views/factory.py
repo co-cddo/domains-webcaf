@@ -16,6 +16,7 @@ from django.views.generic import FormView
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.forms.general import ContinueForm, NextActionForm
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.views.general import FormViewWithBreadcrumbs
@@ -171,7 +172,9 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             assessment.last_updated_by = current_user_profile.user
             assessment.save()
             self.logger.info(
-                f"Updating section {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"
+                mask_email(
+                    f"Updating section {self.class_id} -> [{self.stage}] saved by user {current_user_profile.user.username}[{current_user_profile.role}] of {current_user_profile.organisation.name}"
+                )
             )
         else:
             return HttpResponseNotFound("Requested assessment could not be found.")
