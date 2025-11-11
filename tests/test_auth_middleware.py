@@ -7,15 +7,28 @@ for non-exempt URLs and handles 2FA verification.
 
 from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest, HttpResponse
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 
 from webcaf.auth import LoginRequiredMiddleware
 
 
-class LoginRequiredMiddlewareTest(TestCase):
+def make_user(*, authenticated=True, verified=True, staff=False, user_id=1):
+    class UserStub:
+        is_authenticated = authenticated
+        is_anonymous = not authenticated
+        is_staff = staff
+        id = user_id
+
+        def is_verified(self):
+            return verified
+
+    return UserStub()
+
+
+@override_settings(DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}})
+class LoginRequiredMiddlewareTest(SimpleTestCase):
     """Test suite for LoginRequiredMiddleware."""
 
     def setUp(self):
@@ -23,7 +36,7 @@ class LoginRequiredMiddlewareTest(TestCase):
         self.get_response = Mock(return_value=HttpResponse("OK"))
         self.middleware = LoginRequiredMiddleware(self.get_response)
         self.request = HttpRequest()
-        self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.user = make_user(authenticated=True, verified=True, staff=False, user_id=42)
 
     def test_middleware_initialization(self):
         """Test that middleware initializes with correct exempt URLs."""
@@ -53,7 +66,7 @@ class LoginRequiredMiddlewareTest(TestCase):
 
         for path in exempt_paths:
             self.request.path = path
-            self.request.user = AnonymousUser()
+            self.request.user = make_user(authenticated=False)
             response = self.middleware(self.request)
             self.assertEqual(response.status_code, 200)
             self.get_response.assert_called_with(self.request)
@@ -61,7 +74,7 @@ class LoginRequiredMiddlewareTest(TestCase):
     def test_exempt_exact_url_allows_access(self):
         """Test that exact exempt URLs allow access without authentication."""
         self.request.path = "/"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
         response = self.middleware(self.request)
         self.assertEqual(response.status_code, 200)
         self.get_response.assert_called_with(self.request)
@@ -76,7 +89,7 @@ class LoginRequiredMiddlewareTest(TestCase):
 
         for path in oidc_paths:
             self.request.path = path
-            self.request.user = AnonymousUser()
+            self.request.user = make_user(authenticated=False)
             response = self.middleware(self.request)
             self.assertEqual(response.status_code, 200)
             self.get_response.assert_called_with(self.request)
@@ -84,7 +97,7 @@ class LoginRequiredMiddlewareTest(TestCase):
     def test_unauthenticated_user_redirected_to_oidc(self):
         """Test that unauthenticated users are redirected to OIDC authentication."""
         self.request.path = "/some/protected/path"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
         response = self.middleware(self.request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("oidc_authentication_init"))
@@ -100,10 +113,11 @@ class LoginRequiredMiddlewareTest(TestCase):
 
     @override_settings(ENABLED_2FA=True)
     def test_authenticated_unverified_user_redirected_to_verification(self):
-        """Test that unverified users are redirected to 2FA verification page."""
+        """Test that unverified non-staff users are redirected to 2FA verification page."""
         self.request.path = "/some/protected/path"
         self.request.user = self.user
         self.request.user.is_verified = Mock(return_value=False)
+        self.request.user.is_staff = False
 
         response = self.middleware(self.request)
         self.assertEqual(response.status_code, 302)
@@ -120,6 +134,18 @@ class LoginRequiredMiddlewareTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.get_response.assert_called_with(self.request)
 
+    @override_settings(ENABLED_2FA=True)
+    def test_unverified_staff_user_is_allowed(self):
+        """Unverified staff users should not be redirected to verification page."""
+        self.request.path = "/some/protected/path"
+        self.request.user = self.user
+        self.request.user.is_verified = Mock(return_value=False)
+        self.request.user.is_staff = True
+
+        response = self.middleware(self.request)
+        self.assertEqual(response.status_code, 200)
+        self.get_response.assert_called_with(self.request)
+
     def test_multiple_non_exempt_paths_redirect_unauthenticated(self):
         """Test multiple non-exempt paths redirect unauthenticated users."""
         non_exempt_paths = [
@@ -131,7 +157,7 @@ class LoginRequiredMiddlewareTest(TestCase):
 
         for path in non_exempt_paths:
             self.request.path = path
-            self.request.user = AnonymousUser()
+            self.request.user = make_user(authenticated=False)
             response = self.middleware(self.request)
             self.assertEqual(response.status_code, 302)
             self.assertEqual(response.url, reverse("oidc_authentication_init"))
@@ -140,7 +166,7 @@ class LoginRequiredMiddlewareTest(TestCase):
     def test_middleware_logs_force_authentication(self, mock_logger):
         """Test that middleware logs when forcing authentication."""
         self.request.path = "/protected/path"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
         self.middleware(self.request)
         mock_logger.debug.assert_called_with("Force authentication for %s", "/protected/path")
 
@@ -148,9 +174,14 @@ class LoginRequiredMiddlewareTest(TestCase):
     def test_middleware_logs_allowed_access(self, mock_logger):
         """Test that middleware logs when allowing access to exempt URLs."""
         self.request.path = "/static/file.css"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
         self.middleware(self.request)
-        mock_logger.debug.assert_called_with("Allowing access to %s, authenticated %s", "/static/file.css", False)
+        mock_logger.debug.assert_called_with(
+            "Allowing access to %s, authenticated %s is_staff %s",
+            "/static/file.css",
+            False,
+            False,
+        )
 
     @override_settings(ENABLED_2FA=False)
     @patch("webcaf.auth.LoginRequiredMiddleware.logger")
@@ -165,7 +196,7 @@ class LoginRequiredMiddlewareTest(TestCase):
         """Unauthenticated POST to verify-2fa-token should redirect to session-expired."""
         self.request.path = reverse("verify-2fa-token")
         self.request.method = "POST"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
 
         response = self.middleware(self.request)
 
@@ -176,7 +207,7 @@ class LoginRequiredMiddlewareTest(TestCase):
         """Unauthenticated GET to verify-2fa-token should redirect to OIDC init."""
         self.request.path = reverse("verify-2fa-token")
         self.request.method = "GET"
-        self.request.user = AnonymousUser()
+        self.request.user = make_user(authenticated=False)
 
         response = self.middleware(self.request)
 

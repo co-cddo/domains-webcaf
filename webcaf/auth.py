@@ -166,12 +166,19 @@ class LoginRequiredMiddleware:
                 self.logger.debug("Allowing access for local development or testing")
                 return self.get_response(request)
             elif not request.user.is_verified():
-                # Allow access to the verification page
-                if request.path == reverse("verify-2fa-token"):
-                    return self.get_response(request)
-                # Any other unverified user access to urls is redirected to the verification page
-                verify_url = reverse("verify-2fa-token")
-                return redirect(verify_url)
+                if not request.user.is_staff:
+                    # No varification support yet for the staff users
+                    # Allow access to the verification page
+                    if request.path == reverse("verify-2fa-token"):
+                        return self.get_response(request)
+                    # Any other unverified user access to urls is redirected to the verification page
+                    verify_url = reverse("verify-2fa-token")
+                    return redirect(verify_url)
 
-        self.logger.debug("Allowing access to %s, authenticated %s", request.path, request.user.is_authenticated)
+        self.logger.debug(
+            "Allowing access to %s, authenticated %s is_staff %s",
+            request.path,
+            request.user.is_authenticated,
+            request.user.is_staff,
+        )
         return self.get_response(request)
