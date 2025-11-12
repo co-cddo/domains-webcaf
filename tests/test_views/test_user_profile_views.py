@@ -27,6 +27,40 @@ class TestUserProfileView(BaseViewTest):
         session["current_profile_id"] = self.org_lead_profile.id
         session.save()
 
+    def test_create_user_with_mixed_case_email_is_lowercased(self):
+        """
+        When creating a user with a mixed-case email address via CreateUserProfileView,
+        the email should be saved in lowercase and the username should match the email.
+        """
+        mixed_email = "NewUser@BigOrganisation.gov.uk"
+        expected_email = mixed_email.lower()
+
+        # First GET to initialise any view state
+        self.client.get(reverse("create-new-profile"))
+
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": mixed_email,
+                "role": "organisation_user",
+                "first_name": "New",
+                "last_name": "Person",
+                "action": "confirm",
+            },
+        )
+
+        # Should redirect to success URL
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/view-profiles/")
+
+        # User should be created with lowercased email and username
+        user = User.objects.get(email=expected_email)
+        self.assertEqual(user.username, expected_email)
+
+        # A UserProfile should be created for the same organisation
+        profile = UserProfile.objects.get(user=user, organisation=self.test_organisation)
+        self.assertEqual(profile.role, "organisation_user")
+
     def test_form_valid_saves_profile_changes(self):
         """Test that form_valid saves the user profile with valid data
         Converting organisation user to organisation lead

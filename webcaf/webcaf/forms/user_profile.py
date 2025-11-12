@@ -44,6 +44,10 @@ class UserProfileForm(forms.ModelForm):
             raise PermissionError("You are not allowed to change this role")
         return role
 
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        return email.lower()
+
     def save(self, commit=True):
         """
         Summary
