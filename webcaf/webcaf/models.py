@@ -88,11 +88,12 @@ class System(ReferenceGeneratorMixin, models.Model):
         ("document_storage_and_management", "Document storage and management"),
         ("hr", "HR"),
         ("payroll", "Payroll"),
+        ("financial_and_accounting", "Financial and accounting"),
         ("procurement_and_contract_management", "Procurement and contract management"),
         ("customer_relationship_management", "Customer relationship management"),
         ("help_desk_it_support", "Help desk / IT support"),
         ("data_management_analytics", "Data management / analytics"),
-        ("none", "None of the above"),
+        ("other", "Other"),
     ]
     SYSTEM_TYPES = [
         (
@@ -138,6 +139,7 @@ class System(ReferenceGeneratorMixin, models.Model):
     last_assessed = models.CharField(choices=ASSESSED_CHOICES, max_length=255, null=True, blank=True)
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
     corporate_services = MultiSelectField(choices=CORPORATE_SERVICES, null=True, blank=True, max_length=255)
+    corporate_services_other = models.CharField(max_length=100, blank=True, null=True)
 
     history = HistoricalRecords()
 
