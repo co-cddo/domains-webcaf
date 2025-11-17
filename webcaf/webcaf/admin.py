@@ -23,6 +23,7 @@ from webcaf.webcaf.models import (
     System,
     UserProfile,
 )
+from webcaf.webcaf.views.system import SystemForm
 
 
 class OptionalFieldsAdminMixin:
@@ -231,13 +232,52 @@ class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: 
         return organisation
 
 
+class AdminSystemForm(SystemForm):
+    """
+    AdminSystemForm class for customizing the behavior of the system form in an admin context.
+
+    This class is a subclass of SystemForm and is designed to override some field requirements
+    specific to the admin form use case. It hides the "action" field and makes the
+    "corporate_services_other" field optional. Useful for simplifying the interface and ensuring
+    only relevant fields are presented to the user.
+
+    :ivar fields: Dictionary of form fields with details about required status and widgets.
+    :type fields: dict
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["corporate_services_other"].required = False
+        self.fields["description"].required = False
+        # Do not need the action field. It is only used in the user screen confirmation
+        self.fields["action"].required = False
+        self.fields["action"].widget = forms.HiddenInput(
+            attrs={
+                "class": "vHiddenField",
+            }
+        )
+
+    class Meta(SystemForm.Meta):
+        fields = SystemForm.Meta.fields + [
+            "organisation",
+            "description",
+        ]
+
+        labels = SystemForm.Meta.labels | {
+            "system_type": "System type",
+        }
+
+
 @admin.register(System)
 class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
-    model = System
+    form = AdminSystemForm
     search_fields = ["name", "reference"]
     list_display = ["name", "reference", "organisation__name", "system_type", "description"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
+
+    class Media:
+        js = ("webcaf/js/admin_system.js",)
 
 
 @admin.register(Assessment)

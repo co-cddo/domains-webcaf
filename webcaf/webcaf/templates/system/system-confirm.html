@@ -10,6 +10,7 @@
                 <input type="hidden" name="name" value="{{ form.name.value }}">
                 <input type="hidden" name="system_type" value="{{ form.system_type.value }}">
                 <input type="hidden" name="last_assessed" value="{{ form.last_assessed.value }}">
+                <input type="hidden" name="corporate_services_other" value="{{ form.corporate_services_other.value }}">
                 {% for owner in form.system_owner.value %}
                     <input type="hidden" name="system_owner" value="{{ owner }}">
                 {% endfor %}
@@ -39,20 +40,25 @@
                         <dl class="govuk-summary-list">
                             {% with instance=form.instance %}
                                 {% for field in form %}
-                                    {% if field.name != 'action' %}
+                                    {% if field.name != 'action' and field.name != 'corporate_services_other' %}
                                         <div class="govuk-summary-list__row">
                                             <dt class="govuk-summary-list__key">
                                                 {{ field.label }}
                                             </dt>
                                             <dd class="govuk-summary-list__value">
                                                 {% if field.name == 'corporate_services' %}
-                                                    <ul class="govuk-list govuk-list--bullet">
-                                                        {% with instance|get_display:field.name|split as parts %}
-                                                            {% for item in parts %}
-                                                                <li>{{ item }}</li>
-                                                            {% endfor %}
-                                                        {% endwith %}
-                                                    </ul>
+                                                    {% with instance|get_display:field.name|split as parts %}
+                                                        {% if parts.0 == 'Other' %}
+                                                            {{ instance|get_display:"corporate_services_other" }}
+                                                            (Other)
+                                                        {% else %}
+                                                            <ul class="govuk-list govuk-list--bullet">
+                                                                {% for item in parts %}
+                                                                    <li>{{ item }}</li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        {% endif %}
+                                                    {% endwith %}
                                                 {% else %}
                                                     {{ instance|get_display:field.name }}
                                                 {% endif %}
