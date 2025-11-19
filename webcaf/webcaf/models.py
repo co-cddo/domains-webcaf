@@ -480,6 +480,51 @@ class GovNotifyEmailDevice(EmailDevice):
 
 
 class Assessor(ReferenceGeneratorMixin, models.Model):
+    """
+    Represents an Assessor entity with the following attributes:
+
+    This class is used to model the details of an assessor (independent/peer), including their contact
+    information, type, and associations with organizations and members.
+
+    Only UserProfiles with the role "assessor" and "reviewer" are allowed to be associated as members of this assessor.
+    This is enforced in the view layer. Also, it is validated that the members belong to the same organisation as
+    the assessor.
+
+    When an assessor is deleted, we only soft-delete the entry by setting the is_active attribute to False.
+
+    The class inherits from ReferenceGeneratorMixin to generate a unique reference identifier for each assessor.
+
+
+    :ivar is_active: Indicates whether the assessor is active.
+    :type is_active: bool
+    :ivar phone_number: The phone number of the assessor.
+    :type phone_number: str
+    :ivar contact_name: The name of the contact person for the assessor.
+    :type contact_name: str
+    :ivar email: The email address of the assessor.
+    :type email: str
+    :ivar address: The address of the assessor.
+    :type address: str
+    :ivar name: The name of the assessor.
+    :type name: str
+    :ivar assessor_type: The type of the assessor, chosen from predefined options.
+    :type assessor_type: str
+    :ivar last_updated: The timestamp indicating the last update to the record.
+    :type last_updated: datetime
+    :ivar created_on: The timestamp indicating when the record was created.
+    :type created_on: datetime
+    :ivar last_updated_by: The user who last updated the record.
+    :type last_updated_by: User or None
+    :ivar reference: A unique reference identifier for the assessor.
+    :type reference: str
+    :ivar history: Historical records of the assessor's changes.
+    :type history: HistoricalRecords
+    :ivar organisation: The organization associated with the assessor.
+    :type organisation: Organisation
+    :ivar members: The user profiles associated as members under this assessor.
+    :type members: ManyToManyField
+    """
+
     ASSESSOR_TYPES = [("independent", "Independent assurance review"), ("peer", "Peer review")]
 
     is_active = models.BooleanField(default=True)
@@ -517,6 +562,37 @@ class Assessor(ReferenceGeneratorMixin, models.Model):
 
 
 class Review(ReferenceGeneratorMixin, models.Model):
+    """
+    Represents a review entity that ties an assessment to a specific assessor for purposes
+    such as evaluations, reports, or clarifications.
+
+    This class facilitates the tracking, management, and organization of review processes
+    associated with an assessment. It records review metadata (in review_data), links to related entities
+    like assessments and assessors, and provides mechanisms to manage and retrieve nested
+    data tied to reviews. The class also includes functionality to manage statuses and ensure
+    organizational and assessor details confirmation.
+
+    :ivar created_on: Timestamp of when the review was created.
+    :type created_on: datetime.datetime
+    :ivar last_updated: Timestamp of when the review was last updated.
+    :type last_updated: datetime.datetime
+    :ivar last_updated_by: The user who last updated the review.
+    :type last_updated_by: User
+    :ivar status: The current status of the review. Possible values are:
+        "to_do", "in_progress", "clarify", "completed", and "cancelled".
+    :type status: str
+    :ivar review_data: A JSON field storing various data about the review, including nested data.
+    :type review_data: dict
+    :ivar reference: A unique reference identifier for the review.
+    :type reference: str
+    :ivar assessment: The associated assessment object for this review. If the assessment
+        is deleted, the review is also deleted.
+    :type assessment: Assessment
+    :ivar assessed_by: The assessor associated with this review. If the assessor is removed,
+        the reference to the assessor in this review will be nullified.
+    :type assessed_by: Assessor
+    """
+
     STATUS_CHOICES = [
         ("to_do", "To do"),
         ("in_progress", "In review"),
