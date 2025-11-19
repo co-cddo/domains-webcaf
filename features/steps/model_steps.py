@@ -5,7 +5,7 @@ from behave import step, then
 from behave.runner import Context
 from playwright.sync_api import expect
 
-from features.util import exists_model, get_model
+from features.util import create_model, exists_model, get_model, run_async_orm
 
 
 @then('User model with email "{email}" should exist with "{user_role}" user role')
@@ -100,3 +100,89 @@ def check_assessment_initial_setup(context: Context, system_name: str, caf_profi
     assert (
         assessment.review_type == review_type
     ), f"Caf profile  persisted as '{assessment.review_type}' not expect '{review_type}'"
+
+
+@step('there is an assessor registered in the system named "{assessor_name}"')
+def add_assessor(context: Context, assessor_name: str):
+    """
+    :param assessor_name:
+    :param context: Context
+    """
+    from webcaf.webcaf.models import Assessor
+
+    if not exists_model(Assessor, name=assessor_name):
+        assessor = create_model(
+            Assessor,
+            organisation=context.organisation,
+            name=assessor_name,
+            contact_name=assessor_name,
+            email=f"{assessor_name.lower().replace(' ', '.')}@example.com",
+            address="Test Address",
+            assessor_type="peer_review",
+        )
+        print(f"Created assessor: {assessor.name}")
+    else:
+        print(f"Assessor {assessor_name} already exists")
+
+
+@step('the user "{assessor_user}" belongs to the assessor "{assessor}"')
+def add_assessor_user_to_company(context: Context, assessor_user: str, assessor: str):
+    """
+    :param assessor:
+    :param assessor_user:
+    :param context: Context
+    """
+    from django.contrib.auth.models import User
+
+    from webcaf.webcaf.models import Assessor, UserProfile
+
+    def add_user_to_assessor():
+        user = User.objects.get(username=assessor_user)
+        user_profile = UserProfile.objects.get(user=user)
+        assessor_obj = Assessor.objects.get(name=assessor)
+
+        if user_profile not in assessor_obj.members.all():
+            assessor_obj.members.add(user_profile)
+            assessor_obj.save()
+            print(f"Added user {assessor_user} to assessor {assessor}")
+        else:
+            print(f"User {assessor_user} already belongs to assessor {assessor}")
+
+    run_async_orm(add_user_to_assessor)
+
+
+@step('the "{assessor}" is assigned to "{organisation}"')
+def assign_assessor(context: Context, assessor: str, organisation: str):
+    """
+    :param assessor:
+    :param organisation:
+    :param context: Context
+    """
+
+    def assign_assessor():
+        from webcaf.webcaf.models import Assessor, Organisation
+
+        assessor_ = Assessor.objects.filter(name=assessor).get()
+        organisation_ = Organisation.objects.filter(name=organisation).get()
+        organisation_.assessors.add(assessor_)
+        organisation_.save()
+
+    run_async_orm(assign_assessor)
+
+
+@step('the current assessment is assigned for review to the "{review_by}"')
+def set_review_by(context: Context, review_by: str):
+    """
+    :param review_by:
+    :param context: Context
+    """
+
+    def assign_review_by():
+        from webcaf.webcaf.models import Assessment, Assessor, Review
+
+        assessment = Assessment.objects.get(id=context.current_assessment_id)
+        assessor = Assessor.objects.get(name=review_by)
+        review = Review.objects.get_or_create(assessment=assessment, assessed_by=assessor)[0]
+        review.save()
+
+    run_async_orm(assign_review_by)

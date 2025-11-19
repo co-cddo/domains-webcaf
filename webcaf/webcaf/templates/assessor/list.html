@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Manage assessors - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include "partials/error_message.html" %}
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
+                    has {{ assessor_list.count |default:0 }} assessors
+                </caption>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Assessor name</th>
+                    <th scope="col" class="govuk-table__header">Assessor type</th>
+                    <th scope="col" class="govuk-table__header">Registered email address</th>
+                    <th scope="col" class="govuk-table__header">Action</th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for assessor in assessor_list.all %}
+                    <tr class="govuk-table__row">
+                        <th scope="row"
+                            class="govuk-table__header">{{ assessor.name }}
+                        </th>
+                        <td class="govuk-table__cell">{{ assessor.get_assessor_type_display }}</td>
+                        <td class="govuk-table__cell"> {{ assessor.email }}</td>
+                        <td scope="row" class="govuk-table__cell">
+                            <a href="{% url 'edit-assessor' pk=assessor.pk %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Change
+                            </a> |
+                            <a href="{% url 'remove-assessor' pk=assessor.pk %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Remove
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <form class="form" action="{% url 'create-or-skip-new-assessor' %}" method="POST">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.errors.add_assessor %}govuk-form-group--error{% endif %}">
+                    <fieldset class="govuk-fieldset" aria-describedby="create_new_assessor-hint">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            Add another assessor?
+                        </legend>
+                        <div id="create_new_assessor-hint" class="govuk-hint">
+                        </div>
+                        {% if form.errors.yes_no %}
+                            <p id="add-new-user-error" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> You must select yes or no
+                            </p>
+                        {% endif %}
+                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
+                             data-govuk-radios-init="" id="id_yes_no">
+                            {% for choice in form.fields.yes_no.choices %}
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input"
+                                           id="yes_no{{ forloop.counter }}"
+                                           value="{{ choice.0 }}"
+                                           name="yes_no"
+                                           type="radio">
+                                    <label class="govuk-label govuk-radios__label"
+                                           for="yes_no{{ forloop.counter }}">{{ choice.1 }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    Continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

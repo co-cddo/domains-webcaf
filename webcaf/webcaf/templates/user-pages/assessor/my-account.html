@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}My account - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <!-- IDENTITY BAR -->
+            <div class="identity-bar govuk-!-margin-bottom-4">
+                <div class="identity-bar__details">
+                    <p class="govuk-body-s govuk-!-margin-bottom-1">
+                        Logged in:
+                        <strong>{{ current_profile.user.first_name }} {{ current_profile.user.last_name }}</strong><br>
+                        Role: <strong>{{ current_profile.get_role_display }}</strong>
+                    </p>
+                    <p class="govuk-body-s govuk-!-margin-bottom-0">
+                        Organisation: <strong>{{ current_profile.organisation.name }}</strong>
+                        <a id="change_organisation" href="{% url 'view-organisations' %}"
+                           class="govuk-link govuk-link--no-visited-state">
+                            Change
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <h1 class="govuk-heading-l govuk-!-margin-top-4">
+                {{ current_profile.organisation.name }} assessments
+            </h1>
+
+            <p class="govuk-body">
+                You are reviewing Cyber Assessment Framework (CAF) self-assessments submitted by the
+                <strong>{{ current_profile.organisation.name }}</strong>.
+            </p>
+
+            <!-- TABLE -->
+            <table class="govuk-table" data-module="sortable-table">
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header" aria-sort="ascending">System name and reference</th>
+                    <th scope="col" class="govuk-table__header">Sent for review date</th>
+                    <th scope="col" class="govuk-table__header">Review status</th>
+                    <th scope="col" class="govuk-table__header">Action</th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for review in reviews %}
+                    {% get_review_tag_for_status review.status as tag_ %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{{ review.assessment.system.name }}
+                            ({{ review.assessment.reference }})
+                        </td>
+                        <td class="govuk-table__cell">{{ review.created_on }}</td>
+                        <td class="govuk-table__cell">
+                            <strong class="govuk-tag govuk-tag--{{ tag_ }}">{{ review.get_status_display }}</strong>
+                        </td>
+                        <td class="govuk-table__cell">
+                            <a href="{% url 'edit-review' pk=review.id %}" class="govuk-link">Review</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}
