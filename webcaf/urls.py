@@ -38,12 +38,12 @@ from webcaf.webcaf.views import (
     ViewSubmittedAssessmentsView,
 )
 from webcaf.webcaf.views.assessor.assessor import (
-    AssessorIndexView,
     AssessorsView,
     CreateOrSkipAssessorView,
     EditAssessorView,
     RemoveAssessorView,
 )
+from webcaf.webcaf.views.assessor.review import ReviewIndexView
 from webcaf.webcaf.views.general import logout_view
 from webcaf.webcaf.views.sections import (
     DownloadSubmittedAssessmentPdf,
@@ -149,5 +149,5 @@ urlpatterns = [
     path("edit-assessor/<int:pk>/", EditAssessorView.as_view(), name="edit-assessor"),
     path("remove-assessor/<int:pk>/", RemoveAssessorView.as_view(), name="remove-assessor"),
     # Review paths
-    path("assessor/", AssessorIndexView.as_view(), name="assessor-index"),
+    path("review/", ReviewIndexView.as_view(), name="review-list"),
 ]

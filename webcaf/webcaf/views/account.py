@@ -89,7 +89,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
 
         current_profile = self.get_or_pick_user_profile()
         if current_profile and current_profile.role in ["assessor", "reviewer"]:
-            return redirect("assessor-index")
+            return redirect("review-list")
 
         data = self.get_context_data(**kwargs)
         # Set a draft assessment as empty as we are starting a new flow

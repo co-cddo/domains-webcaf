@@ -2,7 +2,6 @@
 
 This README explains how the core domain entities relate to each other and provides diagrams you can render with Mermaid. It reflects the current code in `webcaf/webcaf/models.py` and the admin configuration in `webcaf/webcaf/admin.py`.
 
-Last updated: 2025-11-19 (local)
 
 ---
 
@@ -28,33 +27,6 @@ Context models (referenced for relationships): `Organisation`, `System`, `User`.
 Key constraints from the current models:
 - Review: `unique_together = (assessment, assessed_by)` — at most one review per assessor for a given assessment. `last_updated_by` is an optional FK to `User` for audit.
 - Assessment: `unique_together = (assessment_period, system, status)` — see notes below.
-
----
-
-### Notes from the implementation
-- Assessment
-  - Links: `system`, `created_by`, `last_updated_by`; `reference` is auto-generated.
-  - Fields: `status` in `{draft, submitted, completed, cancelled}`, `framework` in `{caf32, caf40}`, `caf_profile` in `{baseline, enhanced}`.
-  - JSON helpers: `get_section_by_outcome_id`, `get_sections_by_objective_id`, `is_objective_complete`, `is_complete`, `get_router()`.
-  - Uniqueness currently includes `status`; if you want one row per `(system, assessment_period)` across lifecycle, consider removing `status` from the unique tuple.
-
-- UserProfile
-  - Links: `user` → User, `organisation` → Organisation (optional), `role` from choices.
-  - Convenience: `ROLE_ACTIONS`, `ROLE_DESCRIPTIONS`, `get_role_id`, `get_role_label`.
-  - Consider a uniqueness constraint on `(user, organisation, role)` to avoid duplicates.
-
-- Review
-  - Links: `assessment` (FK, `related_name='reviews'`), `last_updated_by` → User (nullable, tracks last editor), `assessed_by` → Assessor (nullable, FK many-to-one).
-  - Constraints: unique per `(assessment, assessed_by)` (at most one review per assessor for an assessment). Business rule enforcement (e.g., only on submitted assessments) is handled in views/forms/admin or a service layer.
-  - Status values: `{to_do, in_progress, clarify, completed, cancelled}`.
-  - On creation: automatically populates `review_data` with `system_details` and `assessor_details` when status is `to_do` via `set_initial_data()` method.
-  - Structure of `review_data`: includes `system_details` (reference, organisation, assessment_period, system_name, system_description, prev_assessments, hosting_and_connectivity, corporate_services), `assessor_details` (review_type, framework, profile, assessor contact info), and `sections` array with outcome-level comments and status.
-  - Fields also include a generated `reference`.
-
-- Assessor
-  - Fields: includes `is_active: bool` to soft-enable/disable an assessor without deleting the record; `assessor_type` is a string with the values `independent` or `peer`.
-  - Links: FK `organisation` (each assessor belongs to exactly one organisation), and M2M `members` to `UserProfile`.
-  - Admin: listed with an `is_active` filter; `last_updated_by` is set to the acting user on save.
 
 ---
 
@@ -199,29 +171,6 @@ erDiagram
 
 ---
 
-### Review lifecycle (sequence)
-```mermaid
-sequenceDiagram
-  participant OrgUser as Organisation user
-  participant System
-  participant Assessment
-  participant Assessor as "Assessor User"
-  participant Review
-
-  OrgUser->>Assessment: complete draft
-  OrgUser->>Assessment: submit status submitted
-  Assessor->>Review: create review for submitted assessment
-  Review->>Assessment: link to assessment (Assessment.reviews)
-  Review->>Assessor: set assessed_by (optional)
-  Note over Review: auto-populates system_details and assessor_details
-  Assessor->>Review: update review_data and status
-  Assessor->>Review: add section comments to review_data
-  Note over Review: validation handled outside the model (views/forms/admin/service)
-  Review-->>OrgUser: feedback provided via review_data
-```
-
----
-
 ### How to view diagrams
 - Many Markdown renderers support Mermaid. If your viewer does not, paste the blocks at https://mermaid.live
 
@@ -234,9 +183,3 @@ sequenceDiagram
 - Find assessor for a review: `review.assessed_by`
 - Find organisation that owns an assessor: `assessor.organisation`
 - Find assessor members: `assessor.members.all()`
-
----
-
-### Optional improvements
-- Assessment: consider making `(assessment_period, system)` globally unique (without `status`).
-- UserProfile: add `UniqueConstraint(user, organisation, role)`; optionally ensure one `organisation_lead` per `Organisation`.

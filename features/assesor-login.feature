@@ -16,7 +16,7 @@ Feature: Assessor can log in and view assessments
     Given Think time 1 seconds
     And the user logs in with username  "test_assessor@example.com" and password "password"
     Then they should see page title "My account - test_assessor - Complete a WebCAF self-assessment - GOV.UK"
-    And text with "Logged in:"
+    And text with "Logged in as:"
     And text with "Role:"
     And text with "Organisation:"
     And link with text "Change"
@@ -24,7 +24,7 @@ Feature: Assessor can log in and view assessments
     And they should see a table with header "System name and reference"
     And they should see a table with header "Sent for review date"
     And they should see a table with header "Review status"
-    And they should see a table with header "Action"
+    And they should see a table with header "Actions"
 
 
   Scenario: Assessor sees an enhanced submitted assessment on login
