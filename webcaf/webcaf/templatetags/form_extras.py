@@ -237,6 +237,23 @@ def get_tag_for_status(status: str) -> str:
 
 
 @register.simple_tag()
+def get_review_tag_for_status(status: str) -> str:
+    """Function to retrieve a color code based on the given status.
+
+    :param status: A string indicating the current status.
+    :return: A string representing the color code for the status.
+    """
+    if status == "To Do":
+        return "blue"
+    elif status == "In review":
+        return "yellow"
+    elif status == "Report generated":
+        return "green"
+    else:
+        return "red"
+
+
+@register.simple_tag()
 def get_when_the_status_changed(assessment: Assessment, indicator_id: str, status: str) -> Assessment | None:
     return IndicatorStatusChecker.get_when_the_status_changed(assessment, indicator_id, status)
 

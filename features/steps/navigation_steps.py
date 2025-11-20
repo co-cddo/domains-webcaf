@@ -495,3 +495,24 @@ def expected_options_in_select_box(context: Context, options: str):
     options_locator = page.locator("#system_id > option")
     options_list = options.split(",")
     expect(options_locator).to_have_text(options_list)
+
+
+@then('text with "{text}"')
+def page_contains_text(context: Context, text: str):
+    """
+    Assert that the current page contains the given visible text anywhere.
+    """
+    page = context.page
+    expect(page.get_by_text(text)).to_be_visible()
+
+
+@then('they should see a table with header "{header}"')
+def table_with_header(context: Context, header: str):
+    """
+    Assert that a GOV.UK styled table is visible and contains the given column header text.
+    """
+    page = context.page
+    table = page.locator(".govuk-table")
+    expect(table).to_be_visible()
+    header_cell = table.locator("th").filter(has_text=header)
+    expect(header_cell).to_be_visible()

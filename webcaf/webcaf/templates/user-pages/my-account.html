@@ -17,7 +17,7 @@
 
                         <p class="govuk-notification-banner__heading">
                             You cannot start a new self-assessment, until your scoping document is signed off
-                             and your system has been added to WebCAF by a cyber adviser.
+                            and your system has been added to WebCAF by a cyber adviser.
                         </p>
 
                     </div>
@@ -74,23 +74,26 @@
                     {% endif %}
                     <p class="govuk-body" title="View {{ draft_assessments| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_assessments| length }} draft self-assessment{{ draft_assessments | length | pluralize }}
+                            View {{ draft_assessments| length }} draft
+                            self-assessment{{ draft_assessments | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
-                    {% if can_view_submittted_assessments %}
-                        <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
-                            Self-assessments sent for review
-                        </h3>
-                        {% if not submitted_assessments %}
-                            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted assessments.</p>
-                        {% else %}
+                {% if can_view_submittted_assessments %}
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
+                        Self-assessments sent for review
+                    </h3>
+                    {% if not submitted_assessments %}
+                        <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted
+                            assessments.</p>
+                    {% else %}
                         <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
                             You have sent {{ submitted_assessments|length }}
                             self-assessment{{ submitted_assessments|length  | pluralize }} for review.
                         </p>
                         <p class="govuk-body" title="View {{ submitted_assessments| length }} submitted assessment(s)">
-                            <a href="{% url 'view-submitted-assessments' %}" class="govuk-link govuk-link--no-visited-state">
+                            <a href="{% url 'view-submitted-assessments' %}"
+                               class="govuk-link govuk-link--no-visited-state">
                                 View self-assessments sent for review
                             </a>
                         </p>
@@ -128,6 +131,16 @@
                             <a href="{% url 'view-profiles' %}"
                                class="govuk-link govuk-link--no-visited-state">
                                 Manage users
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <nav role="navigation" aria-labelledby="subsection-title">
+                    <ul class="govuk-list">
+                        <li>
+                            <a href="{% url 'assessor-list' %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                Manage assessors
                             </a>
                         </li>
                     </ul>

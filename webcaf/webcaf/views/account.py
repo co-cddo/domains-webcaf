@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView
 
@@ -29,18 +29,10 @@ class AccountView(LoginRequiredMixin, TemplateView):
         :return:
         """
         data = super().get_context_data(**kwargs)
-        profile_id = self.request.session.get("current_profile_id")
-        if not profile_id:
-            # On the landing of the very first time, select the first profile to be displayed
-            # The user is allowed to change this later through the screen
-            profiles = list(UserProfile.objects.filter(user=self.request.user).order_by("id").all())
-            if profiles:
-                self.request.session["current_profile_id"] = profiles[0].id
-                self.request.session["profile_count"] = len(profiles)
-        current_profile_id = self.request.session.get("current_profile_id")
-        if current_profile_id:
+        current_profile = self.get_or_pick_user_profile()
+        if current_profile:
             # Data used by the page.
-            data["current_profile"] = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
+            data["current_profile"] = current_profile
             data["profile_count"] = self.request.session.get("profile_count", 1)
             data["system_count"] = System.objects.filter(organisation=data["current_profile"].organisation).count()
             all_assessments = list(
@@ -70,6 +62,22 @@ class AccountView(LoginRequiredMixin, TemplateView):
 
         return data
 
+    def get_or_pick_user_profile(self) -> UserProfile | None:
+        if self.request.user.is_authenticated:
+            current_profile_id = self.request.session.get("current_profile_id")
+            if not current_profile_id:
+                # On the landing for the very first time, select the first profile to be displayed
+                # The user is allowed to change this later through the screen
+                profiles = list(UserProfile.objects.filter(user=self.request.user).order_by("id").all())
+                if profiles:
+                    current_profile_id = int(profiles[0].id)
+                    self.request.session["current_profile_id"] = profiles[0].id
+                    self.request.session["profile_count"] = len(profiles)
+                else:
+                    return None
+            return UserProfile.objects.filter(user=self.request.user, id=str(current_profile_id)).first()
+        return None
+
     def get(self, request, *args, **kwargs):
         """
         Initial page after logging in
@@ -78,6 +86,11 @@ class AccountView(LoginRequiredMixin, TemplateView):
         :param kwargs:
         :return:
         """
+
+        current_profile = self.get_or_pick_user_profile()
+        if current_profile and current_profile.role in ["assessor", "reviewer"]:
+            return redirect("review-list")
+
         data = self.get_context_data(**kwargs)
         # Set a draft assessment as empty as we are starting a new flow
         request.session["draft_assessment"] = {}
