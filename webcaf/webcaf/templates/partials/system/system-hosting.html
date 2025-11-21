@@ -1,0 +1,33 @@
+<h2 class="govuk-heading-m">
+    System hosting and connectivity
+</h2>
+<div class="govuk-form-group {% if form.errors.hosting_type %}govuk-form-group--error{% endif %}"
+     id="id_hosting_type">
+    <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">How is the system hosted?
+        </legend>
+        <div id="hosting_type-hint" class="govuk-hint">
+            Select one option
+        </div>
+        {% if form.errors.hosting_type %}
+            <p id="system-hosting-type-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must select one option
+            </p>
+        {% endif %}
+        <div class="govuk-radios" data-module="govuk-radios">
+            {% for hosting_type in form.hosting_type %}
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="hosting_type_{{ forloop.counter }}"
+                           name="hosting_type"
+                           type="radio"
+                           {% if hosting_type.data.value in form.hosting_type.value %}checked{% endif %}
+                           value="{{ hosting_type.data.value }}">
+                    <label class="govuk-label govuk-radios__label"
+                           for="hosting_type_{{ forloop.counter }}">
+                        {{ hosting_type.choice_label }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </fieldset>
+</div>

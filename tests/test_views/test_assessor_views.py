@@ -1,10 +1,12 @@
 from django.test import Client
 from django.urls import reverse
+from freezegun import freeze_time
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import (
     Assessment,
     Assessor,
+    Configuration,
     Organisation,
     Review,
     System,
@@ -12,6 +14,8 @@ from webcaf.webcaf.models import (
 )
 
 
+# Fixing the time in future so the configuration does not conflict with any existing data in the database.
+@freeze_time("2050-01-15 10:00:00")
 class TestReviewIndexView(BaseViewTest):
     """
     Tests for ReviewIndexView (assessor dashboard).
@@ -24,7 +28,18 @@ class TestReviewIndexView(BaseViewTest):
     """
 
     def setUp(self):
+        Configuration.objects.create(
+            name="2050 Assessment Period",
+            config_data={
+                "current_assessment_period": "49/50",
+                "assessment_period_end": "31 March 2050 11:59pm",
+                "default_framework": "caf32",
+            },
+        )
+
         self.client = Client()
+        assessment_period = Configuration.objects.get_default_config().get_current_assessment_period()
+
         # Create an assessor-role user in the default organisation
         org = Organisation.objects.get(name=self.organisation_name)
         username = self.email_from_username_and_org("assessor", self.organisation_name)
@@ -45,7 +60,7 @@ class TestReviewIndexView(BaseViewTest):
         self.submitted_assessment = Assessment.objects.create(
             system=self.system,
             status="submitted",
-            assessment_period="2025",
+            assessment_period=assessment_period,
         )
         # Create an Assessor entity for the organisation and assign a review to it
         self.org_assessor = Assessor.objects.create(
@@ -56,6 +71,9 @@ class TestReviewIndexView(BaseViewTest):
             address="1 Road",
             assessor_type="independent",
         )
+
+        self.org_assessor.members.add(self.assessor_profile)
+
         self.visible_review = Review.objects.create(
             assessment=self.submitted_assessment,
             assessed_by=self.org_assessor,
@@ -67,7 +85,7 @@ class TestReviewIndexView(BaseViewTest):
         other_assessment = Assessment.objects.create(
             system=other_system,
             status="submitted",
-            assessment_period="2025",
+            assessment_period=assessment_period,
         )
         self.other_review = Review.objects.create(
             assessment=other_assessment,
@@ -104,6 +122,8 @@ class TestReviewIndexView(BaseViewTest):
             assessor_type="independent",
             is_active=False,
         )
+        # Add the current user to the inactive assessor
+        inactive.members.add(self.assessor_profile)
         r_inactive = Review.objects.create(assessment=self.submitted_assessment, assessed_by=inactive)
 
         # Create an assessor and review in a different org

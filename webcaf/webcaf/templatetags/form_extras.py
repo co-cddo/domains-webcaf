@@ -243,11 +243,11 @@ def get_review_tag_for_status(status: str) -> str:
     :param status: A string indicating the current status.
     :return: A string representing the color code for the status.
     """
-    if status == "To Do":
+    if status == "to_do":
         return "blue"
-    elif status == "In review":
+    elif status == "in_progress":
         return "yellow"
-    elif status == "Report generated":
+    elif status == "completed":
         return "green"
     else:
         return "red"

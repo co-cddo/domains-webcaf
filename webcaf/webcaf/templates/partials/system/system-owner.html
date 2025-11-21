@@ -1,0 +1,31 @@
+<h2 class="govuk-heading-m">
+    System owner
+</h2>
+<div class="govuk-form-group {% if form.errors.system_owner %}govuk-form-group--error{% endif %}"
+     id="id_system_owner">
+    <fieldset class="govuk-fieldset" aria-describedby="system_owner-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Who owns this system?</legend>
+        <div id="system_owner-hint" class="govuk-hint">
+            Select one option
+        </div>
+        {% if form.errors.system_owner %}
+            <p id="system-owner-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must select a system owner
+            </p>
+        {% endif %}
+        <div class="govuk-radios" data-module="govuk-radios">
+            {% for owner in form.system_owner %}
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="system_owner_{{ forloop.counter }}"
+                           name="system_owner" type="radio"
+                           value="{{ owner.data.value }}"
+                           {% if owner.data.value in form.system_owner.value %}checked{% endif %}
+                           aria-describedby="system_owner-item-hint_{{ forloop.counter }}">
+                    <label class="govuk-label govuk-radios__label"
+                           for="system_owner_{{ forloop.counter }}">
+                        {{ owner.choice_label }}
+                    </label>
+                </div> {% endfor %}
+        </div>
+    </fieldset>
+</div>
