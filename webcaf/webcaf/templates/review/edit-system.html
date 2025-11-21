@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Edit system information - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l govuk-!-margin-top-6">{{ review.assessment.system.name }} ({{ review.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Edit system information</h1>
+            <form class="form" method="post">
+                {% csrf_token %}
+                {% if field_name == "system_type" %}
+                    {% include "partials/system/system-description.html" %}
+                {% elif field_name == "last_assessed" %}
+                    {% include "partials/system/system-last-assessed.html" %}
+                {% elif field_name == "system_owner" %}
+                    {% include "partials/system/system-owner.html" %}
+                {% elif field_name == "hosting_type" %}
+                    {% include "partials/system/system-hosting.html" %}
+                {% elif field_name == "corporate_services" %}
+                    {% include "partials/system/system-corporate-services.html" %}
+                {% endif %}
+                <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

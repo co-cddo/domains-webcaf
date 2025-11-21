@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}System and review scope - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Confirm system and review scope</h1>
+            <p class="govuk-body">
+                The information below was provided during the self-assessment.<br>
+                Please review each detail carefully and confirm it is correct.<br>
+            </p>
+            {% for summary_item, summary_value in summary.items %}
+                <h2 class="govuk-heading-m">
+                    {{ summary_item }}
+                </h2>
+                <dl class="govuk-summary-list govuk-!-margin-top-4">
+                    {% for item in summary_value %}
+                        {% if item.name != 'Other corporate services' %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    {{ item.name }}
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ item.value }}
+                                    {% if item.value == "Other" %}
+                                        {% with last_item=summary_value|last %}
+                                            ({{ last_item.value }})
+                                        {% endwith %}
+                                    {% endif %}
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    {% if item.can_update %}
+                                        <a href="{% url 'edit-review-system' pk=object.id field_to_change=item.name %}">Change</a>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </dl>
+            {% endfor %}
+
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-warning-text__assistive"></span>
+                    If you think any of the information here is wrong, please contact GovAssure on
+                    <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code>.
+                </strong>
+            </div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="govuk-button-group">
+                    <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button">
+                        Save and continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
