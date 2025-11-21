@@ -1,0 +1,66 @@
+<h2 class="govuk-heading-m">
+    Corporate services
+</h2>
+<div id="id_corporate_services"
+     class="govuk-form-group {% if form.errors.corporate_services %}govuk-form-group--error{% endif %}">
+    <fieldset class="govuk-fieldset" aria-describedby="corporate_services-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What corporate or internal
+            end-user services does this system provide?
+        </legend>
+        <div id="corporate_services-hint" class="govuk-hint">
+            Select all that apply
+        </div>
+        {% if form.errors.corporate_services %}
+            <p id="system-corporate-services-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must select all that apply
+            </p>
+        {% endif %}
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            {% for service in form.corporate_services %}
+                <div class="govuk-checkboxes__item">
+                    <input class="govuk-checkboxes__input" id="corporate_service_{{ service.0 }}"
+                           name="corporate_services"
+                           type="checkbox"
+                           {% if service.data.value in form.corporate_services.value %}checked{% endif %}
+                           value="{{ service.data.value }}"
+                            {% if service.data.value == 'other' %}
+                           data-behaviour="exclusive"
+                           data-aria-controls="conditional_corporate_services_11"
+                            {% endif %}>
+                    <label class="govuk-label govuk-checkboxes__label"
+                           for="corporate_service_{{ service.data.value }}">
+                        {{ service.choice_label }}
+                        {% if forloop.revcounter == 1 %}
+                            (please specify)
+                        {% endif %}
+                    </label>
+                    {% if forloop.revcounter == 1 %}
+                        <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden"
+                             id="conditional_corporate_services_11">
+                            <div class="govuk-form-group">
+                                {% if form.errors.corporate_services_other %}
+                                    <p id="system-corporate-services-other-error"
+                                       class="govuk-error-message">
+                                        <span class="govuk-visually-hidden">Error:</span> You must
+                                        provide a corporate service
+                                    </p>
+                                {% endif %}
+                                <label class="govuk-label" for="id_corporate_services_other">
+                                    Add corporate service
+                                </label>
+                                <input class="govuk-input govuk-!-width-full"
+                                       id="id_corporate_services_other"
+                                       name="corporate_services_other" type="text" autocomplete="text"
+                                       value="{{ form.corporate_services_other.value|default:'' }}"
+                                       spellcheck="false">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if forloop.revcounter == 2 %}
+                    <div class="govuk-radios__divider">or</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </fieldset>
+</div>
