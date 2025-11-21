@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
-from webcaf.webcaf.models import System, UserProfile
+from webcaf.webcaf.models import Configuration, System, UserProfile
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -64,11 +64,7 @@ class SystemContextDataMixin:
     def get_context_data(self, **kwargs):
         data = FormView.get_context_data(self, **kwargs)
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
-        data["system_types"] = System.SYSTEM_TYPES
-        data["owner_types"] = System.OWNER_TYPES
-        data["hosting_types"] = System.HOSTING_TYPES
-        data["assessed_periods"] = System.ASSESSED_CHOICES
-        data["corporate_services"] = System.CORPORATE_SERVICES
+        data["current_assessment_period"] = Configuration.objects.get_default_config().get_current_assessment_period()
         data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         return data
 

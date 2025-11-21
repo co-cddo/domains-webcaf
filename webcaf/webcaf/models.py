@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -561,6 +562,20 @@ class Assessor(ReferenceGeneratorMixin, models.Model):
                 """
 
 
+def _get_or_crearte_nested_path(current: dict[str, Any], *keys) -> dict:
+    """
+    Ensures a nested path exists in review_data by creating intermediate dicts as needed.
+    :param current: The current dict in which to create the nested path
+    :param keys: Variable number of string keys representing the nested path
+    :return: The innermost dict at the specified path
+    """
+    for key in keys:
+        if not current.get(key):
+            current[key] = {}
+        current = current[key]
+    return current
+
+
 class Review(ReferenceGeneratorMixin, models.Model):
     """
     Represents a review entity that ties an assessment to a specific assessor for purposes
@@ -652,67 +667,54 @@ class Review(ReferenceGeneratorMixin, models.Model):
             },
         )
 
-    def set_initial_data(self):
-        self.review_data["system_details"], self.review_data["assessor_details"] = self.get_initial_data()
-
-    def save(self, *args, **kwargs):
-        is_create = self.pk is None
-        # Only populate initial data on creation and when status is 'to_do'.
-        if is_create and self.status == "to_do":
-            # Ensure review_data is a dict
-            if not isinstance(self.review_data, dict):
-                self.review_data = {}
-            # Populate only if not already provided
-            if "system_details" not in self.review_data and "assessor_details" not in self.review_data:
-                self.set_initial_data()
-        super().save(*args, **kwargs)
-
     @property
-    def is_org_details_confirmed(self) -> bool:
+    def is_system_and_scope_completed(self):
+        assessor_response_data = self.get_assessor_response()
+        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        return system_scope.get("completed") == "yes"
+
+    def confirm_system_and_scope_completed(self, completed_data: dict[str, Any]):
         """
-        Determines if the organization details are complete based on the system's responses.
+        Confirms the completion of the system and scope section by updating the
+        appropriate data path with the completion status and provided completion
+        details.
 
-        The method checks whether the 'status_confirmed' value under 'organisation_details'
-        in the 'system_details' section of the assessor's response is set to "confirm".
-        It returns True if the organization details are complete, otherwise False.
-
-        :return: True if the organization details are marked as complete ("confirm"),
-            otherwise False
-        :rtype: bool
+        :param completed_data: A dictionary containing the details of the completed
+            data for the system and scope section.
+        :type completed_data: dict[str, Any]
+        :return: None
         """
-        return (
-            self._get_or_crearte_nested_path(
-                "assessor_response_data",
-                "system_details",
-                "organisation_details",
-            ).get("status_confirmed", None)
-            == "confirm"
-        )
+        assessor_response_data = self.get_assessor_response()
+        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        system_scope["completed"] = "yes"
+        system_scope["completed_data"] = completed_data
 
-    def confirm_org_details(self):
-        org_details = self._get_or_crearte_nested_path(
-            "assessor_response_data", "system_details", "organisation_details"
-        )
-        org_details["status_confirmed"] = "confirm"
-
-    @property
-    def is_assessor_details_confirmed(self) -> bool:
+    def reset_system_and_scope_completed(self):
         """
-        Determines if assessor details are complete.
+        Reset the "completed" flag within the "system_and_scope" section of the
+        assessor response. This method retrieves the assessor response data,
+        accesses the "system_and_scope" nested path, and removes the "completed"
+        attribute.
 
-        This method checks whether the assessor's details have been confirmed by
-        evaluating the "status_confirmed" key within the nested dictionary structure
-        returned by the method `get_assessor_response`. The status is considered
-        complete when its value is equal to "confirm".
-
-        :return: True if the assessor details are marked as confirmed, otherwise False
-        :rtype: bool
+        :raises KeyError: If the "completed" key does not exist in the
+            "system_and_scope" section.
+        :return: None
         """
-        return (
-            self._get_or_crearte_nested_path("assessor_response_data", "system_details", "assessor_details").get(
-                "status_confirmed", None
-            )
-            == "confirm"
+        assessor_response_data = self.get_assessor_response()
+        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        if system_scope:
+            system_scope.pop("completed", None)
+
+    def record_assessor_action(self, action_type: str, action_details: dict[str, Any]):
+        assessor_response_data = self.get_assessor_response()
+        assessor_actions = _get_or_crearte_nested_path(assessor_response_data, "assessor_actions")
+        if "records" not in assessor_actions:
+            assessor_actions["records"] = []
+        assessor_actions["records"].append(
+            {
+                "type": action_type,
+                "details": action_details,
+            }
         )
 
     def get_assessor_response(self):
@@ -727,18 +729,4 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :return: A dictionary containing the assessor data or an empty
                  dictionary if the key "assessor_response_data" is not present.
         """
-        return self._get_or_crearte_nested_path("assessor_response_data")
-
-    def _get_or_crearte_nested_path(self, *keys) -> dict:
-        """
-        Ensures a nested path exists in review_data by creating intermediate dicts as needed.
-
-        :param keys: Variable number of string keys representing the nested path
-        :return: The innermost dict at the specified path
-        """
-        current = self.review_data
-        for key in keys:
-            if not current.get(key):
-                current[key] = {}
-            current = current[key]
-        return current
+        return _get_or_crearte_nested_path(self.review_data, "assessor_response_data")
