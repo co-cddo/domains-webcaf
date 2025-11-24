@@ -15,7 +15,7 @@
                 <h2 class="govuk-heading-m">
                     {{ summary_item }}
                 </h2>
-                <dl class="govuk-summary-list govuk-!-margin-top-4">
+                <dl class="govuk-summary-list {% if forloop.last %}govuk-summary-list--no-border{% endif %} govuk-!-margin-top-4">
                     {% for item in summary_value %}
                         {% if item.name != 'Other corporate services' %}
                             <div class="govuk-summary-list__row">
@@ -32,7 +32,7 @@
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     {% if item.can_update %}
-                                        <a href="{% url 'edit-review-system' pk=object.id field_to_change=item.name %}">Change</a>
+                                        <a class="govuk-link" href="{% url 'edit-review-system' pk=object.id field_to_change=item.name %}">Change</a>
                                     {% endif %}
                                 </dd>
                             </div>

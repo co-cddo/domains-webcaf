@@ -562,7 +562,7 @@ class Assessor(ReferenceGeneratorMixin, models.Model):
                 """
 
 
-def _get_or_crearte_nested_path(current: dict[str, Any], *keys) -> dict:
+def _get_or_create_nested_path(current: dict[str, Any], *keys) -> dict:
     """
     Ensures a nested path exists in review_data by creating intermediate dicts as needed.
     :param current: The current dict in which to create the nested path
@@ -670,7 +670,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
     @property
     def is_system_and_scope_completed(self):
         assessor_response_data = self.get_assessor_response()
-        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        system_scope = _get_or_create_nested_path(assessor_response_data, "system_and_scope")
         return system_scope.get("completed") == "yes"
 
     def confirm_system_and_scope_completed(self, completed_data: dict[str, Any]):
@@ -685,7 +685,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :return: None
         """
         assessor_response_data = self.get_assessor_response()
-        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        system_scope = _get_or_create_nested_path(assessor_response_data, "system_and_scope")
         system_scope["completed"] = "yes"
         system_scope["completed_data"] = completed_data
 
@@ -701,13 +701,13 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :return: None
         """
         assessor_response_data = self.get_assessor_response()
-        system_scope = _get_or_crearte_nested_path(assessor_response_data, "system_and_scope")
+        system_scope = _get_or_create_nested_path(assessor_response_data, "system_and_scope")
         if system_scope:
             system_scope.pop("completed", None)
 
     def record_assessor_action(self, action_type: str, action_details: dict[str, Any]):
         assessor_response_data = self.get_assessor_response()
-        assessor_actions = _get_or_crearte_nested_path(assessor_response_data, "assessor_actions")
+        assessor_actions = _get_or_create_nested_path(assessor_response_data, "assessor_actions")
         if "records" not in assessor_actions:
             assessor_actions["records"] = []
         assessor_actions["records"].append(
@@ -729,4 +729,4 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :return: A dictionary containing the assessor data or an empty
                  dictionary if the key "assessor_response_data" is not present.
         """
-        return _get_or_crearte_nested_path(self.review_data, "assessor_response_data")
+        return _get_or_create_nested_path(self.review_data, "assessor_response_data")

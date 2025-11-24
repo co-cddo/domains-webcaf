@@ -1,5 +1,6 @@
 import logging
 from collections import namedtuple
+from datetime import datetime
 
 from django.db.models import QuerySet
 from django.forms import ChoiceField, ModelForm
@@ -80,7 +81,6 @@ class BaseReviewMixin(UserRoleCheckMixin):
             assessed_by__in=Assessor.objects.filter(
                 members=user_profile,
                 organisation=user_profile.organisation,
-                is_active=True,
             )
         )
 
@@ -330,15 +330,9 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
         data = super().get_context_data(**kwargs)
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
-                "text": "My account",
-            },
-            {
-                "url": reverse("edit-review", kwargs={"pk": self.kwargs["pk"]}),
-                "text": "Edit draft review",
-            },
-            {
-                "text": "Review system and scope",
+                "url": reverse("system-and-scope", kwargs={"pk": self.kwargs["pk"]}),
+                "text": "Back",
+                "class": "govuk-back-link",
             },
         ]
         data["review"] = (
@@ -400,6 +394,21 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
                         )
                     )
 
+                def clean(self):
+                    cleaned_data = super().clean()
+                    corporate_services = cleaned_data.get("corporate_services")
+                    corporate_services_other = cleaned_data.get("corporate_services_other")
+                    if corporate_services:
+                        if corporate_services[0] == "other":
+                            if not corporate_services_other:
+                                self.add_error(
+                                    "corporate_services_other", "Please enter a description of the corporate services."
+                                )
+                        else:
+                            # No need to keep the other corporate services description.
+                            cleaned_data["corporate_services_other"] = ""
+                    return cleaned_data
+
             return DynamicForm
 
         return generate_form(**self.kwargs)
@@ -455,6 +464,7 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
                     {
                         "what": "system",
                         "id": self.object.id,
+                        "when": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                         "description": f'Updated the field {self.kwargs["field_to_change"]} : '
                         f"{form.initial[field_to_change]} to {form.cleaned_data[field_to_change]}.",
                     },

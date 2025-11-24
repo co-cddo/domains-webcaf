@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}Edit system information - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}Change system information - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l govuk-!-margin-top-6">{{ review.assessment.system.name }} ({{ review.assessment.reference }})</span>
-            <h1 class="govuk-heading-l">Edit system information</h1>
+            <h1 class="govuk-heading-l">Change system information</h1>
             <form class="form" method="post">
                 {% csrf_token %}
                 {% if field_name == "system_type" %}
