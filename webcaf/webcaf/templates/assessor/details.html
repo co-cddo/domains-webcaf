@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load review_tags %}
 {% load form_extras %}
 {% load govuk_frontend_django %}
 {% block title %}Manage user - {{ user.first_name }} {{ block.super }}{% endblock %}
@@ -147,7 +148,9 @@
                                             >
                                             <label class="govuk-label govuk-checkboxes__label"
                                                    for="id_assessments_{{ forloop.counter }}">
-                                                {{ assessment.system.name }} - {{ assessment.reference }}
+                                                {{ assessment.system.name }}
+                                                - {{ assessment.reference }}
+                                                {% get_existing_review_assignments form.assessments.value assessment object %}
                                             </label>
                                         </div>
                                     {% endif %}

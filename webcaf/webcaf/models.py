@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime
+from functools import cached_property
 from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Func, Value
 from django.db.models.functions import Cast
@@ -256,7 +258,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
 
         :return: True if all objectives are completed, False otherwise
         """
-        for objective in self.get_router().get_sections():
+        for objective in self.get_all_caf_objectives():
             objective_id = objective["code"]
             if not self.is_objective_complete(objective_id):
                 return False
@@ -295,6 +297,22 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
             ]
             return set(all_outcomes) == set(completed_outcomes)
         return False
+
+    def get_caf_outcome_by_id(self, objective_id: str, outcome_id: str):
+        for objective in self.get_all_caf_objectives():
+            if objective["code"] == objective_id:
+                principal_code = outcome_id.split(".")[0]
+                return objective["principles"][principal_code]["outcomes"][outcome_id]
+        return None
+
+    def get_caf_objective_by_id(self, objective_id: str):
+        for objective in self.get_all_caf_objectives():
+            if objective["code"] == objective_id:
+                return objective
+        return None
+
+    def get_all_caf_objectives(self) -> list[dict]:
+        return self.get_router().get_sections()
 
     def __str__(self):
         return f"reference={self.reference if self.reference else '-'}, status={self.status} org={self.system.organisation.name}"
@@ -717,6 +735,309 @@ class Review(ReferenceGeneratorMixin, models.Model):
             }
         )
 
+    def set_outcome_review(self, objective_code: str, outcome_code: str, data: dict[str, Any]):
+        """
+        Updates the assessment review data and indicators for a specific outcome within an objective.
+
+        :param objective_code: The identifier for the objective.
+        :type objective_code: str
+        :param outcome_code: The identifier for the outcome within the objective.
+        :type outcome_code: str
+        :param data: A dictionary containing data for review and indicators. Keys starting
+            with "review_" are used as review data, while all other keys are treated
+            as indicator data.
+        :type data: dict[str, Any]
+        :return: None
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
+        # Split the data in to review and indicator data for visual clarity
+        review_data = {k: v for k, v in data.items() if k.startswith("review_")}
+        indicator_data = {k: v for k, v in data.items() if not k.startswith("review_")}
+        outcome_section["indicators"] = indicator_data
+        outcome_section["review_data"] = review_data
+
+    def get_outcome_review(
+        self,
+        objective_code: str,
+        outcome_code: str,
+    ) -> dict[str, Any]:
+        """
+        Fetches the review data for a specified outcome within a given objective.
+
+        This method retrieves assessor response data and uses a nested path to access
+        or create the specified outcome section for the given objective code.
+        It then consolidates indicator data and review data found in the outcome
+        section.
+
+        :param objective_code: Unique identifier for the objective.
+        :param outcome_code: Unique identifier for the outcome within the objective.
+        :return: A dictionary containing a merged set of indicator and review data.
+        :rtype: dict[str, Any]
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
+        return outcome_section.get("indicators", {}) | outcome_section.get("review_data", {})
+
+    def get_outcome_recommendations(
+        self,
+        objective_code: str,
+        outcome_code: str,
+    ) -> list[dict[str, Any]]:
+        """
+        Retrieves a list of outcome recommendations based on the provided objective code and outcome code.
+        The method accesses assessor response data and navigates to the relevant outcome section
+        to fetch the recommendations. Recommendations are returned as a list of dictionaries.
+
+        :param objective_code: A string representing the objective code used to locate the specific objective.
+        :param outcome_code: A string representing the outcome code defining the target outcome within the objective.
+        :return: A list of dictionaries containing recommendations for the specified outcome.
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
+        return outcome_section.get("recommendations", [])
+
+    def set_outcome_recommendations(self, objective_code: str, outcome_code: str, comments=list[dict[str, Any]]):
+        """
+        Sets outcome recommendations for the given objective and outcome codes within
+        the assessor response data. This method ensures a nested path exists for the
+        specified objective and outcome codes and then updates the "recommendations"
+        section with the provided comments.
+
+        The assessor response data is retrieved and updated accordingly, ensuring
+        a structured approach to organizing recommendations based on objectives
+        and outcomes.
+
+        :param objective_code: The code representing the objective to be updated.
+        :type objective_code: str
+        :param outcome_code: The code representing the specific outcome to be updated.
+        :type outcome_code: str
+        :param comments: A list of dictionaries, where each dictionary contains
+            recommendation details to be added to the specified outcome.
+        :type comments: list[dict[str, Any]]
+        :return: None
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
+        outcome_section["recommendations"] = comments
+
+    def get_objective_recommendations(self, objective_code: str) -> list[dict[str, Any]]:
+        """
+        Retrieve recommendations for a given objective code from assessor response data.
+
+        This method fetches the assessor response data, navigates to the outcome section for the
+        specified objective code, and extracts the recommendations associated with it. If no
+        recommendations are available, an empty list is returned.
+
+        :param objective_code: A string representing the unique code of the objective for which
+            recommendations are needed.
+        :return: A list of dictionaries containing recommendations for the specified objective code.
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
+        return outcome_section.get("recommendations", [])
+
+    def set_objective_recommendations(self, objective_code: str, comments=list[dict[str, Any]]):
+        """
+        Updates the recommendations for a specific objective in the assessor's response data.
+
+        This method retrieves the assessor's response data, navigates to the specified
+        objective section, and sets the recommendations using the provided comments.
+        If the objective section does not exist, it will be created.
+
+        :param objective_code: The unique code identifying the specific objective
+                               whose recommendations are to be updated.
+        :type objective_code: str
+        :param comments: A list of dictionary objects containing the updated
+                         recommendations for the objective.
+        :type comments: list[dict[str, Any]]
+        :return: None
+        :rtype: NoneType
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
+        outcome_section["recommendations"] = comments
+
+    def get_objective_comments(self, objective_code: str, category: str) -> str | None:
+        """
+        Retrieve comments for a specific objective under a given category. The method accesses
+        assessment response data, navigates to the relevant section based on the provided objective
+        code, and attempts to retrieve comments associated with the specified category.
+
+        :param objective_code: The identifier string for the specific objective.
+        :param category: The category within the objective code from which to fetch the comments.
+        :return: A string representing the comments for the specific category, or None if the
+                 category does not exist.
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
+        return outcome_section.get(category, None)
+
+    def is_objective_complete(self, objective_code: str) -> bool:
+        """
+        Evaluates whether a specific objective has been fully completed based on its review data
+        and associated recommendations. This method inspects the data for key components such as
+        recommendations, areas of improvement, areas of good practice, and the status of associated
+        outcomes for an objective, determining if all required conditions are met.
+
+        :param objective_code: The code that uniquely identifies the objective to be checked.
+        :type objective_code: str
+        :return: A boolean indicating whether the objective has been completely achieved. Returns
+                 True if all required checks pass, otherwise False.
+        :rtype: bool
+        """
+        assessor_response_data = self.get_assessor_response()
+        review_objective = _get_or_create_nested_path(assessor_response_data, objective_code)
+        caf_objective = self.assessment.get_caf_objective_by_id(objective_code)
+        for principal in caf_objective["principles"].values():
+            # Objective level key check.
+            if not {"recommendations", "objective-areas-of-improvement", "objective-areas-of-good-practice"}.issubset(
+                review_objective.keys()
+            ):
+                return False
+            for outcome in principal["outcomes"].values():
+                outcome_data = review_objective.get(outcome["code"], {})
+                # Outcome level check
+                # if the status is not present or not achieved state, then
+                # we need recommendations
+                if review_decision := outcome_data.get("review_data", {}).get("review_decision"):
+                    if (
+                        not review_decision
+                        or review_decision != "achieved"
+                        and not outcome_data.get("recommendations", [])
+                    ):
+                        return False
+                else:
+                    return False
+        return True
+
+    def is_all_objectives_complete(self):
+        """
+        Checks whether all objectives associated with the assessment are complete.
+
+        This method retrieves all the CAF (Capability Assessment Framework) objectives
+        associated with the current assessment and checks their completion status. If
+        any objective is not complete, the method returns False; otherwise, it returns
+        True.
+
+        :return: Indicates whether all objectives are complete
+        :rtype: bool
+        """
+        caf_objectives = self.assessment.get_all_caf_objectives()
+        for objective in caf_objectives:
+            if not self.is_objective_complete(objective["code"]):
+                return False
+        return True
+
+    def is_system_and_scope_complete(self):
+        assessor_response_data = self.get_assessor_response()
+        return assessor_response_data.get("system_and_scope", {}).get("completed") == "yes"
+
+    def is_iar_period_complete(self) -> bool:
+        return self.get_additional_detail("iar_period") is not None
+
+    def is_quality_of_evidence_complete(self) -> bool:
+        return self.get_additional_detail("quality_of_evidence") is not None
+
+    def is_review_method_complete(self) -> bool:
+        return self.get_additional_detail("review_method") is not None
+
+    def get_additional_detail(self, detail_key) -> str | None:
+        """
+        Retrieve additional detail from the 'additional_information' field in the assessor's
+        response data using the provided detail key.
+
+        This method accesses the nested path 'additional_information' within the assessor's
+        response data, ensuring the path exists or is created. It then extracts the detail
+        corresponding to the given detail key. If the key is not present, it returns None.
+
+        :param detail_key: The key corresponding to the required detail within the
+            'additional_information' data.
+        :type detail_key: str
+        :return: The detail corresponding to the provided key or None if the key
+            is not found.
+        :rtype: str | None
+        """
+        assessor_response_data = self.get_assessor_response()
+        additional_information = _get_or_create_nested_path(assessor_response_data, "additional_information")
+        return additional_information.get(detail_key, None)
+
+    def set_additional_detail(self, detail_key, detail_value):
+        """
+        Sets an additional detail in the nested structure of the assessor response data under
+        the "additional_information" path. This method modifies the nested dictionary
+        by adding a new key-value pair, where `detail_key` serves as the key and
+        `detail_value` as its corresponding value.
+
+        :param detail_key: Key to identify the additional detail within the nested
+                           "additional_information" structure
+        :type detail_key: str
+        :param detail_value: Value corresponding to the provided `detail_key` to
+                             be added to the "additional_information" structure
+        :type detail_value: Any
+        :return: None
+        """
+        assessor_response_data = self.get_assessor_response()
+        additional_information = _get_or_create_nested_path(assessor_response_data, "additional_information")
+        additional_information[detail_key] = detail_value
+
+    def is_ready_to_submit(self) -> bool:
+        """
+        Evaluates whether all necessary components are completed to determine readiness for submission.
+
+        This method checks the completion status of several required components, including
+        objectives, system and scope, IAR period, quality of evidence, and review methods.
+        Readiness is determined by ensuring all these components meet their completion criteria.
+
+        :return: A boolean indicating if all components are completed and ready for submission.
+        :rtype: bool
+        """
+        return (
+            self.is_all_objectives_complete()
+            and self.is_system_and_scope_complete()
+            and self.is_iar_period_complete()
+            and self.is_quality_of_evidence_complete()
+            and self.is_review_method_complete()
+        )
+
+    def get_completed_outcomes_info(self):
+        assessor_response_data = self.get_assessor_response()
+        caf_objectives = self.assessment.get_all_caf_objectives()
+        total_outcomes = 0
+        completed_outcomes = 0
+        for caf_objective in caf_objectives:
+            review_objective = _get_or_create_nested_path(assessor_response_data, caf_objective["code"])
+            for principal in caf_objective["principles"].values():
+                for outcome in principal["outcomes"].values():
+                    outcome_data = review_objective.get(outcome["code"], {})
+                    # Outcome level check
+                    # if the status is not present or not achieved state, then
+                    # we need recommendations
+                    total_outcomes += 1
+                    if review_decision := outcome_data.get("review_data", {}).get("review_decision"):
+                        if review_decision and (review_decision == "achieved" or outcome_data.get("recommendations")):
+                            completed_outcomes += 1
+
+        return {"total_outcomes": total_outcomes, "completed_outcomes": completed_outcomes}
+
+    def set_objective_comments(self, objective_code: str, category: str, comment: str):
+        """
+        This method updates or sets comments for a specific objective code and its associated
+        category within an assessor response data structure. It ensures that the data is
+        appropriately nested in the response if not already present.
+
+        :param objective_code: A string representing the unique identifier for the specific
+                               objective within the assessor's response.
+        :param category: A string denoting the category under the objective code in which
+                         the comment is being added or updated.
+        :param comment: A string containing the actual comment to be added or updated
+                        under the specified objective code and category.
+        :return: None
+        """
+        assessor_response_data = self.get_assessor_response()
+        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
+        outcome_section[category] = comment
+
     def get_assessor_response(self):
         """
         Retrieves assessor response data from the review data.
@@ -730,3 +1051,58 @@ class Review(ReferenceGeneratorMixin, models.Model):
                  dictionary if the key "assessor_response_data" is not present.
         """
         return _get_or_create_nested_path(self.review_data, "assessor_response_data")
+
+    def mark_review_complete(self):
+        if self.status == "in_progress":
+            assessor_response_data = self.get_assessor_response()
+            assessor_response_data["review_completed"] = "yes"
+            assessor_response_data["review_completed_at"] = datetime.now().isoformat()
+            self.status = "completed"
+        else:
+            raise ValidationError("Invalid state for report creation.")
+
+    def is_review_complete(self):
+        return self.get_assessor_response().get("review_completed") == "yes"
+
+    def save(self, *args, **kwargs):
+        """
+        Saves the current state of the instance to the database. This method overrides
+        the default `save` behavior to perform additional validation before the model
+        instance is saved. Specifically, it ensures that the `review_data` field cannot
+        be modified if the `status` field is already marked as "completed".
+
+        :param args: Positional arguments to pass to the superclass's `save` method.
+        :param kwargs: Keyword arguments to pass to the superclass's `save` method.
+        :return: None
+        """
+        old = Review.objects.get(pk=self.pk)
+        # Prevent changing d if s was already "completed"
+        if old.status == "completed" and self.review_data != old.review_data:
+            raise ValidationError("Review data cannot be changed after it has been marked as completed.")
+
+        super().save(*args, **kwargs)
+
+    @property
+    def current_version_number(self):
+        all_versions = self.all_versions
+        return len(all_versions)
+
+    @property
+    def current_version(self) -> "Review":
+        all_versions = self.all_versions
+        return all_versions[0]
+
+    @cached_property
+    def all_versions(self) -> list["Review"]:
+        versions: list["Review"] = []
+        full_history = self.history.filter(status="completed").order_by("-last_updated").all()
+        for version in full_history:
+            if version.status == "completed" and (
+                # No versions in the list, so the first submitted we find is the latest version
+                not versions
+                # There could be other filed changes recorded, so only pick the next
+                # submitted if the contents are different
+                or version.review_data != versions[-1].review_data
+            ):
+                versions.append(version)
+        return versions

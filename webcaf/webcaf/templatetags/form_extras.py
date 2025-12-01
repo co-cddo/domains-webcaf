@@ -409,3 +409,32 @@ def format_with_breaks(text_chunk: str):
     for section in text_chunk.split("\n"):
         if section.strip():
             yield section.strip()
+
+
+@register.filter
+def status_to_label(status):
+    """
+    Utility function to convert keys to labels
+    :param status:
+    :return:
+    """
+    return {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "review": "In review",
+        "published": "Published",
+        "cancelled": "Cancelled",
+        "achieved": "Achieved",
+        "not-achieved": "Not achieved",
+        "partially-achieved": "Partially achieved",
+    }.get(status, status)
+
+
+@register.filter
+def filter_empty(list_: list[dict[str, Any]]):
+    """
+    Filter out any empty items from the list
+    :param list_:
+    :return:
+    """
+    return list(filter(lambda x: x, list_))
