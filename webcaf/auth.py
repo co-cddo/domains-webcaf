@@ -127,7 +127,9 @@ class LoginRequiredMiddleware:
         ]
         self.exempt_exact_urls = [
             # index page
-            "/"
+            "/",
+            "/assessor/",
+            "/assessor",
         ]
 
     def __call__(self, request):
