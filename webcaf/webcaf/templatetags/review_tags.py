@@ -60,7 +60,12 @@ def get_existing_review_assignments(selected_assessment_id: int, assessment: Ass
              and their statuses or indicating if the assignment is not yet done for the assessor.
     :rtype: str
     """
-    other_reviews = assessment.reviews.exclude(Q(assessed_by=assessor) | Q(assessed_by=None)).all()
+    if assessor:
+        other_reviews = assessment.reviews.exclude(Q(assessed_by=assessor) | Q(assessed_by=None)).all()
+        current_review = Review.objects.filter(assessment=assessment, assessed_by=assessor).first()
+    else:
+        other_reviews = assessment.reviews.exclude(Q(assessed_by=None)).all()
+        current_review = None
     if other_reviews:
         return (
             f"({'Also' if selected_assessment_id == assessment.id else 'Currently'} assessed by "
@@ -73,7 +78,7 @@ def get_existing_review_assignments(selected_assessment_id: int, assessment: Ass
             )
             + ")"
         )
-    current_review = assessment.reviews.exclude(Q(assessed_by=None)).filter(Q(assessed_by=assessor)).first()
+
     return f"{current_review.get_status_display() if current_review else 'Not assigned'}"
 
 

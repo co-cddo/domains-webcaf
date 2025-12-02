@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Review Objective {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% if form.non_form_errors or form.errors|filter_empty %}
+                <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1">
+                    <h2 class="govuk-error-summary__title" id="error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div class="govuk-error-summary__body">
+                        <ul class="govuk-list govuk-error-summary__list">
+                            {% for form_ in form %}
+                                {% for field in form_.visible_fields %}
+                                    {% for error in field.errors %}
+                                        <li><a href="#{{ field.id_for_label }}">{{ field.label }} :{{ error }}</a></li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form_.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            <span class="govuk-caption-l">{{ title }}</span>
+            <h1 class="govuk-heading-l">Add your recommendation for this {{ recommendation_type }}</h1>
+            <p class="govuk-body">{{ description }}</p>
+            <form method="post" id="review-form">
+                {% csrf_token %}
+                {{ form.management_form }}
+                {#  Preview form tracks if we need to send the request for preview #}
+                {{ preview_form.preview_status }}
+                <div id="form-container">
+                    {% for form_ in form %}
+                        <div class="govuk-form-group" id="recommendation-container_{{ forloop.counter0 }}">
+                            <h2 class="govuk-heading-m">Recommendation {{ forloop.counter0|add:1 }}</h2>
+                            <div class="govuk-form-group {% if form_.title.errors %}govuk-form-group--error{% endif %}">
+                                <label class="govuk-label"
+                                       for="id_form-{{ forloop.counter0 }}-title">{{ form_.title.label }}</label>
+                                <input class="govuk-input govuk-input--width-30" type="text"
+                                       name="{{ form_.title.html_name }}"
+                                       id="id_form-{{ forloop.counter0 }}-title"
+                                       value="{{ form_.title.value|default:"" }}"
+                                >
+                            </div>
+                            <div class="govuk-form-group {% if form_.text.errors %}govuk-form-group--error{% endif %}">
+                                <label class="govuk-label"
+                                       for="id_form-{{ forloop.counter0 }}-text">{{ form_.text.label }}
+                                </label>
+                                <textarea class="govuk-textarea" name="{{ form_.text.html_name }}" cols="40" rows="5"
+                                          id="id_form-{{ forloop.counter0 }}-text">{{ form_.text.value|default:"" }}</textarea>
+                            </div>
+                            <button type="button" class="govuk-button govuk-button--secondary remove-button"
+                                    data-module="govuk-button"
+                                    data-idx="{{ forloop.counter0 }}"
+                                    data-name="{{ form_.DELETE.html_name }}">
+                                Remove
+                            </button>
+                            <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l">
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                        id="add-recommendation-button"
+                >
+                    Add another recommendation
+                </button>
+                <br/>
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="govuk-form-group govuk-visually-hidden" id="recommendation-container_--counter--">
+        <h2 class="govuk-heading-m">Recommendation --counter-plus-one--</h2>
+        <div class="govuk-form-group">
+            <label class="govuk-label"
+                   for="id_form---counter---title">Recommendation title</label>
+            <input class="govuk-input govuk-input--width-30" type="text"
+                   name="form---counter---title"
+                   id="id_form---counter---title"
+            >
+        </div>
+        <div class="govuk-form-group">
+            <label class="govuk-label" for="id_form---counter---text">Details and rationale
+            </label>
+            <textarea class="govuk-textarea" name="form---counter---text" cols="40" rows="5"
+                      id="id_form---counter---text"></textarea>
+        </div>
+        <button type="button" class="govuk-button govuk-button--secondary remove-button"
+                data-module="govuk-button"
+                data-idx="--counter--"
+                data-name="form---counter---DELETE">
+            Remove
+        </button>
+        <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l">
+    </div>
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+        function deleteRecommendationHandler() {
+            return e => {
+                e.preventDefault();
+                var element_name = e.target.dataset.name;
+                var _form = document.getElementById("review-form");
+                var _delete = document.createElement("input");
+                _delete.setAttribute("type", "hidden");
+                _delete.setAttribute("name", element_name);
+                _delete.setAttribute("value", "on");
+                _form.appendChild(_delete);
+                e.target
+                    .closest("form")
+                    .querySelector(`div[id="recommendation-container_${e.target.dataset.idx}"]`)
+                    .hidden = true;
+            };
+        }
+
+        document.querySelectorAll(".remove-button").forEach(button => button.addEventListener("click", deleteRecommendationHandler()))
+        const button = document.getElementById("add-recommendation-button");
+        button.addEventListener("click", e => {
+            const total_forms = document.getElementById("id_form-TOTAL_FORMS");
+            e.preventDefault();
+
+            const template = document.getElementById("recommendation-container_--counter--");
+            const clone = template.cloneNode(true);
+            clone.classList.remove("govuk-visually-hidden");
+            // Replace placeholders in innerHTML
+            clone.innerHTML = clone.innerHTML
+                .replaceAll(/--counter--/g, total_forms.value)
+                .replaceAll(/--counter-plus-one--/g, parseInt(total_forms.value) + 1);
+
+            // Update ID of the outer div
+            clone.id = `recommendation-container_${parseInt(total_forms.value)}`;
+            const form_container = document.getElementById("form-container");
+            form_container.appendChild(clone);
+            total_forms.value = parseInt(total_forms.value) + 1;
+            const removeButton = clone.querySelector(".remove-button");
+            removeButton.addEventListener("click", deleteRecommendationHandler());
+        });
+    </script>
+{% endblock %}

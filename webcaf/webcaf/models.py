@@ -502,8 +502,8 @@ class Assessor(ReferenceGeneratorMixin, models.Model):
     """
     Represents an Assessor entity with the following attributes:
 
-    This class is used to model the details of an assessor (independent/peer), including their contact
-    information, type, and associations with organizations and members.
+    This class is used to model the details of an assessor company (independent/peer), including their contact
+    information, type, and associations with organisations and members.
 
     Only UserProfiles with the role "assessor" and "reviewer" are allowed to be associated as members of this assessor.
     This is enforced in the view layer. Also, it is validated that the members belong to the same organisation as
@@ -1052,17 +1052,23 @@ class Review(ReferenceGeneratorMixin, models.Model):
         """
         return _get_or_create_nested_path(self.review_data, "assessor_response_data")
 
-    def mark_review_complete(self):
+    def mark_review_complete(self, profile: UserProfile):
         if self.status == "in_progress":
             assessor_response_data = self.get_assessor_response()
-            assessor_response_data["review_completed"] = "yes"
-            assessor_response_data["review_completed_at"] = datetime.now().isoformat()
+            review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+            review_completion["review_completed"] = "yes"
+            review_completion["review_completed_at"] = datetime.now().isoformat()
+            review_completion["review_completed_by"] = profile.user.first_name + " " + profile.user.last_name
+            review_completion["review_completed_by_email"] = profile.user.email
+            review_completion["review_completed_by_role"] = profile.role
             self.status = "completed"
         else:
             raise ValidationError("Invalid state for report creation.")
 
     def is_review_complete(self):
-        return self.get_assessor_response().get("review_completed") == "yes"
+        assessor_response_data = self.get_assessor_response()
+        review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+        return review_completion.get("review_completed") == "yes"
 
     def save(self, *args, **kwargs):
         """
@@ -1075,10 +1081,11 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :param kwargs: Keyword arguments to pass to the superclass's `save` method.
         :return: None
         """
-        old = Review.objects.get(pk=self.pk)
-        # Prevent changing d if s was already "completed"
-        if old.status == "completed" and self.review_data != old.review_data:
-            raise ValidationError("Review data cannot be changed after it has been marked as completed.")
+        if self.pk:
+            old = Review.objects.get(pk=self.pk)
+            # Prevent changing review_data if the status was already "completed"
+            if old.status == "completed" and self.review_data != old.review_data:
+                raise ValidationError("Review data cannot be changed after it has been marked as completed.")
 
         super().save(*args, **kwargs)
 

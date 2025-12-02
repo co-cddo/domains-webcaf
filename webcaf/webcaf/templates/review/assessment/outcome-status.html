@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load review_tags %}
+{% load permission_extras %}
+{% block title %} Review outcome {{ outcome.code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Review - {{ outcome.code }} {{ outcome.title }}</h1>
+            <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        How to review this outcome
+                    </span>
+                </summary>
+                <div class="govuk-details__text">
+                    This is how to do it
+                </div>
+            </details>
+            <div class="govuk-inset-text">
+                        <span class="govuk-heading-s">
+                            Self-assessment outcome status
+                        </span>
+                {% get_tag_for_status answered_statements.confirmation.outcome_status as tag_colour %}
+                <p class="govuk-body">
+                        <span class="govuk-tag govuk-tag--{{ tag_colour }}">
+                            {{ answered_statements.confirmation.outcome_status }}
+                        </span>
+                </p>
+            </div>
+            <h2 class="govuk-heading-m">Organisation's contributing outcome summary</h2>
+            {% format_with_breaks answered_statements.confirmation.confirm_outcome_confirm_comment as sections %}
+            {% for section in sections %}
+                <p class="govuk-body avoid-break statement-para">{{ section }}</p>
+            {% endfor %}
+            <h2 class="govuk-heading-m">Review each IGP statement</h2>
+            <p class="govuk-body">
+                You muse select whether each indicator of good practice (IGP) statement applies to the system or
+                organisation being reviewed.
+            </p>
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    Where the organisation has selected a statement and added comments, you
+                    should answer 'Yes' if you agree that the alternative controls or exemptions outlined provide
+                    reasonable evidence.
+                </strong>
+            </div>
+            <form method="post" novalidate="">
+                {% csrf_token %}
+                <dl class="govuk-summary-list govuk-!-margin-top-4">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                            CAF statement
+                        </dt>
+                        <dd class="govuk-summary-list__key">
+                            Your review
+                        </dd>
+                    </div>
+                    {% get_outcome_category_names as outcome_category_names %}
+                    {% for outcome_category in outcome_category_names %}
+                        {% for field in form|filter_fields:outcome_category %}
+                            <div class="govuk-summary-list__row">
+                                {% get_selected_tag field=field answered_statements=answered_statements as selected_tag %}
+                                <dt class="govuk-summary-list__key">
+                                    {{ field.label|capfirst }}
+                                    <br/>
+                                    <p>Organisation's response <span
+                                            class="govuk-caption-m">{{ selected_tag }}</span></p>
+                                    <p class="govuk-body">{{ field.help_text }}</p>
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    <p class="govuk-heading-s">Does this IGP statement apply to the system or
+                                        organisation?</p>
+                                    {{ field }}
+                                </dd>
+                            </div>
+                            {% get_comment_field form field.name as comment_field %}
+                            {% if comment_field.help_text %}
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        <div class="govuk-inset-text">
+                                            <h3>{{ comment_field.label }}</h3>
+                                            <p class="govuk-body">
+                                                {{ comment_field.help_text }}
+                                            </p>
+                                        </div>
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        <div>
+                                            {{ comment_field }}
+                                        </div>
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </dl>
+                <div>
+                    <h2 class="govuk-heading-m">Review decision</h2>
+                    <p class="govuk-body">{{ form.review_decision.help_text }}</p>
+                    {{ form.review_decision }}
+                    <p class="govuk-body">{{ form.review_comment.help_text }}</p>
+                    {{ form.review_comment }}
+                    <div>
+                        <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                            Save and continue
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Areas for improvement {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Enter the Independent Assurance Review (IAR) period</h1>
+            <p class="govuk-body">
+                PRovie the start and the end dates of the time you spent on this review.
+                This should include any workshops, meetings, and evidence gathering sessions that you conducted as part
+                of your
+                review
+            </p>
+            <h2 class="govuk-heading-m">Period of review</h2>
+            <p class="govuk-caption-m">
+                Enter the start and end dates covering the duration of this
+                assurance review.
+            </p>
+            <form method="post" id="comment-form">
+                {% csrf_token %}
+                <h2 class="govuk-heading-s">From</h2>
+                <div class="govuk-form-group {% if form.start_date_day.errors %}govuk-form-group--error{% endif %}">
+                    <div class="govuk-grid-row govuk-!-width-one-half" id="start_date">
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="id_start_date_day">{{ form.start_date_day.label }}
+                                </label>
+                                <input class="govuk-input--width-3" name="{{ form.start_date_day.html_name }}"
+                                       id="id_start_date_day"
+                                       value="{{ form.start_date_day.value|default:'' }}" maxlength="2" type="number"
+                                       max="31"
+                                       min="1"/>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="start_date_month">{{ form.start_date_month.label }}
+                                </label>
+                                <input class="govuk-input--width-3" name="{{ form.start_date_month.html_name }}"
+                                       id="id_start_date_day"
+                                       value="{{ form.start_date_month.value|default:'' }}" maxlength="2" type="number"
+                                       max="12"
+                                       min="1"/>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="start_date_year">{{ form.start_date_year.label }}
+                                </label>
+                                <input class="govuk-input--width-4" name="{{ form.start_date_year.html_name }}"
+                                       id="id_start_date_day"
+                                       value="{{ form.start_date_year.value|default:'' }}" maxlength="4" type="number"
+                                       max="2050"
+                                       min="2025"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <h2 class="govuk-heading-s">To</h2>
+                <div class="govuk-form-group {% if form.end_date_day.errors %}govuk-form-group--error{% endif %}">
+                    <div class="govuk-grid-row govuk-!-width-one-half" id="end_date">
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="id_end_date_day">{{ form.end_date_day.label }}
+                                </label>
+                                <input class="govuk-input--width-3" name="{{ form.end_date_day.html_name }}"
+                                       id="id_end_date_day"
+                                       value="{{ form.end_date_day.value|default:'' }}" maxlength="2" type="number"
+                                       max="31"
+                                       min="1"/>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="end_date_month">{{ form.end_date_month.label }}
+                                </label>
+                                <input class="govuk-input--width-3" name="{{ form.end_date_month.html_name }}"
+                                       id="id_end_date_day"
+                                       value="{{ form.end_date_month.value|default:'' }}" maxlength="2" type="number"
+                                       max="12"
+                                       min="1"/>
+                            </div>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label"
+                                       for="end_date_year">{{ form.end_date_year.label }}
+                                </label>
+                                <input class="govuk-input--width-4" name="{{ form.end_date_year.html_name }}"
+                                       id="id_end_date_day"
+                                       value="{{ form.end_date_year.value|default:'' }}" maxlength="4" type="number"
+                                       max="2050"
+                                       min="2025"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

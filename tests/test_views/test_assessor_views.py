@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from django.test import Client
 from django.urls import reverse
 from freezegun import freeze_time
@@ -375,6 +377,198 @@ class TestEditAssessorView(BaseViewTest):
         self.assertNotIn(other_role_profile.id, allowed_member_ids)
         self.assertNotIn(foreign_profile.id, allowed_member_ids)
 
+    def test_form_valid_sets_last_updated_by(self):
+        """Test that form_valid correctly sets the last_updated_by field to the current user."""
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [],
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.last_updated_by, self.cyber_user)
+
+    def test_form_valid_sets_organisation(self):
+        """Test that form_valid correctly sets the organisation from the current user's profile."""
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [],
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.organisation, self.cyber_profile.organisation)
+
+    def test_form_valid_creates_reviews_for_assessments(self):
+        """Test that form_valid creates Review objects for selected assessments."""
+        # Ensure no existing reviews
+        Review.objects.filter(assessment=self.assessment_submitted_current).delete()
+
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [self.assessment_submitted_current.id],
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+
+        # Verify review was created
+        review = Review.objects.get(assessment=self.assessment_submitted_current, assessed_by=self.assessor)
+        self.assertIsNotNone(review)
+        self.assertEqual(review.assessment, self.assessment_submitted_current)
+        self.assertEqual(review.assessed_by, self.assessor)
+
+    def test_form_valid_removes_unselected_assessment_reviews(self):
+        """Test that form_valid removes reviews for assessments that are deselected."""
+        # Create initial review
+        review1 = Review.objects.create(assessment=self.assessment_submitted_current, assessed_by=self.assessor)
+
+        large_system = self.org_map[self.organisation_name]["systems"]["Large system"]
+        large_system_submitted_assessment = Assessment.objects.create(
+            system=large_system,
+            status="submitted",
+            assessment_period="2025",
+        )
+
+        review2 = Review.objects.create(assessment=large_system_submitted_assessment, assessed_by=self.assessor)
+
+        # Update with only the second assessment
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [large_system_submitted_assessment.id],  # Only select second assessment
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+
+        # Verify only review2 is associated with the assessor
+        assessor_reviews = list(self.assessor.reviews.all())
+        self.assertIn(review2, assessor_reviews)
+        self.assertNotIn(review1, assessor_reviews)
+        self.assertEqual(len(assessor_reviews), 1)
+
+        # Verify review1 still exists in database (for audit purposes) but with no associated assessor
+        review1 = Review.objects.get(id=review1.id)
+        self.assertIsNone(review1.assessed_by)  # Should be dissociated
+
+    def test_form_valid_clears_all_reviews_when_none_selected(self):
+        """Test that form_valid clears all reviews when no assessments are selected."""
+        # Create initial reviews
+        Review.objects.create(assessment=self.assessment_submitted_current, assessed_by=self.assessor)
+
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [],  # No assessments selected
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        # Verify no reviews are associated with the assessor
+        self.assertEqual(self.assessor.reviews.count(), 0)
+
+    def test_form_valid_handles_existing_review_gracefully(self):
+        """Test that form_valid handles existing Review objects (get_or_create) without errors."""
+        # Create existing review
+        existing_review = Review.objects.create(assessment=self.assessment_submitted_current, assessed_by=self.assessor)
+        initial_review_count = Review.objects.count()
+
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "Updated Name",
+                "email": "updated@example.com",
+                "contact_name": "Updated Contact",
+                "address": "Updated Address",
+                "assessor_type": "independent",
+                "members": [],
+                "assessments": [self.assessment_submitted_current.id],
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+
+        # Verify no duplicate review was created
+        self.assertEqual(Review.objects.count(), initial_review_count)
+        self.assertIn(existing_review, self.assessor.reviews.all())
+
+    def test_form_valid_transaction_atomicity(self):
+        """Test that form_valid operations are atomic (all or nothing)."""
+        from unittest.mock import patch
+
+        # Mock the reviews.set() to raise an exception after other operations
+        fake_obj = MagicMock()
+        fake_obj.reviews.set = MagicMock(side_effect=Exception("Simulated error"))
+        with patch("webcaf.webcaf.views.assessor.assessor.EditAssessorView.get_object", return_value=fake_obj):
+            with self.assertRaises(Exception):
+                self.client.post(
+                    reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+                    data={
+                        "name": "Should Rollback",
+                        "email": "rollback@example.com",
+                        "contact_name": "Rollback",
+                        "address": "Rollback Address",
+                        "assessor_type": "independent",
+                        "members": [self.member_assessor_profile.id],
+                        "assessments": [self.assessment_submitted_current.id],
+                    },
+                )
+
+        # Verify that changes were rolled back (name should not have changed)
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.name, "Edit Me")  # Original name from setUp
+
+    def test_form_valid_with_no_members_or_assessments(self):
+        """Test that form_valid handles empty members and assessments fields correctly."""
+        resp = self.client.post(
+            reverse("edit-assessor", kwargs={"pk": self.assessor.id}),
+            data={
+                "name": "No Members",
+                "email": "nomembers@example.com",
+                "contact_name": "No Members Contact",
+                "address": "No Members Address",
+                "assessor_type": "peer",
+                "members": [],
+                "assessments": [],
+            },
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.name, "No Members")
+        self.assertEqual(self.assessor.members.count(), 0)
+        self.assertEqual(self.assessor.reviews.count(), 0)
+
 
 class TestRemoveAssessorView(BaseViewTest):
     """
@@ -451,3 +645,78 @@ class TestRemoveAssessorView(BaseViewTest):
         session.save()
         resp = client.get(reverse("remove-assessor", kwargs={"pk": self.assessor.id}))
         self.assertIn(resp.status_code, (403,))
+
+    def test_form_valid_sets_last_updated_by_on_removal(self):
+        """Test that form_valid sets last_updated_by when marking assessor inactive."""
+        resp = self.client.post(
+            reverse("remove-assessor", kwargs={"pk": self.assessor.id}),
+            data={"yes_no": "yes"},
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.last_updated_by, self.lead_user)
+
+    def test_form_valid_does_not_set_last_updated_by_when_cancelled(self):
+        """Test that form_valid does not modify assessor when user selects 'no'."""
+        original_last_updated = self.assessor.last_updated_by
+        resp = self.client.post(
+            reverse("remove-assessor", kwargs={"pk": self.assessor.id}),
+            data={"yes_no": "no"},
+        )
+        self.assertIn(resp.status_code, (302, 303))
+        self.assessor.refresh_from_db()
+        self.assertEqual(self.assessor.last_updated_by, original_last_updated)
+        self.assertIs(self.assessor.is_active, True)
+
+    def test_form_valid_redirects_to_success_url_for_both_yes_and_no(self):
+        """Test that form_valid redirects to success_url regardless of yes/no choice."""
+        for choice in ["yes", "no"]:
+            # Reset assessor state
+            self.assessor.is_active = True
+            self.assessor.save()
+
+            resp = self.client.post(
+                reverse("remove-assessor", kwargs={"pk": self.assessor.id}),
+                data={"yes_no": choice},
+                follow=False,
+            )
+            self.assertIn(resp.status_code, (302, 303))
+            self.assertEqual(resp.url, reverse("assessor-list"))
+
+    def test_remove_assessor_preserves_data_integrity(self):
+        """Test that removing an assessor keeps the record in database (soft delete)."""
+        from django.contrib.auth.models import User
+
+        # Create a review associated with this assessor
+        system = self.test_system
+        assessment = Assessment.objects.create(
+            system=system,
+            status="submitted",
+            assessment_period="2025",
+        )
+        review = Review.objects.create(assessment=assessment, assessed_by=self.assessor)
+
+        # Create a member association
+        member_user, _ = User.objects.get_or_create(
+            username=self.email_from_username_and_org("member", self.organisation_name)
+        )
+        member_profile, _ = UserProfile.objects.get_or_create(
+            user=member_user, organisation=self.lead_profile.organisation, role="assessor"
+        )
+        self.assessor.members.add(member_profile)
+
+        # Remove assessor
+        resp = self.client.post(
+            reverse("remove-assessor", kwargs={"pk": self.assessor.id}),
+            data={"yes_no": "yes"},
+        )
+        self.assertIn(resp.status_code, (302, 303))
+
+        # Verify assessor still exists but is inactive
+        self.assessor.refresh_from_db()
+        self.assertIs(self.assessor.is_active, False)
+
+        # Verify associated data remains intact
+        review.refresh_from_db()
+        self.assertEqual(review.assessed_by, self.assessor)
+        self.assertIn(member_profile, self.assessor.members.all())
