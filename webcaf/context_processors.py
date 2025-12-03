@@ -9,7 +9,7 @@ def variable_page_content(_request):
     :return:
     """
     phase = os.getenv("ENVIRONMENT")
-    if phase not in ["prod", "stage"]:
+    if phase not in ["prod", "staging"]:
         context = {
             "PHASE_CLASS": "govuk-tag--pink",
             "PHASE_HEADER": "Prototype",
