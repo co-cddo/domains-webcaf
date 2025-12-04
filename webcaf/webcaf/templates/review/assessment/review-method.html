@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Areas for improvement {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Describe your review method</h1>
+            <p class="govuk-body">
+                Explain the approach you took to reviw the organisation's self-assessment.
+                Include details of:
+            </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>the scope of the review and any excluded components</li>
+                <li>details of the methods used to gather information for your review (for
+                    example, desk-based analysis, workshops, interviews, document reviews, or technical demonstrations)
+
+                </li>
+            </ul>
+
+            <p class="govuk-heading-m">
+                Review method
+            </p>
+            <p class="govuk-caption-m">
+                Provide detailed explanation
+            </p>
+            <form method="post" id="comment-form">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label govuk-visually-hidden"
+                           for="id_form-text">{{ form.text.label }}
+                    </label>
+                    <textarea class="govuk-textarea" name="{{ form.text.html_name }}" cols="40" rows="5"
+                              id="id_form-text">{{ form.text.value|default:"" }}</textarea>
+                </div>
+                <br/>
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

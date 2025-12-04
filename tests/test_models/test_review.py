@@ -1,148 +1,322 @@
+from unittest.mock import patch
+
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import Assessment, Assessor, Organisation, Review, System
+from webcaf.webcaf.models import Assessment, Assessor, Review
 
 
-class ReviewModelTests(BaseViewTest):
+class ReviewIsObjectiveCompleteTests(BaseViewTest):
     """
-    Verifies that Review.save() correctly populates initial system_details and
-    assessor_details in review_data when a Review is created in status "to_do".
+    Tests for the Review.is_objective_complete() method.
 
-    Also verifies that when status is not "to_do":
-    - no automatic population occurs, and
-    - any pre-existing review_data is preserved unchanged, and
-    - subsequent saves do not mutate previously populated details.
+    Tests all possible branches:
+    1. Missing objective-level keys (recommendations, objective-areas-of-improvement, objective-areas-of-good-practice)
+    2. Missing outcome review_decision
+    3. Outcome with 'achieved' status
+    4. Outcome with non-achieved status but missing recommendations
+    5. Outcome with non-achieved status and recommendations present
+    6. Complete objective with all required data
     """
 
     @classmethod
     def setUpTestData(cls):
-        # Reuse the shared test data setup pattern from views tests
         BaseViewTest.setUpTestData()
 
-        # Organisation
-        cls.org = Organisation.objects.create(name="Test Org")
-
-        # System (include fields referenced by Review.save)
-        cls.system = System.objects.create(
-            name="Core Payroll",
-            description="Handles payroll",
-            organisation=cls.org,
-            last_assessed="assessed_in_2425",
-            hosting_type=["hosted_on_cloud"],
-            corporate_services=["payroll"],
-        )
-
-        # Assessment with values used in Review.save
         cls.assessment = Assessment.objects.create(
-            system=cls.system,
+            system=cls.test_system,
             assessment_period="2024/25",
             framework="caf32",
             caf_profile="baseline",
             review_type="independent",
         )
-
-        # Assessor
         cls.assessor = Assessor.objects.create(
             name="Acme Assurance Ltd",
             contact_name="Jane Doe",
             email="assessor@example.com",
             address="1 High St, London",
             phone_number="0123456789",
+            assessor_type="independent",
+            organisation=cls.test_organisation,
+        )
+        cls.review = Review.objects.create(
+            assessment=cls.assessment,
+            assessed_by=cls.assessor,
+            status="in_progress",
         )
 
-    def test_review_save_populates_initial_system_and_assessor_details(self):
-        # Review in 'to_do' status so initial data is populated on save
-        review = Review.objects.create(
-            assessment=self.assessment,
-            status="to_do",
-            assigned_to=self.assessor,
-        )
+    def test_objective_incomplete_missing_recommendations_key(self):
+        """Test that objective is incomplete when 'recommendations' key is missing at objective level."""
+        # Mock the CAF objective structure
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
 
-        # Refresh from DB to ensure JSON saved
-        review.refresh_from_db()
+        # Set review data with missing 'recommendations' key
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    # Missing 'recommendations' key
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                }
+            }
+        }
+        self.review.save()
 
-        # Expected system details
-        expected_system_details = {
-            "reference": self.assessment.reference,
-            "organisation": self.org.name,
-            "assessment_period": self.assessment.assessment_period,
-            "name": self.system.name,
-            "description": self.system.description,
-            "prev_assessments": self.system.last_assessed,
-            "hosting_and_connectivity": self.system.hosting_type,
-            "corporate_services": self.system.corporate_services,
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_incomplete_missing_areas_of_improvement_key(self):
+        """Test that objective is incomplete when 'objective-areas-of-improvement' key is missing."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-good-practice": "Good practice",
+                    # Missing 'objective-areas-of-improvement' key
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_incomplete_missing_areas_of_good_practice_key(self):
+        """Test that objective is incomplete when 'objective-areas-of-good-practice' key is missing."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    # Missing 'objective-areas-of-good-practice' key
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_incomplete_missing_review_decision(self):
+        """Test that objective is incomplete when outcome review_decision is missing."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {
+                        "review_data": {
+                            # Missing 'review_decision'
+                        }
+                    },
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_incomplete_not_achieved_without_recommendations(self):
+        """Test that objective is incomplete when outcome is not-achieved but lacks recommendations."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {
+                        "review_data": {"review_decision": "not-achieved"}
+                        # Missing 'recommendations' for non-achieved outcome
+                    },
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_incomplete_partially_achieved_without_recommendations(self):
+        """Test that objective is incomplete when outcome is partially-achieved but lacks recommendations."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {
+                        "review_data": {"review_decision": "partially-achieved"}
+                        # Missing 'recommendations' for partially-achieved outcome
+                    },
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)
+
+    def test_objective_complete_achieved_outcome(self):
+        """Test that objective is complete when outcome is 'achieved'."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertTrue(result)
+
+    def test_objective_complete_not_achieved_with_recommendations(self):
+        """Test that objective is complete when outcome is not-achieved and has recommendations."""
+        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [{"title": "Fix this", "text": "Do better"}],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {
+                        "review_data": {"review_decision": "not-achieved"},
+                        "recommendations": [{"title": "Fix outcome", "text": "Details"}],
+                    },
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertTrue(result)
+
+    def test_objective_complete_multiple_outcomes_all_achieved(self):
+        """Test that objective is complete when all outcomes are achieved."""
+        mock_caf_objective = {
+            "code": "A",
+            "principles": {
+                "A1": {"outcomes": {"A1.a": {"code": "A1.a"}, "A1.b": {"code": "A1.b"}}},
+                "A2": {"outcomes": {"A2.a": {"code": "A2.a"}}},
+            },
         }
 
-        self.assertIn("system_details", review.review_data)
-        self.assertEqual(review.review_data["system_details"], expected_system_details)
-
-        # Assessor details
-        assessor_details = review.review_data.get("assessor_details", {})
-
-        self.assertEqual(assessor_details.get("review_type"), self.assessment.review_type)
-        self.assertEqual(assessor_details.get("framework"), self.assessment.framework)
-        self.assertEqual(assessor_details.get("profile"), self.assessment.caf_profile)
-
-        # The 'assessor' value is a multi-line string; verify key identifiers are present
-        assessor_str = assessor_details.get("assessor") or ""
-        # Normalize whitespace for robust comparison
-        normalized = " ".join(assessor_str.split())
-        self.assertIn("Acme Assurance Ltd", normalized)
-        self.assertIn("Jane Doe", normalized)
-        self.assertIn("0123456789", normalized)
-        self.assertIn("assessor@example.com", normalized)
-
-    def test_no_population_when_status_not_to_do_on_create(self):
-        # Create a review with a non-"to_do" status
-        review = Review.objects.create(
-            assessment=self.assessment,
-            status="in_progress",
-            assigned_to=self.assessor,
-        )
-        review.refresh_from_db()
-
-        # Ensure review_data remains empty and has no populated sections
-        self.assertIsInstance(review.review_data, dict)
-        self.assertNotIn("system_details", review.review_data)
-        self.assertNotIn("assessor_details", review.review_data)
-
-    def test_preserve_review_data_when_status_not_to_do(self):
-        initial_data = {
-            "custom": {"a": 1},
-            "system_details": {"name": "ShouldNotBeOverwritten"},
-            "assessor_details": {"framework": "caf40"},
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                    "A1.b": {"review_data": {"review_decision": "achieved"}},
+                    "A2.a": {"review_data": {"review_decision": "achieved"}},
+                }
+            }
         }
-        review = Review.objects.create(
-            assessment=self.assessment,
-            status="in_progress",
-            assigned_to=self.assessor,
-            review_data=initial_data,
-        )
-        review.refresh_from_db()
-        # Should be exactly what we set
-        self.assertEqual(review.review_data, initial_data)
+        self.review.save()
 
-    def test_subsequent_saves_do_not_change_details_when_status_changes_from_to_do(self):
-        # First, create as to_do so fields are populated
-        review = Review.objects.create(
-            assessment=self.assessment,
-            status="to_do",
-            assigned_to=self.assessor,
-        )
-        review.refresh_from_db()
-        original_data = dict(review.review_data)  # shallow copy is fine for equality checks
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
 
-        # Now mutate related models to simulate changes after initial population
-        self.system.name = "Core Payroll v2"
-        self.system.save()
-        self.assessment.framework = "caf40"
-        self.assessment.caf_profile = "enhanced"
-        self.assessment.assessment_period = "2025/26"
-        self.assessment.save()
+        self.assertTrue(result)
 
-        # Change review status away from to_do and save
-        review.status = "in_progress"
-        review.save()
-        review.refresh_from_db()
+    def test_objective_complete_mixed_outcomes_with_recommendations(self):
+        """Test that objective is complete with mix of achieved and non-achieved outcomes (with recommendations)."""
+        mock_caf_objective = {
+            "code": "A",
+            "principles": {
+                "A1": {"outcomes": {"A1.a": {"code": "A1.a"}, "A1.b": {"code": "A1.b"}, "A1.c": {"code": "A1.c"}}}
+            },
+        }
 
-        # Ensure the previously populated details remain unchanged
-        self.assertEqual(review.review_data, original_data)
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [{"title": "Overall rec", "text": "Details"}],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
+                    "A1.b": {
+                        "review_data": {"review_decision": "not-achieved"},
+                        "recommendations": [{"title": "Fix A1.b", "text": "Details"}],
+                    },
+                    "A1.c": {
+                        "review_data": {"review_decision": "partially-achieved"},
+                        "recommendations": [{"title": "Improve A1.c", "text": "Details"}],
+                    },
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertTrue(result)
+
+    def test_objective_incomplete_missing_outcome_data(self):
+        """Test that objective is incomplete when an outcome is completely missing from review data."""
+        mock_caf_objective = {
+            "code": "A",
+            "principles": {
+                "A1": {
+                    "outcomes": {
+                        "A1.a": {"code": "A1.a"},
+                        "A1.b": {"code": "A1.b"},  # This outcome is missing from review_data
+                    }
+                }
+            },
+        }
+
+        self.review.review_data = {
+            "assessor_response_data": {
+                "A": {
+                    "recommendations": [],
+                    "objective-areas-of-improvement": "Some improvement",
+                    "objective-areas-of-good-practice": "Good practice",
+                    "A1.a": {"review_data": {"review_decision": "achieved"}}
+                    # A1.b is missing
+                }
+            }
+        }
+        self.review.save()
+
+        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
+            result = self.review.is_objective_complete("A")
+
+        self.assertFalse(result)

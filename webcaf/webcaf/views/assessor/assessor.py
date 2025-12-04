@@ -1,6 +1,7 @@
+from logging import Logger
 from typing import Optional
 
-from django.forms import ChoiceField, Form
+from django.db.transaction import atomic
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -9,20 +10,7 @@ from django.views.generic import DeleteView, FormView, ListView, UpdateView
 from webcaf.webcaf.models import Assessment, Assessor, Review, UserProfile
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
-
-
-class YesNoForm(Form):
-    """
-    Represents a form for selecting Yes or No.
-    """
-
-    yes_no = ChoiceField(choices=[("yes", "Yes"), ("no", "No")], required=True, label="")
-
-    def __init__(self, *args, **kwargs):
-        yes_no_label = kwargs.pop("yes_no_label", "")
-        super().__init__(*args, **kwargs)
-        self.fields["yes_no"].initial = "no"
-        self.fields["yes_no"].label = yes_no_label
+from webcaf.webcaf.views.assessor.util import YesNoForm
 
 
 class AssessorsView(UserRoleCheckMixin, ListView):
@@ -106,16 +94,55 @@ class AssessorForm(ModelForm):
         :type kwargs: dict
         """
 
-        current_user_profile: UserProfile = kwargs.pop("current_user_profile")  # type: ignore
+        self.current_user_profile: UserProfile = kwargs.pop("current_user_profile")  # type: ignore
         super().__init__(*args, **kwargs)
         self.fields["members"].required = False
         self.fields["assessments"].required = False
         self.fields["assessments"].queryset = Assessment.objects.filter(
-            status__in=["submitted"], system__organisation=current_user_profile.organisation
+            status__in=["submitted"], system__organisation=self.current_user_profile.organisation
         )
         if self.instance.pk:
             # Set the initial values for the form fields
             self.fields["assessments"].initial = [review.assessment for review in self.instance.reviews.all()]
+
+    def clean_members(self):
+        """
+        Cleans and validates the provided members by ensuring they belong to the same
+        organisation as the instance and have appropriate roles ('assessor' or 'reviewer').
+        Filters the list of members accordingly and returns only valid members.
+
+        :raises KeyError: If an attribute required to validate members does not exist.
+        :raises AttributeError: If the `organisation` or `role` attribute does not behave as expected.
+
+        :return: A list of valid members who belong to the same organisation and have
+                 roles either 'assessor' or 'reviewer'.
+        :rtype: list
+        """
+        assigned_members = self.cleaned_data.get("members") or []
+        valid_members = []
+        for member in assigned_members:
+            if member.organisation == self.current_user_profile.organisation and member.role in [
+                "assessor",
+                "reviewer",
+            ]:
+                valid_members.append(member)
+        return valid_members
+
+    def clean(self):
+        """
+        Validates and updates the instance data before saving.
+
+        This method performs some pre-save logic. If the instance is not yet persisted
+        (no primary key exists), it assigns the current user's associated organisation
+        to the instance. It also sets the `last_updated_by` field to the current user,
+        ensuring that any modifications to the object reflect the correct last updated
+        user.
+
+        :return: None
+        """
+        if not self.instance.pk:
+            self.instance.organisation = self.current_user_profile.organisation
+        self.instance.last_updated_by = self.current_user_profile.user
 
 
 class EditAssessorView(UserRoleCheckMixin, UpdateView):
@@ -137,6 +164,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
     models = Assessor
     form_class = AssessorForm
     template_name = "assessor/details.html"
+    logger: Logger = Logger("EditAssessorView")
 
     def get_form_kwargs(self):
         # Pass the current user profile to the form
@@ -170,6 +198,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("assessor-list")
 
+    @atomic
     def form_valid(self, form):
         """
         Processes the form data when valid and performs actions related to updating
@@ -180,24 +209,40 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
         :return: The result of the parent's form_valid method.
         :rtype: HttpResponseRedirect
         """
-        # Set the current user as the last_updated_by field
-        form.instance.last_updated_by = self.request.user
-        form.instance.organisation = SessionUtil.get_current_user_profile(self.request).organisation
+        # Need to call super first to ensure the instance is saved before we update it
         return_value = super().form_valid(form)
+
+        # Set the current user as the last_updated_by field
+        instance = form.instance
+
         if form.cleaned_data.get("members"):
             # Go through all the members and add the current assessor to them.
+            # It is assumed that the members are already validated in the form.
             members_to_add = []
             for member in form.cleaned_data["members"]:
-                if member.organisation == self.object.organisation and member.role in ["assessor", "reviewer"]:
-                    members_to_add.append(member)
-            self.object.members.set(members_to_add)
+                members_to_add.append(member)
+            instance.members.set(members_to_add)
+        else:
+            # All members are removed
+            instance.members.clear()
+
         if form.cleaned_data.get("assessments"):
             # Go through all the selected assessments and add the current assessor to them.
-            assigned_reviews = []
+            reviews_to_add = []
             for assessment in form.cleaned_data["assessments"]:
-                review, created_ = Review.objects.get_or_create(assessment=assessment, assessed_by=self.object)
-                assigned_reviews.append(review)
-            self.object.reviews.set(assigned_reviews)
+                review, _created = Review.objects.get_or_create(assessment=assessment)
+                if not _created and review.assessed_by != instance:
+                    self.logger.info(
+                        f"User {self.request.user.id} reassigned review {review.id} to assessor {instance.id} from {review.assessed_by.id} "
+                    )
+                reviews_to_add.append(review)
+            # We need to save the reviews before we add them to the assessor.
+            # Also, we have to manage the relationship from the assessor side so we remove
+            # any unticked reviews before saving
+            instance.reviews.set(reviews_to_add)
+        else:
+            # All reviews are removed
+            instance.reviews.reviews.clear()
 
         return return_value
 

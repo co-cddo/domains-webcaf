@@ -1,9 +1,12 @@
 {% extends "base.html" %}
+{% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
 {% block title %}System and review scope - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Confirm system and review scope</h1>

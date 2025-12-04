@@ -2,14 +2,13 @@ import logging
 from collections import namedtuple
 from datetime import datetime
 
-from django.db.models import QuerySet
 from django.forms import ChoiceField, ModelForm
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views.generic import DetailView, TemplateView, UpdateView
 
-from webcaf.webcaf.models import Assessor, Configuration, Review, System, UserProfile
-from webcaf.webcaf.utils.permission import UserRoleCheckMixin
+from webcaf.webcaf.models import Configuration, Review, System
 from webcaf.webcaf.utils.session import SessionUtil
+from webcaf.webcaf.views.assessor.util import BaseReviewMixin
 
 """
 This module contains the views for the review section of the assessor dashboard.
@@ -22,67 +21,6 @@ Also, any query for the review object is filtered by the current organisation an
 This ensures that only reviews for the current organisation are displayed.
 
 """
-
-
-class BaseReviewMixin(UserRoleCheckMixin):
-    """
-    Mixin providing base functionality for review-related user role management.
-
-    The purpose of this class is to handle user access control for review-related
-    features by enforcing and verifying role-based permissions.
-
-    :ivar login_url: URL used for routing users to the appropriate login page for
-        authentication.
-    :type login_url: str
-    """
-
-    login_url = reverse_lazy("oidc_authentication_init")  # OIDC login route
-
-    def get_allowed_roles(self) -> list[str]:
-        return [
-            "cyber_advisor",
-            "organisation_lead",
-            "reviewer",
-            "assessor",
-        ]
-
-    def get_reviews_for_user(self, user_profile: UserProfile, configuration: Configuration) -> QuerySet[Review, Review]:
-        """
-        Retrieve reviews associated with a given user profile and configuration.
-
-        This method fetches reviews from the database based on the user's role
-        and the organisation's assessment period. It distinguishes between users
-        holding certain roles (e.g., "organisation_lead", "cyber_advisor") and
-        others, to filter assessments accordingly. The filtering criteria include
-        the status of the assessment, whether the assessor is active, the
-        organisation associated with the assessment system, and the current
-        assessment period.
-
-        :param user_profile: Represents the user's profile, containing information
-            about roles and the organisation the user is associated with.
-        :type user_profile: UserProfile
-        :param configuration: Configuration settings, including methods to retrieve
-            the current assessment period.
-        :type configuration: Configuration
-        :return: A queryset of reviews filtered according to the provided user profile
-            and configuration.
-        :rtype: QuerySet[Review, Review]
-        """
-        base_filter = Review.objects.filter(
-            assessed_by__is_active=True,
-            assessment__status__in=["submitted"],
-            assessment__system__organisation=user_profile.organisation,
-            assessment__assessment_period=configuration.get_current_assessment_period(),
-        )
-        if user_profile.role in ["organisation_lead", "cyber_advisor"]:
-            return base_filter
-
-        return base_filter.filter(
-            assessed_by__in=Assessor.objects.filter(
-                members=user_profile,
-                organisation=user_profile.organisation,
-            )
-        )
 
 
 class ReviewIndexView(BaseReviewMixin, TemplateView):
@@ -123,11 +61,6 @@ class ReviewDetailView(BaseReviewMixin, DetailView):
 
     model = Review
     template_name = "review/summary.html"
-
-    def get_queryset(self):
-        return self.get_reviews_for_user(
-            SessionUtil.get_current_user_profile(self.request), configuration=Configuration.objects.get_default_config()
-        )
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -195,11 +128,6 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("edit-review", kwargs={"pk": self.object.id})
-
-    def get_queryset(self):
-        return self.get_reviews_for_user(
-            SessionUtil.get_current_user_profile(self.request), configuration=Configuration.objects.get_default_config()
-        )
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
