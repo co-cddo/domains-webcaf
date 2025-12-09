@@ -76,6 +76,29 @@ class BaseReviewMixin(UserRoleCheckMixin):
         configuration = Configuration.objects.get_default_config()
         return self.get_reviews_for_user(SessionUtil.get_current_user_profile(self.request), configuration)
 
+    def get_object(self, queryset=None):
+        """
+        Retrieve and return a single object, ensuring additional access control logic is applied.
+
+        This method fetches a single object using the parent implementation and then checks
+        whether the current user has permissions to edit the object. It updates the object's
+        attributes accordingly to indicate whether it is editable based on the user's role.
+
+        :param queryset: Queryset used to fetch the object. Defaults to None.
+        :type queryset: Optional[QuerySet]
+        :return: The retrieved object with potential additional attributes for access control.
+        :rtype: Any
+        """
+        obj = super().get_object(queryset)
+        if obj:
+            current_profile = SessionUtil.get_current_user_profile(self.request)
+            # Set the editable flag here
+            obj.can_edit = current_profile.role not in self.get_read_only_roles()
+        return obj
+
+    def get_read_only_roles(self):
+        return ["organisation_lead"]
+
 
 class YesNoForm(Form):
     """
