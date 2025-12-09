@@ -42,6 +42,9 @@ RUN SSO_MODE=none /app/manage.py collectstatic --no-input
 RUN mkdir /var/run/webcaf && \
     chown webcaf:webcaf /var/run/webcaf
 
+#Copy gunicon configuration
+COPY gunicorn_conf.py /app/gunicorn_conf.py
+
 USER webcaf
 
 EXPOSE 8020
