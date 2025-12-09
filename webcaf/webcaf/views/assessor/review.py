@@ -1,10 +1,14 @@
 import logging
 from collections import namedtuple
 from datetime import datetime
+from pathlib import Path
 
 from django.forms import ChoiceField, ModelForm
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import DetailView, TemplateView, UpdateView
+from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import Configuration, Review, System
 from webcaf.webcaf.utils.session import SessionUtil
@@ -81,6 +85,69 @@ class ReviewDetailView(BaseReviewMixin, DetailView):
         data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
         data["objectives"] = self.object.assessment.get_router().get_sections()
         return data
+
+
+class ReviewHistoryView(BaseReviewMixin, UpdateView):
+    model = Review
+    template_name = "review/revisions.html"
+    # No fields to edit, we manually update if needed
+    fields = []
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "text": "Report history",
+            },
+        ]
+        return data
+
+    def form_valid(self, form):
+        if not self.object.is_review_complete():
+            form.add_error(None, "You cannot edit a review that has not been completed.")
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("reopen-review", kwargs={"pk": self.object.id})
+
+
+class ReopenReviewView(BaseReviewMixin, UpdateView):
+    model = Review
+    template_name = "review/reopen-review.html"
+    # No fields to edit, we manually update if needed
+    fields = []
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "url": reverse("review-history", kwargs={"pk": self.object.id}),
+                "text": "Report history",
+            },
+            {
+                "text": "Open current review",
+            },
+        ]
+        return data
+
+    def form_valid(self, form):
+        if not self.object.is_review_complete():
+            form.add_error(None, "You cannot edit a review that has not been completed.")
+            return self.form_invalid(form)
+        form.instance.reopen()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("edit-review", kwargs={"pk": self.object.id})
 
 
 DetailEntry = namedtuple("DetailEntry", ["name", "value", "can_update"])
@@ -408,3 +475,93 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
                 "pk": self.kwargs["pk"],
             },
         )
+
+
+class ShowReportView(BaseReviewMixin, DetailView):
+    """
+    This view is used to display a detailed report of a specific review in a particular version.
+
+    ShowReportView is a specialized view that inherits from BaseReviewMixin and DetailView.
+    It provides context data specific to the review report being displayed, including the
+    selected version of the review and breadcrumbs for navigation. This class does not
+    allow editing of any fields.
+
+    :ivar model: The model representing the review.
+    :type model: Review
+    :ivar template_name: The template used for rendering the review report view.
+    :type template_name: str
+    :ivar fields: A list of fields that can be edited in this view.
+    :type fields: list
+    """
+
+    model = Review
+    template_name = "review/review-report.html"
+    # No fields to edit, we manually update if needed
+    fields: list[str] = []
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        version = self.kwargs["version"]
+        data["object_version"] = self.object.get_version(version).instance
+        data["version"] = version
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "url": reverse("review-history", kwargs={"pk": self.object.id}),
+                "text": "Report history",
+            },
+            {
+                "text": "View Report",
+            },
+        ]
+        return data
+
+
+class DownloadReport(ShowReportView):
+    """
+    Handles the PDF generation and response for a downloadable report.
+
+    This class is responsible for rendering a report's HTML as a PDF and serving it
+    as an HTTP response. It integrates with Django templates and uses WeasyPrint
+    for PDF generation. The purpose of the class is to provide a mechanism for users
+    to download specific versions of a report in PDF format. The generated PDF
+    includes references to static assets (e.g., CSS, images), which are resolved
+    using absolute paths.
+
+    :ivar logger: Logger instance used for logging in the class.
+    :type logger: logging.Logger
+    """
+
+    logger: logging.Logger = logging.getLogger("DownloadReport")
+
+    def get(self, request, *args, **kwargs):
+        # Local import to avoid crashing the app if the dependency is not installed
+        # on the developer machines
+        from django.conf import settings
+        from weasyprint import HTML
+
+        # Disable style warnings from weasyprint
+        logging.getLogger("weasyprint").setLevel(logging.ERROR)
+        obj = self.get_object()
+        version = kwargs["version"]
+        obj = obj.get_version(version).instance
+        context = {"object_version": obj, "object": obj, "version": version, "pdf_printing": True}
+
+        html_string = render_to_string(self.template_name, context, request=request)
+
+        # Generate PDF
+        # Need to set the absolute path to the static files as pdf generation does not work with relative paths
+        def custom_url_fetcher(url, timeout=10, ssl_context=None, http_headers=None):
+            return default_url_fetcher(
+                Path(settings.STATIC_ROOT + "/" + url.split("assets/")[-1]).as_uri(), timeout, ssl_context, http_headers
+            )
+
+        pdf = HTML(string=html_string, url_fetcher=custom_url_fetcher, base_url=Path(settings.STATIC_ROOT)).write_pdf()
+
+        # Return as PDF response
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="UK-OFFICIAL-SENSITIVE-{obj.reference}.pdf"'
+        return response

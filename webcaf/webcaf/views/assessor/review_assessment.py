@@ -4,16 +4,24 @@ from typing import final
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.transaction import atomic
-from django.forms import CharField, ChoiceField, ModelForm, RadioSelect, Textarea
+from django.forms import (
+    CharField,
+    ChoiceField,
+    ModelForm,
+    RadioSelect,
+    Textarea,
+    formset_factory,
+)
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView
 
+from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.forms.review import (
     CommentsForm,
     PreviewForm,
-    RecommendationFormSet,
+    RecommendationForm,
     ReviewPeriodForm,
 )
 from webcaf.webcaf.models import Review
@@ -160,7 +168,8 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                     fields[indicator_comment] = CharField(
                         label="alternative controls",
                         help_text=answered_statements["indicators"].get(indicator_comment, ""),
-                        widget=Textarea(),
+                        validators=([WordCountValidator(750)]),
+                        widget=Textarea(attrs={"rows": 5, "max_words": 750}),
                         # You only require the inout if they have entered any text already
                         required=answered_statements["indicators"].get(indicator_comment, "") != "",
                     )
@@ -180,7 +189,10 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             fields["review_comment"] = CharField(
                 help_text="Comment on the contributing outcome",
                 label="review comment",
-                widget=Textarea(),
+                validators=([WordCountValidator(1500)]),
+                widget=Textarea(
+                    attrs={"rows": 10, "max_words": 1500},
+                ),
             )
             return fields
 
@@ -229,8 +241,18 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
     """
 
     template_name = "review/assessment/recommendation.html"
-    form_class = RecommendationFormSet
     model = Review
+
+    def get_form_class(self):
+        """
+        Formset for collecting recommendations.
+        """
+        return formset_factory(
+            RecommendationForm,
+            # Show the extra form initially, otherwise let the user decide if they want to add more recommendations
+            extra=1 if not self.get_initial() else 0,
+            can_delete=True,
+        )
 
     def get_success_url(self):
         return reverse(

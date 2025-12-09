@@ -233,7 +233,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
                 review, _created = Review.objects.get_or_create(assessment=assessment)
                 if not _created and review.assessed_by != instance:
                     self.logger.info(
-                        f"User {self.request.user.id} reassigned review {review.id} to assessor {instance.id} from {review.assessed_by.id} "
+                        f"User {self.request.user.id} reassigned review {review.id} to assessor {instance.id} from {review.assessed_by.id if review.assessed_by else 'None'} "
                     )
                 reviews_to_add.append(review)
             # We need to save the reviews before we add them to the assessor.
@@ -242,7 +242,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
             instance.reviews.set(reviews_to_add)
         else:
             # All reviews are removed
-            instance.reviews.reviews.clear()
+            instance.reviews.clear()
 
         return return_value
 

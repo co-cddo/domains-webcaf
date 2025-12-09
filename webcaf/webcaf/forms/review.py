@@ -10,7 +10,6 @@ from django.forms import (
     IntegerField,
     ModelForm,
     Textarea,
-    formset_factory,
 )
 
 from webcaf.webcaf.models import Review
@@ -40,19 +39,9 @@ class RecommendationForm(Form):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        # Dont validate if the recommendation is marked for deletion
+        # Don't validate if the recommendation is marked for deletion
         if not cleaned_data.get("DELETE"):
             super().clean()
-
-
-"""
-Formset for collecting recommendations.
-"""
-RecommendationFormSet = formset_factory(
-    RecommendationForm,
-    extra=1,
-    can_delete=True,
-)
 
 
 class PreviewForm(Form):
@@ -134,8 +123,15 @@ class ReviewPeriodForm(ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        # Confirm we have correct value range
+        if self.errors:
+            return cleaned
+
         start_date = self.clean_components(cleaned, "start")
         end_date = self.clean_components(cleaned, "end")
+        if not start_date or not end_date:
+            return cleaned
+
         if start_date > end_date:
             raise ValidationError("The start date must be before the end date")
         # Set the text component to the formatted date. This is the attribute required in the view
@@ -163,8 +159,10 @@ class ReviewPeriodForm(ModelForm):
             try:
                 return date(y, m, d)
             except ValueError:
-                raise ValidationError("Invalid date combination")
-        raise ValidationError("Missing date component")
+                self.add_error(f"{prefix}_date_day", "Invalid date combination")
+                self.add_error(f"{prefix}_date_month", "Invalid date combination")
+                self.add_error(f"{prefix}_date_year", "Invalid date combination")
+        return None
 
     def prefixes(self):
         """
