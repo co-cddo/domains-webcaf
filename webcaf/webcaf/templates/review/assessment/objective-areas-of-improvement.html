@@ -13,8 +13,9 @@
             <h1 class="govuk-heading-l">Areas for improvement</h1>
             <p class="govuk-body">
                 Provide comments on any weaker areas identified during your review of this
-                system for the selected CAF objective. These may include gaps in evidence, immaturity of controls, insufficient governance, or areas
-                 where the organisation could strengthen its cybersecurity posture.
+                system for the selected CAF objective. These may include gaps in evidence, immaturity of controls,
+                insufficient governance, or areas
+                where the organisation could strengthen its cybersecurity posture.
             </p>
             <p class="govuk-body">
                 Your comments will support the development of the objective-level
@@ -35,7 +36,9 @@
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>
                 </div>
                 <br/>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
                     Save and continue
                 </button>
             </form>

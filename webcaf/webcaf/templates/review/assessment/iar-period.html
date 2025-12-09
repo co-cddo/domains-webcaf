@@ -29,38 +29,34 @@
                     <div class="govuk-grid-row govuk-!-width-one-half" id="start_date">
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
+                                <label class="govuk-label govuk-date-input__label"
                                        for="id_start_date_day">{{ form.start_date_day.label }}
                                 </label>
-                                <input class="govuk-input--width-3" name="{{ form.start_date_day.html_name }}"
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-3" name="{{ form.start_date_day.html_name }}"
                                        id="id_start_date_day"
-                                       value="{{ form.start_date_day.value|default:'' }}" maxlength="2" type="number"
-                                       max="31"
-                                       min="1"/>
+                                       value="{{ form.start_date_day.value|default:'' }}" maxlength="2" type="number"/>
                             </div>
                         </div>
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
-                                       for="start_date_month">{{ form.start_date_month.label }}
+                                <label class="govuk-label govuk-date-input__label"
+                                       for="id_start_date_month">{{ form.start_date_month.label }}
                                 </label>
-                                <input class="govuk-input--width-3" name="{{ form.start_date_month.html_name }}"
-                                       id="id_start_date_day"
+                                <input class="govuk-input govuk-input--width-3" name="{{ form.start_date_month.html_name }}"
+                                       id="id_start_date_month"
                                        value="{{ form.start_date_month.value|default:'' }}" maxlength="2" type="number"
-                                       max="12"
-                                       min="1"/>
+                                       />
                             </div>
                         </div>
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
-                                       for="start_date_year">{{ form.start_date_year.label }}
+                                <label class="govuk-label govuk-date-input__label"
+                                       for="id_start_date_year">{{ form.start_date_year.label }}
                                 </label>
-                                <input class="govuk-input--width-4" name="{{ form.start_date_year.html_name }}"
-                                       id="id_start_date_day"
+                                <input class="govuk-input govuk-input--width-4" name="{{ form.start_date_year.html_name }}"
+                                       id="id_start_date_year"
                                        value="{{ form.start_date_year.value|default:'' }}" maxlength="4" type="number"
-                                       max="2050"
-                                       min="2025"/>
+                                       />
                             </div>
                         </div>
                     </div>
@@ -71,43 +67,42 @@
                     <div class="govuk-grid-row govuk-!-width-one-half" id="end_date">
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
+                                <label class="govuk-label govuk-date-input__label"
                                        for="id_end_date_day">{{ form.end_date_day.label }}
                                 </label>
-                                <input class="govuk-input--width-3" name="{{ form.end_date_day.html_name }}"
+                                <input class="govuk-input govuk-input--width-3" name="{{ form.end_date_day.html_name }}"
                                        id="id_end_date_day"
                                        value="{{ form.end_date_day.value|default:'' }}" maxlength="2" type="number"
-                                       max="31"
-                                       min="1"/>
+                                       />
                             </div>
                         </div>
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
-                                       for="end_date_month">{{ form.end_date_month.label }}
+                                <label class="govuk-label govuk-date-input__label"
+                                       for="id_end_date_month">{{ form.end_date_month.label }}
                                 </label>
-                                <input class="govuk-input--width-3" name="{{ form.end_date_month.html_name }}"
-                                       id="id_end_date_day"
+                                <input class="govuk-input govuk-input--width-3" name="{{ form.end_date_month.html_name }}"
+                                       id="id_end_date_month"
                                        value="{{ form.end_date_month.value|default:'' }}" maxlength="2" type="number"
-                                       max="12"
-                                       min="1"/>
+                                       />
                             </div>
                         </div>
                         <div class="govuk-grid-column-one-third">
                             <div class="govuk-form-group">
-                                <label class="govuk-label"
-                                       for="end_date_year">{{ form.end_date_year.label }}
+                                <label class="govuk-label govuk-date-input__label"
+                                       for="id_end_date_year">{{ form.end_date_year.label }}
                                 </label>
-                                <input class="govuk-input--width-4" name="{{ form.end_date_year.html_name }}"
-                                       id="id_end_date_day"
+                                <input class="govuk-input govuk-input--width-4" name="{{ form.end_date_year.html_name }}"
+                                       id="id_end_date_year"
                                        value="{{ form.end_date_year.value|default:'' }}" maxlength="4" type="number"
-                                       max="2050"
-                                       min="2025"/>
+                                       />
                             </div>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
                     Save and continue
                 </button>
             </form>

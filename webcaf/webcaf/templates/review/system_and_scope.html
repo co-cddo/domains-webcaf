@@ -35,7 +35,8 @@
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     {% if item.can_update %}
-                                        <a class="govuk-link" href="{% url 'edit-review-system' pk=object.id field_to_change=item.name %}">Change</a>
+                                        <a class="govuk-link"
+                                           href="{% url 'edit-review-system' pk=object.id field_to_change=item.name %}">Change</a>
                                     {% endif %}
                                 </dd>
                             </div>
@@ -55,7 +56,8 @@
             <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="govuk-button-group">
-                    <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button">
+                    <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button"
+                            {% if not object.can_edit %}disabled="disabled" aria-disabled="true"  {% endif %}>
                         Save and continue
                     </button>
                 </div>

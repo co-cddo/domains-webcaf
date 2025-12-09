@@ -50,7 +50,8 @@
                     {% endfor %}
                 </dl>
                 <br/>
-                <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init=""
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                         name="preview_status" value="confirm">
                     Confirm and return
                 </button>

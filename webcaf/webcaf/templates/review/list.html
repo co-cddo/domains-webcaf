@@ -28,7 +28,8 @@
             </h1>
 
             <p class="govuk-body">
-                You are reviewing Cyber Assessment Framework (CAF) self-assessments submitted by the <strong>{{ current_profile.organisation.name }}</strong>.
+                You are reviewing Cyber Assessment Framework (CAF) self-assessments submitted by the
+                <strong>{{ current_profile.organisation.name }}</strong>.
             </p>
 
             <!-- TABLE -->
@@ -53,7 +54,12 @@
                             <strong class="govuk-tag govuk-tag--{{ tag_ }}">{{ review.get_status_display }}</strong>
                         </td>
                         <td class="govuk-table__cell">
-                            <a href="{% url 'edit-review' pk=review.id %}" class="govuk-link">Review</a>
+                            {% if review.status == 'completed' %}
+                                <a href="{% url 'review-history' pk=review.id %}" class="govuk-link">View report
+                                    history</a>
+                            {% else %}
+                                <a href="{% url 'edit-review' pk=review.id %}" class="govuk-link">Review</a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

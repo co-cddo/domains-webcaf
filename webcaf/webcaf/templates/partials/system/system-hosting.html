@@ -1,6 +1,11 @@
-<h2 class="govuk-heading-m">
-    System hosting and connectivity
-</h2>
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        System hosting and connectivity
+    </h2>
+{% endif %}
+
 <div class="govuk-form-group {% if form.errors.hosting_type %}govuk-form-group--error{% endif %}"
      id="id_hosting_type">
     <fieldset class="govuk-fieldset" aria-describedby="hosting_type-hint">

@@ -1,6 +1,10 @@
-<h2 class="govuk-heading-m">
-    System description
-</h2>
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        System description
+    </h2>
+{% endif %}
 <div class="govuk-form-group {% if form.errors.system_type %}govuk-form-group--error{% endif %}"
      id="id_system_type">
     <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">

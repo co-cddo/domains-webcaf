@@ -39,7 +39,9 @@
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>
                 </div>
                 <br/>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
                     Save and continue
                 </button>
             </form>

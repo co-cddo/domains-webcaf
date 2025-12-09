@@ -5,10 +5,35 @@
 {% block title %}Task list - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
-        {% get_review_completed_percentage object as percentage %}
-        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
 
-        <div class="govuk-grid-column-three-quarters">
+        {% if object.current_version_number > 1 %}
+            <div class="govuk-grid-column-full">
+                <div id="success-banner" class="govuk-notification-banner"
+                     role="region" aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            You are editing this review
+                        </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <div class="govuk-body">
+                            <p class="govuk-body">You previously created a report for this review. Any changes you make
+                                now will apply to
+                                the next version of this IAR report.</p>
+                            <p class="govuk-body"><strong>Last published
+                                report:</strong> Version {{ object.current_version_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="govuk-grid-column-full">
+            {% get_review_completed_percentage object as percentage %}
+            {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        </div>
+
+        <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Review a WebCAF self-assessment</h1>
             <p class="govuk-body"><strong>Draft review</strong></p>
@@ -20,7 +45,7 @@
             </div>
 
 
-            <h2 class="govuk-heading-m">1. Confirm self-assessment and review details</h2>
+            <h2 class="govuk-heading-m">1. Confirm self-assessment and review scope</h2>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item govuk-task-list__item--with-link">
                     <div class="govuk-task-list__name-and-hint">
@@ -145,10 +170,10 @@
                         {% if object.is_all_objectives_complete %}
                             <a class="govuk-link govuk-task-list__link"
                                href="{% url 'quality-of-evidence' pk=object.id %}">
-                                Describe the quality of the self-assessment and evidence
+                                Describe the quality of the self-assessment
                             </a>
                         {% else %}
-                            <span class="govuk-body">Describe the quality of the self-assessment and evidence</span>
+                            <span class="govuk-body">Describe the quality of the self-assessment</span>
                         {% endif %}
                     </div>
                     <div class="govuk-task-list__status">

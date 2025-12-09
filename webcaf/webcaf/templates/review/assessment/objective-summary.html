@@ -13,26 +13,26 @@
                 confirmation</h1>
             <p class="govuk-body">Review each outcome to view the self-assessment answers and record your independent
                 review. If a reviewed outcome is not achieved, you must also add at least one recommendation</p>
-            <h2 class="govuk-heading-m">1. Outcome areas</h2>
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">1. Contributing outcomes</h2>
             <dl class="govuk-summary-list govuk-!-margin-top-4">
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__value">
-                        Outcome area
+                    <dt class="govuk-summary-list__value govuk-table__header">
+                        OContributing outcome
                     </dt>
-                    <dd class="govuk-summary-list__value">
-                        Review outcome status
+                    <dd class="govuk-summary-list__value govuk-table__header">
+                        Outcome status
                     </dd>
-                    <dd class="govuk-summary-list__value">
-                        Assessor recommendation
+                    <dd class="govuk-summary-list__value govuk-table__header">
+                        Your recommendations
                     </dd>
                 </div>
                 {% for principle_key, principle in objective.principles.items %}
                     {% for outcome_key, outcome in principle.outcomes.items %}
                         <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
+                            <dt class="govuk-summary-list__key govuk-table__cell">
                                 {{ outcome_key }} {{ outcome.title }}
                             </dt>
-                            <dd class="govuk-summary-list__value">
+                            <dd class="govuk-summary-list__value govuk-table__cell">
                                 {% get_outcome_status objective_code outcome_key review as  outcome_status %}
                                 {% if outcome_status %}
                                     {% get_tag_for_status outcome_status|status_to_label as tag_colour %}
@@ -48,7 +48,7 @@
                                        href="{% url 'review-outcome' pk=object.id objective_code=objective_code outcome_code=outcome_key %}">Review</a>
                                 {% endif %}
                             </dd>
-                            <dd class="govuk-summary-list__actions">
+                            <dd class="govuk-summary-list__actions govuk-table__cell">
                                 {% get_outcome_status objective_code outcome_key review as  outcome_status %}
                                 {% if outcome_status and outcome_status == 'not-achieved' or outcome_status == 'partially-achieved' %}
                                     <p class="govuk-body">
@@ -73,7 +73,7 @@
                 {% endfor %}
             </dl>
 
-            <h2 class="govuk-heading-m">2. Additional areas</h2>
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">2. Objective summary</h2>
             <dl class="govuk-summary-list govuk-!-margin-top-4">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -88,7 +88,7 @@
                             {% else %}
                                 Add
                             {% endif %}
-                            your comments</a>
+                            comment</a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -104,12 +104,12 @@
                             {% else %}
                                 Add
                             {% endif %}
-                            your comments</a>
+                            comment</a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        Objective level recommendations
+                        Objective-level recommendations
                     </dt>
                     <dd class="govuk-summary-list__value">
                         <a class="govuk-link"
@@ -157,7 +157,9 @@
                             </div>
                         </fieldset>
                     </div>
-                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                    <button type="submit" class="govuk-button" data-module="govuk-button"
+                            {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                    >
                         Save and continue
                     </button>
                 </form>

@@ -59,6 +59,7 @@
                             </div>
                             <button type="button" class="govuk-button govuk-button--secondary remove-button"
                                     data-module="govuk-button"
+                                    {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                                     data-idx="{{ forloop.counter0 }}"
                                     data-name="{{ form_.DELETE.html_name }}">
                                 Remove
@@ -68,12 +69,15 @@
                     {% endfor %}
                 </div>
                 <button type="button" class="govuk-button govuk-button--secondary" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                         id="add-recommendation-button"
                 >
                     Add another recommendation
                 </button>
                 <br/>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
                     Save and continue
                 </button>
             </form>

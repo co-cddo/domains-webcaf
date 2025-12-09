@@ -11,7 +11,6 @@
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
                     <div class="govuk-panel govuk-panel--confirmation">
-                        <span class="govuk-caption-l">{{ object.assessment.system.name }}</span>
                         <h1 class="govuk-panel__title">
                             Your IAR report has been created (Version {{ object.current_version_number }})
                         </h1>
@@ -37,7 +36,7 @@
                                 Version
                             </dt>
                             <dd class="govuk-summary-list__value">
-                                {{ object.current_version_number }}
+                                {{ object.current_version_number }} (current)
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
@@ -46,6 +45,11 @@
                             </dt>
                             <dd class="govuk-summary-list__value">
                                 {{ object.last_updated_by.first_name }} {{ object.last_updated_by.last_name }}
+                                {% if object.assessed_by.assessor_type == "independent" %}
+                                    (Independent Assessor)
+                                {% else %}
+                                    (Peer Reviewed)
+                                {% endif %}
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
@@ -57,6 +61,18 @@
                             </dd>
                         </div>
                     </dl>
+                    <p class="govuk-body">
+                        You have now successfully created your GovAssure Independent Assurance (IAR) report . You will find a copy of the report in your GovAssure account.
+                    </p>
+                    <h2 class="govuk-heading-m">Next steps</h2>
+                    <p class="govuk-body">
+                        You can now download the report to share and discuss it with the organisation. </p>
+                    <p class="govuk-body">If you agree to change parts of the report with the organisation, you can come back to this service and to make those changes before producing your final report.
+                    </p>
+                    <div class="govuk-button-group govuk-!-margin-top-6">
+                        <a href="{% url 'show-report' pk=object.pk version=object.current_version_number %}" class="govuk-button" role="button">View report</a>
+                        <a href="{% url 'download-report' pk=object.pk version=object.current_version_number %}" class="govuk-button govuk-button--secondary" role="button">Download report (PDF)</a>
+                    </div>
                     <p class="govuk-body govuk-!-margin-top-6">
                         <a href="{% url 'my-account' %}" class="govuk-link">Return to My account</a>
                     </p>
