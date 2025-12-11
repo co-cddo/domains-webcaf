@@ -308,5 +308,5 @@ class CreateOrSkipAssessorView(UserRoleCheckMixin, FormView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
-        data["assessor_list"] = data["current_profile"].organisation.assessed_by
+        data["assessor_list"] = data["current_profile"].organisation.assessors.filter(is_active=True)
         return data

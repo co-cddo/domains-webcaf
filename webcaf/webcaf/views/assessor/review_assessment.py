@@ -318,6 +318,11 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
                 if not form.cleaned_data:
                     form.add_error("text", ValidationError("This field is required.", code="required"))
                     form.add_error("title", ValidationError("This field is required.", code="required"))
+                elif not form.cleaned_data.get("DELETE", False):
+                    if not form.cleaned_data["text"]:
+                        form.add_error("text", ValidationError("This field is required.", code="required"))
+                    if not form.cleaned_data["title"]:
+                        form.add_error("title", ValidationError("This field is required.", code="required"))
 
             errors_added = any(form.errors for form in comment_formset.forms)
             if errors_added:
@@ -399,54 +404,6 @@ class AddOutcomeRecommendationView(AddRecommendationView):
 
     def save_recommendations(self, comments):
         self.object.set_outcome_recommendations(self.kwargs["objective_code"], self.kwargs["outcome_code"], comments)
-        self.object.last_updated_by = self.request.user
-        self.object.save()
-
-
-class AddObjectiveRecommendationView(AddRecommendationView):
-    """
-    Handles adding recommendations specific to objectives within a given context.
-
-    This class extends the functionality of `AddRecommendationView` to allow
-    inclusion and management of recommendations tied to a particular objective
-    identified by an objective code. It also provides tailored context data for
-    rendering views related to objective recommendations.
-
-    :ivar object: Instance of the object containing assessment and objective data.
-    :type object: varies depending on the derived implementation
-    """
-
-    def get_comments(self):
-        existing_comments = self.object.get_objective_recommendations(self.kwargs["objective_code"])
-        return existing_comments
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        objective = self.object.assessment.get_caf_objective_by_id(self.kwargs["objective_code"])
-        data["title"] = f"{objective['code']} - {objective['title']}"
-        data["recommendation_type"] = "objective"
-        data[
-            "description"
-        ] = """You must give each recommendation a title and provide a
-            summary of any specific improvements you found during your review."""
-
-        data["breadcrumbs"] = data["breadcrumbs"] + [
-            {
-                "url": reverse(
-                    "objective-summary",
-                    kwargs={"pk": self.kwargs["pk"], "objective_code": self.kwargs["objective_code"]},
-                ),
-                "text": f"Objective {self.kwargs['objective_code']} - {objective['title']}",
-            },
-            {
-                "url": None,
-                "text": f"Add a recommendation for {objective['code']} - {objective['title']}",
-            },
-        ]
-        return data
-
-    def save_recommendations(self, comments):
-        self.object.set_objective_recommendations(self.kwargs["objective_code"], comments)
         self.object.last_updated_by = self.request.user
         self.object.save()
 
@@ -682,6 +639,23 @@ class AddObjectiveAreasOfGoodPracticeView(AddObjectiveCommentsView):
             {
                 "url": None,
                 "text": "Areas of good practice",
+            }
+        ]
+        return data
+
+
+class AddObjectiveRecommendationView(AddObjectiveCommentsView):
+    template_name = "review/assessment/objective-overview.html"
+
+    def get_comment_category(self):
+        return "objective-overview"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = data["breadcrumbs"] + [
+            {
+                "url": None,
+                "text": "Objective overview",
             }
         ]
         return data

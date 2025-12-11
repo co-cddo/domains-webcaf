@@ -635,7 +635,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     STATUS_CHOICES = [
         ("to_do", "To do"),
-        ("in_progress", "Draft"),
+        ("in_progress", "In-progress"),
         ("clarify", "Clarify"),
         ("completed", "Closed"),
         ("cancelled", "Cancelled"),
@@ -826,43 +826,6 @@ class Review(ReferenceGeneratorMixin, models.Model):
         """
         assessor_response_data = self.get_assessor_response()
         outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
-        outcome_section["recommendations"] = comments
-
-    def get_objective_recommendations(self, objective_code: str) -> list[dict[str, Any]]:
-        """
-        Retrieve recommendations for a given objective code from assessor response data.
-
-        This method fetches the assessor response data, navigates to the outcome section for the
-        specified objective code, and extracts the recommendations associated with it. If no
-        recommendations are available, an empty list is returned.
-
-        :param objective_code: A string representing the unique code of the objective for which
-            recommendations are needed.
-        :return: A list of dictionaries containing recommendations for the specified objective code.
-        """
-        assessor_response_data = self.get_assessor_response()
-        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
-        return outcome_section.get("recommendations", [])
-
-    def set_objective_recommendations(self, objective_code: str, comments=list[dict[str, Any]]):
-        """
-        Updates the recommendations for a specific objective in the assessor's response data.
-
-        This method retrieves the assessor's response data, navigates to the specified
-        objective section, and sets the recommendations using the provided comments.
-        If the objective section does not exist, it will be created.
-
-        :param objective_code: The unique code identifying the specific objective
-                               whose recommendations are to be updated.
-        :type objective_code: str
-        :param comments: A list of dictionary objects containing the updated
-                         recommendations for the objective.
-        :type comments: list[dict[str, Any]]
-        :return: None
-        :rtype: NoneType
-        """
-        assessor_response_data = self.get_assessor_response()
-        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
         outcome_section["recommendations"] = comments
 
     def get_objective_comments(self, objective_code: str, category: str) -> str | None:

@@ -12,6 +12,7 @@ from django.forms import (
     Textarea,
 )
 
+from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.models import Review
 
 
@@ -32,7 +33,10 @@ class RecommendationForm(Form):
 
     title = CharField(label="Recommendation title", max_length=255, required=False, help_text="Optional.")
     text = CharField(
-        widget=Textarea(),
+        validators=([WordCountValidator(750)]),
+        widget=Textarea(
+            attrs={"rows": 10, "max_words": 750},
+        ),
         label="Details and rationale",
         required=False,
     )
@@ -71,7 +75,14 @@ class CommentsForm(ModelForm):
     :type text: CharField
     """
 
-    text = CharField(widget=Textarea(), label="Comment", required=True)
+    text = CharField(
+        validators=([WordCountValidator(750)]),
+        widget=Textarea(
+            attrs={"rows": 10, "max_words": 750},
+        ),
+        label="Comment",
+        required=True,
+    )
 
     class Meta:
         model = Review
