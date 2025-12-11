@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
@@ -14,7 +14,7 @@
             <h2 class="govuk-heading-m"> {{ form|get_recommendation_count }} recommendations added</h2>
 
             <form method="post">
-                <button type="submit" class="govuk-button--text" data-module="govuk-button" data-govuk-button-init=""
+                <button type="submit" class="govuk-button--text" data-module="govuk-button"
                         name="preview_status" value="change">
                     Change
                 </button>

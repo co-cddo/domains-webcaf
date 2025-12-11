@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
@@ -20,22 +20,27 @@
                 <li>supporting evidence you have seen outside the WebCAF service</li>
             </ul>
 
-            <p class="govuk-heading-m">
-                Quality of the self-assessment and evidence
-            </p>
-            <p class="govuk-caption-m">
-                Provide detailed explanation
-            </p>
             <form method="post" id="comment-form">
                 {% csrf_token %}
-                <div class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label govuk-visually-hidden"
-                           for="id_form-text">{{ form.text.label }}
+                <div
+                        data-module="govuk-character-count"
+                        data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
+                        class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label" for="id_form-text">
+                        Quality of the self-assessment and evidence
                     </label>
-                    <textarea class="govuk-textarea" name="{{ form.text.html_name }}" cols="40" rows="5"
+                    <div id="check-quality-hint" class="govuk-hint">
+                        Provide detailed explanation
+                    </div>
+                    <textarea class="govuk-textarea govuk-js-character-count"
+                              aria-describedby="id_form-text-info" name="{{ form.text.html_name }}" cols="40" rows="5"
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>
+                    <div id="id_form-text-info"
+                         class="govuk-hint govuk-character-count__message">You can
+                        enter up to {{ form.text.field.widget.attrs.max_words }} words
+                    </div>
                 </div>
-                <br/>
+
                 <button type="submit" class="govuk-button" data-module="govuk-button"
                         {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                 >

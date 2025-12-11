@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}System and review scope - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}System overview - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}
         {% include "partials/review_progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
-            <h1 class="govuk-heading-l">Confirm system and review scope</h1>
+            <h1 class="govuk-heading-l">System overview</h1>
             <p class="govuk-body">
                 The information below was provided during the self-assessment.<br>
                 Please review each detail carefully and confirm it is correct.<br>
@@ -18,7 +18,7 @@
                 <h2 class="govuk-heading-m">
                     {{ summary_item }}
                 </h2>
-                <dl class="govuk-summary-list {% if forloop.last %}govuk-summary-list--no-border{% endif %} govuk-!-margin-top-4">
+                <dl class="govuk-summary-list govuk-summary-list--no-border govuk-!-margin-top-4">
                     {% for item in summary_value %}
                         {% if item.name != 'Other corporate services' %}
                             <div class="govuk-summary-list__row">
@@ -49,8 +49,7 @@
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong class="govuk-warning-text__text">
                     <span class="govuk-warning-text__assistive"></span>
-                    If you think any of the information here is wrong, please contact GovAssure on
-                    <code class="govspeak-code">webcaf@cabinetoffice.gov.uk</code>.
+                    If you think any of the information here is wrong, please contact your organisation.
                 </strong>
             </div>
             <form method="post" novalidate>

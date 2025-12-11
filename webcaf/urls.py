@@ -162,7 +162,7 @@ urlpatterns = [
     # Application pages that does not need login
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),
-    path("assessor/", TemplateView.as_view(template_name="assessor-index.html"), name="assessor-index"),
+    path("review/", TemplateView.as_view(template_name="assessor-index.html"), name="assessor-index"),
     path("session-expired/", session_expired, name="session-expired"),
     path("verify-2fa-token/", Verify2FATokenView.as_view(), name="verify-2fa-token"),
     # Assessor pages
@@ -172,7 +172,7 @@ urlpatterns = [
     path("edit-assessor/<int:pk>/", EditAssessorView.as_view(), name="edit-assessor"),
     path("remove-assessor/<int:pk>/", RemoveAssessorView.as_view(), name="remove-assessor"),
     # Review paths
-    path("review/", ReviewIndexView.as_view(), name="review-list"),
+    path("review-list/", ReviewIndexView.as_view(), name="review-list"),
     path("review/<int:pk>/", ReviewDetailView.as_view(), name="edit-review"),
     path("review/<int:pk>/revisions", ReviewHistoryView.as_view(), name="review-history"),
     path("review/<int:pk>/reopen", ReopenReviewView.as_view(), name="reopen-review"),

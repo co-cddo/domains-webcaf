@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load static %}
 {% load csp %}
 {% load form_extras %}
@@ -36,7 +36,7 @@
                                 Version
                             </dt>
                             <dd class="govuk-summary-list__value">
-                                {{ object.current_version_number }} (current)
+                                Version {{ object.current_version_number }} (current)
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
@@ -62,8 +62,7 @@
                         </div>
                     </dl>
                     <p class="govuk-body">
-                        You have now successfully created your GovAssure Independent Assurance (IAR) report . You will find a copy of the report in your GovAssure account.
-                    </p>
+                        You have now successfully created your GovAssure Independent Assurance Review (IAR) report. You will find a copy of the report in your GovAssure account.                    </p>
                     <h2 class="govuk-heading-m">Next steps</h2>
                     <p class="govuk-body">
                         You can now download the report to share and discuss it with the organisation. </p>
@@ -74,7 +73,7 @@
                         <a href="{% url 'download-report' pk=object.pk version=object.current_version_number %}" class="govuk-button govuk-button--secondary" role="button">Download report (PDF)</a>
                     </div>
                     <p class="govuk-body govuk-!-margin-top-6">
-                        <a href="{% url 'my-account' %}" class="govuk-link">Return to My account</a>
+                        <a href="{% url 'review-history' pk=object.id %}" class="govuk-link">Return to report history</a>
                     </p>
                 </div>
             </div>

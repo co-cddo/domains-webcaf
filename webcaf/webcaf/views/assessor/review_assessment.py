@@ -166,7 +166,7 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                     )
                     idx += 1
                     fields[indicator_comment] = CharField(
-                        label="alternative controls",
+                        label="Alternative controls",
                         help_text=answered_statements["indicators"].get(indicator_comment, ""),
                         validators=([WordCountValidator(750)]),
                         widget=Textarea(attrs={"rows": 5, "max_words": 750}),

@@ -141,13 +141,13 @@
                                     {% if assessment.status == 'submitted' %}
                                         <div class="govuk-checkboxes__item">
                                             <input class="govuk-checkboxes__input"
-                                                   id="id_assessments_{{ forloop.counter }}"
+                                                   id="id_assessments_{{ forloop.counter }}_{{ forloop.parentloop.counter }}"
                                                    name="assessments" value="{{ assessment.id }}"
                                                    type="checkbox" {% if assessment.id in form.assessments.value %}
                                                    checked {% endif %}
                                             >
                                             <label class="govuk-label govuk-checkboxes__label"
-                                                   for="id_assessments_{{ forloop.counter }}">
+                                                   for="id_assessments_{{ forloop.counter }}_{{ forloop.parentloop.counter }}">
                                                 {{ assessment.system.name }}
                                                 - {{ assessment.reference }}
                                                 {% get_existing_review_assignments form.assessments.value assessment object %}

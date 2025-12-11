@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
@@ -84,11 +84,11 @@
                            href="{% url 'review-objective-areas-of-good-practice' pk=object.id objective_code=objective_code %}">
                             {% is_comment_present object objective_code 'objective-areas-of-good-practice' as comment_present %}
                             {% if comment_present %}
-                                Update
+                                1 comment added
                             {% else %}
-                                Add
+                                Add comment
                             {% endif %}
-                            comment</a>
+                            </a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -100,29 +100,25 @@
                            href="{% url 'review-objective-areas-of-improvement' pk=object.id objective_code=objective_code %}">
                             {% is_comment_present object objective_code 'objective-areas-of-improvement' as comment_present %}
                             {% if comment_present %}
-                                Update
+                                1 comment added
                             {% else %}
-                                Add
-                            {% endif %}
-                            comment</a>
+                                Add comment
+                            {% endif %}</a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        Objective-level recommendations
+                        Objective overview
                     </dt>
                     <dd class="govuk-summary-list__value">
                         <a class="govuk-link"
                            href="{% url 'review-objective-recommendation' pk=object.id objective_code=objective_code %}">
-                            {% get_objective_recommendation_count object objective_code as objective_recommendation_count %}
-                            {% if objective_recommendation_count %}
-                                {{ objective_recommendation_count }}
-                                recommendation{{ objective_recommendation_count|pluralize }} added
+                            {% is_comment_present object objective_code 'objective-overview' as comment_present %}
+                            {% if comment_present %}
+                                1 comment added
                             {% else %}
-                                Add recommendation
+                                Add comment
                             {% endif %}
-
-
                         </a>
                     </dd>
                 </div>
@@ -138,8 +134,7 @@
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                 Do you want to go to the next objective?
                             </legend>
-                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
-                                 data-govuk-radios-init="">
+                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input" id="objective-nav-1" name="action"
                                            type="radio" value="yes" checked>

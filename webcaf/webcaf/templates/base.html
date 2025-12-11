@@ -12,7 +12,7 @@
         <!-- End Google Tag Manager -->
     {% endif %}
     <title>{% block title %} - Complete a WebCAF self-assessment - GOV.UK{% endblock %}</title>
-    <meta http-equiv="Refresh" content="5402" />
+    <meta http-equiv="Refresh" content="5402"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b0c0c">
@@ -101,8 +101,8 @@
             </div>
             <div class="govuk-header__content">
                 <a href="/"
-                   class="govuk-header__link govuk-header__link--service-name govuk-body govuk-!-font-size-24"><strong>Complete
-                    a WebCAF self-assessment</strong></a>
+                   class="govuk-header__link govuk-header__link--service-name govuk-body govuk-!-font-size-24">
+                    <strong>{% block caption %}Complete a WebCAF self-assessment{% endblock %}</strong></a>
                 <nav aria-label="Menu" class="govuk-header__navigation ">
                     <button type="button" class="govuk-header__menu-button govuk-js-header-toggle"
                             aria-controls="navigation" aria-label="Show or hide menu" aria-expanded="false">Menu
@@ -256,9 +256,15 @@
     <script nonce="{{ request.csp_nonce }}" src='{% static "cookies.js" %}'></script>
 {% endif %}
 <script type="module" nonce="{{ request.csp_nonce }}">
-    import {initAll} from '{% static "govuk-frontend-5.11.1.min.js" %}'
+    import {initAll, CharacterCount} from '{% static "govuk-frontend-5.11.1.min.js" %}'
 
     initAll()
+    window.init_char_count = function (element) {
+        new CharacterCount(element);
+    }
+    window.init_all = function () {
+        initAll()
+    }
 </script>
 </body>
 </html>

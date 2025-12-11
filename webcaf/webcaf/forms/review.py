@@ -108,11 +108,11 @@ class ReviewPeriodForm(ModelForm):
 
     start_date_day = IntegerField(min_value=1, max_value=31, label="Day")
     start_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    start_date_year = IntegerField(min_value=1900, max_value=2100, label="Year")
+    start_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
 
     end_date_day = IntegerField(min_value=1, max_value=31, label="Day")
     end_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    end_date_year = IntegerField(min_value=1900, max_value=2100, label="Year")
+    end_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
 
     def __init__(self, *args, **kwargs):
         text = kwargs.pop("initial", {}).get("text", "")

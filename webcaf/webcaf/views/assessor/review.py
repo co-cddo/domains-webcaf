@@ -236,7 +236,7 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
             return string.lower().replace(" ", "_")
 
         if action == "confirm":
-            #  This means they agreed to what was displayd on the page.
+            #  This means they agreed to what was displayed on the page.
             #  So build the same data and save it as confirmed.
             summary = self._get_summary(self.object.assessment)
             self.logger.info(f"Updating review {self.object.id} with confirmed system and scope")
@@ -245,8 +245,8 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
                     lower_snake_case("System details"): {
                         lower_snake_case(item.name): item.value for item in summary["System details"]
                     },
-                    lower_snake_case("The scope of this review"): {
-                        lower_snake_case(item.name): item.value for item in summary["The scope of this review"]
+                    lower_snake_case("review details"): {
+                        lower_snake_case(item.name): item.value for item in summary["Review details"]
                     },
                 }
             )
@@ -263,14 +263,16 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
         return {
             "System details": [
                 DetailEntry("System name", assessment.system.name, False),
-                DetailEntry("System description", assessment.system.get_system_type_display(), True),
-                DetailEntry("Previous GovAssure self-assessments", assessment.system.get_last_assessed_display(), True),
-                DetailEntry("System ownership", assessment.system.get_system_owner_display(), True),
-                DetailEntry("Hosting and connectivity", assessment.system.get_hosting_type_display(), True),
-                DetailEntry("Corporate services", assessment.system.get_corporate_services_display(), True),
-                DetailEntry("Other corporate services", assessment.system.corporate_services_other, True),
+                DetailEntry("System description", assessment.system.get_system_type_display(), False),
+                DetailEntry(
+                    "Previous GovAssure self-assessments", assessment.system.get_last_assessed_display(), False
+                ),
+                DetailEntry("System ownership", assessment.system.get_system_owner_display(), False),
+                DetailEntry("Hosting and connectivity", assessment.system.get_hosting_type_display(), False),
+                DetailEntry("Corporate services", assessment.system.get_corporate_services_display(), False),
+                DetailEntry("Other corporate services", assessment.system.corporate_services_other, False),
             ],
-            "The scope of this review": [
+            "Review details": [
                 DetailEntry("Self-assessment reference number", assessment.reference, False),
                 DetailEntry("Review type", assessment.get_review_type_display(), False),
                 DetailEntry("Government CAF profile", assessment.get_caf_profile_display(), False),
