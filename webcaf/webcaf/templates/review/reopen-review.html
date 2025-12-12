@@ -1,0 +1,34 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Report history - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Open current review</h1>
+            <p class="govuk-body">
+                Opening the current review will allow you to edit outcomes, recommendations and comments
+                before creating the next version of the report.
+            </p>
+
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    Do not open the current review unless the organisation has agreed that you can make changes.
+                </strong>
+            </div>
+
+            <form method="post" id="reopen-review-form">
+                {% csrf_token %}
+                <button type="submit" class="govuk-button govuk-button--warning"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >Open current review
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

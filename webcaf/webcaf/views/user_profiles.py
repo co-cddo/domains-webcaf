@@ -33,6 +33,7 @@ class UserProfilesView(UserRoleCheckMixin, FormView):
         data = super().get_context_data(**kwargs)
         user_profile = SessionUtil.get_current_user_profile(self.request)
         data["current_profile"] = user_profile
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         if not PermissionUtil.current_user_can_view_users(user_profile):
             raise PermissionError("You are not allowed to view this page")
         return data
@@ -50,6 +51,17 @@ class UserProfileView(UserRoleCheckMixin, FormView):
     def get_context_data(self, **kwargs):
         user_profile = SessionUtil.get_current_user_profile(request=self.request)
         data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "url": reverse("view-profiles"),
+                "text": "View users",
+            },
+            {"text": "View user"},
+        ]
         data["current_profile"] = user_profile
         # Remove cyber advisor role from the list of roles.
         # We only create that role through the admin interface.
@@ -176,6 +188,17 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
         user_profile_to_delete = UserProfile.objects.get(
             id=self.kwargs["user_profile_id"], organisation=user_profile.organisation
         )
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "url": reverse("view-profiles"),
+                "text": "View users",
+            },
+            {"text": "Delete user"},
+        ]
         data["user_profile_to_delete"] = user_profile_to_delete
         return data
 

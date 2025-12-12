@@ -1,6 +1,10 @@
-<h2 class="govuk-heading-m">
-    Year when system was last GovAssure assessed
-</h2>
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        Year when system was last GovAssure assessed
+    </h2>
+{% endif %}
 <div class="govuk-form-group {% if form.errors.last_assessed %}govuk-form-group--error{% endif %}"
      id="id_last_assessed">
     <fieldset class="govuk-fieldset" aria-describedby="govassure_year-hint">

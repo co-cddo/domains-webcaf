@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "review-base.html" %}
 {% load form_extras %}
 {% load permission_extras %}
 {% block title %}My account - {{ user.first_name }} {{ block.super }}{% endblock %}
@@ -28,7 +28,8 @@
             </h1>
 
             <p class="govuk-body">
-                You are reviewing Cyber Assessment Framework (CAF) self-assessments submitted by the <strong>{{ current_profile.organisation.name }}</strong>.
+                You are reviewing WebCAF self-assessments completed by
+                <strong>{{ current_profile.organisation.name }}</strong>.
             </p>
 
             <!-- TABLE -->
@@ -38,7 +39,7 @@
                     <th scope="col" class="govuk-table__header" aria-sort="ascending">System name and reference</th>
                     <th scope="col" class="govuk-table__header">Sent for review date</th>
                     <th scope="col" class="govuk-table__header">Review status</th>
-                    <th scope="col" class="govuk-table__header">Actions</th>
+                    <th scope="col" class="govuk-table__header">Action</th>
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
@@ -53,7 +54,12 @@
                             <strong class="govuk-tag govuk-tag--{{ tag_ }}">{{ review.get_status_display }}</strong>
                         </td>
                         <td class="govuk-table__cell">
-                            <a href="{% url 'edit-review' pk=review.id %}" class="govuk-link">Review</a>
+                            {% if review.status == 'completed' %}
+                                <a href="{% url 'review-history' pk=review.id %}" class="govuk-link">View report
+                                    history</a>
+                            {% else %}
+                                <a href="{% url 'edit-review' pk=review.id %}" class="govuk-link">Review</a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

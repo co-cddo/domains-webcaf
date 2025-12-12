@@ -12,6 +12,16 @@ span.govuk-header__logotype-text {
     padding: 0;
 }
 
+/*Apply to long tags so they do not wrap around when there are spaces in the label*/
+.long_tag {
+    max-width: 100%;
+    margin-left: 10%;
+}
+.tag-align-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 /*Style to show button as text*/
 .govuk-button--text {
     background: none;

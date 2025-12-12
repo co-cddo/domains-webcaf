@@ -10,9 +10,9 @@ from django.forms import (
     IntegerField,
     ModelForm,
     Textarea,
-    formset_factory,
 )
 
+from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.models import Review
 
 
@@ -33,26 +33,19 @@ class RecommendationForm(Form):
 
     title = CharField(label="Recommendation title", max_length=255, required=False, help_text="Optional.")
     text = CharField(
-        widget=Textarea(),
+        validators=([WordCountValidator(750)]),
+        widget=Textarea(
+            attrs={"rows": 10, "max_words": 750},
+        ),
         label="Details and rationale",
         required=False,
     )
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        # Dont validate if the recommendation is marked for deletion
+        # Don't validate if the recommendation is marked for deletion
         if not cleaned_data.get("DELETE"):
             super().clean()
-
-
-"""
-Formset for collecting recommendations.
-"""
-RecommendationFormSet = formset_factory(
-    RecommendationForm,
-    extra=1,
-    can_delete=True,
-)
 
 
 class PreviewForm(Form):
@@ -82,7 +75,14 @@ class CommentsForm(ModelForm):
     :type text: CharField
     """
 
-    text = CharField(widget=Textarea(), label="Comment", required=True)
+    text = CharField(
+        validators=([WordCountValidator(750)]),
+        widget=Textarea(
+            attrs={"rows": 10, "max_words": 750},
+        ),
+        label="Comment",
+        required=True,
+    )
 
     class Meta:
         model = Review
@@ -108,11 +108,11 @@ class ReviewPeriodForm(ModelForm):
 
     start_date_day = IntegerField(min_value=1, max_value=31, label="Day")
     start_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    start_date_year = IntegerField(min_value=1900, max_value=2100, label="Year")
+    start_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
 
     end_date_day = IntegerField(min_value=1, max_value=31, label="Day")
     end_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    end_date_year = IntegerField(min_value=1900, max_value=2100, label="Year")
+    end_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
 
     def __init__(self, *args, **kwargs):
         text = kwargs.pop("initial", {}).get("text", "")
@@ -134,8 +134,15 @@ class ReviewPeriodForm(ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        # Confirm we have correct value range
+        if self.errors:
+            return cleaned
+
         start_date = self.clean_components(cleaned, "start")
         end_date = self.clean_components(cleaned, "end")
+        if not start_date or not end_date:
+            return cleaned
+
         if start_date > end_date:
             raise ValidationError("The start date must be before the end date")
         # Set the text component to the formatted date. This is the attribute required in the view
@@ -163,8 +170,10 @@ class ReviewPeriodForm(ModelForm):
             try:
                 return date(y, m, d)
             except ValueError:
-                raise ValidationError("Invalid date combination")
-        raise ValidationError("Missing date component")
+                self.add_error(f"{prefix}_date_day", "Invalid date combination")
+                self.add_error(f"{prefix}_date_month", "Invalid date combination")
+                self.add_error(f"{prefix}_date_year", "Invalid date combination")
+        return None
 
     def prefixes(self):
         """

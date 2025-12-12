@@ -1,6 +1,11 @@
-<h2 class="govuk-heading-m">
-    Corporate services
-</h2>
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        Corporate services
+    </h2>
+{% endif %}
+
 <div id="id_corporate_services"
      class="govuk-form-group {% if form.errors.corporate_services %}govuk-form-group--error{% endif %}">
     <fieldset class="govuk-fieldset" aria-describedby="corporate_services-hint">

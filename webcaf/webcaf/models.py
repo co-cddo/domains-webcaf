@@ -1,4 +1,5 @@
 import logging
+import typing
 from datetime import datetime
 from functools import cached_property
 from typing import Any
@@ -7,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Func, Value
+from django.db.models import F, Func, QuerySet, Value
 from django.db.models.functions import Cast
 from django.utils.timezone import make_aware
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -21,6 +22,12 @@ from webcaf.webcaf.utils.references import generate_reference
 
 # Set up a logger for any Notify errors
 logger = logging.getLogger(__name__)
+
+if typing.TYPE_CHECKING:
+    # For historical review data type checking
+    class HistoricalReview:
+        review_type: str
+        review_data: dict
 
 
 class ReferenceGeneratorMixin:
@@ -628,9 +635,9 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     STATUS_CHOICES = [
         ("to_do", "To do"),
-        ("in_progress", "In review"),
+        ("in_progress", "In-progress"),
         ("clarify", "Clarify"),
-        ("completed", "Report generated"),
+        ("completed", "Closed"),
         ("cancelled", "Cancelled"),
     ]
     created_on = models.DateTimeField(auto_now_add=True)
@@ -659,6 +666,38 @@ class Review(ReferenceGeneratorMixin, models.Model):
             "assessment",
             "assessed_by",
         ]
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initializes an instance of the class, inheriting from its superclass. It performs
+        default initialization and stores the original value of `last_updated` if the
+        object already exists (has a primary key).
+
+        :param args: Positional arguments passed to the superclass constructor.
+        :param kwargs: Keyword arguments passed to the superclass constructor.
+        """
+        super().__init__(*args, **kwargs)
+        self._original_last_updated = self.last_updated if self.pk else None
+
+    def refresh_from_db(
+        self,
+        using: str | None = None,
+        fields: typing.Iterable[str] | None = None,
+        from_queryset: QuerySet[typing.Self] | None = None,
+    ):
+        """
+        Reloads the instance from the database and updates the _original_last_updated
+        timestamp to reflect the current state from the database.
+
+        This ensures that the optimistic locking check in the save method works correctly
+        after a refresh_from_db() call.
+
+        :param using: The database alias to use (optional)
+        :param fields: List of field names to refresh (optional)
+        :return: None
+        """
+        super().refresh_from_db(using=using, fields=fields)
+        self._original_last_updated = self.last_updated if self.pk else None
 
     def __str__(self):
         return f"review_id={self.id} assessment={self.assessment}"
@@ -819,43 +858,6 @@ class Review(ReferenceGeneratorMixin, models.Model):
         """
         assessor_response_data = self.get_assessor_response()
         outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code, outcome_code)
-        outcome_section["recommendations"] = comments
-
-    def get_objective_recommendations(self, objective_code: str) -> list[dict[str, Any]]:
-        """
-        Retrieve recommendations for a given objective code from assessor response data.
-
-        This method fetches the assessor response data, navigates to the outcome section for the
-        specified objective code, and extracts the recommendations associated with it. If no
-        recommendations are available, an empty list is returned.
-
-        :param objective_code: A string representing the unique code of the objective for which
-            recommendations are needed.
-        :return: A list of dictionaries containing recommendations for the specified objective code.
-        """
-        assessor_response_data = self.get_assessor_response()
-        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
-        return outcome_section.get("recommendations", [])
-
-    def set_objective_recommendations(self, objective_code: str, comments=list[dict[str, Any]]):
-        """
-        Updates the recommendations for a specific objective in the assessor's response data.
-
-        This method retrieves the assessor's response data, navigates to the specified
-        objective section, and sets the recommendations using the provided comments.
-        If the objective section does not exist, it will be created.
-
-        :param objective_code: The unique code identifying the specific objective
-                               whose recommendations are to be updated.
-        :type objective_code: str
-        :param comments: A list of dictionary objects containing the updated
-                         recommendations for the objective.
-        :type comments: list[dict[str, Any]]
-        :return: None
-        :rtype: NoneType
-        """
-        assessor_response_data = self.get_assessor_response()
-        outcome_section = _get_or_create_nested_path(assessor_response_data, objective_code)
         outcome_section["recommendations"] = comments
 
     def get_objective_comments(self, objective_code: str, category: str) -> str | None:
@@ -1070,12 +1072,60 @@ class Review(ReferenceGeneratorMixin, models.Model):
         review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
         return review_completion.get("review_completed") == "yes"
 
+    @cached_property
+    def completion_info(self) -> dict | None:
+        """
+        Retrieves the review completion information from the assessor response.
+
+        This method accesses the assessor response data and attempts to extract
+        the value associated with the 'review_completion' key. If the key is not
+        present, the method returns None.
+
+        :return: The value of the "review_completion" key from assessor response
+            data, or None if the key does not exist.
+        :rtype: dict | None
+        """
+        assessor_response_data = self.get_assessor_response()
+        review_completion: dict | None = assessor_response_data.get("review_completion", None)
+        if review_completion is not None:
+            if completed_at := review_completion.get("review_completed_at"):
+                if type(completed_at) is str:
+                    review_completion["review_completed_at"] = datetime.strptime(completed_at, "%Y-%m-%dT%H:%M:%S.%f")
+        return review_completion
+
+    def reopen(self):
+        """
+        Reopens a report if the current status is not "completed", transitioning it to
+        an "in_progress" state and resetting certain review data.
+
+        This method ensures that reopening the report is only allowed when the
+        current status is not marked as "completed". Upon reopening, related review
+        data is cleared to allow for new assessment updates.
+
+        :raises ValidationError: When the report status is already "completed".
+
+        :return: Updates the report status and clears specific review data for further
+                 reassessment.
+        """
+        if self.status != "completed":
+            raise ValidationError("Invalid state for report reopening.")
+
+        self.status = "in_progress"
+        assessor_response_data = self.get_assessor_response()
+        review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+        # Remove the review_completed key and its associated values
+        review_completion.clear()
+
     def save(self, *args, **kwargs):
         """
         Saves the current state of the instance to the database. This method overrides
         the default `save` behavior to perform additional validation before the model
         instance is saved. Specifically, it ensures that the `review_data` field cannot
         be modified if the `status` field is already marked as "completed".
+
+        This also checks for the can_edit attribute on the object.
+        If present, it will make sure the value is set to true before
+        saving the object.
 
         :param args: Positional arguments to pass to the superclass's `save` method.
         :param kwargs: Keyword arguments to pass to the superclass's `save` method.
@@ -1084,24 +1134,65 @@ class Review(ReferenceGeneratorMixin, models.Model):
         if self.pk:
             old = Review.objects.get(pk=self.pk)
             # Prevent changing review_data if the status was already "completed"
-            if old.status == "completed" and self.review_data != old.review_data:
+            if old.status == "completed" == self.status and self.review_data != old.review_data:
                 raise ValidationError("Review data cannot be changed after it has been marked as completed.")
 
+            # If we have specifically added permissions for this object, then we should check that
+            if hasattr(self, "can_edit") and not getattr(self, "can_edit"):
+                raise ValidationError("You do not have permission to edit this report.")
+
+            if hasattr(self, "_original_last_updated") and getattr(self, "_original_last_updated"):
+                if old.last_updated != getattr(self, "_original_last_updated"):
+                    raise ValidationError("Your copy of data has been updated since you last saved it.")
+
         super().save(*args, **kwargs)
+        # Update _original_last_updated to the new last_updated value after successful save
+        self._original_last_updated = self.last_updated
 
     @property
-    def current_version_number(self):
+    def current_version_number(self) -> int | None:
+        """
+        Calculate and return the total number of versions if `all_versions` exists.
+
+        This property provides the count of all available versions or returns None
+        if `all_versions` is not available or empty.
+
+        :return: The number of versions as an integer or None if no versions exist.
+        :rtype: int | None
+        """
         all_versions = self.all_versions
-        return len(all_versions)
+        return len(all_versions) if all_versions else None
 
     @property
-    def current_version(self) -> "Review":
+    def current_version(self) -> typing.Optional["HistoricalReview"] | None:
+        """
+        Property that retrieves the most recent version of a historical review
+        if any versions exist. If there are no versions, it returns None.
+
+        Returns the first item in the list of all versions as it represents
+        the most current version based on the assumption that all_versions
+        are sorted by recency in descending order.
+
+        :return: The most current version of the historical review or None if no
+            versions are available.
+        :rtype: typing.Optional[HistoricalReview] | None
+        """
         all_versions = self.all_versions
-        return all_versions[0]
+        return all_versions[0] if all_versions else None
 
     @cached_property
-    def all_versions(self) -> list["Review"]:
-        versions: list["Review"] = []
+    def all_versions(self) -> list["HistoricalReview"]:
+        """
+        Retrieve all unique historical versions of a review in reverse chronological order.
+        A new version is considered for inclusion only if it has a status of "completed" and
+        either the list is currently empty or its contents differ from the last added version.
+
+        :return: A list of unique historical review versions with a status of "completed"
+                 in reverse chronological order.
+        :rtype: list[HistoricalReview]
+
+        """
+        versions: list["HistoricalReview"] = []
         full_history = self.history.filter(status="completed").order_by("-last_updated").all()
         for version in full_history:
             if version.status == "completed" and (
@@ -1113,3 +1204,19 @@ class Review(ReferenceGeneratorMixin, models.Model):
             ):
                 versions.append(version)
         return versions
+
+    def get_version(self, version_number: int) -> typing.Optional["HistoricalReview"]:
+        """
+        Retrieves a historical review based on the given version number.
+
+        This method is used to access a specific version of a historical review. It
+        returns the review corresponding to the provided version number, or None if no
+        historical versions exist.
+
+        :param version_number: The version number of the historical review to retrieve.
+        :type version_number: int
+        :return: The historical review matching the given version number, or None if no
+            versions are available.
+        :rtype: typing.Optional["HistoricalReview"]
+        """
+        return self.all_versions[version_number - 1] if self.all_versions else None

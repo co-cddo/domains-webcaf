@@ -20,18 +20,23 @@
                 {% for user_profile in current_profile.organisation.members.all %}
                     <tr class="govuk-table__row">
                         <th scope="row"
-                            class="govuk-table__header">{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
-                            <strong
-                                    {% if user_profile.role == 'cyber_advisor' %}
-                                        class="govuk-tag govuk-tag--blue"
-                                    {% elif user_profile.role == 'organisation_lead' %}
-                                        class="govuk-tag govuk-tag--green"
-                                    {% elif user_profile.role == 'organisation_user' %}
-                                        class="govuk-tag govuk-tag--yellow"
-                                    {% endif %}
-                            >
-                                {{ user_profile.get_role_display }}
-                            </strong>
+                            class="govuk-table__header">
+                            <div class="tag-align-right">{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
+                                <strong
+                                        {% if user_profile.role == 'cyber_advisor' %}
+                                            class="govuk-tag govuk-tag--blue long_tag"
+                                        {% elif user_profile.role == 'organisation_lead' %}
+                                            class="govuk-tag govuk-tag--green long_tag"
+                                        {% elif user_profile.role == 'organisation_user' %}
+                                            class="govuk-tag govuk-tag--yellow long_tag"
+                                        {% elif user_profile.role == 'assessor' %}
+                                            class="govuk-tag govuk-tag--pink long_tag"
+                                        {% else %}
+                                            class="govuk-tag govuk-tag--purple long_tag"
+                                        {% endif %}
+                                >
+                                    {{ user_profile.get_role_display }}
+                                </strong></div>
                         </th>
                         <td class="govuk-table__cell"> {{ user_profile.user.email }}</td>
                         <td scope="row" class="govuk-table__cell">
@@ -61,7 +66,7 @@
                         </div>
                         {% if form.errors.add_new_user %}
                             <p id="add-new-user-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must select yes or no
+                                <span class="govuk-visually-hidden">Error:</span> You must select yes or no
                             </p>
                         {% endif %}
                         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
@@ -69,11 +74,12 @@
                             {% for choice in form.fields.add_new_user.choices %}
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input"
-                                        id="add_new_user{{ forloop.counter }}"
-                                        value="{{ choice.0 }}"
-                                        name="add_new_user"
-                                        type="radio">
-                                    <label class="govuk-label govuk-radios__label" for="add_new_user{{ forloop.counter }}">{{choice.1}}</label>
+                                           id="add_new_user{{ forloop.counter }}"
+                                           value="{{ choice.0 }}"
+                                           name="add_new_user"
+                                           type="radio">
+                                    <label class="govuk-label govuk-radios__label"
+                                           for="add_new_user{{ forloop.counter }}">{{ choice.1 }}</label>
                                 </div>
                             {% endfor %}
                         </div>

@@ -25,6 +25,31 @@ This will enable the application to automatically switch to the next period when
 
 **NOTE:** Users will need to add a new configuration for the period after the current period ends
 
+# Review permissions
+
+
+The review pages use a common mixin to manage who can view and edit content. The logic lives in `webcaf/webcaf/views/assessor/util.py` in the `BaseReviewMixin`, which extends `UserRoleCheckMixin`.
+
+- Allowed roles for review-related views are returned by `BaseReviewMixin.get_allowed_roles()`:
+  - `cyber_advisor`
+  - `organisation_lead`
+  - `reviewer`
+  - `assessor`
+
+- Read-only roles are returned by `BaseReviewMixin.get_read_only_roles()`. By default this is:
+  - `organisation_lead`
+
+- The edit permission flag is set on the object returned by the view’s `get_object()` implementation inside `BaseReviewMixin`. Specifically:
+
+  - When an object is fetched, the current user’s `UserProfile.role` is checked.
+  - The mixin sets `obj.can_edit = current_profile.role not in self.get_read_only_roles()`.
+  - As a result, all allowed roles can edit except those explicitly listed as read‑only (currently `organisation_lead`).
+
+This `can_edit` attribute is then available to templates and forms to decide whether to render edit controls (e.g. show/hide buttons) or enforce read-only behaviour. If additional roles should be read-only in future, override `get_read_only_roles()` in a subclass or update the default list in the mixin.
+
+The mixin also sets `login_url` to the OIDC route and leverages `UserRoleCheckMixin` to enforce authentication and role checks across review-related views.
+
+
 ## Running
 
 ```

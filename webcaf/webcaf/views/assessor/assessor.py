@@ -1,7 +1,6 @@
 from logging import Logger
 from typing import Optional
 
-from django.db.transaction import atomic
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -198,7 +197,6 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("assessor-list")
 
-    @atomic
     def form_valid(self, form):
         """
         Processes the form data when valid and performs actions related to updating
@@ -233,7 +231,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
                 review, _created = Review.objects.get_or_create(assessment=assessment)
                 if not _created and review.assessed_by != instance:
                     self.logger.info(
-                        f"User {self.request.user.id} reassigned review {review.id} to assessor {instance.id} from {review.assessed_by.id} "
+                        f"User {self.request.user.id} reassigned review {review.id} to assessor {instance.id} from {review.assessed_by.id if review.assessed_by else 'None'} "
                     )
                 reviews_to_add.append(review)
             # We need to save the reviews before we add them to the assessor.
@@ -242,7 +240,7 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
             instance.reviews.set(reviews_to_add)
         else:
             # All reviews are removed
-            instance.reviews.reviews.clear()
+            instance.reviews.clear()
 
         return return_value
 
@@ -308,5 +306,5 @@ class CreateOrSkipAssessorView(UserRoleCheckMixin, FormView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
-        data["assessor_list"] = data["current_profile"].organisation.assessed_by
+        data["assessor_list"] = data["current_profile"].organisation.assessors.filter(is_active=True)
         return data

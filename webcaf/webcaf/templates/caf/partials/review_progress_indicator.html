@@ -2,12 +2,10 @@
 {% load static %}
 
 <div class="progress-container" role="region" aria-label="Review progress">
-
     <br>
     <p class="govuk-body-m" id="progress-status-text"><strong>You have completed {{ percentage }}%
         of your review</strong>
     </p>
-
     <div class="progress-bar-total">
         <style nonce="{{ request.csp_nonce }}">
             .progress-bar-completed {

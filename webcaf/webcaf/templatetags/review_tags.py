@@ -33,11 +33,6 @@ def get_recommendation_count(parent_form: BaseFormSet) -> int:
 
 
 @register.simple_tag()
-def get_objective_recommendation_count(review: Review, objective_id: str) -> int:
-    return len(review.get_objective_recommendations(objective_id))
-
-
-@register.simple_tag()
 def get_outcome_recommendation_count(review: Review, objective_id: str, outcome_id: str) -> int:
     return len(review.get_outcome_recommendations(objective_id, outcome_id))
 

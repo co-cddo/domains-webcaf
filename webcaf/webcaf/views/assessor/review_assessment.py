@@ -4,16 +4,24 @@ from typing import final
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.transaction import atomic
-from django.forms import CharField, ChoiceField, ModelForm, RadioSelect, Textarea
+from django.forms import (
+    CharField,
+    ChoiceField,
+    ModelForm,
+    RadioSelect,
+    Textarea,
+    formset_factory,
+)
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView
 
+from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.forms.review import (
     CommentsForm,
     PreviewForm,
-    RecommendationFormSet,
+    RecommendationForm,
     ReviewPeriodForm,
 )
 from webcaf.webcaf.models import Review
@@ -158,9 +166,10 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                     )
                     idx += 1
                     fields[indicator_comment] = CharField(
-                        label="alternative controls",
+                        label="Alternative controls",
                         help_text=answered_statements["indicators"].get(indicator_comment, ""),
-                        widget=Textarea(),
+                        validators=([WordCountValidator(750)]),
+                        widget=Textarea(attrs={"rows": 5, "max_words": 750}),
                         # You only require the inout if they have entered any text already
                         required=answered_statements["indicators"].get(indicator_comment, "") != "",
                     )
@@ -180,7 +189,10 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             fields["review_comment"] = CharField(
                 help_text="Comment on the contributing outcome",
                 label="review comment",
-                widget=Textarea(),
+                validators=([WordCountValidator(1500)]),
+                widget=Textarea(
+                    attrs={"rows": 10, "max_words": 1500},
+                ),
             )
             return fields
 
@@ -229,8 +241,18 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
     """
 
     template_name = "review/assessment/recommendation.html"
-    form_class = RecommendationFormSet
     model = Review
+
+    def get_form_class(self):
+        """
+        Formset for collecting recommendations.
+        """
+        return formset_factory(
+            RecommendationForm,
+            # Show the extra form initially, otherwise let the user decide if they want to add more recommendations
+            extra=1 if not self.get_initial() else 0,
+            can_delete=True,
+        )
 
     def get_success_url(self):
         return reverse(
@@ -296,6 +318,11 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
                 if not form.cleaned_data:
                     form.add_error("text", ValidationError("This field is required.", code="required"))
                     form.add_error("title", ValidationError("This field is required.", code="required"))
+                elif not form.cleaned_data.get("DELETE", False):
+                    if not form.cleaned_data["text"]:
+                        form.add_error("text", ValidationError("This field is required.", code="required"))
+                    if not form.cleaned_data["title"]:
+                        form.add_error("title", ValidationError("This field is required.", code="required"))
 
             errors_added = any(form.errors for form in comment_formset.forms)
             if errors_added:
@@ -377,54 +404,6 @@ class AddOutcomeRecommendationView(AddRecommendationView):
 
     def save_recommendations(self, comments):
         self.object.set_outcome_recommendations(self.kwargs["objective_code"], self.kwargs["outcome_code"], comments)
-        self.object.last_updated_by = self.request.user
-        self.object.save()
-
-
-class AddObjectiveRecommendationView(AddRecommendationView):
-    """
-    Handles adding recommendations specific to objectives within a given context.
-
-    This class extends the functionality of `AddRecommendationView` to allow
-    inclusion and management of recommendations tied to a particular objective
-    identified by an objective code. It also provides tailored context data for
-    rendering views related to objective recommendations.
-
-    :ivar object: Instance of the object containing assessment and objective data.
-    :type object: varies depending on the derived implementation
-    """
-
-    def get_comments(self):
-        existing_comments = self.object.get_objective_recommendations(self.kwargs["objective_code"])
-        return existing_comments
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        objective = self.object.assessment.get_caf_objective_by_id(self.kwargs["objective_code"])
-        data["title"] = f"{objective['code']} - {objective['title']}"
-        data["recommendation_type"] = "objective"
-        data[
-            "description"
-        ] = """You must give each recommendation a title and provide a
-            summary of any specific improvements you found during your review."""
-
-        data["breadcrumbs"] = data["breadcrumbs"] + [
-            {
-                "url": reverse(
-                    "objective-summary",
-                    kwargs={"pk": self.kwargs["pk"], "objective_code": self.kwargs["objective_code"]},
-                ),
-                "text": f"Objective {self.kwargs['objective_code']} - {objective['title']}",
-            },
-            {
-                "url": None,
-                "text": f"Add a recommendation for {objective['code']} - {objective['title']}",
-            },
-        ]
-        return data
-
-    def save_recommendations(self, comments):
-        self.object.set_objective_recommendations(self.kwargs["objective_code"], comments)
         self.object.last_updated_by = self.request.user
         self.object.save()
 
@@ -660,6 +639,23 @@ class AddObjectiveAreasOfGoodPracticeView(AddObjectiveCommentsView):
             {
                 "url": None,
                 "text": "Areas of good practice",
+            }
+        ]
+        return data
+
+
+class AddObjectiveRecommendationView(AddObjectiveCommentsView):
+    template_name = "review/assessment/objective-overview.html"
+
+    def get_comment_category(self):
+        return "objective-overview"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = data["breadcrumbs"] + [
+            {
+                "url": None,
+                "text": "Objective overview",
             }
         ]
         return data

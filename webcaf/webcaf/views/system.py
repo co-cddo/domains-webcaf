@@ -146,6 +146,7 @@ class ViewSystemsView(LoginRequiredMixin, TemplateView):
 
         data["current_profile"] = user_profile
         data["systems"] = System.objects.filter(organisation=data["current_profile"].organisation)
+        data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         return data
 
 
