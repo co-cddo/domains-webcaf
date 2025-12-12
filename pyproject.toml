@@ -25,6 +25,8 @@ dependencies = [
     "sentry-sdk[django] (>=2.8.0,<3.0.0)",
     "django-otp (==1.6.1)",
     "notifications-python-client (==10.0.1)",
+    "fonttools (>=4,<5)",
+    "pypdf (>=6,<7)",
 ]
 
 [tool.poetry.group.dev.dependencies]
