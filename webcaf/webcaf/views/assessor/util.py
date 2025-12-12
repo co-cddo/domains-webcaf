@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.db.transaction import atomic
 from django.forms import ChoiceField, Form
 from django.urls import reverse_lazy
 
@@ -98,6 +100,38 @@ class BaseReviewMixin(UserRoleCheckMixin):
 
     def get_read_only_roles(self):
         return ["organisation_lead"]
+
+    @atomic
+    def form_valid(self, form):
+        """
+        Handle form validation and save the form instance.
+
+        This method overrides the default form_valid behavior to catch ValidationErrors
+        raised by the Review model's save() method. If a ValidationError occurs, it adds
+        the error message to the form and returns form_invalid.
+
+        The Review model's save() method can raise ValidationErrors for:
+        - Attempting to modify review_data on a completed review
+        - Attempting to save when can_edit is False
+        - Attempting to save when the data has been updated by another user (optimistic locking)
+
+        :param form: The form instance to validate and save
+        :type form: Form
+        :return: Response redirecting to success_url or rendering form with errors
+        :rtype: HttpResponse
+        """
+        try:
+            return super().form_valid(form)
+        except ValidationError as e:
+            # Add the validation error to the form's non-field errors
+            # ValidationError.messages contains the list of error messages
+            if hasattr(e, "message"):
+                form.add_error(None, e.message)
+            else:
+                # For ValidationErrors with multiple messages or dict-based errors
+                for message in e.messages:
+                    form.add_error(None, message)
+            return self.form_invalid(form)
 
 
 class YesNoForm(Form):

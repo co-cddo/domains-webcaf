@@ -1,7 +1,6 @@
 from logging import Logger
 from typing import Optional
 
-from django.db.transaction import atomic
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -198,7 +197,6 @@ class EditAssessorView(UserRoleCheckMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("assessor-list")
 
-    @atomic
     def form_valid(self, form):
         """
         Processes the form data when valid and performs actions related to updating

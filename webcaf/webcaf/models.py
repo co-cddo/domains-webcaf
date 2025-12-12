@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Func, Value
+from django.db.models import F, Func, QuerySet, Value
 from django.db.models.functions import Cast
 from django.utils.timezone import make_aware
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -667,6 +667,38 @@ class Review(ReferenceGeneratorMixin, models.Model):
             "assessed_by",
         ]
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initializes an instance of the class, inheriting from its superclass. It performs
+        default initialization and stores the original value of `last_updated` if the
+        object already exists (has a primary key).
+
+        :param args: Positional arguments passed to the superclass constructor.
+        :param kwargs: Keyword arguments passed to the superclass constructor.
+        """
+        super().__init__(*args, **kwargs)
+        self._original_last_updated = self.last_updated if self.pk else None
+
+    def refresh_from_db(
+        self,
+        using: str | None = None,
+        fields: typing.Iterable[str] | None = None,
+        from_queryset: QuerySet[typing.Self] | None = None,
+    ):
+        """
+        Reloads the instance from the database and updates the _original_last_updated
+        timestamp to reflect the current state from the database.
+
+        This ensures that the optimistic locking check in the save method works correctly
+        after a refresh_from_db() call.
+
+        :param using: The database alias to use (optional)
+        :param fields: List of field names to refresh (optional)
+        :return: None
+        """
+        super().refresh_from_db(using=using, fields=fields)
+        self._original_last_updated = self.last_updated if self.pk else None
+
     def __str__(self):
         return f"review_id={self.id} assessment={self.assessment}"
 
@@ -1109,7 +1141,13 @@ class Review(ReferenceGeneratorMixin, models.Model):
             if hasattr(self, "can_edit") and not getattr(self, "can_edit"):
                 raise ValidationError("You do not have permission to edit this report.")
 
+            if hasattr(self, "_original_last_updated") and getattr(self, "_original_last_updated"):
+                if old.last_updated != getattr(self, "_original_last_updated"):
+                    raise ValidationError("Your copy of data has been updated since you last saved it.")
+
         super().save(*args, **kwargs)
+        # Update _original_last_updated to the new last_updated value after successful save
+        self._original_last_updated = self.last_updated
 
     @property
     def current_version_number(self) -> int | None:
