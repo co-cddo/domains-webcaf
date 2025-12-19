@@ -4,7 +4,7 @@ from django.db.transaction import atomic
 from django.forms import ChoiceField, Form
 from django.urls import reverse_lazy
 
-from webcaf.webcaf.models import Assessor, Configuration, Review, UserProfile
+from webcaf.webcaf.models import Configuration, Review, UserProfile
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -59,20 +59,12 @@ class BaseReviewMixin(UserRoleCheckMixin):
         :rtype: QuerySet[Review, Review]
         """
         base_filter = Review.objects.filter(
-            assessed_by__is_active=True,
             assessment__status__in=["submitted"],
             assessment__system__organisation=user_profile.organisation,
             assessment__assessment_period=configuration.get_current_assessment_period(),
         )
-        if user_profile.role in ["organisation_lead", "cyber_advisor"]:
-            return base_filter
 
-        return base_filter.filter(
-            assessed_by__in=Assessor.objects.filter(
-                members=user_profile,
-                organisation=user_profile.organisation,
-            )
-        )
+        return base_filter
 
     def get_queryset(self):
         configuration = Configuration.objects.get_default_config()

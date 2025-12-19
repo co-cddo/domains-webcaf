@@ -115,20 +115,17 @@ class ReviewPeriodForm(ModelForm):
     end_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
 
     def __init__(self, *args, **kwargs):
-        text = kwargs.pop("initial", {}).get("text", "")
+        text = kwargs.pop("initial", {}).get("text", {})
         if text:
             initial = kwargs.get("initial", {})
-            date_parts = text.split("-")
-            idx = 0
-            for prefix in self.prefixes():
-                date_part = date_parts[idx].split("/")
+            for date_key, date_value in text.items():
+                date_part = date_value.split("/")
                 if len(date_part) == 3:
                     initial = initial | {
-                        f"{prefix}_date_day": int(date_part[0]),
-                        f"{prefix}_date_month": int(date_part[1]),
-                        f"{prefix}_date_year": int(date_part[2]),
+                        f"{date_key}_day": int(date_part[0]),
+                        f"{date_key}_month": int(date_part[1]),
+                        f"{date_key}_year": int(date_part[2]),
                     }
-                idx += 1
             kwargs["initial"] = initial
         super().__init__(*args, **kwargs)
 
@@ -140,13 +137,18 @@ class ReviewPeriodForm(ModelForm):
 
         start_date = self.clean_components(cleaned, "start")
         end_date = self.clean_components(cleaned, "end")
-        if not start_date or not end_date:
+        if self.errors:
+            # If we have parsing errors
             return cleaned
 
         if start_date > end_date:
             raise ValidationError("The start date must be before the end date")
+
         # Set the text component to the formatted date. This is the attribute required in the view
-        self.cleaned_data["text"] = start_date.strftime("%d/%m/%Y") + " - " + end_date.strftime("%d/%m/%Y")
+        self.cleaned_data["text"] = {
+            "start_date": start_date.strftime("%d/%m/%Y"),
+            "end_date": end_date.strftime("%d/%m/%Y"),
+        }
         return cleaned
 
     def clean_components(self, cleaned: dict[str, Any], prefix: str):

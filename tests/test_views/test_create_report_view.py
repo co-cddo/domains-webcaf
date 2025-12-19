@@ -9,7 +9,6 @@ from freezegun import freeze_time
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import (
     Assessment,
-    Assessor,
     Configuration,
     Organisation,
     Review,
@@ -42,30 +41,20 @@ class TestCreateReportView(BaseViewTest):
         self.org: Organisation = Organisation.objects.get(name=self.organisation_name)
         self.system: System = System.objects.get(name=self.system_name, organisation=self.org)
 
-        # Active assessor in same org (required by BaseReviewMixin queryset)
-        self.assessor = Assessor.objects.create(
-            organisation=self.org,
-            name="Active Assessor",
-            email="assessor@example.com",
-            contact_name="Alice",
-            address="1 Road",
-            assessor_type="independent",
-            is_active=True,
-        )
-
         # Submitted assessment within current period (required by BaseReviewMixin queryset)
         self.assessment = Assessment.objects.create(
             system=self.system,
             status="submitted",
             assessment_period=self.period,
         )
-        self.review = Review.objects.create(assessment=self.assessment, assessed_by=self.assessor)
+        self.review = Review.objects.create(assessment=self.assessment)
 
         # Login as cyber_advisor (has access to all org reviews)
         self.client = Client()
-        user = self.org_map[self.organisation_name]["users"]["cyber_advisor"]
-        self.client.force_login(user)
-        profile = UserProfile.objects.get(user=user, organisation=self.org, role="cyber_advisor")
+        self.user = self.org_map[self.organisation_name]["users"]["cyber_advisor"]
+        self.assessor = self.org_map[self.organisation_name]["users"]["assessor"]
+        self.client.force_login(self.user)
+        profile = UserProfile.objects.get(user=self.user, organisation=self.org, role="cyber_advisor")
         session = self.client.session
         session["current_profile_id"] = profile.id
         session.save()
@@ -97,8 +86,12 @@ class TestCreateReportView(BaseViewTest):
 
         # Make the review complete - this enables the versioning
         self.review.status = "completed"
+        self.review.last_updated_by = self.assessor
         self.review.save()
 
         url = reverse("show-report-confirmation", kwargs={"pk": self.review.id})
+        self.client.force_login(self.user)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+        self.assertIn(b"Reviewer name", resp.content)
+        self.assertIn(b"(Independent assurance reviewer)", resp.content)

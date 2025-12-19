@@ -1,11 +1,11 @@
 from typing import Any
 
 from django import template
-from django.db.models import Q
+from django.contrib.auth.models import User
 from django.forms import BaseFormSet
 from django.forms.boundfield import BoundField
 
-from webcaf.webcaf.models import Assessment, Assessor, Review
+from webcaf.webcaf.models import Organisation, Review
 
 register = template.Library()
 
@@ -14,7 +14,7 @@ register = template.Library()
 def get_selected_tag(field: BoundField, answered_statements: dict[str, Any]) -> str:
     if answered_statements["indicators"].get(field.name):
         return "selected"
-    return "not selected"
+    return "did not select"
 
 
 @register.simple_tag()
@@ -38,43 +38,26 @@ def get_outcome_recommendation_count(review: Review, objective_id: str, outcome_
 
 
 @register.simple_tag()
-def get_existing_review_assignments(selected_assessment_id: int, assessment: Assessment, assessor: Assessor) -> str:
+def get_user_role(user: User, organisation: Organisation) -> str:
     """
-    Returns a descriptive string about the current or other existing review assignments
-    for a given assessment and assessor. It evaluates the `selected_assessment_id` against
-    the provided `assessment` to construct the appropriate description of the assessment
-    status and the names of assessors with their respective assignment statuses.
+    Retrieve the display name of the user's role within a specific organisation.
 
-    :param selected_assessment_id: ID of the assessment currently being checked.
-    :type selected_assessment_id: int
-    :param assessment: Assessment object for which the review assignments are being queried.
-    :type assessment: Assessment
-    :param assessor: Assessor object representing the individual checking or being looked up.
-    :type assessor: Assessor
-    :return: A string detailing the relevant review assignments, including names of other assessors
-             and their statuses or indicating if the assignment is not yet done for the assessor.
+    This function iterates through the user's profiles associated with the given
+    organisation. If a profile matches the organisation, it fetches the display
+    name of the role assigned to that user within the organisation.
+
+    :param user: The user whose role is to be retrieved.
+    :type user: User
+    :param organisation: The organization for which the user's role should be determined.
+    :type organisation: Organisation
+    :return: The display name of the user's role within the specified organisation.
     :rtype: str
     """
-    if assessor:
-        other_reviews = assessment.reviews.exclude(Q(assessed_by=assessor) | Q(assessed_by=None)).all()
-        current_review = Review.objects.filter(assessment=assessment, assessed_by=assessor).first()
-    else:
-        other_reviews = assessment.reviews.exclude(Q(assessed_by=None)).all()
-        current_review = None
-    if other_reviews:
-        return (
-            f"({'Also' if selected_assessment_id == assessment.id else 'Currently'} assessed by "
-            + (
-                "and ".join(
-                    f"{review.assessed_by.name} - {review.get_status_display()}"
-                    for review in other_reviews
-                    if review.assessed_by
-                )
-            )
-            + ")"
-        )
-
-    return f"{current_review.get_status_display() if current_review else 'Not assigned'}"
+    if user:
+        for profile in user.profiles.filter(organisation=organisation):
+            if profile.organisation == organisation:
+                return profile.get_role_display()
+    return "-"
 
 
 @register.simple_tag()
@@ -108,11 +91,11 @@ def get_review_completed_percentage(review: Review):
     :rtype: int
     """
     info = review.get_completed_outcomes_info()
-    # Assign 92% to completed outcomes
-    # This is due to the fact we have 4 more steps outside outcome completion steps,  that are considered
+    # Assign 90% to completed outcomes
+    # This is due to the fact we have 5 more steps outside outcome completion steps, that are considered
     # as part of the review process. Each of these steps contributes 2% to the total completion.
     completed_outcomes_percentage = (
-        92 * info.get("completed_outcomes", 0) // info.get("total_outcomes") if info.get("total_outcomes") else 0
+        90 * info.get("completed_outcomes", 0) // info.get("total_outcomes") if info.get("total_outcomes") else 0
     )
 
     # Calculate the remaining 2% based on the review attributes
@@ -123,6 +106,7 @@ def get_review_completed_percentage(review: Review):
             review.is_quality_of_evidence_complete(),
             review.is_review_method_complete(),
             review.is_system_and_scope_complete(),
+            review.is_company_details_complete(),
         ]
     )
 

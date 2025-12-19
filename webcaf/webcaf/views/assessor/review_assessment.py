@@ -7,6 +7,7 @@ from django.db.transaction import atomic
 from django.forms import (
     CharField,
     ChoiceField,
+    EmailField,
     ModelForm,
     RadioSelect,
     Textarea,
@@ -151,6 +152,11 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             outcome = review.assessment.get_caf_outcome_by_id(objective_code, outcome_code)
             answered_statements = review.assessment.get_section_by_outcome_id(outcome_code)
             fields = {}
+            labels = {
+                "achieved": "Achieved",
+                "not-achieved": "Not Achieved",
+                "partially-achieved": "Partially Achieved",
+            }
             for indicator, statements in outcome["indicators"].items():
                 idx = 1
                 for key, statement in statements.items():
@@ -158,7 +164,7 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                     indicator_comment = f"{indicator_id}_comment"
 
                     fields[indicator_id] = ChoiceField(
-                        label=f"{indicator} statement {idx}",
+                        label=f"{labels[indicator]} statement {idx}",
                         help_text=statement["description"],
                         choices=[("yes", "Yes"), ("no", "No")],
                         required=True,
@@ -644,23 +650,6 @@ class AddObjectiveAreasOfGoodPracticeView(AddObjectiveCommentsView):
         return data
 
 
-class AddObjectiveRecommendationView(AddObjectiveCommentsView):
-    template_name = "review/assessment/objective-overview.html"
-
-    def get_comment_category(self):
-        return "objective-overview"
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        data["breadcrumbs"] = data["breadcrumbs"] + [
-            {
-                "url": None,
-                "text": "Objective overview",
-            }
-        ]
-        return data
-
-
 class AddReviewCommentsView(BaseAddCommentsView, ABC):
     """
     Handles the addition of comments to a review instance.
@@ -792,6 +781,61 @@ class AddIarPeriodView(AddReviewCommentsView):
             {
                 "url": None,
                 "text": "IAR period",
+            }
+        ]
+        return data
+
+
+class CompanyDetailsForm(ModelForm):
+    company_name = CharField(label="Company name", max_length=255, required=True)
+    company_email = EmailField(label="Company email address", max_length=255, required=True)
+    company_address = CharField(label="Company address", max_length=500, required=False)
+    company_phone = CharField(label="Company phone number", max_length=15, required=False)
+
+    class Meta:
+        model = Review
+        fields: list[str] = []
+
+    def __init__(self, *args, **kwargs):
+        text = kwargs.pop("initial", {}).get("text", {})
+        if text:
+            initial = kwargs.get("initial", {})
+            kwargs["initial"] = initial | text
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        self.cleaned_data["text"] = {
+            "company_name": self.cleaned_data["company_name"],
+            "company_email": self.cleaned_data["company_email"],
+        }
+
+
+class AddCompanyDetailsView(AddReviewCommentsView):
+    """
+    Handles the presentation and logic for adding company details in the review assessment process.
+
+    This view is tailored to manage the display and submission of company detail forms. It extends
+    the functionality of AddReviewCommentsView, inheriting its capabilities while also customizing
+    the behavior for company-specific details.
+
+    :ivar template_name: The path to the template used for rendering the view.
+    :type template_name: str
+    :ivar form_class: The Django form class associated with this view.
+    :type form_class: Type[CompanyDetailsForm]
+    """
+
+    template_name = "review/assessment/company_details.html"
+    form_class = CompanyDetailsForm
+
+    def get_comment_category(self):
+        return "company_details"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = data["breadcrumbs"] + [
+            {
+                "url": None,
+                "text": "Company details",
             }
         ]
         return data

@@ -5,7 +5,6 @@ from freezegun import freeze_time
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import (
     Assessment,
-    Assessor,
     Configuration,
     Organisation,
     Review,
@@ -43,33 +42,15 @@ class TestReviewIndexVisibility(BaseViewTest):
         self.config = Configuration.objects.get_default_config()
         self.period = self.config.get_current_assessment_period()
 
-        # Two assessors in the same org
-        self.assessor_a = Assessor.objects.create(
-            organisation=self.org,
-            name="Assessor A",
-            email="a@example.com",
-            contact_name="A",
-            address="1 St",
-            assessor_type="independent",
-            is_active=True,
-        )
-        self.assessor_b = Assessor.objects.create(
-            organisation=self.org,
-            name="Assessor B",
-            email="b@example.com",
-            contact_name="B",
-            address="2 St",
-            assessor_type="independent",
-            is_active=True,
-        )
-
         # Reviews in current org and current period
         self.assessment_ok = Assessment.objects.create(
             system=self.system,
             status="submitted",
             assessment_period=self.period,
         )
-        self.review_ok = Review.objects.create(assessment=self.assessment_ok, assessed_by=self.assessor_a)
+        self.review_ok = Review.objects.create(
+            assessment=self.assessment_ok,
+        )
 
         # Same org but different period (should be hidden)
         self.assessment_other_period = Assessment.objects.create(
@@ -78,7 +59,7 @@ class TestReviewIndexVisibility(BaseViewTest):
             assessment_period="1900",  # obviously not current
         )
         self.review_other_period = Review.objects.create(
-            assessment=self.assessment_other_period, assessed_by=self.assessor_a
+            assessment=self.assessment_other_period,
         )
 
         # Different org (should be hidden)
@@ -89,7 +70,9 @@ class TestReviewIndexVisibility(BaseViewTest):
             status="submitted",
             assessment_period=self.period,
         )
-        self.review_foreign = Review.objects.create(assessment=self.assessment_foreign, assessed_by=None)
+        self.review_foreign = Review.objects.create(
+            assessment=self.assessment_foreign,
+        )
 
     def _login_with_role(self, role_key: str) -> tuple[Client, UserProfile]:
         client = Client()
@@ -121,8 +104,8 @@ class TestReviewIndexVisibility(BaseViewTest):
             self.assertNotIn(self.review_other_period, reviews)
             self.assertNotIn(self.review_foreign, reviews)
 
-    def test_assessor_and_reviewer_only_see_reviews_for_their_assessor(self):
-        # Create assessor and reviewer profiles and attach them as members to assessor_a
+    def test_assessor_and_reviewer_only_see_reviews_for_their_organisation(self):
+        # Create assessor and reviewer profiles
         from django.contrib.auth.models import User
 
         assessor_user, _ = User.objects.get_or_create(
@@ -137,15 +120,16 @@ class TestReviewIndexVisibility(BaseViewTest):
         reviewer_profile, _ = UserProfile.objects.get_or_create(
             user=reviewer_user, organisation=self.org, role="reviewer"
         )
-        self.assessor_a.members.add(assessor_profile, reviewer_profile)
 
         # Create another review under assessor_b (should not be visible to above users)
         assessment_hidden = Assessment.objects.create(
-            system=self.org_map[self.organisation_name]["systems"]["Big system"],
+            system=self.org_map["Large organisation"]["systems"]["Big system"],
             status="submitted",
             assessment_period=self.period,
         )
-        hidden_review = Review.objects.create(assessment=assessment_hidden, assessed_by=self.assessor_b)
+        hidden_review = Review.objects.create(
+            assessment=assessment_hidden,
+        )
 
         # Check for assessor role
         client_a, _ = self._login_with_role("assessor")
@@ -189,22 +173,14 @@ class TestReviewModifyLoggingAndAccess(BaseViewTest):
         self.config = Configuration.objects.get_default_config()
         self.period = self.config.get_current_assessment_period()
 
-        self.assessor = Assessor.objects.create(
-            organisation=self.org,
-            name="Logger",
-            email="log@example.com",
-            contact_name="Log",
-            address="10 St",
-            assessor_type="independent",
-            is_active=True,
-        )
-
         self.assessment = Assessment.objects.create(
             system=self.system,
             status="submitted",
             assessment_period=self.period,
         )
-        self.review = Review.objects.create(assessment=self.assessment, assessed_by=self.assessor)
+        self.review = Review.objects.create(
+            assessment=self.assessment,
+        )
 
         # Prime completion so we can assert it resets on change
         assessor_response = self.review.get_assessor_response()
@@ -263,21 +239,15 @@ class TestReviewModifyLoggingAndAccess(BaseViewTest):
 
     def test_non_member_assessor_cannot_access_foreign_review(self):
         # Create a different assessor and attach review there
-        other_assessor = Assessor.objects.create(
-            organisation=self.org,
-            name="Other",
-            email="o@example.com",
-            contact_name="O",
-            address="22 St",
-            assessor_type="independent",
-        )
         other_assessment = Assessment.objects.create(
             # Chose a different system for this assessment
-            system=self.org_map[self.organisation_name]["systems"]["Big system"],
+            system=self.org_map["Large organisation"]["systems"]["Big system"],
             status="submitted",
             assessment_period=self.period,
         )
-        other_review = Review.objects.create(assessment=other_assessment, assessed_by=other_assessor)
+        other_review = Review.objects.create(
+            assessment=other_assessment,
+        )
 
         # Create assessor-profile user and set as member of self.assessor (not other_assessor)
         from django.contrib.auth.models import User
@@ -286,7 +256,6 @@ class TestReviewModifyLoggingAndAccess(BaseViewTest):
             username=self.email_from_username_and_org("assessor_view", self.organisation_name)
         )
         aprofile, _ = UserProfile.objects.get_or_create(user=auser, organisation=self.org, role="assessor")
-        self.assessor.members.add(aprofile)
 
         client = Client()
         client.force_login(auser)

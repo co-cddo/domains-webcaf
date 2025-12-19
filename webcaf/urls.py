@@ -37,12 +37,6 @@ from webcaf.webcaf.views import (
     ViewDraftAssessmentsView,
     ViewSubmittedAssessmentsView,
 )
-from webcaf.webcaf.views.assessor.assessor import (
-    AssessorsView,
-    CreateOrSkipAssessorView,
-    EditAssessorView,
-    RemoveAssessorView,
-)
 from webcaf.webcaf.views.assessor.review import (
     DownloadReport,
     EditReviewSystemView,
@@ -54,10 +48,10 @@ from webcaf.webcaf.views.assessor.review import (
     SystemAndScopeView,
 )
 from webcaf.webcaf.views.assessor.review_assessment import (
+    AddCompanyDetailsView,
     AddIarPeriodView,
     AddObjectiveAreasOfGoodPracticeView,
     AddObjectiveAreasOfImprovementView,
-    AddObjectiveRecommendationView,
     AddOutcomeRecommendationView,
     AddQualityOfEvidenceView,
     AddReviewMethodView,
@@ -165,12 +159,6 @@ urlpatterns = [
     path("review/", TemplateView.as_view(template_name="assessor-index.html"), name="assessor-index"),
     path("session-expired/", session_expired, name="session-expired"),
     path("verify-2fa-token/", Verify2FATokenView.as_view(), name="verify-2fa-token"),
-    # Assessor pages
-    path("create-or-skip-new-assessor/", CreateOrSkipAssessorView.as_view(), name="create-or-skip-new-assessor"),
-    path("assessor-list/", AssessorsView.as_view(), name="assessor-list"),
-    path("add-assessor/", EditAssessorView.as_view(), name="add-assessor"),
-    path("edit-assessor/<int:pk>/", EditAssessorView.as_view(), name="edit-assessor"),
-    path("remove-assessor/<int:pk>/", RemoveAssessorView.as_view(), name="remove-assessor"),
     # Review paths
     path("review-list/", ReviewIndexView.as_view(), name="review-list"),
     path("review/<int:pk>/", ReviewDetailView.as_view(), name="edit-review"),
@@ -199,11 +187,6 @@ urlpatterns = [
         name="review-outcome-recommendation",
     ),
     path(
-        "review/<int:pk>/recommendations/<str:objective_code>/",
-        AddObjectiveRecommendationView.as_view(),
-        name="review-objective-recommendation",
-    ),
-    path(
         "review/<int:pk>/areas-of-improvement/<str:objective_code>/",
         AddObjectiveAreasOfImprovementView.as_view(),
         name="review-objective-areas-of-improvement",
@@ -227,6 +210,11 @@ urlpatterns = [
         "review/<int:pk>/iar-period/",
         AddIarPeriodView.as_view(),
         name="iar-period",
+    ),
+    path(
+        "review/<int:pk>/company-details/",
+        AddCompanyDetailsView.as_view(),
+        name="company-details",
     ),
     path(
         "review/<int:pk>/create-report/",

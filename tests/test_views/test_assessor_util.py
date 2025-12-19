@@ -6,7 +6,7 @@ from django.test import RequestFactory, TestCase
 from django.views.generic import UpdateView
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import Assessment, Assessor, Review
+from webcaf.webcaf.models import Assessment, Review
 from webcaf.webcaf.views.assessor.util import BaseReviewMixin, YesNoForm
 
 
@@ -79,15 +79,6 @@ class TestBaseReviewMixinFormValid(BaseViewTest):
             framework="caf32",
             caf_profile="baseline",
             review_type="independent",
-        )
-        cls.assessor = Assessor.objects.create(
-            name="Test Assessor Ltd",
-            contact_name="Test Assessor",
-            email="assessor@example.com",
-            address="123 Test St",
-            phone_number="0123456789",
-            assessor_type="independent",
-            organisation=cls.test_organisation,
         )
 
     def setUp(self):

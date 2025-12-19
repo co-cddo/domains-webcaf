@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import Assessment, Assessor, Review
+from webcaf.webcaf.models import Assessment, Review
 
 
 class ReviewIsObjectiveCompleteTests(BaseViewTest):
@@ -30,43 +30,11 @@ class ReviewIsObjectiveCompleteTests(BaseViewTest):
             caf_profile="baseline",
             review_type="independent",
         )
-        cls.assessor = Assessor.objects.create(
-            name="Acme Assurance Ltd",
-            contact_name="Jane Doe",
-            email="assessor@example.com",
-            address="1 High St, London",
-            phone_number="0123456789",
-            assessor_type="independent",
-            organisation=cls.test_organisation,
-        )
+
         cls.review = Review.objects.create(
             assessment=cls.assessment,
-            assessed_by=cls.assessor,
             status="in_progress",
         )
-
-    def test_objective_incomplete_missing_recommendations_key(self):
-        """Test that objective is incomplete when 'recommendations' key is missing at objective level."""
-        # Mock the CAF objective structure
-        mock_caf_objective = {"code": "A", "principles": {"A1": {"outcomes": {"A1.a": {"code": "A1.a"}}}}}
-
-        # Set review data with missing 'recommendations' key
-        self.review.review_data = {
-            "assessor_response_data": {
-                "A": {
-                    "objective-areas-of-improvement": "Some improvement",
-                    "objective-areas-of-good-practice": "Good practice",
-                    # Missing 'recommendations' key
-                    "A1.a": {"review_data": {"review_decision": "achieved"}},
-                }
-            }
-        }
-        self.review.save()
-
-        with patch.object(self.review.assessment, "get_caf_objective_by_id", return_value=mock_caf_objective):
-            result = self.review.is_objective_complete("A")
-
-        self.assertFalse(result)
 
     def test_objective_incomplete_missing_areas_of_improvement_key(self):
         """Test that objective is incomplete when 'objective-areas-of-improvement' key is missing."""
@@ -350,21 +318,11 @@ class ReviewSaveMethodTests(BaseViewTest):
             caf_profile="baseline",
             review_type="independent",
         )
-        cls.assessor = Assessor.objects.create(
-            name="Acme Assurance Ltd",
-            contact_name="Jane Doe",
-            email="assessor@example.com",
-            address="1 High St, London",
-            phone_number="0123456789",
-            assessor_type="independent",
-            organisation=cls.test_organisation,
-        )
 
     def test_save_new_review_creates_successfully(self):
         """Test that a new review (pk=None) can be saved successfully."""
         new_review = Review()
         new_review.assessment = self.assessment
-        new_review.assessed_by = self.assessor
         new_review.status = "in_progress"
         new_review.review_data = {"test": "data"}
         # Should not raise any exception
@@ -376,7 +334,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that an existing review with status != 'completed' can be updated."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -391,7 +348,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that modifying review_data on a completed review raises ValidationError."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "completed"
         review.review_data = {"test": "data"}
         review.save()
@@ -405,7 +361,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that a completed review can update fields other than review_data."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "completed"
         review.review_data = {"test": "data"}
         review.save()
@@ -421,7 +376,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that saving with can_edit=False raises ValidationError."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -436,7 +390,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that saving with can_edit=True succeeds."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -452,7 +405,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that saving with outdated _original_last_updated raises ValidationError."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -474,7 +426,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that saving with matching _original_last_updated succeeds."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -491,7 +442,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that saving without _original_last_updated attribute succeeds."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -507,7 +457,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that changing status from completed to in_progress allows review_data modification."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "completed"
         review.review_data = {"test": "data"}
         review.save()
@@ -524,7 +473,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that completed status validation is checked before can_edit validation."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "completed"
         review.review_data = {"test": "data"}
         review.save()
@@ -541,7 +489,6 @@ class ReviewSaveMethodTests(BaseViewTest):
         """Test that completed status validation is checked before last_updated validation."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "completed"
         review.review_data = {"test": "data"}
         review.save()
@@ -584,21 +531,11 @@ class ReviewRefreshFromDbTests(BaseViewTest):
             caf_profile="baseline",
             review_type="independent",
         )
-        cls.assessor = Assessor.objects.create(
-            name="Acme Assurance Ltd",
-            contact_name="Jane Doe",
-            email="assessor@example.com",
-            address="1 High St, London",
-            phone_number="0123456789",
-            assessor_type="independent",
-            organisation=cls.test_organisation,
-        )
 
     def test_refresh_from_db_updates_original_last_updated(self):
         """Test that refresh_from_db updates _original_last_updated to match database."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -624,7 +561,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         """Test that after refresh_from_db, saving changes succeeds without optimistic lock error."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -646,7 +582,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         """Test that refresh_from_db properly reloads all field values from database."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -668,7 +603,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         """Test that refresh_from_db works correctly with specific fields parameter."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()
@@ -696,7 +630,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         review_user1 = Review.objects.get(
             pk=Review.objects.create(
                 assessment=self.assessment,
-                assessed_by=self.assessor,
                 status="in_progress",
                 review_data={"test": "initial"},
             ).pk
@@ -730,7 +663,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         """Test that refresh_from_db doesn't break when called on a new instance after save."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         # At this point, _original_last_updated is None because pk is None
@@ -748,7 +680,6 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         """Test that refresh_from_db properly maintains optimistic locking after multiple refreshes."""
         review = Review()
         review.assessment = self.assessment
-        review.assessed_by = self.assessor
         review.status = "in_progress"
         review.review_data = {"test": "data"}
         review.save()

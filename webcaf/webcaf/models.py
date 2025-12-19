@@ -334,24 +334,36 @@ class UserProfile(models.Model):
             "add and remove organisation users",
         ],
         "organisation_user": ["continue a draft self-assessment", "view self-assessments already sent for review"],
-        "assessor": ["view self-assessments already sent for review"],
-        "reviewer": ["view self-assessments already sent for peer-review"],
+        "reviewer": ["review a self-assessment", "create and edit a peer review report"],
+        "assessor": ["review a self-assessment", "create and edit an IAR report"],
     }
     ROLE_DESCRIPTIONS = {
-        "cyber_advisor": """On this page you can add new systems, modify existing systems and manage users within an
-                    organisation.""",
-        "organisation_lead": """On this page you can manage users within an
-                    organisation, continue a draft self-assessment and view self-assessments already sent for review.""",
-        "organisation_user": "On this page you can continue a draft self-assessment and view self-assessments already sent for review.",
-        "assessor": "On this page you can view self-assessments already sent for review.",
-        "reviewer": "On this page you can view self-assessments already sent for peer-review.",
+        "cyber_advisor": [
+            "add new systems",
+            "modify existing systems",
+            "manage users within an organisation",
+            "view self-assessments",
+            "view Independent Assurance Reviews",
+        ],
+        "organisation_lead": [
+            "start a new self-assessment",
+            "continue a draft self-assessment",
+            "view self-assessments already sent for review",
+            "view Independent Assurance Reviews",
+        ],
+        "organisation_user": [
+            "continue a draft self-assessment",
+            "view self-assessments already sent for review",
+        ],
+        "assessor": [],
+        "reviewer": [],
     }
     ROLE_CHOICES = [
         ("cyber_advisor", "GDS cyber advisor"),
-        ("organisation_lead", "Organisation lead"),
+        ("organisation_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
-        ("assessor", "Independent assessor"),
         ("reviewer", "Peer reviewer"),
+        ("assessor", "Independent assurance reviewer"),
     ]
     # Do this rather than add a foreign key to Organisation, in case we need a many-to-many relationship later
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profiles")
@@ -505,88 +517,6 @@ class GovNotifyEmailDevice(EmailDevice):
         proxy = True
 
 
-class Assessor(ReferenceGeneratorMixin, models.Model):
-    """
-    Represents an Assessor entity with the following attributes:
-
-    This class is used to model the details of an assessor company (independent/peer), including their contact
-    information, type, and associations with organisations and members.
-
-    Only UserProfiles with the role "assessor" and "reviewer" are allowed to be associated as members of this assessor.
-    This is enforced in the view layer. Also, it is validated that the members belong to the same organisation as
-    the assessor.
-
-    When an assessor is deleted, we only soft-delete the entry by setting the is_active attribute to False.
-
-    The class inherits from ReferenceGeneratorMixin to generate a unique reference identifier for each assessor.
-
-
-    :ivar is_active: Indicates whether the assessor is active.
-    :type is_active: bool
-    :ivar phone_number: The phone number of the assessor.
-    :type phone_number: str
-    :ivar contact_name: The name of the contact person for the assessor.
-    :type contact_name: str
-    :ivar email: The email address of the assessor.
-    :type email: str
-    :ivar address: The address of the assessor.
-    :type address: str
-    :ivar name: The name of the assessor.
-    :type name: str
-    :ivar assessor_type: The type of the assessor, chosen from predefined options.
-    :type assessor_type: str
-    :ivar last_updated: The timestamp indicating the last update to the record.
-    :type last_updated: datetime
-    :ivar created_on: The timestamp indicating when the record was created.
-    :type created_on: datetime
-    :ivar last_updated_by: The user who last updated the record.
-    :type last_updated_by: User or None
-    :ivar reference: A unique reference identifier for the assessor.
-    :type reference: str
-    :ivar history: Historical records of the assessor's changes.
-    :type history: HistoricalRecords
-    :ivar organisation: The organization associated with the assessor.
-    :type organisation: Organisation
-    :ivar members: The user profiles associated as members under this assessor.
-    :type members: ManyToManyField
-    """
-
-    ASSESSOR_TYPES = [("independent", "Independent assurance review"), ("peer", "Peer review")]
-
-    is_active = models.BooleanField(default=True)
-    phone_number = models.CharField(max_length=255, null=True, blank=True)
-    contact_name = models.CharField(max_length=255, null=False, blank=False, default=None)
-    email = models.EmailField(max_length=255, null=False, blank=False)
-    address = models.TextField(null=False, blank=False)
-    name = models.CharField(max_length=255, null=False, blank=False)
-    assessor_type = models.CharField(
-        max_length=255,
-        null=False,
-        blank=False,
-        choices=ASSESSOR_TYPES,
-        default=None,
-    )
-
-    last_updated = models.DateTimeField(auto_now=True)
-    created_on = models.DateTimeField(auto_now_add=True)
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    reference = models.CharField(max_length=20, null=True, unique=True)
-    history = HistoricalRecords()
-
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="assessors")
-    members = models.ManyToManyField(UserProfile, related_name="member_of")
-
-    def __str__(self):
-        return f"name={self.name}, email={self.email}, contact_name={self.contact_name}"
-
-    def contact_details(self):
-        return f"""{self.name}
-                    {self.contact_name}
-                    {self.phone_number}
-                    {self.email}
-                """
-
-
 def _get_or_create_nested_path(current: dict[str, Any], *keys) -> dict:
     """
     Ensures a nested path exists in review_data by creating intermediate dicts as needed.
@@ -603,8 +533,7 @@ def _get_or_create_nested_path(current: dict[str, Any], *keys) -> dict:
 
 class Review(ReferenceGeneratorMixin, models.Model):
     """
-    Represents a review entity that ties an assessment to a specific assessor for purposes
-    such as evaluations, reports, or clarifications.
+    Represents a review entity that ties an assessment to its review process.
 
     This class facilitates the tracking, management, and organization of review processes
     associated with an assessment. It records review metadata (in review_data), links to related entities
@@ -628,9 +557,6 @@ class Review(ReferenceGeneratorMixin, models.Model):
     :ivar assessment: The associated assessment object for this review. If the assessment
         is deleted, the review is also deleted.
     :type assessment: Assessment
-    :ivar assessed_by: The assessor associated with this review. If the assessor is removed,
-        the reference to the assessor in this review will be nullified.
-    :type assessed_by: Assessor
     """
 
     STATUS_CHOICES = [
@@ -647,16 +573,8 @@ class Review(ReferenceGeneratorMixin, models.Model):
     review_data = models.JSONField(default=dict, null=False, blank=True)
     reference = models.CharField(max_length=20, null=True, unique=True)
 
-    # This is assuming that an organisation can commission more than one assessor to review
-    # a given system. If the assessment is deleted, then we delete the review
+    # If the assessment is deleted, then we delete the review
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name="reviews")
-    assessed_by = models.ForeignKey(
-        Assessor,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="reviews",
-    )
 
     history = HistoricalRecords()
 
@@ -664,7 +582,6 @@ class Review(ReferenceGeneratorMixin, models.Model):
         ordering = ["-created_on"]
         unique_together = [
             "assessment",
-            "assessed_by",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -720,7 +637,6 @@ class Review(ReferenceGeneratorMixin, models.Model):
                 "review_type": self.assessment.review_type,
                 "framework": self.assessment.framework,
                 "profile": self.assessment.caf_profile,
-                "assessor": self.assessed_by.contact_details() if self.assessed_by else "",
             },
         )
 
@@ -893,7 +809,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         caf_objective = self.assessment.get_caf_objective_by_id(objective_code)
         for principal in caf_objective["principles"].values():
             # Objective level key check.
-            if not {"recommendations", "objective-areas-of-improvement", "objective-areas-of-good-practice"}.issubset(
+            if not {"objective-areas-of-improvement", "objective-areas-of-good-practice"}.issubset(
                 review_objective.keys()
             ):
                 return False
@@ -943,6 +859,9 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     def is_review_method_complete(self) -> bool:
         return self.get_additional_detail("review_method") is not None
+
+    def is_company_details_complete(self) -> bool:
+        return self.get_additional_detail("company_details") is not None
 
     def get_additional_detail(self, detail_key) -> str | None:
         """
@@ -1000,6 +919,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
             and self.is_iar_period_complete()
             and self.is_quality_of_evidence_complete()
             and self.is_review_method_complete()
+            and self.is_company_details_complete()
         )
 
     def get_completed_outcomes_info(self):

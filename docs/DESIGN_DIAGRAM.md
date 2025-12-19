@@ -7,9 +7,8 @@ This README explains how the core domain entities relate to each other and provi
 
 ### Scope and purpose
 - Assessment: captures a CAF self-assessment for a given `System` and assessment period, including JSON content and completion helpers.
-- UserProfile: associates a `User` with an `Organisation` and a role (`cyber_advisor`, `organisation_lead`, `organisation_user`, `assessor`).
+- UserProfile: associates a `User` with an `Organisation` and a role (`cyber_advisor`, `organisation_lead`, `organisation_user`, `assessor`, `reviewer`).
 - Review: records assurance review metadata and structured review content; tracks who last updated the review via `last_updated_by`.
-- Assessor: an assessing body/entity with contact fields; belongs to an `Organisation` (FK) and has M2M to `UserProfile` (assessor members).
 
 Context models (referenced for relationships): `Organisation`, `System`, `User`.
 
@@ -18,15 +17,13 @@ Context models (referenced for relationships): `Organisation`, `System`, `User`.
 ### High-level relationships
 - Organisation 1—M System
 - System 1—M Assessment
-- Assessment 1—M Review (multiple reviews possible per assessment)
-- Assessor 1—M Review (via optional FK `assessed_by` on Review)
+- Assessment 1—1 Review (one review per assessment)
 - User 1—M UserProfile (each profile may be tied to an Organisation)
-- Organisation 1—M Assessor (via `Assessor.organisation`)
-- Assessor M—M UserProfile (via `Assessor.members`)
+- UserProfile M—1 Organisation
 
 Key constraints from the current models:
-- Review: `unique_together = (assessment, assessed_by)` — at most one review per assessor for a given assessment. `last_updated_by` is an optional FK to `User` for audit.
-- Assessment: `unique_together = (assessment_period, system, status)` — see notes below.
+- Review: `unique_together = (assessment,)` — at most one review per assessment. `last_updated_by` is an optional FK to `User` for audit.
+- Assessment: `unique_together = (assessment_period, system, status)` — ensures unique assessment combinations.
 
 ---
 
@@ -61,7 +58,7 @@ classDiagram
     +created_on: datetime
     +last_updated: datetime
     +status: choice
-    +review_data: JSON?
+    +review_data: JSON
     +reference: str?
   }
   class User {
@@ -74,28 +71,15 @@ classDiagram
     +id: int
     +role: choice?
   }
-  class Assessor {
-    +id: int
-    +is_active: bool
-    +name: str
-    +email: email
-    +contact_name: str
-    +phone_number: str?
-    +address: text
-    assessor_type: str
-  }
 
   Organisation "1" -- "*" System : owns
   System "1" -- "*" Assessment : has
-  Assessment "1" -- "*" Review : has
-  Assessor "1" -- "*" Review : assessed_by
+  Assessment "1" -- "1" Review : has
   User "1" -- "*" UserProfile : has
   UserProfile "*" -- "1" Organisation : belongs to
   Review "1" -- "0..1" User : last_updated_by
   Assessment "1" -- "0..1" User : created_by
   Assessment "1" -- "0..1" User : last_updated_by
-  Organisation "1" -- "*" Assessor : employs
-  Assessor "*" -- "*" UserProfile : members
 ```
 
 ---
@@ -105,12 +89,9 @@ classDiagram
 erDiagram
   ORGANISATION ||--o{ SYSTEM : owns
   SYSTEM ||--o{ ASSESSMENT : has
-  ASSESSMENT ||--o{ REVIEW : has
-  ASSESSOR ||--o{ REVIEW : assessed_by
+  ASSESSMENT ||--|| REVIEW : has
   USER ||--o{ USERPROFILE : has
   ORGANISATION ||--o{ USERPROFILE : includes
-  ORGANISATION ||--o{ ASSESSOR : employs
-  ASSESSOR }o--o{ USERPROFILE : members
   USER ||--o{ ASSESSMENT : created_by
   USER ||--o{ ASSESSMENT : last_updated_by
   USER ||--o{ REVIEW : last_updated_by
@@ -139,7 +120,6 @@ erDiagram
   REVIEW {
     int id PK
     int assessment_id FK
-    int assessed_by_id FK
     int last_updated_by_id FK
     string status
     json review_data
@@ -157,16 +137,6 @@ erDiagram
     int organisation_id FK
     string role
   }
-
-  ASSESSOR {
-    int id PK
-    boolean is_active
-    string name
-    string email
-    string contact_name
-    string phone_number
-    text address
-  }
 ```
 
 ---
@@ -178,8 +148,8 @@ erDiagram
 
 ### Quick navigation and examples
 - From a `System` instance: `system.assessments.all()`
-- From an `Assessment` instance (multiple reviews possible): `assessment.reviews.all()` or `assessment.reviews.filter(assessed_by=assessor)`
+- From an `Assessment` instance (one review per assessment): `assessment.reviews.first()` or access via the reviews related manager
 - Find reviews last updated by a user: `Review.objects.filter(last_updated_by=user)`
-- Find assessor for a review: `review.assessed_by`
-- Find organisation that owns an assessor: `assessor.organisation`
-- Find assessor members: `assessor.members.all()`
+- Find assessment for a review: `review.assessment`
+- Find organisation for an assessment: `assessment.system.organisation`
+- Find user profiles in an organisation: `organisation.members.all()`

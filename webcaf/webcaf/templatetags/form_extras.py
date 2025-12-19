@@ -6,7 +6,7 @@ from django import template
 from django.forms import Form
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, System, UserProfile
+from webcaf.webcaf.models import Assessment, Configuration, Review, System, UserProfile
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -251,6 +251,27 @@ def get_review_tag_for_status(status: str) -> str:
         return "green"
     else:
         return "red"
+
+
+@register.simple_tag()
+def get_review_count(user_profile: UserProfile) -> int:
+    """
+    Fetches the count of reviews for a specific user's organisation based on the current
+    assessment period defined in the system's default configuration. This function performs
+    a query to count the reviews associated with the user's organisation and the currently
+    active assessment period.
+
+    :param user_profile: The user profile object containing information about the user's
+        organisation. Must be an instance of `UserProfile`.
+    :return: The count of reviews related to the organisation of the given user profile,
+        based on the current assessment period.
+    :rtype: int
+    """
+    default_config = Configuration.objects.get_default_config()
+    return Review.objects.filter(
+        assessment__system__organisation=user_profile.organisation,
+        assessment__assessment_period=default_config.get_current_assessment_period(),
+    ).count()
 
 
 @register.simple_tag()

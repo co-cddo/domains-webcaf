@@ -18,7 +18,6 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from webcaf.webcaf.models import (
     Assessment,
-    Assessor,
     Configuration,
     Organisation,
     Review,
@@ -395,22 +394,6 @@ class ConfigurationAdmin(admin.ModelAdmin):
     form = CustomConfigForm
 
 
-@admin.register(Assessor)
-class AssessorAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
-    model = Assessor
-    search_fields = ["name", "email", "contact_name"]
-    list_display = ["name", "email", "contact_name", "is_active", "created_on", "last_updated"]
-    list_filter = ["is_active"]
-    autocomplete_fields = ["members"]
-    readonly_fields = ["created_on", "last_updated", "last_updated_by", "reference"]
-    optional_fields = ["reference"]
-
-    def save_model(self, request, obj, form, change):
-        if hasattr(obj, "last_updated_by"):
-            obj.last_updated_by = request.user
-        super().save_model(request, obj, form, change)
-
-
 @admin.register(Review)
 class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     list_display = [
@@ -419,20 +402,17 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "assessment_reference",
         "assessment_organisation",
         "status",
-        "assessed_by_name",
     ]
     list_filter = [
         "assessment__system__name",
         "assessment__framework",
         "assessment__system__organisation",
         "status",
-        "assessed_by",
     ]
     list_select_related = [
         "assessment",
         "assessment__system",
         "assessment__system__organisation",
-        "assessed_by",
     ]
     readonly_fields = ["created_on", "last_updated", "last_updated_by", "reference"]
     optional_fields = ["reference"]
@@ -444,7 +424,6 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             assessment_framework=F("assessment__framework"),
             assessment_reference=F("assessment__reference"),
             assessment_organisation=F("assessment__system__organisation__name"),
-            assessed_by_name=F("assessed_by__name"),
         )
 
     @admin.display(ordering="assessment_system_name", description="System")
@@ -463,14 +442,44 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     def assessment_organisation(self, obj):
         return obj.assessment_organisation
 
-    @admin.display(ordering="assessed_by_name", description="Assigned to")
-    def assessed_by_name(self, obj):
-        return obj.assessed_by_name
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        This method customizes the form retrieved for the given request, allowing
+        specific queryset filtering based on the `assessment` foreign key field.
+        It adjusts the queryset to include unassigned assessments and, in case of
+        a change view, assessments assigned to the current object.
+
+        :param request: The request object, representing the HTTP request being
+            processed.
+        :param obj: Optional; Represents the object being edited in change views.
+            Defaults to None for add views.
+        :param kwargs: Arbitrary keyword arguments that can be passed while
+            retrieving the form.
+        :return: A customized form instance with the adjusted queryset for the
+            `assessment` field.
+        """
+        form = super().get_form(request, obj, **kwargs)
+
+        fk_field = form.base_fields["assessment"]
+        qs = fk_field.queryset
+
+        # Any unassigned assessments
+        fk_field.queryset = qs.filter(reviews__isnull=True)
+        if obj:  # change view
+            # filter queryset: unassigned OR assigned to current obj
+            fk_field.queryset |= qs.filter(reviews__in=[obj.id])
+
+        return form
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "assessment":
-            kwargs["queryset"] = Assessment.objects.filter(status="submitted")
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+            current_config = Configuration.objects.get_default_config()
+            kwargs["queryset"] = Assessment.objects.filter(
+                status="submitted",
+                assessment_period=current_config.get_current_assessment_period(),
+            ).order_by("-created_on")
+        form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return form_field
 
     def save_form(self, request, form, change):
         return super().save_form(request, form, change)

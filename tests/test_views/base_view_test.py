@@ -57,7 +57,7 @@ class BaseViewTest(TestCase):
                 cls.org_map[org_name]["systems"][system_name] = system
 
             cls.org_map[org_name]["users"] = {}
-            for user_name in ["organisation_user", "organisation_lead", "cyber_advisor"]:
+            for user_name in ["organisation_user", "organisation_lead", "cyber_advisor", "assessor"]:
                 user_name_with_email = cls.email_from_username_and_org(user_name, org_name)
                 user, created = User.objects.get_or_create(
                     username=user_name_with_email,

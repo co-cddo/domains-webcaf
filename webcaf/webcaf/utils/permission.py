@@ -154,6 +154,21 @@ class PermissionUtil:
             "organisation_lead",
         ]
 
+    @classmethod
+    def current_user_can_create_review(cls, user_profile):
+        """
+        Check if the user role belongs to the
+        list of roles that are allowed to review.
+        :param user_profile:
+        :return:
+        """
+        return user_profile and user_profile.role in [
+            "cyber_advisor",
+            "organisation_lead",
+            "assessor",
+            "reviewer",
+        ]
+
 
 class UserRoleCheckMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
