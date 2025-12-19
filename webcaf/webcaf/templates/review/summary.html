@@ -137,7 +137,34 @@
                         {% endif %}
                     </div>
                 </li>
+                <!-- Company details-->
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_system_and_scope_completed %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'company-details' pk=object.id %}"
+                            >
+                                Add company details
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Add company details</span>
+                        {% endif %}
 
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_system_and_scope_completed %}
+                            {% if object.is_company_details_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
                 <!-- Review method -->
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">

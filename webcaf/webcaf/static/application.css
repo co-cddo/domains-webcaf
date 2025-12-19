@@ -17,6 +17,7 @@ span.govuk-header__logotype-text {
     max-width: 100%;
     margin-left: 10%;
 }
+
 .tag-align-right {
     display: flex;
     justify-content: space-between;

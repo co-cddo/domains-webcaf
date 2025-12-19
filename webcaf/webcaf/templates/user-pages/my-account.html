@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load form_extras %}
 {% load permission_extras %}
-{% block title %}My account - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}{{ current_profile.get_role_display }} - My account - {{ user.first_name }}
+    {{ block.super }}{% endblock %}
 {% block content %}
     {% current_user_can_start_assessment current_profile as can_start_assessment %}
     <div class="govuk-grid-row">
@@ -24,12 +26,16 @@
                 </div>
             {% endif %}
             <h1 class="govuk-heading-l" title="user email {{ current_profile.user.email }}">
-                My {{ current_profile.get_role_display }} account
+                My account
             </h1>
-            <div>
-                <p class="govuk-hint">
-                    {% get_my_account_text current_profile %}
-                </p>
+            <div><p class="govuk-hint">On this page you can:
+            </p>
+                <ul class="govuk-list govuk-list--bullet govuk-hint">
+                    {% get_my_account_text current_profile as actions %}
+                    {% for action in actions %}
+                        <li>{{ action }}</li>
+                    {% endfor %}
+                </ul>
             </div>
             {% current_user_can_create_system current_profile as can_create_systems %}
             {% current_user_can_view_assessments current_profile as can_view_assessments %}
@@ -100,6 +106,31 @@
                     {% endif %}
                 {% endif %}
             {% endif %}
+            {% current_user_can_view_review current_profile as can_view_reviews %}
+            {% if can_view_reviews %}
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    View an Independent Assurance Review (IAR)
+                </h2>
+                {% get_review_count current_profile as review_count %}
+                {% if not review_count %}
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You have no Independent Assurance Reviews.
+                    </p>
+                {% else %}
+                    {% if review_count > 0 %}
+                        <p class="govuk-body"
+                           title="View {{ review_count| length }} Independent Assurance Review{{ completed_assessment_count  | pluralize }}">
+                            <a href="{% url 'review-list' %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                You have {{ review_count }} Independent Assurance
+                                Review{{ completed_assessment_count  | pluralize }}.
+                            </a>
+                        </p>
+                    {% else %}
+                        <p class="govuk-body">You have no Independent Assurance Reviews.</p>
+                    {% endif %}
+
+                {% endif %}
+            {% endif %}
         </div>
 
         <div class="govuk-grid-column-one-third">
@@ -131,26 +162,6 @@
                             <a href="{% url 'view-profiles' %}"
                                class="govuk-link govuk-link--no-visited-state">
                                 Manage users
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <nav role="navigation" aria-labelledby="subsection-title">
-                    <ul class="govuk-list">
-                        <li>
-                            <a href="{% url 'assessor-list' %}"
-                               class="govuk-link govuk-link--no-visited-state">
-                                Manage assessors
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <nav role="navigation" aria-labelledby="subsection-title">
-                    <ul class="govuk-list">
-                        <li>
-                            <a href="{% url 'review-list' %}"
-                               class="govuk-link govuk-link--no-visited-state">
-                                Manage reviews
                             </a>
                         </li>
                     </ul>

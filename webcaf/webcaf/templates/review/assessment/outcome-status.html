@@ -106,6 +106,13 @@
                                                     Does the IGP statement apply to the system or organisation?
                                                 </h1>
                                             </legend>
+                                            {# Only show this hint text if there is alternate controls entered                                       #}
+                                            {% if comment_field.help_text %}
+                                                <div id="agree-2-hint" class="govuk-hint">
+                                                    Choose yes if you agree that the alternative controls
+                                                    or exemptions are reasonable evidence.
+                                                </div>
+                                            {% endif %}
                                             <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                                                 <div class="govuk-radios__item">
                                                     <input class="govuk-radios__input"

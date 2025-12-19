@@ -17,7 +17,7 @@
             <dl class="govuk-summary-list govuk-!-margin-top-4">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__value govuk-table__header">
-                        OContributing outcome
+                        Contributing outcome
                     </dt>
                     <dd class="govuk-summary-list__value govuk-table__header">
                         Outcome status
@@ -104,22 +104,6 @@
                             {% else %}
                                 Add comment
                             {% endif %}</a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Objective overview
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        <a class="govuk-link"
-                           href="{% url 'review-objective-recommendation' pk=object.id objective_code=objective_code %}">
-                            {% is_comment_present object objective_code 'objective-overview' as comment_present %}
-                            {% if comment_present %}
-                                1 comment added
-                            {% else %}
-                                Add comment
-                            {% endif %}
-                        </a>
                     </dd>
                 </div>
             </dl>

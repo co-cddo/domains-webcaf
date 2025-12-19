@@ -240,7 +240,7 @@ def create_new_assessment(
     """
     :type context: behave.runner.Context
     """
-    from webcaf.webcaf.models import Assessment, System
+    from webcaf.webcaf.models import Assessment, Review, System
 
     def create_assessment() -> Assessment:
         initial_assessment_data = {}
@@ -257,6 +257,12 @@ def create_new_assessment(
             assessments_data=initial_assessment_data,
         )
         assessment.save()
+        if assessment.status == "submitted":
+            # Simulate the submission of the assessment by creating a review
+            Review.objects.create(
+                assessment=assessment,
+            )
+
         return assessment
 
     assessment_created = run_async_orm(create_assessment)
