@@ -11,7 +11,7 @@ Feature: Organisation user can edit an organisation's details
 
   Scenario: Organisation user can login and has correct paths available for role in my account page
     Given Think time 1 seconds
-    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Organisation user - My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And check user is logged in against organisation "Ministry of Agriculture"
     And link with text "Guidance"
     And link with text "My account"

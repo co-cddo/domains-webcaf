@@ -4,7 +4,7 @@ Feature: Organisation lead can submit assessment
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
 #    Database does not store the passwords
     And the user "other@example.gov.uk" exists
-    And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
+    And User "other@example.gov.uk" has the profile "GovAssure lead" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
     And there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "25/26" in "draft" status and data "alice_completed_assessment.json"
@@ -12,7 +12,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead can can submit a completed assessment
     Given Think time 1 seconds
-    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
@@ -24,7 +24,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead can download the pdf assessment after submitting it
     Given Think time 1 seconds
-    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
@@ -42,7 +42,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead cannot start a new assessment for an already submitted system
     Given Think time 1 seconds
-    Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"

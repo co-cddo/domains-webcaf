@@ -1,0 +1,61 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Review Objective {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            <span class="govuk-caption-l">{{ title }}</span>
+            <h1 class="govuk-heading-l">Check your recommendations</h1>
+            <p class="govuk-body">Please check your recommendations. You can change them before confirming</p>
+            <h2 class="govuk-heading-m"> {{ form|get_recommendation_count }} recommendations added</h2>
+
+            <form method="post">
+                <button type="submit" class="govuk-button--text" data-module="govuk-button"
+                        name="preview_status" value="change">
+                    Change
+                </button>
+                {% csrf_token %}
+                {{ form.management_form }}
+                <dl class="govuk-summary-list govuk-!-margin-top-4">
+                    {% for form_ in form %}
+                        <input class="govuk-input" type="hidden" name="{{ form_.title.html_name }}"
+                               id="id_form-{{ forloop.counter0 }}-title"
+                               value="{{ form_.title.value|default:"" }}"
+                        >
+                        <input class="govuk-input" type="hidden" name="{{ form_.text.html_name }}"
+                               id="id_form-{{ forloop.counter0 }}-text"
+                               value="{{ form_.text.value|default:"" }}"
+                        >
+                        <input class="govuk-input" type="hidden" name="{{ form_.DELETE.html_name }}"
+                               id="id_form-{{ forloop.counter0 }}-DELETE"
+                               value="{{ form_.DELETE.value|default:"" }}"
+                        >
+                        {% if not form_.DELETE.value %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                    {{ form_.title.value|default:"" }}
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {% format_with_breaks form_.text.value|default:"" as sections %}
+                                    {% for section in sections %}
+                                        <p class="govuk-body  avoid-break statement-para">{{ section }}</p>
+                                    {% endfor %}
+                                </dd>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </dl>
+                <br/>
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                        name="preview_status" value="confirm">
+                    Confirm and return
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

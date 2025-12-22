@@ -1,0 +1,258 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Task list - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+
+        {% if object.current_version_number > 1 %}
+            <div class="govuk-grid-column-full">
+                <div id="success-banner" class="govuk-notification-banner"
+                     role="region" aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            You are editing this review
+                        </h2>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <div class="govuk-body">
+                            <p class="govuk-body">You previously created a report for this review. Any changes you make
+                                now will apply to
+                                the next version of this IAR report.</p>
+                            <p class="govuk-body"><strong>Last published
+                                report:</strong> Version {{ object.current_version_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="govuk-grid-column-full">
+            {% get_review_completed_percentage object as percentage %}
+            {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        </div>
+
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Review a WebCAF self-assessment</h1>
+            <p class="govuk-body"><strong>{% if object.is_system_and_scope_completed %}In-progress{% else %}
+                Draft{% endif %} review</strong></p>
+
+            <div class="govuk-inset-text">
+                For it to be assessed in GovAssure 20{{ current_assessment_period }} your stage 4 review must be
+                completed by
+                <strong>{{ cutoff_time }}</strong> on <strong>{{ cutoff_date }}</strong>.
+            </div>
+
+
+            <h2 class="govuk-heading-m">1. Confirm self-assessment</h2>
+            <ul class="govuk-task-list">
+                <li class="govuk-task-list__item govuk-task-list__item--with-link">
+                    <div class="govuk-task-list__name-and-hint">
+                        <a class="govuk-link govuk-task-list__link"
+                                {% if object.is_system_and_scope_completed %}
+                           href="{% url 'system-and-scope' pk=object.id %}"
+                                {% else %}
+                           href="{% url 'system-and-scope' pk=object.id %}"
+                                {% endif %}
+                           aria-describedby="first-section-1-status">
+                            Confirm system overview
+                        </a>
+                    </div>
+                    <div class="govuk-task-list__status" id="first-section-1-status">
+                        {% if not object.is_system_and_scope_completed %}
+                            <strong class="govuk-tag govuk-tag--blue">
+                                Incomplete
+                            </strong>
+                        {% else %}
+                            Completed
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">2. Review self-assessment</h2>
+            <ul class="govuk-task-list">
+                {% for objective in objectives %}
+                    <li class="govuk-task-list__item">
+                        <div class="govuk-task-list__name-and-hint">
+                            {% if object.is_system_and_scope_completed %}
+                                <a class="govuk-link govuk-task-list__link"
+                                   href="{% url 'objective-summary' pk=object.id objective_code=objective.code %}"
+                                   aria-describedby="second-section-1-status">
+                                    Objective {{ objective.code }}: {{ objective.title }}
+                                </a>
+                            {% else %}
+                                <div>
+                                    Objective {{ objective.code }}: {{ objective.title }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% is_review_objective_complete object objective.code as  objective_complete %}
+                        <div class="govuk-task-list__status {% if not objective_complete %}govuk-task-list__status--cannot-start-yet{% endif %}"
+                             id="second-section-1-status">
+                            {% if object.is_system_and_scope_completed %}
+                                {% if objective_complete %}
+                                    Completed
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--blue">
+                                        Incomplete
+                                    </strong>
+                                {% endif %}
+                            {% else %}
+                                Cannot start yet
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">3. Add review details</h2>
+            <ul class="govuk-task-list" id="section-3b">
+                <!-- IAR period -->
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_system_and_scope_completed %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'iar-period' pk=object.id %}"
+                            >
+                                Enter Independent Assurance Review (IAR) period
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Enter Independent Assurance Review (IAR) period</span>
+                        {% endif %}
+
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_system_and_scope_completed %}
+                            {% if object.is_iar_period_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
+                <!-- Company details-->
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_system_and_scope_completed %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'company-details' pk=object.id %}"
+                            >
+                                Add company details
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Add company details</span>
+                        {% endif %}
+
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_system_and_scope_completed %}
+                            {% if object.is_company_details_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
+                <!-- Review method -->
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_system_and_scope_completed %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'review-method' pk=object.id %}">
+                                Describe review method
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Describe review method</span>
+                        {% endif %}
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_system_and_scope_completed %}
+                            {% if object.is_review_method_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
+
+                <!-- Evidence quality -->
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_system_and_scope_completed %}
+                            <a class="govuk-link govuk-task-list__link"
+                               href="{% url 'quality-of-evidence' pk=object.id %}">
+                                Describe the quality of the self-assessment
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Describe the quality of the self-assessment</span>
+                        {% endif %}
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_system_and_scope_completed %}
+                            {% if object.is_quality_of_evidence_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
+
+            </ul>
+            <h2 class="govuk-heading-m">4. Create report</h2>
+            <ul class="govuk-task-list" id="section-4">
+                <li class="govuk-task-list__item">
+                    <div class="govuk-task-list__name-and-hint">
+                        {% if object.is_ready_to_submit %}
+                            <a id="task-link-8" class="govuk-link govuk-task-list__link"
+                               href="{% url 'create-report' pk=object.id %}">
+                                Create report
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">Create report</span>
+                        {% endif %}
+                    </div>
+                    <div class="govuk-task-list__status">
+                        {% if object.is_ready_to_submit %}
+                            {% if object.is_review_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+
+            <p class="govuk-body govuk-!-margin-top-6">
+                <a href="{% url 'my-account' %}" class="govuk-link">Return to My account</a>
+            </p>
+
+        </div>
+    </div>
+{% endblock %}

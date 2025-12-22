@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load form_extras %}
 {% load permission_extras %}
-{% block title %}My account - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}{{ current_profile.get_role_display }} - My account - {{ user.first_name }}
+    {{ block.super }}{% endblock %}
 {% block content %}
     {% current_user_can_start_assessment current_profile as can_start_assessment %}
     <div class="govuk-grid-row">
@@ -17,19 +19,23 @@
 
                         <p class="govuk-notification-banner__heading">
                             You cannot start a new self-assessment, until your scoping document is signed off
-                             and your system has been added to WebCAF by a cyber adviser.
+                            and your system has been added to WebCAF by a cyber adviser.
                         </p>
 
                     </div>
                 </div>
             {% endif %}
             <h1 class="govuk-heading-l" title="user email {{ current_profile.user.email }}">
-                My {{ current_profile.get_role_display }} account
+                My account
             </h1>
-            <div>
-                <p class="govuk-hint">
-                    {% get_my_account_text current_profile %}
-                </p>
+            <div><p class="govuk-hint">On this page you can:
+            </p>
+                <ul class="govuk-list govuk-list--bullet govuk-hint">
+                    {% get_my_account_text current_profile as actions %}
+                    {% for action in actions %}
+                        <li>{{ action }}</li>
+                    {% endfor %}
+                </ul>
             </div>
             {% current_user_can_create_system current_profile as can_create_systems %}
             {% current_user_can_view_assessments current_profile as can_view_assessments %}
@@ -74,27 +80,55 @@
                     {% endif %}
                     <p class="govuk-body" title="View {{ draft_assessments| length }} draft assessment(s)">
                         <a href="{% url 'view-draft-assessments' %}" class="govuk-link govuk-link--no-visited-state">
-                            View {{ draft_assessments| length }} draft self-assessment{{ draft_assessments | length | pluralize }}
+                            View {{ draft_assessments| length }} draft
+                            self-assessment{{ draft_assessments | length | pluralize }}
                         </a>
                     </p>
                 {% endif %}
-                    {% if can_view_submittted_assessments %}
-                        <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
-                            Self-assessments sent for review
-                        </h3>
-                        {% if not submitted_assessments %}
-                            <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted assessments.</p>
-                        {% else %}
+                {% if can_view_submittted_assessments %}
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
+                        Self-assessments sent for review
+                    </h3>
+                    {% if not submitted_assessments %}
+                        <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You don't have any submitted
+                            assessments.</p>
+                    {% else %}
                         <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">
                             You have sent {{ submitted_assessments|length }}
                             self-assessment{{ submitted_assessments|length  | pluralize }} for review.
                         </p>
                         <p class="govuk-body" title="View {{ submitted_assessments| length }} submitted assessment(s)">
-                            <a href="{% url 'view-submitted-assessments' %}" class="govuk-link govuk-link--no-visited-state">
+                            <a href="{% url 'view-submitted-assessments' %}"
+                               class="govuk-link govuk-link--no-visited-state">
                                 View self-assessments sent for review
                             </a>
                         </p>
                     {% endif %}
+                {% endif %}
+            {% endif %}
+            {% current_user_can_view_review current_profile as can_view_reviews %}
+            {% if can_view_reviews %}
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    View an Independent Assurance Review (IAR)
+                </h2>
+                {% get_review_count current_profile as review_count %}
+                {% if not review_count %}
+                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You have no Independent Assurance Reviews.
+                    </p>
+                {% else %}
+                    {% if review_count > 0 %}
+                        <p class="govuk-body"
+                           title="View {{ review_count| length }} Independent Assurance Review{{ completed_assessment_count  | pluralize }}">
+                            <a href="{% url 'review-list' %}"
+                               class="govuk-link govuk-link--no-visited-state">
+                                You have {{ review_count }} Independent Assurance
+                                Review{{ completed_assessment_count  | pluralize }}.
+                            </a>
+                        </p>
+                    {% else %}
+                        <p class="govuk-body">You have no Independent Assurance Reviews.</p>
+                    {% endif %}
+
                 {% endif %}
             {% endif %}
         </div>

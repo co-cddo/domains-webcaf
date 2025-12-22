@@ -4,16 +4,16 @@
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
 #    Database does not store the passwords
     And the user "other@example.gov.uk" exists
-    And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
+    And User "other@example.gov.uk" has the profile "GovAssure lead" assigned in "Ministry of Agriculture"
     And the user "alice@example.gov.uk" exists
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"
 
-    Scenario: Organisation lead can remove user
+    Scenario: GovAssure lead can remove user
         Given Think time 1 seconds
-        Then they should see page title "My account - other - Complete a WebCAF self-assessment - GOV.UK"
+        Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
         And check user is logged in against organisation "Ministry of Agriculture"
         When click link with text "Manage users"
         Then they should see page title "Manage users - other - Complete a WebCAF self-assessment - GOV.UK"

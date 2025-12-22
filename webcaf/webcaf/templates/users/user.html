@@ -20,7 +20,7 @@
                     </label>
                     {% if form.errors.first_name %}
                         <p id="user-first-name-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> You must add a first name
+                            <span class="govuk-visually-hidden">Error:</span> You must add a first name
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="first_name" name="first_name" type="text"
@@ -28,12 +28,12 @@
                            value="{{ form.first_name.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group {% if form.errors.last_name %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label" for="last_name" id="id_last_name" >
+                    <label class="govuk-label" for="last_name" id="id_last_name">
                         Last name
                     </label>
                     {% if form.errors.last_name %}
                         <p id="user-last-name-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> You must add a last name
+                            <span class="govuk-visually-hidden">Error:</span> You must add a last name
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="last_name" name="last_name" type="text"
@@ -41,12 +41,12 @@
                            value="{{ form.last_name.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group {% if form.errors.email %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label" for="email", id="id_email">
+                    <label class="govuk-label" for="email" , id="id_email">
                         Email address
                     </label>
                     {% if form.errors.email %}
                         <p id="user-email-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> You must add a valid email address
+                            <span class="govuk-visually-hidden">Error:</span> You must add a valid email address
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="email" name="email" type="email"
@@ -60,7 +60,7 @@
                     <p class="govuk-hint" id="id_role">Select one that applies</p>
                     {% if form.errors.role %}
                         <p id="user-role-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> You must select a user role
+                            <span class="govuk-visually-hidden">Error:</span> You must select a user role
                         </p>
                     {% endif %}
                     <div class="govuk-radios" data-module="govuk-radios">
@@ -79,7 +79,11 @@
                                         <details class="govuk-details govuk-!-margin-bottom-0">
                                             <summary class="govuk-details__summary">
                                             <span class="govuk-details__summary-text">
-                                              What an {{ role.1|lower }} can do
+                                                {% if role.1 == 'GovAssure lead' %}
+                                                    What {{ role.1 }} can do
+                                                {% else %}
+                                                    What {{ role.1|lower }} can do
+                                                {% endif %}
                                             </span>
                                             </summary>
                                             <div class="govuk-details__text">

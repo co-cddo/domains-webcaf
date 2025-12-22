@@ -37,6 +37,29 @@ from webcaf.webcaf.views import (
     ViewDraftAssessmentsView,
     ViewSubmittedAssessmentsView,
 )
+from webcaf.webcaf.views.assessor.review import (
+    DownloadReport,
+    EditReviewSystemView,
+    ReopenReviewView,
+    ReviewDetailView,
+    ReviewHistoryView,
+    ReviewIndexView,
+    ShowReportView,
+    SystemAndScopeView,
+)
+from webcaf.webcaf.views.assessor.review_assessment import (
+    AddCompanyDetailsView,
+    AddIarPeriodView,
+    AddObjectiveAreasOfGoodPracticeView,
+    AddObjectiveAreasOfImprovementView,
+    AddOutcomeRecommendationView,
+    AddQualityOfEvidenceView,
+    AddReviewMethodView,
+    CreateReportView,
+    ObjectiveSummaryView,
+    OutcomeView,
+    ShowReportConfirmation,
+)
 from webcaf.webcaf.views.general import logout_view
 from webcaf.webcaf.views.sections import (
     DownloadSubmittedAssessmentPdf,
@@ -133,6 +156,84 @@ urlpatterns = [
     # Application pages that does not need login
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),
+    path("review/", TemplateView.as_view(template_name="assessor-index.html"), name="assessor-index"),
     path("session-expired/", session_expired, name="session-expired"),
     path("verify-2fa-token/", Verify2FATokenView.as_view(), name="verify-2fa-token"),
+    # Review paths
+    path("review-list/", ReviewIndexView.as_view(), name="review-list"),
+    path("review/<int:pk>/", ReviewDetailView.as_view(), name="edit-review"),
+    path("review/<int:pk>/revisions", ReviewHistoryView.as_view(), name="review-history"),
+    path("review/<int:pk>/reopen", ReopenReviewView.as_view(), name="reopen-review"),
+    path("review/<int:pk>/system-and-scope", SystemAndScopeView.as_view(), name="system-and-scope"),
+    path("review/<int:pk>/system/<str:field_to_change>", EditReviewSystemView.as_view(), name="edit-review-system"),
+    path(
+        "review/<int:pk>/objective-summary/<str:objective_code>",
+        ObjectiveSummaryView.as_view(),
+        name="objective-summary",
+    ),
+    path(
+        "review/<int:pk>/next-objective/<str:objective_code>",
+        ObjectiveSummaryView.as_view(),
+        name="next-objective-or-skip",
+    ),
+    path(
+        "review/<int:pk>/outcome/<str:objective_code>/<str:outcome_code>",
+        OutcomeView.as_view(),
+        name="review-outcome",
+    ),
+    path(
+        "review/<int:pk>/recommendations/<str:objective_code>/<str:outcome_code>",
+        AddOutcomeRecommendationView.as_view(),
+        name="review-outcome-recommendation",
+    ),
+    path(
+        "review/<int:pk>/areas-of-improvement/<str:objective_code>/",
+        AddObjectiveAreasOfImprovementView.as_view(),
+        name="review-objective-areas-of-improvement",
+    ),
+    path(
+        "review/<int:pk>/areas-of-good-practice/<str:objective_code>/",
+        AddObjectiveAreasOfGoodPracticeView.as_view(),
+        name="review-objective-areas-of-good-practice",
+    ),
+    path(
+        "review/<int:pk>/quality-of-evidence/",
+        AddQualityOfEvidenceView.as_view(),
+        name="quality-of-evidence",
+    ),
+    path(
+        "review/<int:pk>/review-method/",
+        AddReviewMethodView.as_view(),
+        name="review-method",
+    ),
+    path(
+        "review/<int:pk>/iar-period/",
+        AddIarPeriodView.as_view(),
+        name="iar-period",
+    ),
+    path(
+        "review/<int:pk>/company-details/",
+        AddCompanyDetailsView.as_view(),
+        name="company-details",
+    ),
+    path(
+        "review/<int:pk>/create-report/",
+        CreateReportView.as_view(),
+        name="create-report",
+    ),
+    path(
+        "review/<int:pk>/show-report-confirmation/",
+        ShowReportConfirmation.as_view(),
+        name="show-report-confirmation",
+    ),
+    path(
+        "review/<int:pk>/<int:version>/show-report/",
+        ShowReportView.as_view(),
+        name="show-report",
+    ),
+    path(
+        "review/<int:pk>/<int:version>/download-report/",
+        DownloadReport.as_view(),
+        name="download-report",
+    ),
 ]

@@ -1,0 +1,57 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Areas of good practice {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Areas of good practice</h1>
+            <p class="govuk-body">
+                Use this section to comment on any areas of good practice which show there is strong cyber security
+                practice for this CAF objective.
+            </p>
+            <p class="govuk-body">
+                This might include well-implemented controls, mature processes, or effective governance.
+            </p>
+            <p class="govuk-body">
+                Your comments will be included in the final Independent Assurance Review (IAR) report.
+            </p>
+            <h2 class="govuk-heading-m">Your comments</h2>
+            <p class="govuk-caption-m">
+                Include examples of string practices, controls that exceed baseline expectations, or areas where the
+                organisation performs particularly well.
+            </p>
+            <form method="post" id="comment-form">
+                {% csrf_token %}
+                <div
+                        data-module="govuk-character-count"
+                        data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
+                        class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label govuk-visually-hidden"
+                           for="id_form-text">{{ form.text.label }}
+                    </label>
+                    <textarea class="govuk-textarea govuk-js-character-count"
+                              aria-describedby="id_form-text-info"
+                              name="{{ form.text.html_name }}" cols="40" rows="5"
+                              id="id_form-text">{{ form.text.value|default:"" }}</textarea>
+                    <div id="id_form-text-info"
+                         class="govuk-hint govuk-character-count__message">You can
+                        enter up to
+                        {{ form.text.field.widget.attrs.max_words }} words
+                    </div>
+                </div>
+                <br/>
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

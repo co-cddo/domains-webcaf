@@ -6,7 +6,7 @@ from django import template
 from django.forms import Form
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, System, UserProfile
+from webcaf.webcaf.models import Assessment, Configuration, Review, System, UserProfile
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -237,6 +237,44 @@ def get_tag_for_status(status: str) -> str:
 
 
 @register.simple_tag()
+def get_review_tag_for_status(status: str) -> str:
+    """Function to retrieve a color code based on the given status.
+
+    :param status: A string indicating the current status.
+    :return: A string representing the color code for the status.
+    """
+    if status == "to_do":
+        return "blue"
+    elif status == "in_progress":
+        return "yellow"
+    elif status == "completed":
+        return "green"
+    else:
+        return "red"
+
+
+@register.simple_tag()
+def get_review_count(user_profile: UserProfile) -> int:
+    """
+    Fetches the count of reviews for a specific user's organisation based on the current
+    assessment period defined in the system's default configuration. This function performs
+    a query to count the reviews associated with the user's organisation and the currently
+    active assessment period.
+
+    :param user_profile: The user profile object containing information about the user's
+        organisation. Must be an instance of `UserProfile`.
+    :return: The count of reviews related to the organisation of the given user profile,
+        based on the current assessment period.
+    :rtype: int
+    """
+    default_config = Configuration.objects.get_default_config()
+    return Review.objects.filter(
+        assessment__system__organisation=user_profile.organisation,
+        assessment__assessment_period=default_config.get_current_assessment_period(),
+    ).count()
+
+
+@register.simple_tag()
 def get_when_the_status_changed(assessment: Assessment, indicator_id: str, status: str) -> Assessment | None:
     return IndicatorStatusChecker.get_when_the_status_changed(assessment, indicator_id, status)
 
@@ -392,3 +430,32 @@ def format_with_breaks(text_chunk: str):
     for section in text_chunk.split("\n"):
         if section.strip():
             yield section.strip()
+
+
+@register.filter
+def status_to_label(status):
+    """
+    Utility function to convert keys to labels
+    :param status:
+    :return:
+    """
+    return {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "review": "In review",
+        "published": "Published",
+        "cancelled": "Cancelled",
+        "achieved": "Achieved",
+        "not-achieved": "Not achieved",
+        "partially-achieved": "Partially achieved",
+    }.get(status, status)
+
+
+@register.filter
+def filter_empty(list_: list[dict[str, Any]]):
+    """
+    Filter out any empty items from the list
+    :param list_:
+    :return:
+    """
+    return list(filter(lambda x: x, list_))

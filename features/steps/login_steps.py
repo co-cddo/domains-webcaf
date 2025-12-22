@@ -1,10 +1,11 @@
 from time import sleep
 
 from behave import given, step, then
+from behave.runner import Context
 from django.db import connection
 from playwright.sync_api import Page, expect
 
-from features.util import get_model, run_async_orm
+from features.util import run_async_orm
 
 
 @step("the application is running")
@@ -89,6 +90,7 @@ def create_org_and_systems(context, organisation_name, organisation_type, system
             for system_name in systems.split(",")
         ]
     )
+    context.organisation = organisation
 
 
 @given('User "{user_name}" has the profile "{role}" assigned in "{organisation_name}"')
@@ -97,19 +99,18 @@ def assign_user_profile(context, user_name, role, organisation_name):
     :type context: behave.runner.Context
     """
 
-    from django.contrib.auth.models import User
+    def create_profile():
+        from django.contrib.auth.models import User
 
-    from webcaf.webcaf.models import Organisation, UserProfile
+        from webcaf.webcaf.models import Organisation, UserProfile
 
-    organisation = get_model(Organisation, name=organisation_name)
-    users = run_async_orm(lambda: list(User.objects.all()))
-    for user in users:
-        print(f"user name = {user.username} email={user.email}")
-    print(f"Looking for the user {user_name}")
-    user = get_model(User, email=user_name)
-    run_async_orm(
-        UserProfile.objects.get_or_create, user=user, organisation=organisation, role=UserProfile.get_role_id(role)
-    )
+        return UserProfile.objects.get_or_create(
+            user=User.objects.get(email=user_name),
+            organisation=Organisation.objects.get(name=organisation_name),
+            role=UserProfile.get_role_id(role),
+        )
+
+    run_async_orm(create_profile)
 
 
 @step('the user logs in with username  "{user_name}" and password "{password}"')
@@ -137,7 +138,7 @@ def check_page_title(context, page_title):
 
 
 @then('page contains text "{page_text}" in banner')
-def check_page_message(context, page_text):
+def check_page_message(context: Context, page_text: str):
     """
     :type context: behave.runner.Context
     :type page_text: str

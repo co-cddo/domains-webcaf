@@ -1,0 +1,44 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Areas for improvement {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Add company details</h1>
+            <form class="form" id="mainForm" method="post">
+                {% csrf_token %}
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="company_name">
+                        Company name
+                    </label>
+                    <div id="company_name-hint" class="govuk-hint">
+                        Enter name as registered on Companies House if incorporated, or the trading name of the company
+                    </div>
+                    <input class="govuk-input govuk-input--width-20" id="company_name" name="company_name" type="text"
+                           spellcheck="false" aria-describedby="company_name-hint" autocomplete="string"
+                           value="{{ form.company_name.value|default:'' }}">
+                </div>
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="company_email">
+                        Company email address
+                    </label>
+                    <div id="company_email-hint" class="govuk-hint">
+                        Use your business email address. For example, john.drake@company.com
+                    </div>
+                    <input class="govuk-input govuk-input--width-20" id="company_email" name="company_email" type="email"
+                           spellcheck="false" aria-describedby="company_email-hint" autocomplete="string"
+                    value="{{ form.company_email.value|default:'' }}">
+                </div>
+                <button class="govuk-button" id="save-add-company-details" data-module="govuk-button">
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
