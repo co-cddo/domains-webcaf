@@ -1,0 +1,158 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Review Objective {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Objective {{ objective_code }} - {{ objective.title }} review and
+                confirmation</h1>
+            <p class="govuk-body">Review each outcome to view the self-assessment answers and record your independent
+                review. If a reviewed outcome is not achieved, you must also add at least one recommendation</p>
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">1. Contributing outcomes</h2>
+            <dl class="govuk-summary-list govuk-!-margin-top-4">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__value govuk-table__header">
+                        Contributing outcome
+                    </dt>
+                    <dd class="govuk-summary-list__value govuk-table__header">
+                        Outcome status
+                    </dd>
+                    <dd class="govuk-summary-list__value govuk-table__header">
+                        Your recommendations
+                    </dd>
+                </div>
+                {% for principle_key, principle in objective.principles.items %}
+                    {% for outcome_key, outcome in principle.outcomes.items %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key govuk-table__cell">
+                                {{ outcome_key }} {{ outcome.title }}
+                            </dt>
+                            <dd class="govuk-summary-list__value govuk-table__cell">
+                                {% get_outcome_status objective_code outcome_key review as  outcome_status %}
+                                {% if outcome_status %}
+                                    {% get_tag_for_status outcome_status|status_to_label as tag_colour %}
+                                    <p class="govuk-body">
+                                        <span class="govuk-tag govuk-tag--{{ tag_colour }}">
+                                            {{ outcome_status|status_to_label }}
+                                        </span>
+                                    </p>
+                                    <a class="govuk-link"
+                                       href="{% url 'review-outcome' pk=object.id objective_code=objective_code outcome_code=outcome_key %}">Change</a>
+                                {% else %}
+                                    <a class="govuk-link"
+                                       href="{% url 'review-outcome' pk=object.id objective_code=objective_code outcome_code=outcome_key %}">Review</a>
+                                {% endif %}
+                            </dd>
+                            <dd class="govuk-summary-list__actions govuk-table__cell">
+                                {% get_outcome_status objective_code outcome_key review as  outcome_status %}
+                                {% if outcome_status and outcome_status == 'not-achieved' or outcome_status == 'partially-achieved' %}
+                                    <p class="govuk-body">
+                                        <span class="govuk-tag govuk-tag--grey">
+                                            Required
+                                        </span>
+                                    </p>
+                                {% endif %}
+                                <a class="govuk-link"
+                                   href="{% url 'review-outcome-recommendation' pk=object.id objective_code=objective_code outcome_code=outcome_key %}">
+                                    {% get_outcome_recommendation_count object objective_code outcome_key as outcome_recommendation_count %}
+                                    {% if outcome_recommendation_count %}
+                                        {{ outcome_recommendation_count }}
+                                        recommendation{{ outcome_recommendation_count|pluralize }} added
+                                    {% else %}
+                                        Add recommendation
+                                    {% endif %}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </dl>
+
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">2. Objective summary</h2>
+            <dl class="govuk-summary-list govuk-!-margin-top-4">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Areas of good practice
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <a class="govuk-link"
+                           href="{% url 'review-objective-areas-of-good-practice' pk=object.id objective_code=objective_code %}">
+                            {% is_comment_present object objective_code 'objective-areas-of-good-practice' as comment_present %}
+                            {% if comment_present %}
+                                1 comment added
+                            {% else %}
+                                Add comment
+                            {% endif %}
+                            </a>
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Areas of improvement
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <a class="govuk-link"
+                           href="{% url 'review-objective-areas-of-improvement' pk=object.id objective_code=objective_code %}">
+                            {% is_comment_present object objective_code 'objective-areas-of-improvement' as comment_present %}
+                            {% if comment_present %}
+                                1 comment added
+                            {% else %}
+                                Add comment
+                            {% endif %}</a>
+                    </dd>
+                </div>
+            </dl>
+            {% is_final_objective objective_code object.assessment as final_objective %}
+            {% if not final_objective %}
+                <form method="post" novalidate="">
+                    <div class="govuk-form-group">
+                        {% csrf_token %}
+                        {% next_objective objective_code object.assessment as next_objective_code %}
+                        <input type="hidden" name="next_objective" value="{{ next_objective_code }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                Do you want to go to the next objective?
+                            </legend>
+                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="objective-nav-1" name="action"
+                                           type="radio" value="yes" checked>
+                                    <label class="govuk-label govuk-radios__label" for="objective-nav-1">
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="govuk-radios__item">
+                                    <input class="govuk-radios__input" id="objective-nav-2" name="action"
+                                           type="radio" value="no">
+                                    <label class="govuk-label govuk-radios__label" for="objective-nav-2">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button type="submit" class="govuk-button" data-module="govuk-button"
+                            {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                    >
+                        Save and continue
+                    </button>
+                </form>
+            {% else %}
+                <form method="post" novalidate="">
+                    {% csrf_token %}
+                    <input type="hidden" name="next_objective" value="">
+                    <input class="govuk-radios__input" id="objective-final" name="action"
+                           type="hidden" value="no">
+                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                        Back to review draft review
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

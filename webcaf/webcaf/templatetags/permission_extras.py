@@ -23,6 +23,11 @@ def current_user_can_create_system(user_profile: UserProfile) -> bool:
 
 
 @register.simple_tag()
+def current_user_can_view_review(user_profile: UserProfile) -> bool:
+    return PermissionUtil.current_user_can_create_review(user_profile)
+
+
+@register.simple_tag()
 def current_user_can_view_systems(user_profile: UserProfile) -> bool:
     """
     Determines if the current user has permission to view systems.
@@ -127,7 +132,7 @@ def current_user_can_view_assessments(user_profile: UserProfile) -> bool:
 
 
 @register.simple_tag()
-def get_my_account_text(user_profile: UserProfile) -> str:
+def get_my_account_text(user_profile: UserProfile) -> list[str]:
     """
     Determines and retrieves a description text specific to the role of the provided user profile. The text varies
     depending on the role of the user, such as `cyber_advisor`, `organisation_lead`, or `organisation_user`.
@@ -138,4 +143,4 @@ def get_my_account_text(user_profile: UserProfile) -> str:
     :return: A string description corresponding to the role of the user, or an empty string if no user profile is provided.
     :rtype: str
     """
-    return UserProfile.ROLE_DESCRIPTIONS[user_profile.role] if user_profile and user_profile.role else ""
+    return UserProfile.ROLE_DESCRIPTIONS[user_profile.role] if user_profile and user_profile.role else []

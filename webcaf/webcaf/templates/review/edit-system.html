@@ -1,0 +1,30 @@
+{% extends "review-base.html" %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Change system information - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l govuk-!-margin-top-6">{{ review.assessment.system.name }} ({{ review.assessment.reference }})</span>
+            <form class="form" method="post">
+                {% csrf_token %}
+                {% if field_name == "system_type" %}
+                    {% include "partials/system/system-description.html" with title="Change system description" %}
+                {% elif field_name == "last_assessed" %}
+                    {% include "partials/system/system-last-assessed.html" with title="Change previous GovAssure assessments" %}
+                {% elif field_name == "system_owner" %}
+                    {% include "partials/system/system-owner.html" with title="Change system ownership" %}
+                {% elif field_name == "hosting_type" %}
+                    {% include "partials/system/system-hosting.html" with title="Change hosting and connectivity" %}
+                {% elif field_name == "corporate_services" %}
+                    {% include "partials/system/system-corporate-services.html" with title="Change corporate services" %}
+                {% endif %}
+                <button type="submit" name="action" value="confirm" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}>
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

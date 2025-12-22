@@ -1,0 +1,85 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+
+{% block title %}Completion Confirmation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    {% get_assessment request as assessment %}
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="govuk-panel govuk-panel--confirmation">
+                        <h1 class="govuk-panel__title">
+                            Your IAR report has been created (Version {{ object.current_version_number }})
+                        </h1>
+                        <div class="govuk-panel__body">
+                            Reference number<br><strong id="reference_number">{{ object.reference }}</strong>
+                        </div>
+                    </div>
+
+                    <h2 class="govuk-heading-m">
+                        Report details
+                    </h2>
+                    <dl class="govuk-summary-list govuk-!-margin-top-4">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Date generated
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ object.current_version.last_updated }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Version
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                Version {{ object.current_version_number }} (current)
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Reviewer name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% get_user_role object.last_updated_by object.assessment.system.organisation as updated_by_role %}
+                                {{ object.last_updated_by.first_name }} {{ object.last_updated_by.last_name }}
+                                ({{ updated_by_role }})
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Organisation
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ object.assessment.system.organisation.name }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <p class="govuk-body">
+                        You have now successfully created your GovAssure Independent Assurance Review (IAR) report. You
+                        will find a copy of the report in your GovAssure account. </p>
+                    <h2 class="govuk-heading-m">Next steps</h2>
+                    <p class="govuk-body">
+                        You can now download the report to share and discuss it with the organisation. </p>
+                    <p class="govuk-body">If you agree to change parts of the report with the organisation, you can come
+                        back to this service and to make those changes before producing your final report.
+                    </p>
+                    <div class="govuk-button-group govuk-!-margin-top-6">
+                        <a href="{% url 'show-report' pk=object.pk version=object.current_version_number %}"
+                           class="govuk-button" role="button">View report</a>
+                        <a href="{% url 'download-report' pk=object.pk version=object.current_version_number %}"
+                           class="govuk-button govuk-button--secondary" role="button">Download report (PDF)</a>
+                    </div>
+                    <p class="govuk-body govuk-!-margin-top-6">
+                        <a href="{% url 'review-history' pk=object.id %}" class="govuk-link">Return to report
+                            history</a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
