@@ -8,7 +8,7 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.db.models import Model, Q
+from django.db.models import F, Model, Q
 from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
@@ -20,6 +20,7 @@ from webcaf.webcaf.models import (
     Assessment,
     Configuration,
     Organisation,
+    Review,
     System,
     UserProfile,
 )
@@ -43,8 +44,25 @@ class OptionalFieldsAdminMixin:
 class UserProfileAdmin(SimpleHistoryAdmin):
     model = UserProfile
     search_fields = ["organisation__name", "user__email"]
-    list_display = ["user__email", "organisation__name", "role"]
-    list_filter = ["role", "user__email", "organisation__name"]
+    list_display = ["user_email", "organisation_name", "role"]
+    list_filter = ["role", "organisation__name"]
+    autocomplete_fields = ["organisation", "user"]
+    list_select_related = ["user", "organisation"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            user_email=F("user__email"),
+            organisation_name=F("organisation__name"),
+        )
+
+    @admin.display(ordering="user_email", description="User email")
+    def user_email(self, obj):
+        return obj.user_email
+
+    @admin.display(ordering="organisation_name", description="Organisation")
+    def organisation_name(self, obj):
+        return obj.organisation_name
 
 
 @admin.register(Organisation)
@@ -272,9 +290,21 @@ class AdminSystemForm(SystemForm):
 class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     form = AdminSystemForm
     search_fields = ["name", "reference"]
-    list_display = ["name", "reference", "organisation__name", "system_type", "description"]
+    list_display = ["name", "reference", "organisation_name", "system_type", "description"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
+    list_filter = ["organisation", "system_type"]
+    list_select_related = ["organisation"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            organisation_name=F("organisation__name"),
+        )
+
+    @admin.display(ordering="organisation_name", description="Organisation")
+    def organisation_name(self, obj):
+        return obj.organisation_name
 
     class Media:
         js = ("webcaf/js/admin_system.js",)
@@ -284,11 +314,27 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
 class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
     search_fields = ["status", "system__name", "reference"]
-    list_display = ["status", "reference", "system__name", "system__organisation__name", "created_on", "last_updated"]
+    list_display = ["status", "reference", "system_name", "system_organisation", "created_on", "last_updated"]
     list_filter = ["status", "system__organisation"]
     ordering = ["-created_on"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
+    list_select_related = ["system", "system__organisation"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            system_name=F("system__name"),
+            system_organisation=F("system__organisation__name"),
+        )
+
+    @admin.display(ordering="system_name", description="System")
+    def system_name(self, obj):
+        return obj.system_name
+
+    @admin.display(ordering="system_organisation", description="Organisation")
+    def system_organisation(self, obj):
+        return obj.system_organisation
 
 
 class CustomConfigForm(ModelForm):
@@ -346,3 +392,99 @@ class CustomConfigForm(ModelForm):
 @admin.register(Configuration)
 class ConfigurationAdmin(admin.ModelAdmin):
     form = CustomConfigForm
+
+
+@admin.register(Review)
+class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    list_display = [
+        "assessment_system_name",
+        "assessment_framework",
+        "assessment_reference",
+        "assessment_organisation",
+        "status",
+    ]
+    list_filter = [
+        "assessment__system__name",
+        "assessment__framework",
+        "assessment__system__organisation",
+        "status",
+    ]
+    list_select_related = [
+        "assessment",
+        "assessment__system",
+        "assessment__system__organisation",
+    ]
+    readonly_fields = ["created_on", "last_updated", "last_updated_by", "reference"]
+    optional_fields = ["reference"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            assessment_system_name=F("assessment__system__name"),
+            assessment_framework=F("assessment__framework"),
+            assessment_reference=F("assessment__reference"),
+            assessment_organisation=F("assessment__system__organisation__name"),
+        )
+
+    @admin.display(ordering="assessment_system_name", description="System")
+    def assessment_system_name(self, obj):
+        return obj.assessment_system_name
+
+    @admin.display(ordering="assessment_reference", description="Assessment Ref")
+    def assessment_reference(self, obj):
+        return obj.assessment_reference
+
+    @admin.display(ordering="assessment_framework", description="Framework")
+    def assessment_framework(self, obj):
+        return obj.assessment_framework
+
+    @admin.display(ordering="assessment_organisation", description="Organisation")
+    def assessment_organisation(self, obj):
+        return obj.assessment_organisation
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        This method customizes the form retrieved for the given request, allowing
+        specific queryset filtering based on the `assessment` foreign key field.
+        It adjusts the queryset to include unassigned assessments and, in case of
+        a change view, assessments assigned to the current object.
+
+        :param request: The request object, representing the HTTP request being
+            processed.
+        :param obj: Optional; Represents the object being edited in change views.
+            Defaults to None for add views.
+        :param kwargs: Arbitrary keyword arguments that can be passed while
+            retrieving the form.
+        :return: A customized form instance with the adjusted queryset for the
+            `assessment` field.
+        """
+        form = super().get_form(request, obj, **kwargs)
+
+        fk_field = form.base_fields["assessment"]
+        qs = fk_field.queryset
+
+        # Any unassigned assessments
+        fk_field.queryset = qs.filter(reviews__isnull=True)
+        if obj:  # change view
+            # filter queryset: unassigned OR assigned to current obj
+            fk_field.queryset |= qs.filter(reviews__in=[obj.id])
+
+        return form
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "assessment":
+            current_config = Configuration.objects.get_default_config()
+            kwargs["queryset"] = Assessment.objects.filter(
+                status="submitted",
+                assessment_period=current_config.get_current_assessment_period(),
+            ).order_by("-created_on")
+        form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return form_field
+
+    def save_form(self, request, form, change):
+        return super().save_form(request, form, change)
+
+    def save_model(self, request, obj, form, change):
+        if hasattr(obj, "last_updated_by"):
+            obj.last_updated_by = request.user
+        super().save_model(request, obj, form, change)
