@@ -22,7 +22,6 @@ class RequestLoggingMiddleware:
         # Extract user/session info
         user = getattr(request, "user", None)
         session = getattr(request, "session", None)
-
         # Build context data
         context_data = {
             "user_id": str(user.id) if user and hasattr(user, "id") and user.is_authenticated else "-",
@@ -31,11 +30,17 @@ class RequestLoggingMiddleware:
 
         # Set context and keep token for safe reset
         token = log_context.set(context_data)
+        response = None
         try:
             # Process the request (call next middleware/view)
             response = self.get_response(request)
             return response
         finally:
+            # If there's a response, add header to be picked up by Gunicorn
+            if response is not None and context_data and "session_id" in context_data:
+                response["trace_id"] = context_data.get("session_id")
+            elif response:
+                response["trace_id"] = "-"
             # Always clean up context — even on exceptions
             if token:
                 log_context.reset(token)
