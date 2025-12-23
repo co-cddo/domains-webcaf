@@ -4,7 +4,7 @@ Feature: Organisation lead can edit an organisation's details
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
 #    Database does not store the passwords
     And the user "other@example.gov.uk" exists
-    And User "other@example.gov.uk" has the profile "Organisation lead" assigned in "Ministry of Agriculture"
+    And User "other@example.gov.uk" has the profile "GovAssure lead" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
     And the user logs in with username  "other@example.gov.uk" and password "password"

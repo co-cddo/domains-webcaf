@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Assessment, Configuration
+from webcaf.webcaf.models import Assessment, Configuration, Review
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
@@ -78,6 +78,8 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     assessment.status = "submitted"
                     assessment.save()
                     uk_tz = zoneinfo.ZoneInfo("Europe/London")
+                    # Initiate the review
+                    Review.objects.get_or_create(assessment=assessment)
                     self.logger.info(
                         f"Assessment {assessment.id} reference {assessment.reference} submitted"
                         f" at {datetime.now(tz=uk_tz).strftime('%Y-%m-%d %H:%M:%S')}"

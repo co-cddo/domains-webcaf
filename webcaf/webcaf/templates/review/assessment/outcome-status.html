@@ -1,0 +1,237 @@
+{% extends "review-base.html" %}
+{% load form_extras %}
+{% load review_tags %}
+{% load permission_extras %}
+{% block title %} Review outcome {{ outcome.code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }}</h1>
+            <details class="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">
+                        How to review this outcome
+                    </span>
+                </summary>
+                <div class="govuk-details__text">
+                    <section class="govuk-!-margin-bottom-6">
+                        <p class="govuk-body">
+                            This page shows the organisations self-assessment for this contributing outcome. You must
+                            review this alongside all the evidence you have seen from the organisation and use your
+                            expert judgement to inform your responses.
+                        </p>
+                        <p>On this page, you will: </p>
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>select your response to each IGP statement</li>
+                            <li>add your review for each IGP where the organisation has named alternative controls or
+                                exemptions
+                            </li>
+                            <li>select a contributing outcome status</li>
+                            <li>write a summary for the contributing outcome</li>
+
+                        </ul>
+                        <p class="govuk-body">Please refer to the full <a
+                                href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
+                                target="_blank">stage 4 guidance (opens in new tab)</a> to support you. </p>
+                    </section>
+                </div>
+            </details>
+            <div class="govuk-inset-text">
+                        <span class="govuk-heading-s">
+                            Self-assessment outcome status
+                        </span>
+                {% get_tag_for_status answered_statements.confirmation.outcome_status as tag_colour %}
+                <p class="govuk-body">
+                        <span class="govuk-tag govuk-tag--{{ tag_colour }}">
+                            {{ answered_statements.confirmation.outcome_status }}
+                        </span>
+                </p>
+            </div>
+            <h2 class="govuk-heading-m">Organisation's contributing outcome summary</h2>
+            {% format_with_breaks answered_statements.confirmation.confirm_outcome_confirm_comment as sections %}
+            {% for section in sections %}
+                <p class="govuk-body avoid-break statement-para">{{ section }}</p>
+            {% endfor %}
+            <h2 class="govuk-heading-m">Review each IGP statement</h2>
+            <p class="govuk-body">
+                When completing their self-assessment, the organisation selects an IGP statement if they believe it
+                applies to their system or organisation.
+            </p>
+            <p class="govuk-body">If you disagree with the organisation’s selection you will need to use the comment box
+                to explain why and include relevant evidence.
+            </p>
+            <form method="post" novalidate="">
+                {% csrf_token %}
+                {% get_outcome_category_names as outcome_category_names %}
+                <table class="govuk-table govuk-!-margin-bottom-8">
+                    <thead>
+                    <tr>
+                        <th class="govuk-table__header govuk-!-width-one-half">IGP statement</th>
+                        <th class="govuk-table__header govuk-!-width-one-half">Your review
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for outcome_category in outcome_category_names %}
+                        {% for field in form|filter_fields:outcome_category %}
+                            <tr class="govuk-table__row">
+                                {% get_selected_tag field=field answered_statements=answered_statements as selected_tag %}
+                                <td class="govuk-table__cell">
+                                    <strong>{{ field.label|capfirst }}</strong>
+                                    <p class="govuk-body-s govuk-!-margin-top-1">
+                                        <strong>Organisation {{ selected_tag }}</strong>
+                                        <br/>
+                                        <br/>
+                                        {{ field.help_text }}
+                                    </p>
+                                    {% get_comment_field form field.name as comment_field %}
+                                    {% if comment_field.help_text %}
+                                        <div class="govuk-inset-text govuk-!-margin-top-2">
+                                            <strong>{{ comment_field.label }}:</strong><br>
+                                            <span class="govuk-!-font-size-16">
+                                                {{ comment_field.help_text }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="govuk-table__cell">
+                                    <div class="govuk-form-group {% if field.errors %} govuk-form-group--error {% endif %}">
+                                        <fieldset class="govuk-fieldset" id="id_{{ field.name|safe_id }}">
+                                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                                <h1 class="govuk-fieldset__heading">
+                                                    Does the IGP statement apply to the system or organisation?
+                                                </h1>
+                                            </legend>
+                                            {# Only show this hint text if there is alternate controls entered                                       #}
+                                            {% if comment_field.help_text %}
+                                                <div id="agree-2-hint" class="govuk-hint">
+                                                    Choose yes if you agree that the alternative controls
+                                                    or exemptions are reasonable evidence.
+                                                </div>
+                                            {% endif %}
+                                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                                                <div class="govuk-radios__item">
+                                                    <input class="govuk-radios__input"
+                                                           id="id_{{ field.name|safe_id }}_1"
+                                                           name="{{ field.name }}"
+                                                           {% if field.value == 'yes' %}checked{% endif %}
+                                                           type="radio" value="yes">
+                                                    <label class="govuk-label govuk-radios__label"
+                                                           for="id_{{ field.name|safe_id }}_1">
+                                                        Yes
+                                                    </label>
+                                                </div>
+                                                <div class="govuk-radios__item">
+                                                    <input class="govuk-radios__input"
+                                                           id="id_{{ field.name|safe_id }}_2"
+                                                           name="{{ field.name }}"
+                                                           {% if field.value == 'no' %}checked{% endif %}
+                                                           type="radio" value="no">
+                                                    <label class="govuk-label govuk-radios__label"
+                                                           for="id_{{ field.name|safe_id }}_2">
+                                                        No
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    {% get_comment_field form field.name as comment_field %}
+                                    <div class="govuk-form-group">
+                                        <div id="{{ comment_field.auto_id|safe_id }}_outer"
+                                             class="govuk-form-group govuk-character-count"
+                                             data-module="govuk-character-count"
+                                             data-maxwords={{ comment_field.field.widget.attrs.max_words }}>
+                                            <label class="govuk-label" for="{{ comment_field.auto_id|safe_id }}">
+                                                Provide your comments including any relevant evidence
+                                                {% if not comment_field.help_text %}
+                                                    (optional)
+                                                {% endif %}
+                                            </label>
+                                            {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                                            <textarea
+                                                    class="govuk-textarea comments_textarea govuk-js-character-count"
+                                                    id="{{ comment_field.auto_id|safe_id }}"
+                                                    name="{{ comment_field.name }}"
+                                                    rows="{{ comment_field.field.widget.attrs.rows }}"
+                                                    aria-describedby="{{ comment_field.auto_id|safe_id }}-info"
+                                            >{{ comment_field.value|default:"" }}</textarea>
+                                            <!-- @formatter:on -->
+                                            <div id="{{ comment_field.auto_id|safe_id }}-info"
+                                                 class="govuk-hint govuk-character-count__message">
+                                                You can enter up to
+                                                {{ comment_field.field.widget.attrs.max_words }} words
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div>
+                    <h2 class="govuk-heading-m">Review decision</h2>
+                    <div class="govuk-form-group {% if form.review_decision.errors %} govuk-form-group--error {% endif %}">
+                        <fieldset class="govuk-fieldset" id="id_review_decision" aria-describedby="overall-status-hint">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                <h1 class="govuk-fieldset__heading">
+                                    Review the contributing outcome
+                                </h1>
+                            </legend>
+                            <div id="overall-status-hint" class="govuk-hint">
+                                Select one outcome status
+                            </div>
+                            <div class="govuk-radios "  data-module="govuk-radios">
+                                {% for choice in form.review_decision.field.choices %}
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="id_{{ choice.0 }}_review_decision"
+                                               name="review_decision"
+                                               {% if choice.0 == form.review_decision.value %}checked{% endif %}
+                                               type="radio" value="{{ choice.0 }}">
+                                        <label class="govuk-label govuk-radios__label"
+                                               for="id_{{ choice.0 }}_review_decision">
+                                            {{ choice.1 }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="{{ form.review_comment.auto_id|safe_id }}_outer"
+                         class="govuk-form-group govuk-character-count {% if form.review_comment.errors %} govuk-form-group--error {% endif %}"
+                         data-module="govuk-character-count"
+                         data-maxwords={{ form.review_comment.field.widget.attrs.max_words }}>
+                        <label class="govuk-label" for="{{ form.review_comment.auto_id|safe_id }}">
+                            Comments to support your review
+                        </label>
+                        <!-- @formatter:off -->
+                        {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                        <textarea class="govuk-textarea comments_textarea govuk-js-character-count"
+                                  id="{{ form.review_comment.auto_id|safe_id }}"
+                                  name="{{ form.review_comment.name }}"
+                                  rows="{{form.review_comment.field.widget.attrs.rows}}"
+                                  aria-describedby="{{ form.review_comment.auto_id|safe_id }}-info"
+                        >{{ form.review_comment.value|default:""|striptags }}</textarea>
+                        <!-- @formatter:on -->
+                        <div id="{{ form.review_comment.auto_id|safe_id }}-info"
+                             class="govuk-hint govuk-character-count__message">
+                            You can enter up to
+                            {{ form.review_comment.field.widget.attrs.max_words }} words
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" class="govuk-button" data-module="govuk-button"
+                                {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                        >
+                            Save and continue
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

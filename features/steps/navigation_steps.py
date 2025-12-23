@@ -240,7 +240,7 @@ def create_new_assessment(
     """
     :type context: behave.runner.Context
     """
-    from webcaf.webcaf.models import Assessment, System
+    from webcaf.webcaf.models import Assessment, Review, System
 
     def create_assessment() -> Assessment:
         initial_assessment_data = {}
@@ -257,6 +257,12 @@ def create_new_assessment(
             assessments_data=initial_assessment_data,
         )
         assessment.save()
+        if assessment.status == "submitted":
+            # Simulate the submission of the assessment by creating a review
+            Review.objects.create(
+                assessment=assessment,
+            )
+
         return assessment
 
     assessment_created = run_async_orm(create_assessment)
@@ -495,3 +501,24 @@ def expected_options_in_select_box(context: Context, options: str):
     options_locator = page.locator("#system_id > option")
     options_list = options.split(",")
     expect(options_locator).to_have_text(options_list)
+
+
+@then('text with "{text}"')
+def page_contains_text(context: Context, text: str):
+    """
+    Assert that the current page contains the given visible text anywhere.
+    """
+    page = context.page
+    expect(page.get_by_text(text)).to_be_visible()
+
+
+@then('they should see a table with header "{header}"')
+def table_with_header(context: Context, header: str):
+    """
+    Assert that a GOV.UK styled table is visible and contains the given column header text.
+    """
+    page = context.page
+    table = page.locator(".govuk-table")
+    expect(table).to_be_visible()
+    header_cell = table.locator("th").filter(has_text=header)
+    expect(header_cell).to_be_visible()

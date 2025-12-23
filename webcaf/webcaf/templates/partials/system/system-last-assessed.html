@@ -1,0 +1,43 @@
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        Year when system was last GovAssure assessed
+    </h2>
+{% endif %}
+<div class="govuk-form-group {% if form.errors.last_assessed %}govuk-form-group--error{% endif %}"
+     id="id_last_assessed">
+    <fieldset class="govuk-fieldset" aria-describedby="govassure_year-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Has this system been assessed
+            before 20{{ current_assessment_period }}?
+        </legend>
+        <div id="govassure_year-hint" class="govuk-hint">
+            Select one option
+        </div>
+        {% if form.errors.last_assessed %}
+            <p id="system-last-assessed-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must select one option
+            </p>
+        {% endif %}
+        <div class="govuk-radios" data-module="govuk-radios">
+            {% for assessed_period in form.last_assessed %}
+                {% if assessed_period.data.value != "" %}
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="govassure_year_{{ forloop.counter }}"
+                               name="last_assessed"
+                               type="radio"
+                               {% if assessed_period.data.value == form.last_assessed.value %}checked{% endif %}
+                               value="{{ assessed_period.data.value }}">
+                        <label class="govuk-label govuk-radios__label"
+                               for="govassure_year_{{ forloop.counter }}">
+                            {{ assessed_period.choice_label }}
+                        </label>
+
+                    </div>
+                {% endif %}
+                {% if forloop.revcounter == 2 %}
+                    <div class="govuk-radios__divider">or</div>{% endif %}
+            {% endfor %}
+        </div>
+    </fieldset>
+</div>

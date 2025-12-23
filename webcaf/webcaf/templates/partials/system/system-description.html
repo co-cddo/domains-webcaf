@@ -1,0 +1,38 @@
+{% if title %}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+{% else %}
+    <h2 class="govuk-heading-m">
+        System description
+    </h2>
+{% endif %}
+<div class="govuk-form-group {% if form.errors.system_type %}govuk-form-group--error{% endif %}"
+     id="id_system_type">
+    <fieldset class="govuk-fieldset" aria-describedby="system_type-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">What does this system do?
+        </legend>
+        <div id="system_type-hint" class="govuk-hint">
+            Select one option
+        </div>
+        {% if form.errors.system_type %}
+            <p id="system-description-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> You must select a system description
+            </p>
+        {% endif %}
+        <div class="govuk-radios" data-module="govuk-radios">
+            {% for option in form.system_type %}
+                {% if option.data.value != "" %}
+                    <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="system_type_{{ forloop.counter }}"
+                           name="system_type" type="radio"
+                           value="{{ option.data.value }}"
+                           {% if option.data.value == form.system_type.value %}checked{% endif %}
+                           aria-describedby="system_type-item-hint_{{ forloop.counter }}">
+                    <label class="govuk-label govuk-radios__label" for="system_type_{{ forloop.counter }}">
+                        {{ option.choice_label }}
+                    </label>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+    </fieldset>
+</div>

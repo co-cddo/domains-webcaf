@@ -1,0 +1,55 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %} Areas for improvement {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        {% get_review_completed_percentage object as percentage %}
+        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Describe your review method</h1>
+            <p class="govuk-body">
+                Explain the approach you took to reviw the organisation's self-assessment.
+            </p>
+            <p class="govuk-body">
+                Include details of:
+            </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>the scope of the review and any excluded components</li>
+                <li>details of the methods used to gather information for your review
+                    (for example, desk-based analysis, workshops, interviews, document reviews or technical demonstrations)
+                </li>
+            </ul>
+            <form method="post" id="comment-form">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}"
+                     data-module="govuk-character-count"
+                     data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
+                >
+                    <label class="govuk-label" for="id_form-text">
+                        Review method
+                    </label>
+                    <div id="id_form-text-hint" class="govuk-hint">
+                        Provide detailed explanation
+                    </div>
+                    <textarea class="govuk-textarea govuk-js-character-count"
+                              aria-describedby="id_form-text-info"
+                              name="{{ form.text.html_name }}" cols="40" rows="5"
+                              id="id_form-text">{{ form.text.value|default:"" }}</textarea>
+                    <div id="id_form-text-info"
+                         class="govuk-hint govuk-character-count__message">You can
+                        enter up to {{ form.text.field.widget.attrs.max_words }} words
+                    </div>
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                >
+                    Save and continue
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

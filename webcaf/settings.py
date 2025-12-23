@@ -321,6 +321,20 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.types import SamplingContext
 
+    def scrub_headers(event, hint):
+        request = event.get("request", {})
+        headers = request.get("headers", {})
+
+        # remove or redact your header(s)
+        if "X-Cf-Key" in headers:
+            del headers["X-Cf-Key"]
+
+        # write headers back
+        request["headers"] = headers
+        event["request"] = request
+
+        return event
+
     def traces_sampler(sampling_context: SamplingContext) -> float:
         """
         Sets up custom sampling rate for specific scenarios.
@@ -342,6 +356,8 @@ if SENTRY_DSN:
         dsn=SENTRY_DSN,
         environment=ENVIRONMENT,
         traces_sampler=traces_sampler,
+        before_send=scrub_headers,
+        before_send_transaction=scrub_headers,
     )
 
 # sets session timeout at 90 minutes

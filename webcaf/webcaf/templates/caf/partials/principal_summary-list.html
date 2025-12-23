@@ -2,7 +2,7 @@
 {% load form_extras %}
 {% for principal in objective_data.principles.values %}
     <h2 class="govuk-heading-m">
-        Principal:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
+        Principle:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
     </h2>
     <dl class="govuk-summary-list">
         {% for outcome in principal.outcomes.values %}

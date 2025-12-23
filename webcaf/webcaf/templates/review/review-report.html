@@ -1,0 +1,14 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}View report- {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">View report</h1>
+            <h2 class="govuk-table__caption--l">Work in progress..</h2>
+        </div>
+    </div>
+{% endblock %}
