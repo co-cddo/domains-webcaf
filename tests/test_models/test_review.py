@@ -25,7 +25,7 @@ class ReviewIsObjectiveCompleteTests(BaseViewTest):
 
         cls.assessment = Assessment.objects.create(
             system=cls.test_system,
-            assessment_period="2024/25",
+            assessment_period="24/25",
             framework="caf32",
             caf_profile="baseline",
             review_type="independent",
@@ -313,7 +313,7 @@ class ReviewSaveMethodTests(BaseViewTest):
 
         cls.assessment = Assessment.objects.create(
             system=cls.test_system,
-            assessment_period="2024/25",
+            assessment_period="24/25",
             framework="caf32",
             caf_profile="baseline",
             review_type="independent",
@@ -526,7 +526,7 @@ class ReviewRefreshFromDbTests(BaseViewTest):
 
         cls.assessment = Assessment.objects.create(
             system=cls.test_system,
-            assessment_period="2024/25",
+            assessment_period="24/25",
             framework="caf32",
             caf_profile="baseline",
             review_type="independent",
@@ -707,3 +707,287 @@ class ReviewRefreshFromDbTests(BaseViewTest):
         review.save()  # Should not raise
         review.refresh_from_db()
         self.assertEqual(review.review_data, {"test": "my_update"})
+
+
+class ReviewReopenTests(BaseViewTest):
+    """
+    Tests for the Review.reopen() method.
+
+    Tests that reopening a completed review transitions it back to in_progress
+    and clears completion data, while preventing reopening from invalid states.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
+
+        cls.assessment = Assessment.objects.create(
+            system=cls.test_system,
+            assessment_period="24/25",
+            framework="caf32",
+            caf_profile="baseline",
+            review_type="independent",
+        )
+
+    def test_reopen_completed_review_changes_status(self):
+        """Test that reopening a completed review changes status to in_progress."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {
+                    "review_completion": {
+                        "review_completed": "yes",
+                        "review_completed_at": "2024-12-01T10:00:00.000000",
+                    }
+                }
+            },
+        )
+
+        review.reopen()
+
+        self.assertEqual(review.status, "in_progress")
+
+    def test_reopen_clears_completion_data(self):
+        """Test that reopening clears review_completion data."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {},
+                "review_completion": {
+                    "review_completed": "yes",
+                    "review_completed_at": "2024-12-01T10:00:00.000000",
+                },
+            },
+        )
+
+        review.reopen()
+        assessor_response = review.get_assessor_response()
+        review_completion = assessor_response.get("review_completion", {})
+        self.assertEqual(review_completion, {})
+
+    def test_reopen_from_to_do_raises_error(self):
+        """Test that reopening from to_do status raises ValidationError."""
+        review = Review.objects.create(assessment=self.assessment, status="to_do")
+
+        with self.assertRaises(ValidationError) as context:
+            review.reopen()
+        self.assertIn("Invalid state for report reopening", str(context.exception))
+
+    def test_reopen_from_in_progress_raises_error(self):
+        """Test that reopening from in_progress status raises ValidationError."""
+        review = Review.objects.create(assessment=self.assessment, status="in_progress")
+
+        with self.assertRaises(ValidationError) as context:
+            review.reopen()
+        self.assertIn("Invalid state for report reopening", str(context.exception))
+
+    def test_reopen_from_clarify_raises_error(self):
+        """Test that reopening from clarify status raises ValidationError."""
+        review = Review.objects.create(assessment=self.assessment, status="clarify")
+
+        with self.assertRaises(ValidationError) as context:
+            review.reopen()
+        self.assertIn("Invalid state for report reopening", str(context.exception))
+
+    def test_reopen_from_cancelled_raises_error(self):
+        """Test that reopening from cancelled status raises ValidationError."""
+        review = Review.objects.create(assessment=self.assessment, status="cancelled")
+
+        with self.assertRaises(ValidationError) as context:
+            review.reopen()
+        self.assertIn("Invalid state for report reopening", str(context.exception))
+
+    def test_reopen_allows_further_edits(self):
+        """Test that after reopening, the review can be edited."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {"review_completion": {"review_completed": "yes"}, "A": {"some": "data"}}
+            },
+        )
+
+        review.reopen()
+
+        # Should be able to modify review_data now
+        review.review_data["assessor_response_data"]["A"]["new_field"] = "value"
+        review.save()  # Should not raise
+
+        review.refresh_from_db()
+        self.assertEqual(review.review_data["assessor_response_data"]["A"]["new_field"], "value")
+
+
+class ReviewCompletionInfoTests(BaseViewTest):
+    """
+    Tests for the Review.completion_info property.
+
+    Tests that completion_info correctly retrieves and parses completion data.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
+
+        cls.assessment = Assessment.objects.create(
+            system=cls.test_system,
+            assessment_period="24/25",
+            framework="caf32",
+            caf_profile="baseline",
+            review_type="independent",
+        )
+
+    def test_completion_info_returns_none_when_no_data(self):
+        """Test that completion_info returns None when no completion data exists."""
+        review = Review.objects.create(assessment=self.assessment, status="in_progress", review_data={})
+
+        self.assertIsNone(review.completion_info)
+
+    def test_completion_info_returns_none_when_empty_dict(self):
+        """Test that completion_info returns None when review_completion is empty."""
+        review = Review.objects.create(
+            assessment=self.assessment, status="in_progress", review_data={"assessor_response_data": {}}
+        )
+
+        self.assertIsNone(review.completion_info)
+
+    def test_completion_info_returns_dict_when_present(self):
+        """Test that completion_info returns dict when completion data exists."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={"assessor_response_data": {}, "review_completion": {"review_completed": "yes"}},
+        )
+
+        completion_info = review.completion_info
+        self.assertIsNotNone(completion_info)
+        self.assertEqual(completion_info["review_completed"], "yes")
+
+    def test_completion_info_parses_datetime_string(self):
+        """Test that completion_info parses ISO datetime strings."""
+        from datetime import datetime
+
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {},
+                "review_completion": {
+                    "review_completed": "yes",
+                    "review_completed_at": "2024-12-01T10:30:45.123456",
+                },
+            },
+        )
+
+        completion_info = review.completion_info
+        self.assertIsNotNone(completion_info)
+        self.assertIsInstance(completion_info["review_completed_at"], datetime)
+        self.assertEqual(completion_info["review_completed_at"].year, 2024)
+        self.assertEqual(completion_info["review_completed_at"].month, 12)
+        self.assertEqual(completion_info["review_completed_at"].day, 1)
+
+    def test_completion_info_handles_already_parsed_datetime(self):
+        """Test that completion_info handles datetime objects that are already parsed."""
+        from datetime import datetime
+
+        dt = datetime(2024, 12, 1, 10, 30, 45)
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {},
+                "review_completion": {
+                    "review_completed": "yes",
+                    "review_completed_at": dt.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+                },
+            },
+        )
+
+        completion_info = review.completion_info
+        self.assertIsNotNone(completion_info)
+        self.assertIsInstance(completion_info["review_completed_at"], datetime)
+        self.assertEqual(completion_info["review_completed_at"], dt)
+
+    def test_completion_info_without_completed_at(self):
+        """Test completion_info when review_completed_at is not present."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {},
+                "review_completion": {
+                    "review_completed": "yes"
+                    # No review_completed_at
+                },
+            },
+        )
+
+        completion_info = review.completion_info
+        self.assertIsNotNone(completion_info)
+        self.assertEqual(completion_info["review_completed"], "yes")
+        self.assertNotIn("review_completed_at", completion_info)
+
+
+class ReviewIsCompanyDetailsCompleteTests(BaseViewTest):
+    """
+    Tests for the Review.is_company_details_complete() method.
+
+    Tests that the method correctly identifies when company details are complete.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
+
+        cls.assessment = Assessment.objects.create(
+            system=cls.test_system,
+            assessment_period="24/25",
+            framework="caf32",
+            caf_profile="baseline",
+            review_type="independent",
+        )
+
+    def test_returns_true_with_valid_company_details(self):
+        """Test that method returns True when company details exist."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="in_progress",
+            review_data={
+                "assessor_response_data": {
+                    "additional_information": {
+                        "company_details": {"company_name": "Test Company", "company_email": "test@example.com"}
+                    }
+                }
+            },
+        )
+
+        self.assertTrue(review.is_company_details_complete())
+
+    def test_returns_false_when_company_details_missing(self):
+        """Test that method returns False when company_details key doesn't exist."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="in_progress",
+            review_data={"assessor_response_data": {"additional_information": {}}},
+        )
+
+        self.assertFalse(review.is_company_details_complete())
+
+    def test_returns_false_when_company_details_none(self):
+        """Test that method returns False when company_details is None."""
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="in_progress",
+            review_data={"assessor_response_data": {"additional_information": {"company_details": None}}},
+        )
+
+        self.assertFalse(review.is_company_details_complete())
+
+    def test_returns_false_when_additional_information_missing(self):
+        """Test that method returns False when additional_information doesn't exist."""
+        review = Review.objects.create(
+            assessment=self.assessment, status="in_progress", review_data={"assessor_response_data": {}}
+        )
+
+        self.assertFalse(review.is_company_details_complete())

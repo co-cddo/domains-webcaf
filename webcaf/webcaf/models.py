@@ -1,7 +1,6 @@
 import logging
 import typing
 from datetime import datetime
-from functools import cached_property
 from typing import Any
 
 from django.conf import settings
@@ -28,6 +27,7 @@ if typing.TYPE_CHECKING:
     class HistoricalReview:
         review_type: str
         review_data: dict
+        instance: "Review"
 
 
 class ReferenceGeneratorMixin:
@@ -976,8 +976,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     def mark_review_complete(self, profile: UserProfile):
         if self.status == "in_progress":
-            assessor_response_data = self.get_assessor_response()
-            review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+            review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
             review_completion["review_completed"] = "yes"
             review_completion["review_completed_at"] = datetime.now().isoformat()
             review_completion["review_completed_by"] = profile.user.first_name + " " + profile.user.last_name
@@ -988,11 +987,10 @@ class Review(ReferenceGeneratorMixin, models.Model):
             raise ValidationError("Invalid state for report creation.")
 
     def is_review_complete(self):
-        assessor_response_data = self.get_assessor_response()
-        review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+        review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
         return review_completion.get("review_completed") == "yes"
 
-    @cached_property
+    @property
     def completion_info(self) -> dict | None:
         """
         Retrieves the review completion information from the assessor response.
@@ -1005,8 +1003,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
             data, or None if the key does not exist.
         :rtype: dict | None
         """
-        assessor_response_data = self.get_assessor_response()
-        review_completion: dict | None = assessor_response_data.get("review_completion", None)
+        review_completion: dict | None = self.review_data.get("review_completion", None)
         if review_completion is not None:
             if completed_at := review_completion.get("review_completed_at"):
                 if type(completed_at) is str:
@@ -1031,8 +1028,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
             raise ValidationError("Invalid state for report reopening.")
 
         self.status = "in_progress"
-        assessor_response_data = self.get_assessor_response()
-        review_completion = _get_or_create_nested_path(assessor_response_data, "review_completion")
+        review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
         # Remove the review_completed key and its associated values
         review_completion.clear()
 
@@ -1100,7 +1096,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         all_versions = self.all_versions
         return all_versions[0] if all_versions else None
 
-    @cached_property
+    @property
     def all_versions(self) -> list["HistoricalReview"]:
         """
         Retrieve all unique historical versions of a review in reverse chronological order.
@@ -1115,12 +1111,12 @@ class Review(ReferenceGeneratorMixin, models.Model):
         versions: list["HistoricalReview"] = []
         full_history = self.history.filter(status="completed").order_by("-last_updated").all()
         for version in full_history:
-            if version.status == "completed" and (
+            if (
                 # No versions in the list, so the first submitted we find is the latest version
                 not versions
                 # There could be other filed changes recorded, so only pick the next
                 # submitted if the contents are different
-                or version.review_data != versions[-1].review_data
+                or version.instance.get_assessor_response() != versions[-1].instance.get_assessor_response()
             ):
                 versions.append(version)
         return versions
@@ -1139,4 +1135,8 @@ class Review(ReferenceGeneratorMixin, models.Model):
             versions are available.
         :rtype: typing.Optional["HistoricalReview"]
         """
-        return self.all_versions[version_number - 1] if self.all_versions else None
+        return (
+            self.all_versions[version_number - 1]
+            if self.all_versions and version_number > 0 and version_number - 1 < len(self.all_versions)
+            else None
+        )

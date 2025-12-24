@@ -38,8 +38,8 @@ class TestCreateReportView(BaseViewTest):
         self.period = self.config.get_current_assessment_period()
 
         # Use base fixtures for org/system
-        self.org: Organisation = Organisation.objects.get(name=self.organisation_name)
-        self.system: System = System.objects.get(name=self.system_name, organisation=self.org)
+        self.org = Organisation.objects.get(name=self.organisation_name)
+        self.system = System.objects.get(name=self.system_name, organisation=self.org)
 
         # Submitted assessment within current period (required by BaseReviewMixin queryset)
         self.assessment = Assessment.objects.create(
@@ -80,6 +80,93 @@ class TestCreateReportView(BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         # The view prefixes the error with this message
         self.assertIn(b"Could not generate the report", resp.content)
+
+    def test_create_report_updates_last_updated_by(self):
+        """Test that form_valid updates last_updated_by field with current user."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        with patch.object(Review, "mark_review_complete", return_value=None):
+            self.client.post(url, data={"action": "create_report"})
+
+        # Reload review and check last_updated_by was set
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.last_updated_by, self.user)
+
+    def test_create_report_calls_mark_review_complete(self):
+        """Test that form_valid calls mark_review_complete with user profile."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        with patch.object(Review, "mark_review_complete", return_value=None) as mocked:
+            self.client.post(url, data={"action": "create_report"})
+
+        # Verify mark_review_complete was called once
+        self.assertEqual(mocked.call_count, 1)
+        # Verify it was called with a UserProfile
+        call_args = mocked.call_args[0]
+        self.assertEqual(len(call_args), 1)
+        self.assertIsInstance(call_args[0], UserProfile)
+
+    def test_create_report_logs_success(self):
+        """Test that successful report creation logs info message."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        with patch.object(Review, "mark_review_complete", return_value=None):
+            with self.assertLogs("CreateReportView", level="INFO") as log_context:
+                self.client.post(url, data={"action": "create_report"})
+
+        # Check that success was logged
+        self.assertTrue(any("marked as complete" in message for message in log_context.output))
+        self.assertTrue(any(f"Review {self.review.id}" in message for message in log_context.output))
+
+    def test_create_report_logs_validation_error(self):
+        """Test that ValidationError during report creation logs warning."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        with patch.object(Review, "mark_review_complete", side_effect=ValidationError("Test error")):
+            with self.assertLogs("CreateReportView", level="WARNING") as log_context:
+                self.client.post(url, data={"action": "create_report"})
+
+        # Check that error was logged
+        self.assertTrue(any("Error marking review" in message for message in log_context.output))
+        self.assertTrue(any(f"review {self.review.id}" in message for message in log_context.output))
+
+    def test_non_create_report_action_redirects_to_edit_review(self):
+        """Test that form_valid without action='create_report' redirects to edit-review."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        # Post without action='create_report'
+        resp = self.client.post(url, data={}, follow=False)
+
+        # Should redirect to edit-review
+        self.assertIn(resp.status_code, (302, 303))
+        self.assertEqual(resp.url, reverse("edit-review", kwargs={"pk": self.review.id}))
+
+    def test_different_action_redirects_to_edit_review(self):
+        """Test that form_valid with different action value redirects to edit-review."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        # Post with different action
+        resp = self.client.post(url, data={"action": "save_draft"}, follow=False)
+
+        # Should redirect to edit-review
+        self.assertIn(resp.status_code, (302, 303))
+        self.assertEqual(resp.url, reverse("edit-review", kwargs={"pk": self.review.id}))
+
+    def test_validation_error_message_includes_custom_prefix(self):
+        """Test that ValidationError adds custom error message prefix."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        error_message = "Review is not ready"
+        with patch.object(Review, "mark_review_complete", side_effect=ValidationError(error_message)):
+            resp = self.client.post(url, data={"action": "create_report"}, follow=False)
+
+        # Check error message includes prefix and original error
+        self.assertIn(b"Could not generate the report", resp.content)
+        self.assertIn(error_message.encode(), resp.content)
+
+    def test_validation_error_returns_form_invalid_response(self):
+        """Test that ValidationError returns form_invalid (re-renders form with errors)."""
+        url = reverse("create-report", kwargs={"pk": self.review.id})
+        with patch.object(Review, "mark_review_complete", side_effect=ValidationError("Test error")):
+            resp = self.client.post(url, data={"action": "create_report"}, follow=False)
+
+        # Should return 200 (form re-render), not redirect
+        self.assertEqual(resp.status_code, 200)
+        # Template should be the same create-report template
+        self.assertTemplateUsed(resp, "review/assessment/create-report.html")
 
     def test_show_report_confirmation_renders(self):
         # Smoke test the confirmation page renders

@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.forms import (
     CharField,
     ChoiceField,
+    EmailField,
     Form,
     HiddenInput,
     IntegerField,
@@ -193,3 +194,27 @@ class ReviewPeriodForm(ModelForm):
     class Meta:
         model = Review
         fields: list[str] = []
+
+
+class CompanyDetailsForm(ModelForm):
+    company_name = CharField(label="Company name", max_length=255, required=True)
+    company_email = EmailField(label="Company email address", max_length=255, required=True)
+    company_address = CharField(label="Company address", max_length=500, required=False)
+    company_phone = CharField(label="Company phone number", max_length=15, required=False)
+
+    class Meta:
+        model = Review
+        fields: list[str] = []
+
+    def __init__(self, *args, **kwargs):
+        text = kwargs.pop("initial", {}).get("text", {})
+        if text:
+            initial = kwargs.get("initial", {})
+            kwargs["initial"] = initial | text
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        self.cleaned_data["text"] = {
+            "company_name": self.cleaned_data["company_name"],
+            "company_email": self.cleaned_data["company_email"],
+        }
