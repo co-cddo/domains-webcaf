@@ -19,9 +19,21 @@ class Index(TemplateView):
     template_name = "index.html"
 
 
+class AssessmentNotSelectedException(Exception):
+    """
+    Exception raised when an assessment is not selected.
+
+    This exception is used to indicate that a required assessment has not
+    been selected during an operation or process where it is mandatory.
+    """
+
+    pass
+
+
 class FormViewWithBreadcrumbs(FormView):
     """
     Extension of the standard FormView class to include breadcrumb functionality.
+    NOTE: Intended to be used in views where an assessment is being edited or created.
 
     This class provides additional support for dynamically appending breadcrumb
     links to the context data for rendering in templates. It is particularly useful
@@ -51,6 +63,9 @@ class FormViewWithBreadcrumbs(FormView):
             corresponding hyperlink.
         :rtype: list[dict[str, str]]
         """
+        if not self.request.session.get("draft_assessment", {}).get("assessment_id"):
+            raise AssessmentNotSelectedException
+
         return [
             {
                 "text": "Edit draft self-assessment",

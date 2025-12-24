@@ -4,7 +4,7 @@ import hmac
 import logging
 from abc import abstractmethod
 
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils.deprecation import MiddlewareMixin
 
 log_context: contextvars.ContextVar = contextvars.ContextVar("log_context", default={})
@@ -135,3 +135,26 @@ class AssessmentDoesNotExistHandlerMiddleware(AbstractAssessmentErrorHandlerMidd
         return render(
             request, "404.html", context={"assessment_not_found": "Assessment could not be found."}, status=404
         )
+
+
+class AssessmentNotSelectedHandlerMiddleware(AbstractAssessmentErrorHandlerMiddleware):
+    """
+    Handles exceptions related to unselected assessments.
+
+    This middleware is responsible for intercepting and handling exceptions
+    specific to cases where an assessment has not been selected. It checks
+    if the raised exception is of the type `AssessmentNotSelectedException`
+    and processes it accordingly.
+
+    :ivar _handled_exception: A flag or property indicating if the exception
+        has been handled.
+    :type _handled_exception: bool
+    """
+
+    def is_handled_exception(self, exception):
+        from webcaf.webcaf.views.general import AssessmentNotSelectedException
+
+        return isinstance(exception, AssessmentNotSelectedException)
+
+    def handle_exception(self, request, exception):
+        return redirect("view-draft-assessments")

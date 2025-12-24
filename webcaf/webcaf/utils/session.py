@@ -27,9 +27,10 @@ class SessionUtil:
         """
         from webcaf.webcaf.models import UserProfile
 
-        user_profile_id = request.session["current_profile_id"]
+        user_profile_id = request.session.get("current_profile_id")
         try:
-            return UserProfile.objects.get(id=user_profile_id)
+            if user_profile_id:
+                return UserProfile.objects.get(id=user_profile_id)
         except Exception:  # type: ignore[catching-any]
             SessionUtil.logger.error(f"Unable to retrieve user profile with id {user_profile_id}")
         return None
@@ -44,6 +45,7 @@ class SessionUtil:
         stored in the session. It ensures the assessment belongs to the user's
         organisation and is in the 'status_to_get' state.
 
+        :param status_to_get: The status of the assessment to retrieve. Defaults to 'draft'.
         :param request: HTTP request object containing session data used to
             identify the assessment and user profile.
         :return: Assessment object matching the specified session data.
