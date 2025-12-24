@@ -86,6 +86,7 @@ MIDDLEWARE = [
     "django_otp.middleware.OTPMiddleware",
     "webcaf.session.CafSessionTimeoutMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "webcaf.middleware.AssessmentDoesNotExistHandlerMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
