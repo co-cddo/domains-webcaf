@@ -79,7 +79,13 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     assessment.save()
                     uk_tz = zoneinfo.ZoneInfo("Europe/London")
                     # Initiate the review
-                    Review.objects.get_or_create(assessment=assessment)
+                    if assessment.review_type in ["independent", "peer_review"]:
+                        review, _ = Review.objects.get_or_create(assessment=assessment)
+                        self.logger.info(f"Initiating review for {assessment.id} by {self.request.user.pk} {review.id}")
+                    else:
+                        self.logger.info(
+                            f"No review initiated for {assessment.id} by {self.request.user.pk} as review type is not independent or peer review"
+                        )
                     self.logger.info(
                         f"Assessment {assessment.id} reference {assessment.reference} submitted"
                         f" at {datetime.now(tz=uk_tz).strftime('%Y-%m-%d %H:%M:%S')}"
