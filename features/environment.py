@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 import django
@@ -34,7 +35,12 @@ def before_scenario(context, scenario):
 
     def clear_db():
         print("****************** Clearing DB *****************************")
-        from webcaf.webcaf.models import Assessment, Organisation, UserProfile
+        from webcaf.webcaf.models import (
+            Assessment,
+            Configuration,
+            Organisation,
+            UserProfile,
+        )
 
         Assessment.objects.filter(
             created_by__email__in=[email.strip() for email in context.config.userdata.get("user_emails", "").split(",")]
@@ -61,7 +67,40 @@ def before_scenario(context, scenario):
             ]
         ).delete()
 
+        Configuration.objects.all().delete()
+        # We need to create a default configuration for testing purposes.
+        assessment_period, assessment_year = get_current_assessment_period()
+        Configuration.objects.create(
+            name="default",
+            config_data={
+                "default_framework": "caf32",
+                "current_assessment_period": assessment_period,
+                "assessment_period_end": f"31 March {assessment_year} 11:59pm",
+            },
+        )
+
     run_async_orm(clear_db)
+
+
+def get_current_assessment_period() -> tuple[str, str]:
+    """
+    Generate the current assessment period based on the current date.
+    if the date is less than 11:59pm of 31st March, then the assessment period is current year -1/current year, else
+    it is current year/current year +1
+
+    Returns:
+        tuple[str, str]: A tuple containing the assessment period and the assessment year
+    """
+    current_date = datetime.now()
+    # Determines the assessment period based on the current date
+    if (
+        current_date.month < 3
+        or (current_date.month == 3 and current_date.day < 31)
+        or (current_date.month == 3 and current_date.day == 31 and current_date.hour < 23 and current_date.minute < 59)
+    ):
+        return f"{current_date.year - 1}/{current_date.year}".replace("20", ""), f"{current_date.year}"
+    else:
+        return f"{current_date.year}/{current_date.year + 1}".replace("20", ""), f"{current_date.year + 1}"
 
 
 def after_scenario(context, scenario):

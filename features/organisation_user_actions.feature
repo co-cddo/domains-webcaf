@@ -7,7 +7,7 @@ Feature: Organisation user filling assessments
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
-    And there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "25/26" in "draft" status and data " "
+    And there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "current" in "draft" status and data " "
     And the user logs in with username  "alice@example.gov.uk" and password "password"
 
   Scenario: Organisation user complete assessment process

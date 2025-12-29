@@ -13,6 +13,7 @@ from behave.runner import Context
 from playwright.sync_api import expect
 from pypdf import PdfReader
 
+from features.environment import get_current_assessment_period
 from features.util import delete_model, exists_model, get_model, run_async_orm
 
 
@@ -242,6 +243,12 @@ def create_new_assessment(
     """
     from webcaf.webcaf.models import Assessment, Review, System
 
+    # Only support 'current' period for now,
+    # If we allow to hardcode the value, then there is a good chance that we will forget to update
+    # it when the assessment period changes
+    if period != "current":
+        raise ValueError(f"Period '{period}' is not supported. Only 'current' is allowed.")
+
     def create_assessment() -> Assessment:
         initial_assessment_data = {}
         if data_file and data_file.strip():
@@ -250,7 +257,7 @@ def create_new_assessment(
         assessment = Assessment.objects.create(
             system=System.objects.get(name=system_name, organisation__name=organisation_name),
             caf_profile=caf_profile,
-            assessment_period=period,
+            assessment_period=get_current_assessment_period()[0],
             status=status,
             review_type="peer_review",
             framework="caf32",
