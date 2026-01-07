@@ -1,6 +1,7 @@
 import logging
 
 from django import forms
+from django.contrib.auth.models import User
 
 from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.utils import mask_email
@@ -63,17 +64,26 @@ class UserProfileForm(forms.ModelForm):
         :param commit: Optional boolean indicating whether to save the changes to the database. Default is True.
         :return: UserProfile object representing the saved user profile.
         """
-        # Save role to UserProfile and names to related User
-        profile = super().save(commit=False)
-        user = profile.user
+
+        user_email = self.cleaned_data["email"]
+        user, created = User.objects.get_or_create(
+            email=user_email,
+            defaults={
+                "username": user_email,
+            },
+        )
+
+        # Save any updated information on the user
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
-        # If the email address has changed, update the User model as well.
-        if user.email != self.cleaned_data["email"]:
-            user.email = self.cleaned_data["email"]
-            user.username = user.email
-            self.logger.info(mask_email(f"Updated user {user.pk} email to {user.email}"))
-        if commit:
-            user.save()
-            profile.save()
-        return profile
+        user.username = user_email
+        self.instance.user = user
+        self.instance.user.save()
+
+        log_message = (
+            f"Created new user {user_email} {user.id} for profile {self.instance.id if self.instance.id else 'new profile'}"
+            if created
+            else f"User {user_email} {user.id} already exists, associating with the profile {self.instance.id if self.instance.id else 'new profile'}"
+        )
+        self.logger.info(mask_email(log_message))
+        return super().save(commit)

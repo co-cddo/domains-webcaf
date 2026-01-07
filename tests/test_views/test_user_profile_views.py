@@ -241,3 +241,181 @@ class TestUserProfileView(BaseViewTest):
 
         # Assert user was not created with cyber_advisor role
         self.assertFalse(User.objects.filter(email=new_email).exists())
+
+    def test_create_profile_with_new_email_creates_new_user(self):
+        """
+        When creating a profile with an email that doesn't match any existing user,
+        a new user should be created and assigned to the profile.
+        """
+        new_email = "brandnew@bigorganisation.gov.uk"
+        first_name = "Brand"
+        last_name = "New"
+
+        # Verify user doesn't exist
+        self.assertFalse(User.objects.filter(email=new_email).exists())
+
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": new_email,
+                "role": "organisation_user",
+                "action": "confirm",
+                "first_name": first_name,
+                "last_name": last_name,
+            },
+        )
+
+        # Should redirect to success URL
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/view-profiles/")
+
+        # New user should be created
+        self.assertTrue(User.objects.filter(email=new_email).exists())
+        created_user = User.objects.get(email=new_email)
+        self.assertEqual(created_user.first_name, first_name)
+        self.assertEqual(created_user.last_name, last_name)
+        self.assertEqual(created_user.username, new_email)
+
+        # Profile should be created with the new user
+        profile = UserProfile.objects.get(user=created_user, organisation=self.test_organisation)
+        self.assertEqual(profile.role, "organisation_user")
+
+    def test_create_profile_with_existing_email_associates_existing_user(self):
+        """
+        When creating a profile with an email that matches an existing user,
+        that existing user should be associated with the profile and their name should be updated.
+        """
+        # Create an existing user without a profile in this organisation
+        existing_email = "existing@bigorganisation.gov.uk"
+        existing_user = User.objects.create_user(
+            username=existing_email, email=existing_email, first_name="Old", last_name="Name"
+        )
+
+        new_first_name = "Updated"
+        new_last_name = "Person"
+
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": existing_email,
+                "role": "organisation_user",
+                "action": "confirm",
+                "first_name": new_first_name,
+                "last_name": new_last_name,
+            },
+        )
+
+        # Should redirect to success URL
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/view-profiles/")
+
+        # Should not create a new user
+        self.assertEqual(User.objects.filter(email=existing_email).count(), 1)
+
+        # User's name should be updated
+        existing_user.refresh_from_db()
+        self.assertEqual(existing_user.first_name, new_first_name)
+        self.assertEqual(existing_user.last_name, new_last_name)
+
+        # Profile should be created with the existing user
+        profile = UserProfile.objects.get(user=existing_user, organisation=self.test_organisation)
+        self.assertEqual(profile.role, "organisation_user")
+
+    def test_update_profile_with_new_email_creates_new_user_and_orphans_old(self):
+        """
+        When updating a profile with an email that doesn't match any existing user,
+        a new user should be created and assigned, and the old user should be orphaned.
+        """
+        # Keep reference to old user
+        old_user = self.target_user
+        old_user_id = old_user.id
+
+        new_email = "completelynew@bigorganisation.gov.uk"
+        new_first_name = "Completely"
+        new_last_name = "New"
+
+        # Verify new user doesn't exist
+        self.assertFalse(User.objects.filter(email=new_email).exists())
+
+        response = self.client.post(
+            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            data={
+                "email": new_email,
+                "role": "organisation_lead",
+                "action": "confirm",
+                "first_name": new_first_name,
+                "last_name": new_last_name,
+            },
+        )
+
+        # Should redirect to success URL
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/view-profiles/")
+
+        # New user should be created
+        self.assertTrue(User.objects.filter(email=new_email).exists())
+        new_user = User.objects.get(email=new_email)
+        self.assertEqual(new_user.first_name, new_first_name)
+        self.assertEqual(new_user.last_name, new_last_name)
+
+        # Profile should now be associated with the new user
+        self.target_profile.refresh_from_db()
+        self.assertEqual(self.target_profile.user.id, new_user.id)
+        self.assertEqual(self.target_profile.role, "organisation_lead")
+
+        # Old user should still exist but not be associated with any profile in this organisation
+        old_user.refresh_from_db()
+        self.assertEqual(old_user.id, old_user_id)
+        self.assertFalse(UserProfile.objects.filter(user=old_user, organisation=self.test_organisation).exists())
+
+    def test_update_profile_with_existing_email_associates_existing_user_and_orphans_old(self):
+        """
+        When updating a profile with an email that matches an existing user,
+        that existing user should be associated with the profile (and their name updated),
+        and the old user should be orphaned.
+        """
+        # Create an existing user without a profile in this organisation
+        existing_email = "existingother@bigorganisation.gov.uk"
+        existing_user = User.objects.create_user(
+            username=existing_email, email=existing_email, first_name="Existing", last_name="Other"
+        )
+
+        # Keep reference to old user
+        old_user = self.target_user
+        old_user_id = old_user.id
+
+        new_first_name = "Updated"
+        new_last_name = "Name"
+
+        response = self.client.post(
+            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            data={
+                "email": existing_email,
+                "role": "organisation_lead",
+                "action": "confirm",
+                "first_name": new_first_name,
+                "last_name": new_last_name,
+            },
+        )
+
+        # Should redirect to success URL
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/view-profiles/")
+
+        # Should not create a new user
+        self.assertEqual(User.objects.filter(email=existing_email).count(), 1)
+
+        # Existing user's name should be updated
+        existing_user.refresh_from_db()
+        self.assertEqual(existing_user.first_name, new_first_name)
+        self.assertEqual(existing_user.last_name, new_last_name)
+
+        # Profile should now be associated with the existing user
+        self.target_profile.refresh_from_db()
+        self.assertEqual(self.target_profile.user.id, existing_user.id)
+        self.assertEqual(self.target_profile.role, "organisation_lead")
+
+        # Old user should still exist but not be associated with any profile in this organisation
+        old_user.refresh_from_db()
+        self.assertEqual(old_user.id, old_user_id)
+        self.assertFalse(UserProfile.objects.filter(user=old_user, organisation=self.test_organisation).exists())
