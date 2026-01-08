@@ -1,10 +1,12 @@
 import logging
+from typing import Any
 
 from django import forms
-from django.contrib.auth.models import User
+from django.db.models import QuerySet
+from django.db.transaction import atomic
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
@@ -39,11 +41,12 @@ class UserProfilesView(UserRoleCheckMixin, FormView):
         return data
 
 
-class UserProfileView(UserRoleCheckMixin, FormView):
+class UserProfileView(UserRoleCheckMixin, UpdateView):
     template_name = "users/user.html"
     login_url = "/oidc/authenticate/"
     success_url = "/view-profiles/"
     form_class = UserProfileForm
+    logger = logging.getLogger("UserProfileView")
 
     def get_allowed_roles(self) -> list[str]:
         return ["cyber_advisor", "organisation_lead"]
@@ -72,23 +75,25 @@ class UserProfileView(UserRoleCheckMixin, FormView):
         ]
         return data
 
-    def get_object(self):
+    def get_object(self, queryset: QuerySet[Any, Any] | None = None) -> Any:
         current_profile = SessionUtil.get_current_user_profile(request=self.request)
-        user_profile = UserProfile.objects.get(
-            id=self.kwargs["user_profile_id"], organisation=current_profile.organisation
-        )
-        return user_profile
+        if "user_profile_id" in self.kwargs and current_profile:
+            # When editing a profile
+            try:
+                return UserProfile.objects.get(
+                    id=self.kwargs["user_profile_id"], organisation=current_profile.organisation
+                )
+            except UserProfile.DoesNotExist:
+                return None
+        # Return None for new user creation
+        return None
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["instance"] = self.get_object()
-        return kwargs
-
+    @atomic
     def form_valid(self, form):
+        # User wants to edit the data again
         if form.cleaned_data["action"] == "change":
-            # Send the user back to edit form
             return self.form_invalid(form)
-        form.save()
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -105,34 +110,12 @@ class UserProfileView(UserRoleCheckMixin, FormView):
 
 
 class CreateUserProfileView(UserProfileView):
-    def get_object(self):
-        """
-        Summary: This method retrieves the current object.
-
-        Detailed Description:
-
-        This method is designed to provide access to the current instance of an object.
-        It returns the object without any additional processing or modification.
-        """
-        # Always None as we are creating a new object
-        return None
-
     def form_valid(self, form):
-        action = self.request.POST.get("action")
-        if action == "change":
+        if self.request.POST.get("action") == "change":
             form.errors.clear()
             return super().form_invalid(form)
 
-        user_email = form.cleaned_data["email"]
-        # This will create a new user if it doesn't exist.
-        user, created = User.objects.get_or_create(
-            email=user_email,
-            defaults={"username": user_email},
-        )
-
-        form.instance.user = user
-        current_profile_id = self.request.session.get("current_profile_id")
-        current_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
+        current_profile = SessionUtil.get_current_user_profile(self.request)
         form.instance.organisation = current_profile.organisation
 
         return super().form_valid(form)
@@ -160,12 +143,6 @@ class CreateOrSkipUserProfileView(UserProfilesView):
             return reverse("create-new-profile")
         else:
             return reverse("my-account")
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
 
 
 class RemoveUserProfileView(UserRoleCheckMixin, FormView):
@@ -203,29 +180,29 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
         return data
 
     def form_valid(self, form):
-        action = self.request.POST.get("action")
-        if action == "confirm":
-            current_user_profile = SessionUtil.get_current_user_profile(self.request)
-            if PermissionUtil.current_user_can_delete_user(current_user_profile):
-                # Delete the given profile
-                profile_to_delete = UserProfile.objects.get(
-                    id=self.kwargs["user_profile_id"],
-                )
-                if profile_to_delete.organisation != current_user_profile.organisation:
-                    self.logger.error(
-                        f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']} in {profile_to_delete.organisation} organisation"
-                    )
-                    raise PermissionError("You are not allowed to delete this user profile in a different organisation")
+        if self.request.POST.get("action") != "confirm":
+            return redirect(reverse("view-profiles"))
 
-                self.logger.info(
-                    f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}"
-                )
-                profile_to_delete.delete()
-            else:
-                self.logger.error(
-                    f"User {self.request.user.pk} is not allowed to delete this user profile {self.kwargs['user_profile_id']}"
-                )
-                raise PermissionError("You are not allowed to delete this user profile")
+        current_user_profile = SessionUtil.get_current_user_profile(self.request)
+
+        if not PermissionUtil.current_user_can_delete_user(current_user_profile):
+            self.logger.error(
+                f"User {self.request.user.pk} is not allowed to delete user profile {self.kwargs['user_profile_id']}"
+            )
+            raise PermissionError("You are not allowed to delete this user profile")
+
+        profile_to_delete = UserProfile.objects.get(id=self.kwargs["user_profile_id"])
+
+        if profile_to_delete.organisation != current_user_profile.organisation:
+            self.logger.error(
+                f"User {self.request.user.pk} attempted to delete user profile {self.kwargs['user_profile_id']} "
+                f"from different organisation {profile_to_delete.organisation}"
+            )
+            raise PermissionError("You are not allowed to delete this user profile in a different organisation")
+
+        self.logger.info(f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}")
+        profile_to_delete.delete()
+
         return redirect(reverse("view-profiles"))
 
     def form_invalid(self, form):
