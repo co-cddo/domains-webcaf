@@ -795,7 +795,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         """
         Evaluates whether a specific objective has been fully completed based on its review data
         and associated recommendations. This method inspects the data for key components such as
-        recommendations, areas of improvement, areas of good practice, and the status of associated
+        recommendations, areas for improvement, areas of good practice, and the status of associated
         outcomes for an objective, determining if all required conditions are met.
 
         :param objective_code: The code that uniquely identifies the objective to be checked.

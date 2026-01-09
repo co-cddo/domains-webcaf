@@ -30,8 +30,15 @@
                 </div>
             {% endif %}
             <span class="govuk-caption-l">{{ title }}</span>
-            <h1 class="govuk-heading-l">Add your recommendation for this {{ recommendation_type }}</h1>
-            <p class="govuk-body">{{ description }}</p>
+            <h1 class="govuk-heading-l">Add your recommendations</h1>
+            <p class="govuk-body">You must give each recommendation a short, clear title. Where appropriate, it should
+                reference language from the relevant <abbr title="Indicators of Good Practice">IGP</abbr>(s).</p>
+            <p class="govuk-body">Add details and rationale for your recommendation, referencing the risk it is
+                addressing.</p>
+            <p class="govuk-body">Please refer to the full <a
+                    href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
+                    target="_blank">stage 4 guidance (opens in new tab)</a> to support you and see an example
+                recommendation.</p>
             <form method="post" id="review-form">
                 {% csrf_token %}
                 {{ form.management_form }}
@@ -95,7 +102,7 @@
         <h2 class="govuk-heading-m">Recommendation --counter-plus-one--</h2>
         <div class="govuk-form-group">
             <label class="govuk-label"
-                   for="id_form---counter---title">Recommendation title</label>
+                   for="id_form---counter---title">Title</label>
             <input class="govuk-input govuk-input--width-30" type="text"
                    name="form---counter---title"
                    id="id_form---counter---title"
@@ -154,7 +161,7 @@
 
             // Update IDs and text individually instead of innerHTML replacement
             clone.id = `recommendation-container_${total_forms.value}`;
-            clone.querySelector("h2").textContent = `Recommendation ${parseInt(total_forms.value)+1}`;
+            clone.querySelector("h2").textContent = `Recommendation ${parseInt(total_forms.value) + 1}`;
             clone.querySelector("label[for^='id_form---counter---title']").setAttribute("for", `id_form-${total_forms.value}-title`);
             clone.querySelector("input").setAttribute("id", `id_form-${total_forms.value}-title`);
             clone.querySelector("input").setAttribute("name", `form-${total_forms.value}-title`);
@@ -175,8 +182,8 @@
             form_container.appendChild(clone);
 
             const removeButton = document.getElementById(`id_form---counter---remove-button`);
-            removeButton.setAttribute("id",`id_form-${total_forms.value}-remove-button`);
-            removeButton.setAttribute("data-idx",`${total_forms.value}`);
+            removeButton.setAttribute("id", `id_form-${total_forms.value}-remove-button`);
+            removeButton.setAttribute("data-idx", `${total_forms.value}`);
             removeButton.addEventListener("click", deleteRecommendationHandler());
 
             // Initialise only the new CharacterCount

@@ -12,15 +12,23 @@
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Describe your review method</h1>
             <p class="govuk-body">
-                Explain the approach you took to reviw the organisation's self-assessment.
+                Explain the approach you took to review the organisation's self-assessment and evidence.
             </p>
             <p class="govuk-body">
                 Include details of:
             </p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>the scope of the review and any excluded components</li>
-                <li>details of the methods used to gather information for your review
-                    (for example, desk-based analysis, workshops, interviews, document reviews or technical demonstrations)
+                <li>
+                    the scope of the review and any excluded components as described in the scoping document
+                </li>
+                <li>
+                    your data collection methods and how you reviewed evidence
+                </li>
+                <li>
+                    the quality and depth of your review
+                </li>
+                <li>
+                    any limitations or constraints you encountered during your review
                 </li>
             </ul>
             <form method="post" id="comment-form">
@@ -32,9 +40,6 @@
                     <label class="govuk-label" for="id_form-text">
                         Review method
                     </label>
-                    <div id="id_form-text-hint" class="govuk-hint">
-                        Provide detailed explanation
-                    </div>
                     <textarea class="govuk-textarea govuk-js-character-count"
                               aria-describedby="id_form-text-info"
                               name="{{ form.text.html_name }}" cols="40" rows="5"

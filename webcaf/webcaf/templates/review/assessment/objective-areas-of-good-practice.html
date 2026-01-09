@@ -12,29 +12,29 @@
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Areas of good practice</h1>
             <p class="govuk-body">
-                Use this section to comment on any areas of good practice which show there is strong cyber security
-                practice for this CAF objective.
-            </p>
-            <p class="govuk-body">
-                This might include well-implemented controls, mature processes, or effective governance.
+                Use this section to comment on areas of good practice for this CAF objective.
             </p>
             <p class="govuk-body">
                 Your comments will be included in the final Independent Assurance Review (IAR) report.
             </p>
-            <h2 class="govuk-heading-m">Your comments</h2>
-            <p class="govuk-caption-m">
-                Include examples of string practices, controls that exceed baseline expectations, or areas where the
-                organisation performs particularly well.
+            <p class="govuk-body">
+                Your comments should:
             </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>summarise key themes across the contributing outcomes and principles in the objective
+                </li>
+                <li>reference specific areas of good practice such as clear governance structures,
+                    consistent risk management processes, or well‑embedded procedures, and explain how these support the
+                    achievement of the objective
+                </li>
+            </ul>
             <form method="post" id="comment-form">
                 {% csrf_token %}
                 <div
                         data-module="govuk-character-count"
                         data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
                         class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label govuk-visually-hidden"
-                           for="id_form-text">{{ form.text.label }}
-                    </label>
+                    <label class="govuk-label" for="id_form-text">Your comments</label>
                     <textarea class="govuk-textarea govuk-js-character-count"
                               aria-describedby="id_form-text-info"
                               name="{{ form.text.html_name }}" cols="40" rows="5"
