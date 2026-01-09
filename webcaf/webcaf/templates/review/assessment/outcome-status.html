@@ -26,8 +26,8 @@
                         </p>
                         <p class="govuk-body">On this page, you will: </p>
                         <ul class="govuk-list govuk-list--bullet">
-                            <li>select your response to each <abbr>IGP</abbr> statement</li>
-                            <li>add your comments for each IGP where the organisation has named alternative controls or
+                            <li>select your response to each <abbr title="Indicators of Good Practice">IGP</abbr> statement</li>
+                            <li>add your comments for each <abbr title="Indicators of Good Practice">IGP</abbr> where the organisation has named alternative controls or
                                 exemptions
                             </li>
                             <li>select a contributing outcome status</li>
@@ -55,9 +55,9 @@
             {% for section in sections %}
                 <p class="govuk-body avoid-break statement-para">{{ section }}</p>
             {% endfor %}
-            <h2 class="govuk-heading-m">Review each IGP statement</h2>
+            <h2 class="govuk-heading-m">Review each <abbr title="Indicators of Good Practice">IGP</abbr> statement</h2>
             <p class="govuk-body">
-                When completing their self-assessment, the organisation selects an IGP statement if they believe it
+                When completing their self-assessment, the organisation selects an <abbr title="Indicators of Good Practice">IGP</abbr> statement if they believe it
                 applies to their system or organisation.
             </p>
             <p class="govuk-body">If you disagree with the organisation’s selection you will need to use the
@@ -71,7 +71,7 @@
                 <table class="govuk-table govuk-!-margin-bottom-8">
                     <thead>
                     <tr>
-                        <th class="govuk-table__header govuk-!-width-one-half">IGP statement</th>
+                        <th class="govuk-table__header govuk-!-width-one-half"><abbr title="Indicators of Good Practice">IGP</abbr> statement</th>
                         <th class="govuk-table__header govuk-!-width-one-half">Your review
                         </th>
                     </tr>
@@ -104,7 +104,7 @@
                                         <fieldset class="govuk-fieldset" id="id_{{ field.name|safe_id }}">
                                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                                 <h1 class="govuk-fieldset__heading">
-                                                    Does the IGP statement apply to the system or organisation?
+                                                    Does the <abbr title="Indicators of Good Practice">IGP</abbr> statement apply to the system or organisation?
                                                 </h1>
                                             </legend>
                                             {# Only show this hint text if there is alternate controls entered                                       #}
@@ -226,7 +226,7 @@
                                             improvement
                                         </li>
                                         <li>the organisation’s supporting evidence</li>
-                                        <li>where relevant, specific IGPs, including where the organisation has noted
+                                        <li>where relevant, specific <abbr title="Indicators of Good Practice">IGPs</abbr>, including where the organisation has noted
                                             alternative controls or exemptions
                                         </li>
                                         <li>where relevant, if the organisation is close to achieving the target
