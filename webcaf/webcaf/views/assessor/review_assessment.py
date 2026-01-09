@@ -387,12 +387,9 @@ class AddOutcomeRecommendationView(AddRecommendationView):
         outcome = self.object.assessment.get_caf_outcome_by_id(
             self.kwargs["objective_code"], self.kwargs["outcome_code"]
         )
-        data["title"] = f"{outcome['code']} - {outcome['title']}"
+        data["title"] = f"{outcome['code']} - {outcome['title']} review"
         data["recommendation_type"] = "outcome"
-        data[
-            "description"
-        ] = """Use this section to add recommendations for this outcome. Each recommendation should
-        summarise a direct improvement area identified during the assurance review."""
+        data["description"] = ""
         data["breadcrumbs"] = data["breadcrumbs"] + [
             {
                 "url": reverse(
@@ -593,10 +590,10 @@ class AddObjectiveCommentsView(BaseAddCommentsView, ABC):
 
 class AddObjectiveAreasOfImprovementView(AddObjectiveCommentsView):
     """
-    Handles the addition of comments related to objective areas of improvement.
+    Handles the addition of comments related to objective areas for improvement.
 
     This class is used to manage the comments that fall under the category of
-    "objective areas of improvement" in a review or assessment context. It inherits
+    "objective areas for improvement" in a review or assessment context. It inherits
     from `AddObjectiveCommentsView` and modifies the context data and
     comment category to match the specific requirements for handling areas
     of improvement.

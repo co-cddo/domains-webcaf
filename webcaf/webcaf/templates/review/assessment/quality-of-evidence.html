@@ -12,14 +12,20 @@
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Describe the quality of the self-assessment</h1>
             <p class="govuk-body">
-                Provide your comments on the quality of the self-assessment including:
+                Provide your comments on the quality of the organisation’s self-assessment including:
             </p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>the contributing outcome summaries</li>
-                <li>any alternative controls or exemptions for individual IGPs</li>
-                <li>supporting evidence you have seen outside the WebCAF service</li>
+                <li>the contributing outcome summaries
+                </li>
+                <li>explanations of any alternative controls or exemptions for individual IGPs
+                </li>
+                <li>supporting evidence you have seen outside the WebCAF service
+                </li>
             </ul>
-
+            <p class="govuk-body">
+                Consider the level of detail provided by the organisation, and the appropriateness and completeness of supporting evidence.
+                Quality of the self-assessment and evidence
+            </p>
             <form method="post" id="comment-form">
                 {% csrf_token %}
                 <div
@@ -29,9 +35,6 @@
                     <label class="govuk-label" for="id_form-text">
                         Quality of the self-assessment and evidence
                     </label>
-                    <div id="check-quality-hint" class="govuk-hint">
-                        Provide detailed explanation
-                    </div>
                     <textarea class="govuk-textarea govuk-js-character-count"
                               aria-describedby="id_form-text-info" name="{{ form.text.html_name }}" cols="40" rows="5"
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>

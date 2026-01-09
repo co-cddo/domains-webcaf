@@ -10,7 +10,7 @@
         <div class="govuk-grid-column-three-quarters">
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
-            <h1 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }}</h1>
+            <h1 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }} review</h1>
             <details class="govuk-details">
                 <summary class="govuk-details__summary">
                     <span class="govuk-details__summary-text">
@@ -20,19 +20,18 @@
                 <div class="govuk-details__text">
                     <section class="govuk-!-margin-bottom-6">
                         <p class="govuk-body">
-                            This page shows the organisations self-assessment for this contributing outcome. You must
-                            review this alongside all the evidence you have seen from the organisation and use your
-                            expert judgement to inform your responses.
+                            This page shows the organisation’s self-assessment for this contributing outcome.
+                            You must review this alongside all the evidence you have seen from the organisation and use
+                            your expert judgement to inform your responses.
                         </p>
-                        <p>On this page, you will: </p>
+                        <p class="govuk-body">On this page, you will: </p>
                         <ul class="govuk-list govuk-list--bullet">
-                            <li>select your response to each IGP statement</li>
-                            <li>add your review for each IGP where the organisation has named alternative controls or
+                            <li>select your response to each <abbr>IGP</abbr> statement</li>
+                            <li>add your comments for each IGP where the organisation has named alternative controls or
                                 exemptions
                             </li>
                             <li>select a contributing outcome status</li>
                             <li>write a summary for the contributing outcome</li>
-
                         </ul>
                         <p class="govuk-body">Please refer to the full <a
                                 href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
@@ -61,8 +60,10 @@
                 When completing their self-assessment, the organisation selects an IGP statement if they believe it
                 applies to their system or organisation.
             </p>
-            <p class="govuk-body">If you disagree with the organisation’s selection you will need to use the comment box
-                to explain why and include relevant evidence.
+            <p class="govuk-body">If you disagree with the organisation’s selection you will need to use the
+                comment box to explain why and include relevant evidence. You do not need to add comments
+                if you agree with the organisation’s response, except where they have noted alternative controls or
+                exemptions.
             </p>
             <form method="post" novalidate="">
                 {% csrf_token %}
@@ -146,7 +147,7 @@
                                              data-module="govuk-character-count"
                                              data-maxwords={{ comment_field.field.widget.attrs.max_words }}>
                                             <label class="govuk-label" for="{{ comment_field.auto_id|safe_id }}">
-                                                Provide your comments including any relevant evidence
+                                                Provide your comments
                                                 {% if not comment_field.help_text %}
                                                     (optional)
                                                 {% endif %}
@@ -185,7 +186,7 @@
                             <div id="overall-status-hint" class="govuk-hint">
                                 Select one outcome status
                             </div>
-                            <div class="govuk-radios "  data-module="govuk-radios">
+                            <div class="govuk-radios" data-module="govuk-radios">
                                 {% for choice in form.review_decision.field.choices %}
                                     <div class="govuk-radios__item">
                                         <input class="govuk-radios__input" id="id_{{ choice.0 }}_review_decision"
@@ -205,11 +206,41 @@
                          class="govuk-form-group govuk-character-count {% if form.review_comment.errors %} govuk-form-group--error {% endif %}"
                          data-module="govuk-character-count"
                          data-maxwords={{ form.review_comment.field.widget.attrs.max_words }}>
-                        <label class="govuk-label" for="{{ form.review_comment.auto_id|safe_id }}">
-                            Comments to support your review
-                        </label>
+                         <h2 class="govuk-heading-m govuk-!-margin-top-6">Comments to support your review</h2>
+                        <p class="govuk-body">
+                            Provide clear, concise comments to explain your reasons for selecting the contributing
+                            outcome status.
+                        </p>
+                        <details class="govuk-details">
+                            <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                                How to support your review
+                            </span>
+                            </summary>
+                            <div class="govuk-details__text">
+                                <section class="govuk-!-margin-bottom-6">
+                                    <p class="govuk-body">Your comments should reference:</p>
+                                    <ul class="govuk-list govuk-list--bullet">
+                                        <li>areas of good practice</li>
+                                        <li>current risks to the system or organisation and related areas for
+                                            improvement
+                                        </li>
+                                        <li>the organisation’s supporting evidence</li>
+                                        <li>where relevant, specific IGPs, including where the organisation has noted
+                                            alternative controls or exemptions
+                                        </li>
+                                        <li>where relevant, if the organisation is close to achieving the target
+                                            resilience level for the contributing outcome
+                                        </li>
+                                    </ul>
+                                </section>
+                            </div>
+                        </details>
                         <!-- @formatter:off -->
                         {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
+                        <label class="govuk-label" for="{{ form.review_comment.auto_id|safe_id }}">
+                            Add comments
+                        </label>
                         <textarea class="govuk-textarea comments_textarea govuk-js-character-count"
                                   id="{{ form.review_comment.auto_id|safe_id }}"
                                   name="{{ form.review_comment.name }}"

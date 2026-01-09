@@ -12,29 +12,28 @@
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Areas for improvement</h1>
             <p class="govuk-body">
-                Use this section to comment on any areas which you felt could be improved against this CAF objective.
-            </p>
-            <p class="govuk-body">
-                This might include immaturity of controls, insufficient governance, or areas where the organisation
-                could strengthen its cyber security posture.
+                Use this section to comment on any areas for improvement for this CAF objective.
             </p>
             <p class="govuk-body">
                 Your comments will be included in the final Independent Assurance Review (IAR) report.
             </p>
-            <h2 class="govuk-heading-m">Your comments</h2>
-            <p class="govuk-caption-m">
-                Describe any weaknesses, vulnerabilities, or inconsistencies that may impact
-                the organisation's ability to meet this CAF objective.
+            <p class="govuk-body">
+                Your comments should:
             </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>summarise key weaknesses across the contributing outcomes and principles in the objective</li>
+                <li>outline resulting risks to the organisation</li>
+                <li>reference specific high-priority areas for improvement such as immaturity of controls,
+                    insufficient governance or particular vulnerabilities
+                </li>
+            </ul>
             <form method="post" id="comment-form">
                 {% csrf_token %}
                 <div
                         data-module="govuk-character-count"
                         data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
                         class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label govuk-visually-hidden"
-                           for="id_form-text">{{ form.text.label }}
-                    </label>
+                    <label class="govuk-label" for="id_form-text">Your comments</label>
                     <textarea class="govuk-textarea govuk-js-character-count" name="{{ form.text.html_name }}" cols="40"
                               rows="5"
                               aria-describedby="id_form-text-info"

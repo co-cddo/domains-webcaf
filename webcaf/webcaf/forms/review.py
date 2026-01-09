@@ -32,7 +32,11 @@ class RecommendationForm(Form):
     :type text: CharField
     """
 
-    title = CharField(label="Recommendation title", max_length=255, required=False, help_text="Optional.")
+    title = CharField(
+        label="Title",
+        max_length=255,
+        required=False,
+    )
     text = CharField(
         validators=([WordCountValidator(750)]),
         widget=Textarea(
@@ -198,7 +202,8 @@ class ReviewPeriodForm(ModelForm):
 
 class CompanyDetailsForm(ModelForm):
     company_name = CharField(label="Company name", max_length=255, required=True)
-    company_email = EmailField(label="Company email address", max_length=255, required=True)
+    lead_assessor_name = CharField(label="Lead reviewer name", max_length=255, required=True)
+    company_email = EmailField(label="Lead reviewer email", max_length=255, required=True)
     company_address = CharField(label="Company address", max_length=500, required=False)
     company_phone = CharField(label="Company phone number", max_length=15, required=False)
 
@@ -216,5 +221,6 @@ class CompanyDetailsForm(ModelForm):
     def clean(self):
         self.cleaned_data["text"] = {
             "company_name": self.cleaned_data["company_name"],
+            "lead_assessor_name": self.cleaned_data["lead_assessor_name"],
             "company_email": self.cleaned_data["company_email"],
         }

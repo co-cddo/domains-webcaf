@@ -11,29 +11,47 @@
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Add company details</h1>
+            <div class="govuk-details">
+                <p class="govuk-body">
+                    This information will be included in the Independent Assurance Review Report (IARR).
+                </p>
+            </div>
             <form class="form" id="mainForm" method="post">
                 {% csrf_token %}
                 <div class="govuk-form-group">
                     <label class="govuk-label" for="company_name">
-                        Company name
+                        {{ form.company_name.label }}
                     </label>
                     <div id="company_name-hint" class="govuk-hint">
-                        Enter name as registered on Companies House if incorporated, or the trading name of the company
+                        The trading name of the company
                     </div>
-                    <input class="govuk-input govuk-input--width-20" id="company_name" name="company_name" type="text"
+                    <input class="govuk-input govuk-input--width-30" id="company_name" name="company_name" type="text"
                            spellcheck="false" aria-describedby="company_name-hint" autocomplete="string"
                            value="{{ form.company_name.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group">
+                    <label class="govuk-label" for="lead_assessor_name">
+                        {{ form.lead_assessor_name.label }}
+                    </label>
+                    <div id="lead_assessor_name-hint" class="govuk-hint govuk-visually-hidden">
+                        {{ form.lead_assessor_name.label }}
+                    </div>
+                    <input class="govuk-input govuk-input--width-20" id="lead_assessor_name" name="lead_assessor_name"
+                           type="text"
+                           spellcheck="false" aria-describedby="lead_assessor_name-hint" autocomplete="string"
+                           value="{{ form.lead_assessor_name.value|default:'' }}">
+                </div>
+                <div class="govuk-form-group">
                     <label class="govuk-label" for="company_email">
-                        Company email address
+                        {{ form.company_email.label }}
                     </label>
                     <div id="company_email-hint" class="govuk-hint">
-                        Use your business email address. For example, john.drake@company.com
+                        Use a current company email address
                     </div>
-                    <input class="govuk-input govuk-input--width-20" id="company_email" name="company_email" type="email"
+                    <input class="govuk-input govuk-input--width-30" id="company_email" name="company_email"
+                           type="email"
                            spellcheck="false" aria-describedby="company_email-hint" autocomplete="string"
-                    value="{{ form.company_email.value|default:'' }}">
+                           value="{{ form.company_email.value|default:'' }}">
                 </div>
                 <button class="govuk-button" id="save-add-company-details" data-module="govuk-button">
                     Save and continue
