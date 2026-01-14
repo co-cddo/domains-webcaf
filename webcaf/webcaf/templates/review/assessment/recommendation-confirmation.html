@@ -21,6 +21,14 @@
                 {% csrf_token %}
                 {{ form.management_form }}
                 <dl class="govuk-summary-list govuk-!-margin-top-4">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                            Risk
+                        </dt>
+                        <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                            Recommendation detail
+                        </dt>
+                    </div>
                     {% for form_ in form %}
                         <input class="govuk-input" type="hidden" name="{{ form_.title.html_name }}"
                                id="id_form-{{ forloop.counter0 }}-title"
@@ -37,7 +45,7 @@
                         {% if not form_.DELETE.value %}
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                                    {{ form_.title.value|default:"" }}
+                                    <p class="govuk-body">{{ form_.title.value|default:"" }}</p>
                                 </dt>
                                 <dd class="govuk-summary-list__value">
                                     {% format_with_breaks form_.text.value|default:"" as sections %}
@@ -53,7 +61,7 @@
                 <button type="submit" class="govuk-button" data-module="govuk-button"
                         {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                         name="preview_status" value="confirm">
-                    Confirm and return
+                    Save and return
                 </button>
             </form>
         </div>

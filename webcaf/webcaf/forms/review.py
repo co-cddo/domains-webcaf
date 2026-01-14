@@ -33,8 +33,11 @@ class RecommendationForm(Form):
     """
 
     title = CharField(
-        label="Title",
-        max_length=255,
+        label="Risk",
+        validators=([WordCountValidator(250)]),
+        widget=Textarea(
+            attrs={"rows": 3, "max_words": 250},
+        ),
         required=False,
     )
     text = CharField(
@@ -219,8 +222,11 @@ class CompanyDetailsForm(ModelForm):
         super().__init__(*args, **kwargs)
 
     def clean(self):
-        self.cleaned_data["text"] = {
-            "company_name": self.cleaned_data["company_name"],
-            "lead_assessor_name": self.cleaned_data["lead_assessor_name"],
-            "company_email": self.cleaned_data["company_email"],
-        }
+        super().clean()
+        if self.is_valid():
+            # Set the transformed data to be saved if the form is valid
+            self.cleaned_data["text"] = {
+                "company_name": self.cleaned_data["company_name"],
+                "lead_assessor_name": self.cleaned_data["lead_assessor_name"],
+                "company_email": self.cleaned_data["company_email"],
+            }

@@ -30,15 +30,16 @@
                 </div>
             {% endif %}
             <span class="govuk-caption-l">{{ title }}</span>
-            <h1 class="govuk-heading-l">Add your recommendations</h1>
-            <p class="govuk-body">You must give each recommendation a short, clear title. Where appropriate, it should
-                reference language from the relevant <abbr title="Indicators of Good Practice">IGP</abbr>(s).</p>
-            <p class="govuk-body">Add details and rationale for your recommendation, referencing the risk it is
-                addressing.</p>
-            <p class="govuk-body">Please refer to the full <a
-                    href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
-                    target="_blank">stage 4 guidance (opens in new tab)</a> to support you and see an example
-                recommendation.</p>
+            <h1 class="govuk-heading-l">Add risks and recommendations</h1>
+            <p class="govuk-body">Each recommendation must address a risk that you have identified. </p>
+            <p class="govuk-body">Each recommendation must be recorded separately. If you make more than one
+                recommendation for the same risk, you must select ‘Add another recommendation’ and repeat the risk for
+                each one.
+            </p>
+            <p class="govuk-body">Use the <a class="govuk-link"
+                                             href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
+                                             target="_blank">stage 4 guidance (opens in new tab)
+            </a> to support you.</p>
             <form method="post" id="review-form">
                 {% csrf_token %}
                 {{ form.management_form }}
@@ -46,26 +47,39 @@
                 {{ preview_form.preview_status }}
                 <div id="form-container">
                     {% for form_ in form %}
-                        <div class="govuk-form-group" id="recommendation-container_{{ forloop.counter0 }}">
-                            <h2 class="govuk-heading-m">Recommendation {{ forloop.counter0|add:1 }}</h2>
-                            <div class="govuk-form-group {% if form_.title.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form_.DELETE.value %} govuk-visually-hidden {% endif %}"
+                             id="recommendation-container_{{ forloop.counter0 }}">
+                            {% if form_.DELETE.value %}
+                                <input type="hidden" name="{{ form_.DELETE.html_name }}"
+                                       class="delete_indicator"
+                                       value="{{ form_.DELETE.value }}">
+                            {% endif %}
+                            <h2 class="govuk-heading-m recommendation_title">
+                                Recommendation {{ forloop.counter0|add:1 }}
+                            </h2>
+                            <div class="govuk-character-count title_count govuk-form-group {% if form_.title.errors %}govuk-form-group--error{% endif %}"
+                                 data-module="govuk-character-count"
+                                 data-maxwords="{{ form_.title.field.widget.attrs.max_words }}">
                                 <label class="govuk-label"
                                        for="id_form-{{ forloop.counter0 }}-title">{{ form_.title.label }}</label>
-                                <input class="govuk-input govuk-input--width-30" type="text"
-                                       name="{{ form_.title.html_name }}"
-                                       id="id_form-{{ forloop.counter0 }}-title"
-                                       value="{{ form_.title.value|default:"" }}"
-                                >
+                                <textarea class="govuk-textarea govuk-js-character-count"
+                                          name="{{ form_.title.html_name }}" cols="40" rows="3"
+                                          id="id_form-{{ forloop.counter0 }}-title">{{ form_.title.value|default:"" }}</textarea>
+                                <div id="id_form-{{ forloop.counter0 }}-title-info"
+                                     class="govuk-hint govuk-character-count__message">You can
+                                    enter up to {{ form_.title.field.widget.attrs.max_words }} words
+                                </div>
                             </div>
                             <div data-module="govuk-character-count"
                                  data-maxwords="{{ form_.text.field.widget.attrs.max_words }}"
-                                 class="govuk-character-count govuk-form-group {% if form_.text.errors %}govuk-form-group--error{% endif %}">
+                                 class="govuk-character-count text_count govuk-form-group {% if form_.text.errors %}govuk-form-group--error{% endif %}">
                                 <label class="govuk-label"
-                                       for="id_form-{{ forloop.counter0 }}-text">{{ form_.text.label }}
+                                       for="id_form-{{ forloop.counter0 }}-text">
                                     Recommendation details. If appropriate, you should use language from the relevant
                                     <abbr title="indicator of good practice">IGP</abbr>(s).
                                 </label>
                                 <textarea class="govuk-textarea govuk-js-character-count"
+                                          autocomplete="off"
                                           name="{{ form_.text.html_name }}" cols="40" rows="5"
                                           id="id_form-{{ forloop.counter0 }}-text">{{ form_.text.value|default:"" }}</textarea>
                                 <div id="id_form-{{ forloop.counter0 }}-text-info"
@@ -95,26 +109,34 @@
                 <button type="submit" class="govuk-button" data-module="govuk-button"
                         {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
                 >
-                    Save and continue
+                    Continue
                 </button>
             </form>
         </div>
     </div>
     <div class="govuk-form-group govuk-visually-hidden" id="recommendation-container_--counter--">
-        <h2 class="govuk-heading-m">Recommendation --counter-plus-one--</h2>
-        <div class="govuk-form-group">
+        <h2 class="govuk-heading-m recommendation_title">Recommendation --counter-plus-one--</h2>
+        <div class="govuk-character-count title_count govuk-form-group"
+             id="id_form---counter---title-container"
+             data-maxwords="250">
             <label class="govuk-label"
-                   for="id_form---counter---title">Title</label>
-            <input class="govuk-input govuk-input--width-30" type="text"
-                   name="form---counter---title"
-                   id="id_form---counter---title"
-            >
+                   for="id_form---counter---title">Risk</label>
+            <textarea class="govuk-textarea govuk-js-character-count"
+                      name="form---counter---title"
+                      id="id_form---counter---title"
+                      autocomplete="off"
+                      cols="40" rows="3"
+            ></textarea>
+            <div id="id_form---counter---title-info"
+                 class="govuk-hint govuk-character-count__message">You can
+                enter up to 250 words
+            </div>
         </div>
-        <div class="govuk-character-count govuk-form-group"
+        <div class="govuk-character-count text_count govuk-form-group"
              id="id_form---counter---text-container"
                 {#Had to hardcode the value here as we dont have a form instance access#}
              data-maxwords="750">
-            <label class="govuk-label" for="id_form---counter---text">Details and rationale
+            <label class="govuk-label" for="id_form---counter---text">
                 Recommendation details. If appropriate, you should use language from the relevant
                 <abbr title="indicator of good practice">IGP</abbr>(s).
             </label>
@@ -136,20 +158,29 @@
         <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--l">
     </div>
     <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+
+        function reNumber() {
+            document.querySelectorAll('div.govuk-form-group:not(.govuk-visually-hidden)[id^="recommendation-container_"]')
+                .forEach((parentDiv, index) => {
+                    parentDiv.querySelector(".recommendation_title").textContent = `Recommendation ${index + 1}`;
+                })
+        }
+
         function deleteRecommendationHandler() {
             return e => {
                 e.preventDefault();
-                var element_name = e.target.dataset.name;
-                var _form = document.getElementById("review-form");
-                var _delete = document.createElement("input");
+                const element_name = e.target.dataset.name;
+                const _form = document.getElementById("review-form");
+                const _delete = document.createElement("input");
                 _delete.setAttribute("type", "hidden");
                 _delete.setAttribute("name", element_name);
-                _delete.setAttribute("value", "on");
+                _delete.setAttribute("value", "true");
                 _form.appendChild(_delete);
                 e.target
                     .closest("form")
                     .querySelector(`div[id="recommendation-container_${e.target.dataset.idx}"]`)
-                    .hidden = true;
+                    .classList.add("govuk-visually-hidden");
+                reNumber();
             };
         }
 
@@ -167,10 +198,20 @@
             clone.id = `recommendation-container_${total_forms.value}`;
             clone.querySelector("h2").textContent = `Recommendation ${parseInt(total_forms.value) + 1}`;
             clone.querySelector("label[for^='id_form---counter---title']").setAttribute("for", `id_form-${total_forms.value}-title`);
-            clone.querySelector("input").setAttribute("id", `id_form-${total_forms.value}-title`);
-            clone.querySelector("input").setAttribute("name", `form-${total_forms.value}-title`);
 
-            const textContainer = clone.querySelector(".govuk-character-count");
+            const titleContainer = clone.querySelector(".title_count");
+            titleContainer.setAttribute("id", `id_form-${total_forms.value}-title-container`);
+            titleContainer.setAttribute("data-module", "govuk-character-count");
+            titleContainer.querySelector("label").setAttribute("for", `id_form-${total_forms.value}-title`);
+            const titleTextarea = titleContainer.querySelector("textarea");
+            titleTextarea.setAttribute("id", `id_form-${total_forms.value}-title`);
+            titleTextarea.setAttribute("name", `form-${total_forms.value}-title`);
+
+            const titleInfo = titleContainer.querySelector("div#id_form---counter---title-info");
+            titleInfo.setAttribute("id", `id_form-${total_forms.value}-title-info`);
+            titleInfo.setAttribute("name", `form-${total_forms.value}-title-info`);
+
+            const textContainer = clone.querySelector(".text_count");
             textContainer.setAttribute("id", `id_form-${total_forms.value}-text-container`);
             textContainer.setAttribute("data-module", "govuk-character-count");
             textContainer.querySelector("label").setAttribute("for", `id_form-${total_forms.value}-text`);
@@ -192,7 +233,11 @@
 
             // Initialise only the new CharacterCount
             init_char_count(textContainer);
+            init_char_count(titleContainer);
 
             total_forms.value = parseInt(total_forms.value) + 1;
-        });    </script>
+            reNumber();
+        });
+        reNumber();
+    </script>
 {% endblock %}
