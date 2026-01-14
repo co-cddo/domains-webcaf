@@ -62,6 +62,8 @@
                                  class="govuk-character-count govuk-form-group {% if form_.text.errors %}govuk-form-group--error{% endif %}">
                                 <label class="govuk-label"
                                        for="id_form-{{ forloop.counter0 }}-text">{{ form_.text.label }}
+                                    Recommendation details. If appropriate, you should use language from the relevant
+                                    <abbr title="indicator of good practice">IGP</abbr>(s).
                                 </label>
                                 <textarea class="govuk-textarea govuk-js-character-count"
                                           name="{{ form_.text.html_name }}" cols="40" rows="5"
@@ -113,6 +115,8 @@
                 {#Had to hardcode the value here as we dont have a form instance access#}
              data-maxwords="750">
             <label class="govuk-label" for="id_form---counter---text">Details and rationale
+                Recommendation details. If appropriate, you should use language from the relevant
+                <abbr title="indicator of good practice">IGP</abbr>(s).
             </label>
             <textarea class="govuk-textarea govuk-js-character-count"
                       name="form---counter---text" cols="40" rows="5"
