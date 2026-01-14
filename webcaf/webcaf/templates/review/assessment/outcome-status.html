@@ -26,10 +26,15 @@
                         </p>
                         <p class="govuk-body">On this page, you will: </p>
                         <ul class="govuk-list govuk-list--bullet">
-                            <li>add your comments for each <abbr title="Indicators of Good Practice">IGP</abbr> where the organisation has named alternative controls or
                             <li>select your response to each <abbr title="indicator of good practice">IGP</abbr>
                                 statement
+                            </li>
+                            <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
+                                the organisation has named alternative controls or
                                 exemptions
+                            </li>
+                            <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
+                                your response is different to the organisation’s selection
                             </li>
                             <li>select a contributing outcome status</li>
                             <li>write a summary for the contributing outcome</li>
@@ -62,12 +67,19 @@
                     title="indicator of good practice">IGP</abbr> statement if they believe it
                 applies to their system or organisation.
             </p>
-            <p class="govuk-body">If you disagree with the organisation’s selection you will need to use the
-                comment box to explain why and include relevant evidence. You do not need to add comments
-                if you agree with the organisation’s response, except where they have noted alternative controls or
-                exemptions.
+            <p class="govuk-body">
                 <strong>
                     Note: You must respond ‘Yes’ or ‘No’ to the <abbr title="indicator of good practice">IGP</abbr>
+                    statement,
+                    not whether you agree with the organisation’s response to the statement.
+                </strong>
+            </p>
+            <p class="govuk-body">If your response to the statement is different to the organisation’s selection
+                you will need to use the comment box to explain why and refer to relevant evidence.
+            </p>
+            <p class="govuk-body">
+                You do not need to add comments if you agree with the organisation’s response,
+                except where they have noted alternative controls or exemptions.
             </p>
             <form method="post" novalidate="">
                 {% csrf_token %}
@@ -213,7 +225,7 @@
                          class="govuk-form-group govuk-character-count {% if form.review_comment.errors %} govuk-form-group--error {% endif %}"
                          data-module="govuk-character-count"
                          data-maxwords={{ form.review_comment.field.widget.attrs.max_words }}>
-                         <h2 class="govuk-heading-m govuk-!-margin-top-6">Comments to support your review</h2>
+                        <h2 class="govuk-heading-m govuk-!-margin-top-6">Comments to support your review</h2>
                         <p class="govuk-body">
                             Provide clear, concise comments to explain your reasons for selecting the contributing
                             outcome status.
