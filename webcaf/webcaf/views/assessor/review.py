@@ -242,11 +242,11 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
             self.logger.info(f"Updating review {self.object.id} with confirmed system and scope")
             self.object.confirm_system_and_scope_completed(
                 {
-                    lower_snake_case("System details"): {
-                        lower_snake_case(item.name): item.value for item in summary["System details"]
+                    lower_snake_case("system details"): {
+                        lower_snake_case(item.name.replace("-", " ")): item.value for item in summary["System details"]
                     },
                     lower_snake_case("review details"): {
-                        lower_snake_case(item.name): item.value for item in summary["Review details"]
+                        lower_snake_case(item.name.replace("-", " ")): item.value for item in summary["Review details"]
                     },
                 }
             )
