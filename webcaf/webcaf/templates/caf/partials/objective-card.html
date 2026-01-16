@@ -1,6 +1,6 @@
 {% load form_extras %}
 {% for principal in objective_data.principles.values %}
-    <div class="govuk-summary-card page-break-after ">
+    <div class="govuk-summary-card page-break-before ">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">
                 <span class="govuk-heading-m">Objective {{ objective_data.code }}</span><span>Principle: {{ principal.code }} {{ principal.title }}</span>
@@ -10,7 +10,7 @@
             {% for outcome in principal.outcomes.values %}
                 <span class="summary-container">
                 {% get_outcome_details assessment outcome.code as outcome_details %}
-                <div class="summary-grid avoid-break single-row">
+                <div class="summary-grid single-row">
                     <div class="summary-grid__cell">
                         <span class="govuk-heading-s">{{ outcome.code }} {{ outcome.title }}</span>
                     </div>
@@ -37,25 +37,25 @@
                         {% get_answers assessment outcome question_category.category as outcome_answers %}
                         {% if outcome_answers.answers %}
                             {% for answer in outcome_answers.answers %}
-                                <div class="summary-grid avoid-break">
+                                <div class="summary-grid">
                                     <div class="summary-grid__cell {% if answer.comment %}no-bottom-border{% endif %}">
-                                        <p class="govuk-body govuk-!-font-size-16 statement-para">{{ question_category.label }} statement {{ answer.idx }}:<br>
+                                        <p class="govuk-body  statement-para">{{ question_category.label }} statement {{ answer.idx }}:<br>
                                             {{ answer.indicator_txt }}
                                         </p>
                                     </div>
                                     <div class="summary-grid__cell {% if answer.comment %}no-bottom-border{% endif %}">
-                                        <p class="govuk-body govuk-!-font-size-16">Selected</p>
+                                        <p class="govuk-body ">Selected</p>
                                     </div>
                                 </div>
                                 {% if answer.comment %}
-                                    <div class="summary-grid avoid-break">
+                                    <div class="summary-grid">
                                     <div class="summary-grid__cell--full--with-border">
                                             <div class="govuk-inset-text">
-                                            <span class="govuk-body govuk-!-font-size-16 ">
+                                            <span class="govuk-body  ">
                                                 <strong>Alternative control for {{ question_category.label }} statement {{ answer.idx }}:<br></strong>
                                                 {% format_with_breaks answer.comment as sections %}
                                                 {% for section in sections %}
-                                                    <p class="govuk-body govuk-!-font-size-16 avoid-break statement-para">{{ section }}</p>
+                                                    <p class="govuk-body  statement-para">{{ section }}</p>
                                                 {% endfor %}
                                             </span>
                                             </div>
@@ -65,26 +65,26 @@
                             {% endfor %}
                         {% else %}
                             {% if outcome_answers.total_questions %}
-                                <div class="summary-grid avoid-break single-row">
+                                <div class="summary-grid single-row">
                                     <div class="summary-grid__cell">
-                                        <p class="govuk-body govuk-!-font-size-16">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></p>
+                                        <p class="govuk-body ">{{ question_category.label }} statements 1 to {{ outcome_answers.total_questions }}<br></p>
                                     </div>
                                     <div class="summary-grid__cell">
-                                        <p class="govuk-body govuk-!-font-size-16">None Selected</p>
+                                        <p class="govuk-body ">None Selected</p>
                                     </div>
                                 </div>
                             {% endif %}
                         {% endif %}
                         {#                        Only write the summary after the last element, which is not-achieved#}
                         {% if outcome_answers.total_questions and  question_category.category == 'not-achieved' %}
-                            <div class="summary-grid outcome-summary avoid-break ">
+                            <div class="summary-grid outcome-summary">
                                 <div class="summary-grid__cell--full">
-                                    <span class="govuk-body govuk-!-font-size-16 key-full">Contributing outcome summary
+                                    <span class="govuk-body  key-full">Contributing outcome summary
                                     </span>
                                 <br/>
                                     {% format_with_breaks outcome_answers.confirm_comment as sections %}
                                     {% for section in sections %}
-                                        <p class="govuk-body govuk-!-font-size-16 avoid-break statement-para">{{ section }}</p>
+                                        <p class="govuk-body  statement-para">{{ section }}</p>
                                     {% endfor %}
                             </div>
                             </div>
