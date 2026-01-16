@@ -281,9 +281,22 @@ def get_when_the_status_changed(assessment: Assessment, indicator_id: str, statu
 
 @register.simple_tag()
 def indicator_min_profile_requirement_met(
-    assessment: Assessment, principal_id: str, indicator_id: str, status: str
-) -> str:
-    return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)
+    assessment: Assessment, principal_id: str, indicator_id: str, status: str, return_min_required_status: bool = False
+) -> str | tuple[str, str]:
+    """
+    Get the minimum profile requirement status for an indicator in an assessment.
+    if return_min_required_status is false, then return Yes or Not met as the response else return a tuple
+    with (Yes or Not met, min required status) as the response.
+    :param assessment:
+    :param principal_id:
+    :param indicator_id:
+    :param status:
+    :param return_min_required_status:
+    :return:
+    """
+    return IndicatorStatusChecker.indicator_min_profile_requirement_met(
+        assessment, principal_id, indicator_id, status, return_min_required_status
+    )
 
 
 @register.simple_tag()

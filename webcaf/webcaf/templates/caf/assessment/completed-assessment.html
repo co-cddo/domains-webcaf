@@ -5,12 +5,6 @@
 {% load form_extras %}
 {% block title %}View completed assessment - {{ user.first_name }} {% endblock %}
 
-{% block footer %}
-    <div class="bottom-banner" id="bottom-banner">
-        UK OFFICIAL-SENSITIVE
-    </div>
-    {{ block.super }}
-{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -18,13 +12,15 @@
                   action="{% url 'download-submitted-assessment' assessment_id=assessment.id %}"
                   target="_blank">
                 {% csrf_token %}
-                    <div class="govuk-warning-text ">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-visually-hidden">Warning</span>
-                            UK OFFICIAL-SENSITIVE
-                        </strong>
+                <section aria-label="Notice" class="govuk-notification-banner gem-c-notice govuk-!-margin-bottom-8"
+                         role="region"
+                         id="notification-banner">
+                    <div class="govuk-notification-banner__content">
+                        <span class="govuk-notification-banner__heading">
+                          This content is UK OFFICIAL-SENSITIVE.
+                        </span>
                     </div>
+                </section>
                 <span class="govuk-caption-l">{{ assessment.system.name }} ({{ assessment.reference }})
                         </span>
                 <h1 class="govuk-heading-l">
@@ -41,7 +37,7 @@
                             <span class="govuk-heading-m">About the self-assessment</span>
                         </h2>
                     </div>
-                    <div class="govuk-summary-card__content page-break-after">
+                    <div class="govuk-summary-card__content">
                         <dl class="govuk-summary-list govuk-summary-list">
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key govuk-!-width-one-half">

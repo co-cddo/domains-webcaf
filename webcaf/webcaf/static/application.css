@@ -185,7 +185,7 @@ span.govuk-header__logotype-text {
 }
 
 .statement-para {
-    text-align: justify;
+    text-align: left;
 }
 
 
@@ -211,4 +211,21 @@ span.govuk-header__logotype-text {
     text-align: justify; /* Trick to remove the need for floats */
     max-width: 960px;
     margin: 0 15px;
+}
+
+.report-header {
+    width: 100%;
+    background-color: #1d70b8;
+    color: #fff;
+    margin-bottom: 30px;
+    padding: 15px 30px 30px 30px;
+    box-sizing: border-box
+}
+
+.report-header * {
+    color: #fff;
+}
+
+.system_overview > div {
+    margin-bottom: 5px;
 }

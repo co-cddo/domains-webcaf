@@ -6,7 +6,6 @@
     form select,
     form button,
     .breadcrumbs,
-    a,
     .cookie-banner,
     header,
     footer {
@@ -42,7 +41,7 @@
     }
 
     .statement-para {
-        text-align: justify;
+        text-align: left;
         padding-bottom: 14pt;
     }
 
@@ -69,5 +68,42 @@
     /* Give space for the banner */
     body, main, .govuk-main-wrapper {
         padding-bottom: 45pt !important; /* Adjust to match banner height */
+    }
+
+    #report-header {
+        display: block;
+        visibility: visible;
+    }
+
+    .report-header {
+        background: none;
+        padding-left: 0;
+        padding-right: 0;
+        border-bottom: 2pt solid #000
+    }
+
+    .report-header, .report-header * {
+        color: #000 !important
+    }
+
+    .system_overview > div {
+        margin-bottom: 5pt;
+    }
+
+    @page {
+        @top-center {
+            content: "UK OFFICIAL-SENSITIVE";
+            font-size: 30px;
+            color: rgba(0, 0, 0, 0.1);
+            background-repeat: repeat;
+            margin-top: 75%;
+        }
+        @bottom-center {
+            content: "UK OFFICIAL-SENSITIVE";
+            font-size: 30px;
+            color: rgba(0, 0, 0, 0.1);
+            background-repeat: repeat;
+            margin-bottom: 75%;
+        }
     }
 }
