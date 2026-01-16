@@ -215,10 +215,9 @@ class ReviewVersioningTests(BaseViewTest):
         review.status = "completed"
         review.save()
 
-        # Test 1-based indexing (version 1 is the oldest, version 3 is newest)
-        version_3 = review.get_version(1)  # Most recent
+        version_1 = review.get_version(1)  # Most recent
         version_2 = review.get_version(2)  # Middle
-        version_1 = review.get_version(3)  # Oldest
+        version_3 = review.get_version(3)  # Oldest
 
         self.assertEqual(version_3.review_data["assessor_response_data"]["data"], 3)
         self.assertEqual(version_2.review_data["assessor_response_data"]["data"], 2)
