@@ -20,7 +20,7 @@ class WordCountValidator:
     def __call__(self, words: str):
         word_count = len(words.split())
         if word_count > self.max_words:
-            raise ValidationError(f"{self.message} {word_count}).")
+            raise ValidationError(f"{self.message}{word_count}).")
 
     def __eq__(self, other):
         return (

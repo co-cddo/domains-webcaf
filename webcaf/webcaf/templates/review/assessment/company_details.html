@@ -42,16 +42,16 @@
                            value="{{ form.lead_assessor_name.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group">
-                    <label class="govuk-label" for="company_email">
-                        {{ form.company_email.label }}
+                    <label class="govuk-label" for="lead_assessor_email">
+                        {{ form.lead_assessor_email.label }}
                     </label>
-                    <div id="company_email-hint" class="govuk-hint">
+                    <div id="lead_assessor_email-hint" class="govuk-hint">
                         Use a current company email address
                     </div>
-                    <input class="govuk-input govuk-input--width-30" id="company_email" name="company_email"
+                    <input class="govuk-input govuk-input--width-30" id="lead_assessor_email" name="lead_assessor_email"
                            type="email"
-                           spellcheck="false" aria-describedby="company_email-hint" autocomplete="string"
-                           value="{{ form.company_email.value|default:'' }}">
+                           spellcheck="false" aria-describedby="lead_assessor_email-hint" autocomplete="string"
+                           value="{{ form.lead_assessor_email.value|default:'' }}">
                 </div>
                 <button class="govuk-button" id="save-add-company-details" data-module="govuk-button">
                     Save and continue
