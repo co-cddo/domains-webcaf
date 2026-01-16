@@ -1,5 +1,6 @@
 import re
 from collections import namedtuple
+from datetime import datetime
 from typing import Any, Literal, Optional
 
 from django import template
@@ -281,9 +282,22 @@ def get_when_the_status_changed(assessment: Assessment, indicator_id: str, statu
 
 @register.simple_tag()
 def indicator_min_profile_requirement_met(
-    assessment: Assessment, principal_id: str, indicator_id: str, status: str
-) -> str:
-    return IndicatorStatusChecker.indicator_min_profile_requirement_met(assessment, principal_id, indicator_id, status)
+    assessment: Assessment, principal_id: str, indicator_id: str, status: str, return_min_required_status: bool = False
+) -> str | tuple[str, str]:
+    """
+    Get the minimum profile requirement status for an indicator in an assessment.
+    if return_min_required_status is false, then return Yes or Not met as the response else return a tuple
+    with (Yes or Not met, min required status) as the response.
+    :param assessment: The assessment object containing the indicator's profile requirements (through the CAF spec)
+    :param principal_id: The ID of the principal associated with the indicator
+    :param indicator_id: The ID of the indicator to retrieve the minimum profile requirement for
+    :param status: The current status of the indicator
+    :param return_min_required_status: Whether to return the minimum required status along with the Yes/Not met response
+    :return: The minimum profile requirement status as a string (Yes or Not met) or a tuple with (Yes or Not met, min required status)
+    """
+    return IndicatorStatusChecker.indicator_min_profile_requirement_met(
+        assessment, principal_id, indicator_id, status, return_min_required_status
+    )
 
 
 @register.simple_tag()
@@ -459,3 +473,13 @@ def filter_empty(list_: list[dict[str, Any]]):
     :return:
     """
     return list(filter(lambda x: x, list_))
+
+
+@register.filter
+def parse_date(date_str: str):
+    """
+    Parse a date string in the format 'DD/MM/YYYY' and return a datetime object
+    :param date_str:
+    :return:
+    """
+    return datetime.strptime(date_str, "%d/%m/%Y")

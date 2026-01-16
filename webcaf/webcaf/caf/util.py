@@ -105,11 +105,30 @@ class IndicatorStatusChecker:
         return filtered_history[0]
 
     @classmethod
+    def get_indicator_min_profile_requirement(cls, assessment: Assessment, principal_id: str, indicator_id: str) -> str:
+        """
+        Retrieves the minimum profile requirement for the given indicator.
+        :param assessment: The assessment object containing the indicator's profile requirements (through the CAF spec)
+        :param principal_id: The ID of the principal associated with the indicator
+        :param indicator_id: The ID of the indicator to retrieve the minimum profile requirement for
+        :return: The minimum profile requirement as a string (Yes or Not met)
+        """
+        principal = assessment.get_router().get_section(principal_id[0])["principles"][principal_id]  # type: ignore
+        outcome = principal["outcomes"][indicator_id]
+        return outcome.get("min_profile_requirement")
+
+    @classmethod
     def indicator_min_profile_requirement_met(
-        cls, assessment: Assessment, principal_id: str, indicator_id: str, status: str
-    ) -> str:
+        cls,
+        assessment: Assessment,
+        principal_id: str,
+        indicator_id: str,
+        status: str,
+        return_min_required_status: bool = False,
+    ) -> str | tuple[str, str]:
         """
         Checks if the minimum profile requirement for the given indicator is met.
+        :param return_min_required_status: return the minimum profile requirement status along with the matched status if True, otherwise return the status only
         :param assessment:
         :param principal_id:
         :param indicator_id:
@@ -125,18 +144,27 @@ class IndicatorStatusChecker:
             "partially_achieved": 2,
             "not_achieved": 1,
         }
-        if min_profile_requirement:
-            if status:
-                return (
-                    "Yes"
-                    if profile_scores[cls.status_to_key(status)]
-                    >= profile_scores[cls.status_to_key(min_profile_requirement[assessment.caf_profile])]
-                    else "Not met"
-                )
-            else:
-                return "Not met"
-        else:
+        if not min_profile_requirement:
+            if return_min_required_status:
+                return "Yes", "N/A"
             return "Yes"
+
+        if not status:
+            if return_min_required_status:
+                return "Not met", min_profile_requirement[assessment.caf_profile]
+            return "Not met"
+
+        status_score = profile_scores[cls.status_to_key(status)]
+        min_required_score = profile_scores[cls.status_to_key(min_profile_requirement[assessment.caf_profile])]
+
+        if status_score >= min_required_score:
+            if return_min_required_status:
+                return "Yes", min_profile_requirement[assessment.caf_profile]
+            return "Yes"
+
+        if return_min_required_status:
+            return "Not met", min_profile_requirement[assessment.caf_profile]
+        return "Not met"
 
     @staticmethod
     def status_to_key(status: str) -> str:
