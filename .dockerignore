@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Version Control
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+# Tests
+tests/
+features/
+reports/
+behave.ini
+
+# Documentation
+docs/
+README.md
+
+# Development artifacts
+artifacts/
+
+# Hooks and CI/CD
+.hooks/
+.github/
+.pre-commit-config.yaml
+
+# Environment and local config
+.env
+local-init.sh
+keyparams.txt
+
+# Docker files (prevent recursion)
+Dockerfile
+Dockerfile-feature-tests
+docker-compose.yml
+docker-compose.feature-tests.yml
+.dockerignore
+
+webcaf/static
+webcaf/seed
