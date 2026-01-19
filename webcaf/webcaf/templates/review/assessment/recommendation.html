@@ -229,6 +229,7 @@
             const removeButton = document.getElementById(`id_form---counter---remove-button`);
             removeButton.setAttribute("id", `id_form-${total_forms.value}-remove-button`);
             removeButton.setAttribute("data-idx", `${total_forms.value}`);
+            removeButton.setAttribute("data-name", `form-${total_forms.value}-DELETE`);
             removeButton.addEventListener("click", deleteRecommendationHandler());
 
             // Initialise only the new CharacterCount
