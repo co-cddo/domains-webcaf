@@ -176,7 +176,7 @@ class UserRoleCheckMixin(LoginRequiredMixin):
             return self.handle_no_permission()
         else:
             user_profile = SessionUtil.get_current_user_profile(request)
-            if user_profile.role not in self.get_allowed_roles():
+            if not user_profile or user_profile.role not in self.get_allowed_roles():
                 return self.handle_no_permission()
             return super().dispatch(request, *args, **kwargs)
 
