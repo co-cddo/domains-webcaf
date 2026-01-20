@@ -400,7 +400,7 @@ class AddOutcomeRecommendationView(AddRecommendationView):
             },
             {
                 "url": None,
-                "text": f"Add a recommendation for {outcome['code']} - {outcome['title']}",
+                "text": f"Add risks and recommendations for {outcome['code']} - {outcome['title']}",
             },
         ]
         return data
