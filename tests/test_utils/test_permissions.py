@@ -1,8 +1,12 @@
-from django.test import TestCase
+from unittest.mock import Mock, patch
+
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.test import RequestFactory, TestCase
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import Organisation, UserProfile
-from webcaf.webcaf.utils.permission import PermissionUtil
+from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 
 
 class TestCurrentUserCanCreateReview(BaseViewTest):
@@ -109,3 +113,57 @@ class TestOtherPermissions(TestCase):
     def test_current_user_can_view_submitted_assessment_with_none(self):
         """Test that current_user_can_view_submitted_assessment returns False for None."""
         self.assertFalse(PermissionUtil.current_user_can_view_submitted_assessment(None))
+
+
+class TestUserRoleCheckMixin(BaseViewTest):
+    """
+    Tests for UserRoleCheckMixin.dispatch() method.
+
+    These tests verify that the mixin correctly handles None user profiles
+    and returns the appropriate permission denied response.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.mixin = UserRoleCheckMixin()
+        self.mixin.get_allowed_roles = Mock(return_value=["cyber_advisor"])
+
+    @patch("webcaf.webcaf.utils.permission.SessionUtil.get_current_user_profile")
+    def test_dispatch_with_none_user_profile_calls_handle_no_permission(self, mock_get_profile):
+        """Test that dispatch calls handle_no_permission when user_profile is None."""
+        # Arrange
+        mock_get_profile.return_value = None
+        request = self.factory.get("/test-url/")
+        request.user = Mock(spec=User)
+        request.user.is_authenticated = True
+
+        # Mock handle_no_permission to return a specific response
+        mock_response = Mock()
+        mock_response.status_code = 403
+        self.mixin.handle_no_permission = Mock(return_value=mock_response)
+
+        # Act
+        response = self.mixin.dispatch(request)
+
+        # Assert
+        mock_get_profile.assert_called_once_with(request)
+        self.mixin.handle_no_permission.assert_called_once()
+        self.assertEqual(response.status_code, 403)
+
+    @patch("webcaf.webcaf.utils.permission.SessionUtil.get_current_user_profile")
+    def test_dispatch_with_none_user_profile_returns_403(self, mock_get_profile):
+        """Test that None user_profile results in a 403 response with correct error page."""
+        # Arrange
+        mock_get_profile.return_value = None
+        request = self.factory.get("/test-url/")
+        request.user = Mock(spec=User)
+        request.user.is_authenticated = True
+        self.mixin.request = request
+
+        # Act - Call dispatch which should trigger handle_no_permission from LoginRequiredMixin
+        with self.assertRaises(PermissionDenied):
+            self.mixin.dispatch(request)

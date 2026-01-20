@@ -956,7 +956,7 @@ class ReviewIsCompanyDetailsCompleteTests(BaseViewTest):
             review_data={
                 "assessor_response_data": {
                     "additional_information": {
-                        "company_details": {"company_name": "Test Company", "company_email": "test@example.com"}
+                        "company_details": {"company_name": "Test Company", "lead_assessor_name": "test@example.com"}
                     }
                 }
             },

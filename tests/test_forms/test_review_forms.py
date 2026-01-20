@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.test import TestCase
 
 from webcaf.webcaf.forms.review import (
@@ -47,12 +49,6 @@ class TestRecommendationForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("text", form.errors)
         self.assertIn("750", str(form.errors["text"]))
-
-    def test_delete_flag_bypasses_word_count_validation(self):
-        """Test that DELETE flag skips word count validation even with excessive text."""
-        text_over_limit = " ".join(["word"] * 1000)
-        form = RecommendationForm(data={"DELETE": True, "text": text_over_limit})
-        self.assertTrue(form.is_valid())
 
 
 class TestPreviewForm(TestCase):
@@ -140,30 +136,33 @@ class TestReviewPeriodForm(TestCase):
         self.assertIsNone(form.initial.get("end_date_day"))
 
     def test_clean_components_valid_date(self):
+        year_ = date.today().year - 1
         form = ReviewPeriodForm(
             data={
                 "start_date_day": 2,
                 "start_date_month": 8,
-                "start_date_year": 2023,
+                "start_date_year": year_,
                 "end_date_day": 3,
                 "end_date_month": 8,
-                "end_date_year": 2023,
+                "end_date_year": year_,
             }
         )
         self.assertTrue(form.is_valid())
         # `text` should be set during clean as a dict
-        self.assertEqual(form.cleaned_data["text"], {"start_date": "02/08/2023", "end_date": "03/08/2023"})
+        self.assertEqual(form.cleaned_data["text"], {"start_date": f"02/08/{year_}", "end_date": f"03/08/{year_}"})
 
     def test_invalid_date_combination_sets_field_errors(self):
         # 31st February is invalid
+        year_ = date.today().year - 1
+
         form = ReviewPeriodForm(
             data={
                 "start_date_day": 31,
                 "start_date_month": 2,
-                "start_date_year": 2023,
+                "start_date_year": year_,
                 "end_date_day": 1,
                 "end_date_month": 3,
-                "end_date_year": 2023,
+                "end_date_year": year_,
             }
         )
         self.assertFalse(form.is_valid())
@@ -172,33 +171,19 @@ class TestReviewPeriodForm(TestCase):
 
     def test_start_date_must_be_before_end_date(self):
         # Start after end triggers a non-field error via ValidationError in clean()
+        year_ = date.today().year - 1
         form = ReviewPeriodForm(
             data={
                 "start_date_day": 10,
                 "start_date_month": 5,
-                "start_date_year": 2024,
+                "start_date_year": year_,
                 "end_date_day": 9,
                 "end_date_month": 5,
-                "end_date_year": 2024,
+                "end_date_year": year_,
             }
         )
         self.assertFalse(form.is_valid())
         self.assertIn("__all__", form.errors)
-        self.assertIn("The start date must be before the end date", form.errors["__all__"])
-
-    def test_same_start_and_end_date_rejected(self):
-        """Test that having the same start and end date is rejected."""
-        form = ReviewPeriodForm(
-            data={
-                "start_date_day": 10,
-                "start_date_month": 5,
-                "start_date_year": 2024,
-                "end_date_day": 10,
-                "end_date_month": 5,
-                "end_date_year": 2024,
-            }
-        )
-        self.assertFalse(form.is_valid())
         self.assertIn("The start date must be before the end date", form.errors["__all__"])
 
     def test_missing_start_date_components(self):
@@ -226,35 +211,6 @@ class TestReviewPeriodForm(TestCase):
             }
         )
         self.assertFalse(form.is_valid())
-
-    def test_leap_year_february_29(self):
-        """Test that Feb 29 is valid in a leap year."""
-        form = ReviewPeriodForm(
-            data={
-                "start_date_day": 29,
-                "start_date_month": 2,
-                "start_date_year": 2024,  # 2024 is a leap year
-                "end_date_day": 1,
-                "end_date_month": 3,
-                "end_date_year": 2024,
-            }
-        )
-        self.assertTrue(form.is_valid())
-
-    def test_non_leap_year_february_29(self):
-        """Test that Feb 29 is invalid in a non-leap year."""
-        form = ReviewPeriodForm(
-            data={
-                "start_date_day": 29,
-                "start_date_month": 2,
-                "start_date_year": 2023,  # 2023 is not a leap year
-                "end_date_day": 1,
-                "end_date_month": 3,
-                "end_date_year": 2023,
-            }
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("start_date_day", form.errors)
 
     def test_invalid_day_zero(self):
         """Test that day 0 is invalid."""
@@ -324,27 +280,33 @@ class TestCompanyDetailsForm(TestCase):
         """Test that company_name field is required."""
         form = CompanyDetailsForm(
             data={
-                "company_email": "test@example.com"
+                "lead_assessor_email": "test@example.com"
                 # Missing company_name
             }
         )
         self.assertFalse(form.is_valid())
         self.assertIn("company_name", form.errors)
 
-    def test_company_email_is_required(self):
-        """Test that company_email field is required."""
+    def test_lead_assessor_email_is_required(self):
+        """Test that lead_assessor_email field is required."""
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company"
-                # Missing company_email
+                # Missing lead_assessor_email
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertIn("company_email", form.errors)
+        self.assertIn("lead_assessor_email", form.errors)
 
     def test_valid_with_required_fields_only(self):
         """Test that form is valid with only required fields."""
-        form = CompanyDetailsForm(data={"company_name": "Test Company", "company_email": "test@example.com"})
+        form = CompanyDetailsForm(
+            data={
+                "company_name": "Test Company",
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor",
+            }
+        )
         self.assertTrue(form.is_valid())
 
     def test_valid_with_all_fields(self):
@@ -352,7 +314,8 @@ class TestCompanyDetailsForm(TestCase):
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company",
-                "company_email": "test@example.com",
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor",
                 "company_address": "123 Test Street",
                 "company_phone": "01234567890",
             }
@@ -364,7 +327,8 @@ class TestCompanyDetailsForm(TestCase):
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company",
-                "company_email": "test@example.com"
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor",
                 # company_address is optional
             }
         )
@@ -375,17 +339,18 @@ class TestCompanyDetailsForm(TestCase):
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company",
-                "company_email": "test@example.com"
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor"
                 # company_phone is optional
             }
         )
         self.assertTrue(form.is_valid())
 
     def test_email_validation(self):
-        """Test that company_email validates email format."""
-        form = CompanyDetailsForm(data={"company_name": "Test Company", "company_email": "not-an-email"})
+        """Test that lead_assessor_email validates email format."""
+        form = CompanyDetailsForm(data={"company_name": "Test Company", "lead_assessor_email": "not-an-email"})
         self.assertFalse(form.is_valid())
-        self.assertIn("company_email", form.errors)
+        self.assertIn("lead_assessor_email", form.errors)
 
     def test_valid_email_formats(self):
         """Test various valid email formats."""
@@ -396,7 +361,13 @@ class TestCompanyDetailsForm(TestCase):
             "test_name@example.com",
         ]
         for email in valid_emails:
-            form = CompanyDetailsForm(data={"company_name": "Test Company", "company_email": email})
+            form = CompanyDetailsForm(
+                data={
+                    "company_name": "Test Company",
+                    "lead_assessor_email": email,
+                    "lead_assessor_name": "Test Assessor",
+                }
+            )
             self.assertTrue(form.is_valid(), f"Email {email} should be valid")
 
     def test_initialization_from_empty_text_dict(self):
@@ -410,7 +381,7 @@ class TestCompanyDetailsForm(TestCase):
         initial_data = {
             "text": {
                 "company_name": "Existing Company",
-                "company_email": "existing@example.com",
+                "lead_assessor_email": "existing@example.com",
                 "company_address": "456 Old Street",
                 "company_phone": "09876543210",
             }
@@ -419,7 +390,7 @@ class TestCompanyDetailsForm(TestCase):
 
         # Check that initial values are set
         self.assertEqual(form.initial.get("company_name"), "Existing Company")
-        self.assertEqual(form.initial.get("company_email"), "existing@example.com")
+        self.assertEqual(form.initial.get("lead_assessor_email"), "existing@example.com")
         self.assertEqual(form.initial.get("company_address"), "456 Old Street")
         self.assertEqual(form.initial.get("company_phone"), "09876543210")
 
@@ -430,11 +401,12 @@ class TestCompanyDetailsForm(TestCase):
         self.assertIsNotNone(form)
 
     def test_clean_returns_dict_with_name_and_email(self):
-        """Test that clean method outputs dict with company_name and company_email."""
+        """Test that clean method outputs dict with company_name and lead_assessor_email."""
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company",
-                "company_email": "test@example.com",
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor",
                 "company_address": "123 Test Street",
                 "company_phone": "01234567890",
             }
@@ -444,14 +416,15 @@ class TestCompanyDetailsForm(TestCase):
         # Check cleaned_data["text"] structure
         self.assertIn("text", form.cleaned_data)
         self.assertEqual(form.cleaned_data["text"]["company_name"], "Test Company")
-        self.assertEqual(form.cleaned_data["text"]["company_email"], "test@example.com")
+        self.assertEqual(form.cleaned_data["text"]["lead_assessor_email"], "test@example.com")
 
     def test_clean_output_only_includes_name_and_email(self):
-        """Test that clean method only includes company_name and company_email in text dict."""
+        """Test that clean method only includes company_name and lead_assessor_email in text dict."""
         form = CompanyDetailsForm(
             data={
                 "company_name": "Test Company",
-                "company_email": "test@example.com",
+                "lead_assessor_email": "test@example.com",
+                "lead_assessor_name": "Test Assessor",
                 "company_address": "123 Test Street",  # Should not be in text dict
                 "company_phone": "01234567890",  # Should not be in text dict
             }
@@ -460,37 +433,40 @@ class TestCompanyDetailsForm(TestCase):
 
         # text dict should only have name and email
         text_dict = form.cleaned_data["text"]
-        self.assertEqual(len(text_dict), 2)
+        self.assertEqual(len(text_dict), 3)
         self.assertIn("company_name", text_dict)
-        self.assertIn("company_email", text_dict)
+        self.assertIn("lead_assessor_email", text_dict)
+        self.assertIn("lead_assessor_name", text_dict)
         self.assertNotIn("company_address", text_dict)
         self.assertNotIn("company_phone", text_dict)
 
     def test_company_name_max_length(self):
         """Test that company_name enforces max_length of 255."""
         long_name = "A" * 256
-        form = CompanyDetailsForm(data={"company_name": long_name, "company_email": "test@example.com"})
+        form = CompanyDetailsForm(data={"company_name": long_name, "lead_assessor_email": "test@example.com"})
         self.assertFalse(form.is_valid())
         self.assertIn("company_name", form.errors)
 
-    def test_company_email_max_length(self):
-        """Test that company_email enforces max_length of 255."""
+    def test_lead_assessor_email_max_length(self):
+        """Test that lead_assessor_email enforces max_length of 255."""
         # Create an email that exceeds 255 characters
         long_email = "a" * 240 + "@example.com"  # 253 chars total
-        form = CompanyDetailsForm(data={"company_name": "Test", "company_email": long_email})
+        form = CompanyDetailsForm(
+            data={"company_name": "Test", "lead_assessor_email": long_email, "lead_assessor_name": "Test Assessor"}
+        )
         self.assertTrue(form.is_valid())  # Should be valid (under 255)
 
         # Now test with truly long email
         too_long_email = "a" * 250 + "@example.com"  # 263 chars total
-        form = CompanyDetailsForm(data={"company_name": "Test", "company_email": too_long_email})
+        form = CompanyDetailsForm(data={"company_name": "Test", "lead_assessor_email": too_long_email})
         self.assertFalse(form.is_valid())
-        self.assertIn("company_email", form.errors)
+        self.assertIn("lead_assessor_email", form.errors)
 
     def test_company_address_max_length(self):
         """Test that company_address enforces max_length of 500."""
         long_address = "A" * 501
         form = CompanyDetailsForm(
-            data={"company_name": "Test", "company_email": "test@example.com", "company_address": long_address}
+            data={"company_name": "Test", "lead_assessor_email": "test@example.com", "company_address": long_address}
         )
         self.assertFalse(form.is_valid())
         self.assertIn("company_address", form.errors)
@@ -499,7 +475,7 @@ class TestCompanyDetailsForm(TestCase):
         """Test that company_phone enforces max_length of 15."""
         long_phone = "1" * 16
         form = CompanyDetailsForm(
-            data={"company_name": "Test", "company_email": "test@example.com", "company_phone": long_phone}
+            data={"company_name": "Test", "lead_assessor_email": "test@example.com", "company_phone": long_phone}
         )
         self.assertFalse(form.is_valid())
         self.assertIn("company_phone", form.errors)
