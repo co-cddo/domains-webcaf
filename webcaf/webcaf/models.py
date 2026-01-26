@@ -1136,7 +1136,9 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :rtype: typing.Optional["HistoricalReview"]
         """
         return (
-            self.all_versions[version_number - 1]
+            # We have the latest version as the 0th index,
+            # So, we have to do a reverse lookup
+            list(reversed(self.all_versions))[version_number - 1]
             if self.all_versions and version_number > 0 and version_number - 1 < len(self.all_versions)
             else None
         )

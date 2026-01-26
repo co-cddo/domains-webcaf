@@ -173,5 +173,6 @@ cypress/screenshots/
 # django static files
 webcaf/static
 
-*.pdf
-/reports/report.html
+
+/reports/*
+/artifacts/*

@@ -71,7 +71,8 @@ class UserProfileView(UserRoleCheckMixin, UpdateView):
         data["roles"] = [
             (*role, UserProfile.ROLE_ACTIONS[role[0]])
             for role in UserProfile.ROLE_CHOICES
-            if role[0] != "cyber_advisor"
+            # TODO: Reviewer role is temporarily added to the list, so it is not displayed
+            if role[0] not in ("cyber_advisor", "reviewer")
         ]
         return data
 

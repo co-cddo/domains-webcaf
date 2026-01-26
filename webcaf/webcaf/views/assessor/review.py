@@ -516,7 +516,7 @@ class ShowReportView(BaseReviewMixin, DetailView):
                 "text": "Report history",
             },
             {
-                "text": "View Report",
+                "text": f"View Report (Version {version})",
             },
         ]
         return data

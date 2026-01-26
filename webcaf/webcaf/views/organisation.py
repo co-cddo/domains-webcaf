@@ -148,7 +148,12 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        profiles = UserProfile.objects.filter(user=self.request.user).order_by("organisation__name")
+        # Using select_related to optimize the query for related organisation
+        profiles = (
+            UserProfile.objects.filter(user=self.request.user)
+            .select_related("organisation")
+            .order_by("organisation__name")
+        )
         data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         data["profiles"] = profiles
         return data
