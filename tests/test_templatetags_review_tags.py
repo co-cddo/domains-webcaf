@@ -10,7 +10,7 @@ from webcaf.webcaf.caf.routers import CAF32Router
 from webcaf.webcaf.models import Assessment, Organisation, Review
 from webcaf.webcaf.templatetags.review_tags import (
     PrincipleOutcomeStatus,
-    Recommendation,
+    RecommendationGroup,
     ReviewComment,
     ReviewStatusInfo,
     get_indicator_comments,
@@ -469,12 +469,13 @@ class TestGetRecommendations(TestCase):
         result = get_recommendations(self.review, "all")
 
         self.assertEqual(len(result), 1)
-        self.assertIsInstance(result[0], Recommendation)
-        self.assertEqual(result[0].id, "REC-A1A1")
-        self.assertEqual(result[0].title, "Rec 1")
-        self.assertEqual(result[0].text, "Text 1")
-        self.assertEqual(result[0].objective, "Objective A")
-        self.assertEqual(result[0].outcome, "Outcome 1.1")
+        self.assertIsInstance(result[0], RecommendationGroup)
+        self.assertEqual(result[0].recommendations[0].id, "REC-A1A1")
+        self.assertEqual(result[0].group_index, 1)
+        self.assertEqual(result[0].recommendations[0].title, "Rec 1")
+        self.assertEqual(result[0].recommendations[0].text, "Text 1")
+        self.assertEqual(result[0].recommendations[0].objective, "A")
+        self.assertEqual(result[0].recommendations[0].outcome, "A1.a")
 
     def test_returns_only_priority_recommendations_when_mode_is_priority(self):
         self.review.get_assessor_response.return_value = {
@@ -498,6 +499,8 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Priority Rec")
+        self.assertEqual(result[0].recommendations[0].title, "Priority Rec")
+        self.assertEqual(result[0].recommendations[0].text, "Priority Text")
 
     def test_returns_only_normal_recommendations_when_mode_is_normal(self):
         self.review.get_assessor_response.return_value = {
@@ -521,6 +524,34 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Normal Rec")
+        self.assertEqual(result[0].recommendations[0].title, "Normal Rec")
+        self.assertEqual(result[0].recommendations[0].text, "Normal Text")
+
+    def test_returns_only_normal_recommendations_with_groups_when_mode_is_normal(self):
+        self.review.get_assessor_response.return_value = {
+            "A": {
+                "A1.a": {
+                    "review_data": {"review_decision": "partially-achieved"},
+                    "recommendations": [{"title": "Priority Rec", "text": "Priority Text"}],
+                },
+                "A1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [{"title": "Normal Rec", "text": "Normal Text 1"}],
+                },
+                "A1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [{"title": "Normal Rec", "text": "Normal Text 2"}],
+                },
+            }
+        }
+
+        result = get_recommendations(self.review, "normal")
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].title, "Normal Rec")
+        self.assertEqual(len(result[0].recommendations), 2)
+        self.assertEqual(result[0].recommendations[0].title, "Normal Rec")
+        self.assertEqual(result[0].recommendations[1].title, "Normal Rec")
 
     def test_generates_correct_recommendation_ids(self):
         self.review.get_assessor_response.return_value = {
@@ -538,15 +569,54 @@ class TestGetRecommendations(TestCase):
                 },
                 "A1.c": {
                     "review_data": {"review_decision": "achieved"},
+                    "recommendations": [{"title": "Rec 3", "text": "Text 3"}],
+                },
+            }
+        }
+        result = get_recommendations(self.review, "all")
+
+        self.assertEqual(len(result), 3)
+        # All results are grouped in its own group
+        self.assertEqual(result[0].group_index, 1)
+        self.assertEqual(result[0].recommendations[0].id, "REC-A1A1")
+        self.assertEqual(result[1].group_index, 2)
+        self.assertEqual(result[1].recommendations[0].id, "REC-A1A2")
+        self.assertEqual(result[2].group_index, 3)
+        self.assertEqual(result[2].recommendations[0].id, "REC-A1C1")
+
+    def test_generates_correct_recommendation_ids_with_group_index(self):
+        self.review.get_assessor_response.return_value = {
+            "A": {
+                "A1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [
+                        {"title": "Rec 1", "text": "Text 1", "id": "REC-A1A1"},
+                        {"title": "Rec 2", "text": "Text 2", "id": "REC-A1A2"},
+                    ],
+                },
+                "A1.b": {
+                    "review_data": {"review_decision": "achieved"},
                     "recommendations": [],
+                },
+                "A1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [{"title": "Rec 1", "text": "Text 3", "id": "REC-A1C1"}],
                 },
             }
         }
         result = get_recommendations(self.review, "all")
 
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].id, "REC-A1A1")
-        self.assertEqual(result[1].id, "REC-A1A2")
+        # All results are grouped under other, so the index should be 1
+        self.assertEqual(result[0].group_index, 1)
+        self.assertEqual(result[0].title, "Rec 1")
+        # A1.a and A1.c has the same title, so they are grouped under the same group
+        self.assertEqual(result[0].recommendations[0].id, "REC-A1A1")
+        self.assertEqual(result[0].recommendations[1].id, "REC-A1C1")
+        # Other group, with only 1 record
+        self.assertEqual(result[1].group_index, 2)
+        self.assertEqual(result[1].title, "Rec 2")
+        self.assertEqual(result[1].recommendations[0].id, "REC-A1A2")
 
 
 class TestGetIndicatorComments(TestCase):
