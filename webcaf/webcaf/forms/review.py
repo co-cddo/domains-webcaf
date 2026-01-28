@@ -34,16 +34,16 @@ class RecommendationForm(Form):
 
     title = CharField(
         label="Risk",
-        validators=([WordCountValidator(250)]),
+        validators=([WordCountValidator(200)]),
         widget=Textarea(
-            attrs={"rows": 3, "max_words": 250},
+            attrs={"rows": 3, "max_words": 200},
         ),
         required=False,
     )
     text = CharField(
-        validators=([WordCountValidator(750)]),
+        validators=([WordCountValidator(200)]),
         widget=Textarea(
-            attrs={"rows": 10, "max_words": 750},
+            attrs={"rows": 10, "max_words": 200},
         ),
         label="Details and rationale",
         required=False,
