@@ -152,11 +152,20 @@
         font-size: 1.75rem !important; /* ~19pt */
     }
 
+    h3.govuk-heading-m {
+        font-size: 1.6rem !important; /* 16.5pt */
+    }
+
     h4 {
         font-size: 1.25rem !important; /* 13.75pt */
     }
 
     h5 {
         font-size: 1rem !important; /* 11pt */
+    }
+
+    /*Style to bold text only when printing*/
+    .print_bold {
+        font-weight: bold;
     }
 }
