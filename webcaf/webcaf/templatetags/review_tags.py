@@ -264,13 +264,40 @@ def get_principle_profile_status(review: Review, objective_code: str, principle_
     )
 
 
+"""
+Recommendation is a named tuple representing a single recommendation with fields for id, title, text, objective (code),
+and outcome (code).
+On the UI, the title field is labelled as 'Risk' and this is the primary identifier for the recommendation.
+"""
 Recommendation = NamedTuple(
     "Recommendation", [("id", str), ("title", str), ("text", str), ("objective", str), ("outcome", str)]
 )
 
 
+class RecommendationGroup:
+    """
+    Represents a group of recommendations with a title and an index.
+
+    The RecommendationGroup class is designed to organize and manage a collection
+    of recommendations under a specified title. Each group is further indexed with
+    a unique identifier for ordering or categorization purposes.
+
+    :ivar title: The title of the recommendation group.
+    :type title: str
+    :ivar recommendations: A list of recommendations within the group.
+    :type recommendations: list[Recommendation]
+    :ivar group_index: The unique index of the recommendation group.
+    :type group_index: int
+    """
+
+    def __init__(self, title: str, recommendations: list[Recommendation], group_index: int):
+        self.title = title
+        self.recommendations = recommendations
+        self.group_index = group_index
+
+
 @register.simple_tag()
-def get_recommendations(review: Review, mode: Literal["priority", "normal", "all"]) -> list[Recommendation]:
+def get_recommendations(review: Review, mode: Literal["priority", "normal", "all"]) -> list[RecommendationGroup]:
     """
     Generate a list of recommendations based on the assessment review, filtered by the specified mode.
 
@@ -278,19 +305,20 @@ def get_recommendations(review: Review, mode: Literal["priority", "normal", "all
     For each outcome, it evaluates the review decision to determine priority and normal recommendations
     and filters them accordingly to construct a list of recommendations.
 
-    Outcome decision is considered priority if it does not meet the minimum profile requirement
+    Outcome decision is considered a priority if it does not meet the minimum profile requirement.
 
     :param review: The review object that contains the assessment and assessor response data.
     :type review: Review
     :param mode: The filtering mode for recommendations. Possible values are:
                  - "priority": Only include priority recommendations where the review decision
                    is "not-achieved" or "partially-achieved".
-                 - "normal": Only include normal recommendations where the review decision is not
-                   categorized as priority.
-                 - "all": Include all recommendations irrespective of their review decision.
-    :type mode: Literal["priority", "normal", "all"]
-    :return: A list of filtered recommendations based on the given review and mode.
-    :rtype: list[Recommendation]
+                 - "normal": Only includes normal recommendations where the review decision is not
+                   categorized as a priority.
+                 - "all": Includes all recommendations irrespective of their review decision.
+    :type mode: Literal[ "priority", "normal", "all"]
+    :return: A list of filtered recommendations based on the given review and mode. They are grouped by title.
+    and ordered by the recommendation count (The group with the maximum coming first)
+    :rtype: list[RecommendationGroup]
     """
     recommendations_list = []
     for objective in review.assessment.get_all_caf_objectives():
@@ -320,12 +348,23 @@ def get_recommendations(review: Review, mode: Literal["priority", "normal", "all
                             f"{rec_id_prefix}{idx + 1}",
                             recommendation["title"],
                             recommendation["text"],
-                            objective["title"],
-                            outcome["title"],
+                            objective["code"],
+                            outcome["code"],
                         )
                     )
 
-    return recommendations_list
+    recommendation_groups: dict[str, RecommendationGroup] = {}
+    group_index = 1
+    # Groups recommendations; increments group index when needed
+    for r in recommendations_list:
+        recommendation_groups.setdefault(
+            r.title.strip(), RecommendationGroup(r.title, [], group_index)
+        ).recommendations.append(r)
+        if len(recommendation_groups[r.title.strip()].recommendations) == 1:
+            group_index += 1
+
+    # Sort the list based on the number of recommendations in each group
+    return sorted(recommendation_groups.values(), key=lambda g: len(g.recommendations), reverse=True)
 
 
 ReviewComment = NamedTuple("ReviewComment", [("section", str), ("index", int), ("comment", str)])
