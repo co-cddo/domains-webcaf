@@ -1,0 +1,1350 @@
+{
+  "review_completion": {
+    "review_completed": "yes",
+    "review_completed_at": "2025-12-30T17:49:03.109181",
+    "review_completed_by": "cyber_advisor ",
+    "review_completed_by_role": "cyber_advisor",
+    "review_completed_by_email": "cyber_advisor@example.gov.uk"
+  },
+  "assessor_response_data": {
+    "A": {
+      "A1.a": {
+        "indicators": {
+          "achieved_A1.a.5": "yes",
+          "achieved_A1.a.6": "yes",
+          "achieved_A1.a.7": "yes",
+          "achieved_A1.a.8": "yes",
+          "not-achieved_A1.a.1": "yes",
+          "not-achieved_A1.a.2": "yes",
+          "not-achieved_A1.a.3": "yes",
+          "not-achieved_A1.a.4": "yes",
+          "achieved_A1.a.5_comment": "This is a comment.",
+          "achieved_A1.a.6_comment": "This is also a comment.",
+          "achieved_A1.a.7_comment": "This is a longer comment: blah, blah, indicators of good practice, something, blah, cybersecurity, blah, blah.",
+          "achieved_A1.a.8_comment": "This is an even longer comment: blah, blah, principles and outcomes, something, essential systems, something else, blah, blah, risk, blah, still going, more commentary, blah, blah",
+          "not-achieved_A1.a.1_comment": "",
+          "not-achieved_A1.a.2_comment": "",
+          "not-achieved_A1.a.3_comment": "",
+          "not-achieved_A1.a.4_comment": ""
+        },
+        "review_data": {
+          "review_comment": "This is a review comment.",
+          "review_decision": "not-achieved"
+        },
+        "recommendations": [
+          {
+            "text": "This is a recommendation.",
+            "title": "A huge risk"
+          },
+          {
+            "text": "This is another recommendation.",
+            "title": "A tiny risk"
+          },
+          {
+            "text": "This is yet another recommendation.",
+            "title": "A medium risk"
+          }
+        ]
+      },
+      "A1.b": {
+        "indicators": {
+          "achieved_A1.b.4": "yes",
+          "achieved_A1.b.5": "no",
+          "achieved_A1.b.6": "no",
+          "not-achieved_A1.b.1": "no",
+          "not-achieved_A1.b.2": "no",
+          "not-achieved_A1.b.3": "no",
+          "achieved_A1.b.4_comment": "",
+          "achieved_A1.b.5_comment": "",
+          "achieved_A1.b.6_comment": "",
+          "not-achieved_A1.b.1_comment": "",
+          "not-achieved_A1.b.2_comment": "",
+          "not-achieved_A1.b.3_comment": ""
+        },
+        "review_data": {
+          "review_comment": "retretr",
+          "review_decision": "achieved"
+        },
+        "recommendations": [
+          {
+            "text": "This is another recommendation.",
+            "title": "Something risky"
+          }
+        ]
+      },
+      "A1.c": {
+        "indicators": {
+          "achieved_A1.c.6": "yes",
+          "achieved_A1.c.7": "yes",
+          "achieved_A1.c.8": "yes",
+          "achieved_A1.c.9": "yes",
+          "not-achieved_A1.c.1": "yes",
+          "not-achieved_A1.c.2": "yes",
+          "not-achieved_A1.c.3": "yes",
+          "not-achieved_A1.c.4": "yes",
+          "not-achieved_A1.c.5": "yes",
+          "achieved_A1.c.6_comment": "",
+          "achieved_A1.c.7_comment": "",
+          "achieved_A1.c.8_comment": "",
+          "achieved_A1.c.9_comment": "",
+          "not-achieved_A1.c.1_comment": "",
+          "not-achieved_A1.c.2_comment": "",
+          "not-achieved_A1.c.3_comment": "",
+          "not-achieved_A1.c.4_comment": "",
+          "not-achieved_A1.c.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "rtertr",
+          "review_decision": "achieved"
+        }
+      },
+      "A2.a": {
+        "indicators": {
+          "achieved_A2.a.15": "yes",
+          "achieved_A2.a.16": "yes",
+          "achieved_A2.a.17": "yes",
+          "achieved_A2.a.18": "yes",
+          "achieved_A2.a.19": "yes",
+          "achieved_A2.a.20": "yes",
+          "achieved_A2.a.21": "yes",
+          "achieved_A2.a.22": "yes",
+          "achieved_A2.a.23": "yes",
+          "not-achieved_A2.a.1": "yes",
+          "not-achieved_A2.a.2": "yes",
+          "not-achieved_A2.a.3": "yes",
+          "not-achieved_A2.a.4": "yes",
+          "not-achieved_A2.a.5": "yes",
+          "not-achieved_A2.a.6": "yes",
+          "not-achieved_A2.a.7": "yes",
+          "not-achieved_A2.a.8": "yes",
+          "achieved_A2.a.15_comment": "",
+          "achieved_A2.a.16_comment": "",
+          "achieved_A2.a.17_comment": "",
+          "achieved_A2.a.18_comment": "",
+          "achieved_A2.a.19_comment": "",
+          "achieved_A2.a.20_comment": "",
+          "achieved_A2.a.21_comment": "",
+          "achieved_A2.a.22_comment": "",
+          "achieved_A2.a.23_comment": "",
+          "partially-achieved_A2.a.9": "yes",
+          "partially-achieved_A2.a.10": "yes",
+          "partially-achieved_A2.a.11": "yes",
+          "partially-achieved_A2.a.12": "yes",
+          "partially-achieved_A2.a.13": "yes",
+          "partially-achieved_A2.a.14": "yes",
+          "not-achieved_A2.a.1_comment": "",
+          "not-achieved_A2.a.2_comment": "",
+          "not-achieved_A2.a.3_comment": "",
+          "not-achieved_A2.a.4_comment": "",
+          "not-achieved_A2.a.5_comment": "",
+          "not-achieved_A2.a.6_comment": "",
+          "not-achieved_A2.a.7_comment": "",
+          "not-achieved_A2.a.8_comment": "",
+          "partially-achieved_A2.a.9_comment": "",
+          "partially-achieved_A2.a.10_comment": "",
+          "partially-achieved_A2.a.11_comment": "",
+          "partially-achieved_A2.a.12_comment": "",
+          "partially-achieved_A2.a.13_comment": "",
+          "partially-achieved_A2.a.14_comment": ""
+        },
+        "review_data": {
+          "review_comment": "retert",
+          "review_decision": "achieved"
+        }
+      },
+      "A2.b": {
+        "indicators": {
+          "achieved_A2.b.4": "yes",
+          "achieved_A2.b.5": "yes",
+          "achieved_A2.b.6": "yes",
+          "achieved_A2.b.7": "yes",
+          "achieved_A2.b.8": "yes",
+          "not-achieved_A2.b.1": "yes",
+          "not-achieved_A2.b.2": "yes",
+          "not-achieved_A2.b.3": "yes",
+          "achieved_A2.b.4_comment": "",
+          "achieved_A2.b.5_comment": "",
+          "achieved_A2.b.6_comment": "",
+          "achieved_A2.b.7_comment": "",
+          "achieved_A2.b.8_comment": "",
+          "not-achieved_A2.b.1_comment": "",
+          "not-achieved_A2.b.2_comment": "",
+          "not-achieved_A2.b.3_comment": ""
+        },
+        "review_data": {
+          "review_comment": "45454",
+          "review_decision": "achieved"
+        }
+      },
+      "A3.a": {
+        "indicators": {
+          "achieved_A3.a.6": "yes",
+          "achieved_A3.a.7": "yes",
+          "achieved_A3.a.8": "yes",
+          "achieved_A3.a.9": "yes",
+          "achieved_A3.a.10": "yes",
+          "not-achieved_A3.a.1": "yes",
+          "not-achieved_A3.a.2": "yes",
+          "not-achieved_A3.a.3": "yes",
+          "not-achieved_A3.a.4": "yes",
+          "not-achieved_A3.a.5": "yes",
+          "achieved_A3.a.6_comment": "",
+          "achieved_A3.a.7_comment": "",
+          "achieved_A3.a.8_comment": "",
+          "achieved_A3.a.9_comment": "",
+          "achieved_A3.a.10_comment": "",
+          "not-achieved_A3.a.1_comment": "",
+          "not-achieved_A3.a.2_comment": "",
+          "not-achieved_A3.a.3_comment": "",
+          "not-achieved_A3.a.4_comment": "",
+          "not-achieved_A3.a.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "45345435tb345345b 34543 345t53465346fdghfgfhfgh f",
+          "review_decision": "achieved"
+        }
+      },
+      "A4.a": {
+        "indicators": {
+          "achieved_A4.a.11": "yes",
+          "achieved_A4.a.12": "yes",
+          "achieved_A4.a.13": "yes",
+          "achieved_A4.a.14": "yes",
+          "achieved_A4.a.15": "yes",
+          "achieved_A4.a.16": "yes",
+          "achieved_A4.a.17": "yes",
+          "not-achieved_A4.a.1": "yes",
+          "not-achieved_A4.a.2": "yes",
+          "not-achieved_A4.a.3": "yes",
+          "not-achieved_A4.a.4": "yes",
+          "achieved_A4.a.11_comment": "",
+          "achieved_A4.a.12_comment": "",
+          "achieved_A4.a.13_comment": "",
+          "achieved_A4.a.14_comment": "",
+          "achieved_A4.a.15_comment": "",
+          "achieved_A4.a.16_comment": "",
+          "achieved_A4.a.17_comment": "",
+          "partially-achieved_A4.a.5": "yes",
+          "partially-achieved_A4.a.6": "yes",
+          "partially-achieved_A4.a.7": "yes",
+          "partially-achieved_A4.a.8": "yes",
+          "partially-achieved_A4.a.9": "yes",
+          "partially-achieved_A4.a.10": "yes",
+          "not-achieved_A4.a.1_comment": "",
+          "not-achieved_A4.a.2_comment": "",
+          "not-achieved_A4.a.3_comment": "",
+          "not-achieved_A4.a.4_comment": "",
+          "partially-achieved_A4.a.5_comment": "",
+          "partially-achieved_A4.a.6_comment": "",
+          "partially-achieved_A4.a.7_comment": "",
+          "partially-achieved_A4.a.8_comment": "",
+          "partially-achieved_A4.a.9_comment": "",
+          "partially-achieved_A4.a.10_comment": ""
+        },
+        "review_data": {
+          "review_comment": "tyqt rtyjytetu ytuyt",
+          "review_decision": "partially-achieved"
+        },
+        "recommendations": [
+          {
+            "text": "This is a recommendation.",
+            "title": "A huge risk"
+          },
+          {
+            "text": "This is another recommendation.",
+            "title": "A tiny risk"
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "text": "This is a recommendation.",
+          "title": "A biggish risk"
+        }
+      ],
+      "objective-areas-of-improvement": "This is an area of improvement.",
+      "objective-areas-of-good-practice": "There are lots of good practices."
+    },
+    "B": {
+      "B1.a": {
+        "indicators": {
+          "achieved_B1.a.10": "yes",
+          "achieved_B1.a.11": "yes",
+          "achieved_B1.a.12": "yes",
+          "achieved_B1.a.13": "yes",
+          "achieved_B1.a.14": "yes",
+          "achieved_B1.a.15": "yes",
+          "not-achieved_B1.a.1": "yes",
+          "not-achieved_B1.a.2": "yes",
+          "not-achieved_B1.a.3": "yes",
+          "not-achieved_B1.a.4": "yes",
+          "not-achieved_B1.a.5": "yes",
+          "not-achieved_B1.a.6": "yes",
+          "not-achieved_B1.a.7": "yes",
+          "achieved_B1.a.10_comment": "",
+          "achieved_B1.a.11_comment": "",
+          "achieved_B1.a.12_comment": "",
+          "achieved_B1.a.13_comment": "",
+          "achieved_B1.a.14_comment": "",
+          "achieved_B1.a.15_comment": "",
+          "partially-achieved_B1.a.8": "yes",
+          "partially-achieved_B1.a.9": "yes",
+          "not-achieved_B1.a.1_comment": "",
+          "not-achieved_B1.a.2_comment": "",
+          "not-achieved_B1.a.3_comment": "",
+          "not-achieved_B1.a.4_comment": "",
+          "not-achieved_B1.a.5_comment": "",
+          "not-achieved_B1.a.6_comment": "",
+          "not-achieved_B1.a.7_comment": "",
+          "partially-achieved_B1.a.8_comment": "",
+          "partially-achieved_B1.a.9_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ggh",
+          "review_decision": "achieved"
+        },
+        "recommendations": [
+          {
+            "text": "This is a recommendation",
+            "title": "A risk"
+          }
+        ]
+      },
+      "B1.b": {
+        "indicators": {
+          "achieved_B1.b.11": "yes",
+          "achieved_B1.b.12": "yes",
+          "achieved_B1.b.13": "yes",
+          "achieved_B1.b.14": "yes",
+          "not-achieved_B1.b.1": "yes",
+          "not-achieved_B1.b.2": "yes",
+          "not-achieved_B1.b.3": "yes",
+          "not-achieved_B1.b.4": "yes",
+          "not-achieved_B1.b.5": "yes",
+          "not-achieved_B1.b.6": "yes",
+          "achieved_B1.b.11_comment": "",
+          "achieved_B1.b.12_comment": "",
+          "achieved_B1.b.13_comment": "",
+          "achieved_B1.b.14_comment": "",
+          "partially-achieved_B1.b.7": "yes",
+          "partially-achieved_B1.b.8": "yes",
+          "partially-achieved_B1.b.9": "yes",
+          "partially-achieved_B1.b.10": "yes",
+          "not-achieved_B1.b.1_comment": "",
+          "not-achieved_B1.b.2_comment": "",
+          "not-achieved_B1.b.3_comment": "",
+          "not-achieved_B1.b.4_comment": "",
+          "not-achieved_B1.b.5_comment": "",
+          "not-achieved_B1.b.6_comment": "",
+          "partially-achieved_B1.b.7_comment": "",
+          "partially-achieved_B1.b.8_comment": "",
+          "partially-achieved_B1.b.9_comment": "",
+          "partially-achieved_B1.b.10_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ggh",
+          "review_decision": "achieved"
+        }
+      },
+      "B2.a": {
+        "indicators": {
+          "achieved_B2.a.13": "yes",
+          "achieved_B2.a.14": "yes",
+          "achieved_B2.a.15": "yes",
+          "achieved_B2.a.16": "yes",
+          "achieved_B2.a.17": "yes",
+          "achieved_B2.a.18": "yes",
+          "not-achieved_B2.a.1": "yes",
+          "not-achieved_B2.a.2": "yes",
+          "not-achieved_B2.a.3": "yes",
+          "not-achieved_B2.a.4": "yes",
+          "not-achieved_B2.a.5": "yes",
+          "achieved_B2.a.13_comment": "",
+          "achieved_B2.a.14_comment": "",
+          "achieved_B2.a.15_comment": "",
+          "achieved_B2.a.16_comment": "",
+          "achieved_B2.a.17_comment": "",
+          "achieved_B2.a.18_comment": "",
+          "partially-achieved_B2.a.6": "yes",
+          "partially-achieved_B2.a.7": "yes",
+          "partially-achieved_B2.a.8": "yes",
+          "partially-achieved_B2.a.9": "yes",
+          "partially-achieved_B2.a.10": "yes",
+          "partially-achieved_B2.a.11": "yes",
+          "partially-achieved_B2.a.12": "yes",
+          "not-achieved_B2.a.1_comment": "",
+          "not-achieved_B2.a.2_comment": "",
+          "not-achieved_B2.a.3_comment": "",
+          "not-achieved_B2.a.4_comment": "",
+          "not-achieved_B2.a.5_comment": "",
+          "partially-achieved_B2.a.6_comment": "",
+          "partially-achieved_B2.a.7_comment": "",
+          "partially-achieved_B2.a.8_comment": "",
+          "partially-achieved_B2.a.9_comment": "",
+          "partially-achieved_B2.a.10_comment": "",
+          "partially-achieved_B2.a.11_comment": "",
+          "partially-achieved_B2.a.12_comment": ""
+        },
+        "review_data": {
+          "review_comment": "gdh",
+          "review_decision": "achieved"
+        }
+      },
+      "B2.b": {
+        "indicators": {
+          "achieved_B2.b.10": "yes",
+          "achieved_B2.b.11": "yes",
+          "achieved_B2.b.12": "yes",
+          "achieved_B2.b.13": "yes",
+          "not-achieved_B2.b.1": "no",
+          "not-achieved_B2.b.2": "yes",
+          "not-achieved_B2.b.3": "yes",
+          "not-achieved_B2.b.4": "yes",
+          "achieved_B2.b.10_comment": "",
+          "achieved_B2.b.11_comment": "",
+          "achieved_B2.b.12_comment": "",
+          "achieved_B2.b.13_comment": "",
+          "partially-achieved_B2.b.5": "yes",
+          "partially-achieved_B2.b.6": "yes",
+          "partially-achieved_B2.b.7": "yes",
+          "partially-achieved_B2.b.8": "yes",
+          "partially-achieved_B2.b.9": "yes",
+          "not-achieved_B2.b.1_comment": "",
+          "not-achieved_B2.b.2_comment": "",
+          "not-achieved_B2.b.3_comment": "",
+          "not-achieved_B2.b.4_comment": "",
+          "partially-achieved_B2.b.5_comment": "",
+          "partially-achieved_B2.b.6_comment": "",
+          "partially-achieved_B2.b.7_comment": "",
+          "partially-achieved_B2.b.8_comment": "",
+          "partially-achieved_B2.b.9_comment": ""
+        },
+        "review_data": {
+          "review_comment": "dgdgfh",
+          "review_decision": "achieved"
+        }
+      },
+      "B2.c": {
+        "indicators": {
+          "achieved_B2.c.12": "yes",
+          "achieved_B2.c.13": "yes",
+          "achieved_B2.c.14": "yes",
+          "achieved_B2.c.15": "yes",
+          "not-achieved_B2.c.1": "yes",
+          "not-achieved_B2.c.2": "yes",
+          "not-achieved_B2.c.3": "yes",
+          "not-achieved_B2.c.4": "yes",
+          "not-achieved_B2.c.5": "yes",
+          "not-achieved_B2.c.6": "yes",
+          "not-achieved_B2.c.7": "yes",
+          "achieved_B2.c.12_comment": "",
+          "achieved_B2.c.13_comment": "",
+          "achieved_B2.c.14_comment": "",
+          "achieved_B2.c.15_comment": "",
+          "partially-achieved_B2.c.8": "yes",
+          "partially-achieved_B2.c.9": "yes",
+          "partially-achieved_B2.c.10": "yes",
+          "partially-achieved_B2.c.11": "yes",
+          "not-achieved_B2.c.1_comment": "",
+          "not-achieved_B2.c.2_comment": "",
+          "not-achieved_B2.c.3_comment": "",
+          "not-achieved_B2.c.4_comment": "",
+          "not-achieved_B2.c.5_comment": "",
+          "not-achieved_B2.c.6_comment": "",
+          "not-achieved_B2.c.7_comment": "",
+          "partially-achieved_B2.c.8_comment": "",
+          "partially-achieved_B2.c.9_comment": "",
+          "partially-achieved_B2.c.10_comment": "",
+          "partially-achieved_B2.c.11_comment": ""
+        },
+        "review_data": {
+          "review_comment": "dgghg",
+          "review_decision": "achieved"
+        }
+      },
+      "B2.d": {
+        "indicators": {
+          "achieved_B2.d.10": "yes",
+          "achieved_B2.d.11": "yes",
+          "achieved_B2.d.12": "no",
+          "achieved_B2.d.13": "no",
+          "achieved_B2.d.14": "no",
+          "not-achieved_B2.d.1": "no",
+          "not-achieved_B2.d.2": "no",
+          "not-achieved_B2.d.3": "no",
+          "not-achieved_B2.d.4": "no",
+          "not-achieved_B2.d.5": "no",
+          "achieved_B2.d.10_comment": "",
+          "achieved_B2.d.11_comment": "",
+          "achieved_B2.d.12_comment": "",
+          "achieved_B2.d.13_comment": "",
+          "achieved_B2.d.14_comment": "",
+          "partially-achieved_B2.d.6": "no",
+          "partially-achieved_B2.d.7": "no",
+          "partially-achieved_B2.d.8": "no",
+          "partially-achieved_B2.d.9": "no",
+          "not-achieved_B2.d.1_comment": "",
+          "not-achieved_B2.d.2_comment": "",
+          "not-achieved_B2.d.3_comment": "",
+          "not-achieved_B2.d.4_comment": "",
+          "not-achieved_B2.d.5_comment": "",
+          "partially-achieved_B2.d.6_comment": "",
+          "partially-achieved_B2.d.7_comment": "",
+          "partially-achieved_B2.d.8_comment": "",
+          "partially-achieved_B2.d.9_comment": ""
+        },
+        "review_data": {
+          "review_comment": "gdhdg",
+          "review_decision": "partially-achieved"
+        },
+        "recommendations": [
+          {
+            "text": "This is a recommendation",
+            "title": "A biggish risk"
+          }
+        ]
+      },
+      "B3.a": {
+        "indicators": {
+          "achieved_B3.a.11": "yes",
+          "achieved_B3.a.12": "yes",
+          "achieved_B3.a.13": "yes",
+          "achieved_B3.a.14": "yes",
+          "achieved_B3.a.15": "yes",
+          "achieved_B3.a.16": "yes",
+          "achieved_B3.a.17": "yes",
+          "achieved_B3.a.18": "yes",
+          "achieved_B3.a.19": "yes",
+          "not-achieved_B3.a.1": "yes",
+          "not-achieved_B3.a.2": "yes",
+          "not-achieved_B3.a.3": "yes",
+          "not-achieved_B3.a.4": "yes",
+          "achieved_B3.a.11_comment": "",
+          "achieved_B3.a.12_comment": "",
+          "achieved_B3.a.13_comment": "",
+          "achieved_B3.a.14_comment": "",
+          "achieved_B3.a.15_comment": "",
+          "achieved_B3.a.16_comment": "",
+          "achieved_B3.a.17_comment": "",
+          "achieved_B3.a.18_comment": "",
+          "achieved_B3.a.19_comment": "",
+          "partially-achieved_B3.a.5": "yes",
+          "partially-achieved_B3.a.6": "yes",
+          "partially-achieved_B3.a.7": "yes",
+          "partially-achieved_B3.a.8": "yes",
+          "partially-achieved_B3.a.9": "yes",
+          "partially-achieved_B3.a.10": "yes",
+          "not-achieved_B3.a.1_comment": "",
+          "not-achieved_B3.a.2_comment": "",
+          "not-achieved_B3.a.3_comment": "",
+          "not-achieved_B3.a.4_comment": "",
+          "partially-achieved_B3.a.5_comment": "",
+          "partially-achieved_B3.a.6_comment": "",
+          "partially-achieved_B3.a.7_comment": "",
+          "partially-achieved_B3.a.8_comment": "",
+          "partially-achieved_B3.a.9_comment": "",
+          "partially-achieved_B3.a.10_comment": ""
+        },
+        "review_data": {
+          "review_comment": "dghgh",
+          "review_decision": "achieved"
+        }
+      },
+      "B3.b": {
+        "indicators": {
+          "achieved_B3.b.6": "yes",
+          "achieved_B3.b.7": "yes",
+          "achieved_B3.b.8": "yes",
+          "not-achieved_B3.b.1": "yes",
+          "not-achieved_B3.b.2": "yes",
+          "not-achieved_B3.b.3": "yes",
+          "achieved_B3.b.6_comment": "",
+          "achieved_B3.b.7_comment": "",
+          "achieved_B3.b.8_comment": "",
+          "partially-achieved_B3.b.4": "yes",
+          "partially-achieved_B3.b.5": "yes",
+          "not-achieved_B3.b.1_comment": "",
+          "not-achieved_B3.b.2_comment": "",
+          "not-achieved_B3.b.3_comment": "",
+          "partially-achieved_B3.b.4_comment": "",
+          "partially-achieved_B3.b.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "lll",
+          "review_decision": "achieved"
+        }
+      },
+      "B3.c": {
+        "indicators": {
+          "achieved_B3.c.8": "yes",
+          "achieved_B3.c.9": "yes",
+          "achieved_B3.c.10": "yes",
+          "achieved_B3.c.11": "yes",
+          "achieved_B3.c.12": "yes",
+          "not-achieved_B3.c.1": "yes",
+          "not-achieved_B3.c.2": "yes",
+          "not-achieved_B3.c.3": "yes",
+          "achieved_B3.c.8_comment": "",
+          "achieved_B3.c.9_comment": "",
+          "achieved_B3.c.10_comment": "",
+          "achieved_B3.c.11_comment": "",
+          "achieved_B3.c.12_comment": "",
+          "partially-achieved_B3.c.4": "yes",
+          "partially-achieved_B3.c.5": "yes",
+          "partially-achieved_B3.c.6": "yes",
+          "partially-achieved_B3.c.7": "yes",
+          "not-achieved_B3.c.1_comment": "",
+          "not-achieved_B3.c.2_comment": "",
+          "not-achieved_B3.c.3_comment": "",
+          "partially-achieved_B3.c.4_comment": "",
+          "partially-achieved_B3.c.5_comment": "",
+          "partially-achieved_B3.c.6_comment": "",
+          "partially-achieved_B3.c.7_comment": ""
+        },
+        "review_data": {
+          "review_comment": "pppp",
+          "review_decision": "achieved"
+        }
+      },
+      "B3.d": {
+        "indicators": {
+          "achieved_B3.d.7": "yes",
+          "achieved_B3.d.8": "yes",
+          "achieved_B3.d.9": "yes",
+          "not-achieved_B3.d.1": "yes",
+          "not-achieved_B3.d.2": "yes",
+          "not-achieved_B3.d.3": "yes",
+          "achieved_B3.d.7_comment": "",
+          "achieved_B3.d.8_comment": "",
+          "achieved_B3.d.9_comment": "",
+          "partially-achieved_B3.d.4": "yes",
+          "partially-achieved_B3.d.5": "yes",
+          "partially-achieved_B3.d.6": "yes",
+          "not-achieved_B3.d.1_comment": "",
+          "not-achieved_B3.d.2_comment": "",
+          "not-achieved_B3.d.3_comment": "",
+          "partially-achieved_B3.d.4_comment": "",
+          "partially-achieved_B3.d.5_comment": "",
+          "partially-achieved_B3.d.6_comment": ""
+        },
+        "review_data": {
+          "review_comment": "rtert",
+          "review_decision": "achieved"
+        }
+      },
+      "B3.e": {
+        "indicators": {
+          "achieved_B3.e.3": "yes",
+          "achieved_B3.e.4": "yes",
+          "not-achieved_B3.e.1": "yes",
+          "achieved_B3.e.3_comment": "",
+          "achieved_B3.e.4_comment": "",
+          "partially-achieved_B3.e.2": "yes",
+          "not-achieved_B3.e.1_comment": "",
+          "partially-achieved_B3.e.2_comment": ""
+        },
+        "review_data": {
+          "review_comment": "retert",
+          "review_decision": "achieved"
+        }
+      },
+      "B4.a": {
+        "indicators": {
+          "achieved_B4.a.10": "yes",
+          "achieved_B4.a.11": "yes",
+          "achieved_B4.a.12": "yes",
+          "achieved_B4.a.13": "yes",
+          "achieved_B4.a.14": "yes",
+          "not-achieved_B4.a.1": "yes",
+          "not-achieved_B4.a.2": "yes",
+          "not-achieved_B4.a.3": "yes",
+          "not-achieved_B4.a.4": "yes",
+          "achieved_B4.a.10_comment": "",
+          "achieved_B4.a.11_comment": "",
+          "achieved_B4.a.12_comment": "",
+          "achieved_B4.a.13_comment": "",
+          "achieved_B4.a.14_comment": "",
+          "partially-achieved_B4.a.5": "yes",
+          "partially-achieved_B4.a.6": "yes",
+          "partially-achieved_B4.a.7": "yes",
+          "partially-achieved_B4.a.8": "yes",
+          "partially-achieved_B4.a.9": "yes",
+          "not-achieved_B4.a.1_comment": "",
+          "not-achieved_B4.a.2_comment": "",
+          "not-achieved_B4.a.3_comment": "",
+          "not-achieved_B4.a.4_comment": "",
+          "partially-achieved_B4.a.5_comment": "",
+          "partially-achieved_B4.a.6_comment": "",
+          "partially-achieved_B4.a.7_comment": "",
+          "partially-achieved_B4.a.8_comment": "",
+          "partially-achieved_B4.a.9_comment": ""
+        },
+        "review_data": {
+          "review_comment": "hhh",
+          "review_decision": "achieved"
+        }
+      },
+      "B4.b": {
+        "indicators": {
+          "achieved_B4.b.12": "yes",
+          "achieved_B4.b.13": "yes",
+          "achieved_B4.b.14": "yes",
+          "achieved_B4.b.15": "yes",
+          "achieved_B4.b.16": "yes",
+          "achieved_B4.b.17": "yes",
+          "achieved_B4.b.18": "yes",
+          "achieved_B4.b.19": "yes",
+          "not-achieved_B4.b.1": "yes",
+          "not-achieved_B4.b.2": "yes",
+          "not-achieved_B4.b.3": "yes",
+          "not-achieved_B4.b.4": "yes",
+          "not-achieved_B4.b.5": "yes",
+          "achieved_B4.b.12_comment": "",
+          "achieved_B4.b.13_comment": "",
+          "achieved_B4.b.14_comment": "",
+          "achieved_B4.b.15_comment": "",
+          "achieved_B4.b.16_comment": "",
+          "achieved_B4.b.17_comment": "",
+          "achieved_B4.b.18_comment": "",
+          "achieved_B4.b.19_comment": "",
+          "partially-achieved_B4.b.6": "yes",
+          "partially-achieved_B4.b.7": "yes",
+          "partially-achieved_B4.b.8": "yes",
+          "partially-achieved_B4.b.9": "yes",
+          "partially-achieved_B4.b.10": "yes",
+          "partially-achieved_B4.b.11": "yes",
+          "not-achieved_B4.b.1_comment": "",
+          "not-achieved_B4.b.2_comment": "",
+          "not-achieved_B4.b.3_comment": "",
+          "not-achieved_B4.b.4_comment": "",
+          "not-achieved_B4.b.5_comment": "",
+          "partially-achieved_B4.b.6_comment": "",
+          "partially-achieved_B4.b.7_comment": "",
+          "partially-achieved_B4.b.8_comment": "",
+          "partially-achieved_B4.b.9_comment": "",
+          "partially-achieved_B4.b.10_comment": "",
+          "partially-achieved_B4.b.11_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ty",
+          "review_decision": "achieved"
+        }
+      },
+      "B4.c": {
+        "indicators": {
+          "achieved_B4.c.6": "yes",
+          "achieved_B4.c.7": "yes",
+          "achieved_B4.c.8": "yes",
+          "not-achieved_B4.c.1": "yes",
+          "not-achieved_B4.c.2": "yes",
+          "achieved_B4.c.6_comment": "",
+          "achieved_B4.c.7_comment": "",
+          "achieved_B4.c.8_comment": "",
+          "partially-achieved_B4.c.3": "yes",
+          "partially-achieved_B4.c.4": "yes",
+          "partially-achieved_B4.c.5": "yes",
+          "not-achieved_B4.c.1_comment": "",
+          "not-achieved_B4.c.2_comment": "",
+          "partially-achieved_B4.c.3_comment": "",
+          "partially-achieved_B4.c.4_comment": "",
+          "partially-achieved_B4.c.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "tytry",
+          "review_decision": "achieved"
+        }
+      },
+      "B4.d": {
+        "indicators": {
+          "achieved_B4.d.11": "yes",
+          "achieved_B4.d.12": "yes",
+          "achieved_B4.d.13": "yes",
+          "achieved_B4.d.14": "yes",
+          "not-achieved_B4.d.1": "yes",
+          "not-achieved_B4.d.2": "yes",
+          "not-achieved_B4.d.3": "yes",
+          "not-achieved_B4.d.4": "yes",
+          "not-achieved_B4.d.5": "yes",
+          "achieved_B4.d.11_comment": "",
+          "achieved_B4.d.12_comment": "",
+          "achieved_B4.d.13_comment": "",
+          "achieved_B4.d.14_comment": "",
+          "partially-achieved_B4.d.6": "yes",
+          "partially-achieved_B4.d.7": "yes",
+          "partially-achieved_B4.d.8": "yes",
+          "partially-achieved_B4.d.9": "yes",
+          "partially-achieved_B4.d.10": "yes",
+          "not-achieved_B4.d.1_comment": "",
+          "not-achieved_B4.d.2_comment": "",
+          "not-achieved_B4.d.3_comment": "",
+          "not-achieved_B4.d.4_comment": "",
+          "not-achieved_B4.d.5_comment": "",
+          "partially-achieved_B4.d.6_comment": "",
+          "partially-achieved_B4.d.7_comment": "",
+          "partially-achieved_B4.d.8_comment": "",
+          "partially-achieved_B4.d.9_comment": "",
+          "partially-achieved_B4.d.10_comment": ""
+        },
+        "review_data": {
+          "review_comment": "tyryt",
+          "review_decision": "achieved"
+        },
+        "recommendations": [
+          {
+            "text": "It's important that you address this issue promptly.",
+            "title": "A small risk"
+          }
+        ]
+      },
+      "B5.a": {
+        "indicators": {
+          "achieved_B5.a.6": "yes",
+          "achieved_B5.a.7": "yes",
+          "not-achieved_B5.a.1": "yes",
+          "not-achieved_B5.a.2": "yes",
+          "not-achieved_B5.a.3": "yes",
+          "achieved_B5.a.6_comment": "",
+          "achieved_B5.a.7_comment": "",
+          "partially-achieved_B5.a.4": "yes",
+          "partially-achieved_B5.a.5": "yes",
+          "not-achieved_B5.a.1_comment": "",
+          "not-achieved_B5.a.2_comment": "",
+          "not-achieved_B5.a.3_comment": "",
+          "partially-achieved_B5.a.4_comment": "",
+          "partially-achieved_B5.a.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "tryt",
+          "review_decision": "achieved"
+        }
+      },
+      "B5.b": {
+        "indicators": {
+          "achieved_B5.b.6": "yes",
+          "achieved_B5.b.7": "yes",
+          "achieved_B5.b.8": "yes",
+          "achieved_B5.b.9": "yes",
+          "not-achieved_B5.b.1": "yes",
+          "not-achieved_B5.b.2": "yes",
+          "not-achieved_B5.b.3": "yes",
+          "achieved_B5.b.6_comment": "",
+          "achieved_B5.b.7_comment": "",
+          "achieved_B5.b.8_comment": "",
+          "achieved_B5.b.9_comment": "",
+          "partially-achieved_B5.b.4": "yes",
+          "partially-achieved_B5.b.5": "yes",
+          "not-achieved_B5.b.1_comment": "",
+          "not-achieved_B5.b.2_comment": "",
+          "not-achieved_B5.b.3_comment": "",
+          "partially-achieved_B5.b.4_comment": "",
+          "partially-achieved_B5.b.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "rtyurt",
+          "review_decision": "achieved"
+        }
+      },
+      "B5.c": {
+        "indicators": {
+          "achieved_B5.c.6": "yes",
+          "achieved_B5.c.7": "yes",
+          "not-achieved_B5.c.1": "yes",
+          "not-achieved_B5.c.2": "yes",
+          "not-achieved_B5.c.3": "yes",
+          "achieved_B5.c.6_comment": "",
+          "achieved_B5.c.7_comment": "",
+          "partially-achieved_B5.c.4": "yes",
+          "partially-achieved_B5.c.5": "yes",
+          "not-achieved_B5.c.1_comment": "",
+          "not-achieved_B5.c.2_comment": "",
+          "not-achieved_B5.c.3_comment": "",
+          "partially-achieved_B5.c.4_comment": "",
+          "partially-achieved_B5.c.5_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ryuyu",
+          "review_decision": "achieved"
+        }
+      },
+      "B6.a": {
+        "indicators": {
+          "achieved_B6.a.8": "yes",
+          "achieved_B6.a.9": "yes",
+          "achieved_B6.a.10": "yes",
+          "achieved_B6.a.11": "yes",
+          "achieved_B6.a.12": "yes",
+          "achieved_B6.a.13": "yes",
+          "not-achieved_B6.a.1": "yes",
+          "not-achieved_B6.a.2": "yes",
+          "not-achieved_B6.a.3": "yes",
+          "not-achieved_B6.a.4": "yes",
+          "achieved_B6.a.8_comment": "",
+          "achieved_B6.a.9_comment": "",
+          "achieved_B6.a.10_comment": "",
+          "achieved_B6.a.11_comment": "",
+          "achieved_B6.a.12_comment": "",
+          "achieved_B6.a.13_comment": "",
+          "partially-achieved_B6.a.5": "yes",
+          "partially-achieved_B6.a.6": "yes",
+          "partially-achieved_B6.a.7": "yes",
+          "not-achieved_B6.a.1_comment": "",
+          "not-achieved_B6.a.2_comment": "",
+          "not-achieved_B6.a.3_comment": "",
+          "not-achieved_B6.a.4_comment": "",
+          "partially-achieved_B6.a.5_comment": "",
+          "partially-achieved_B6.a.6_comment": "",
+          "partially-achieved_B6.a.7_comment": ""
+        },
+        "review_data": {
+          "review_comment": "yruyu",
+          "review_decision": "achieved"
+        }
+      },
+      "B6.b": {
+        "indicators": {
+          "achieved_B6.b.7": "yes",
+          "achieved_B6.b.8": "yes",
+          "achieved_B6.b.9": "yes",
+          "achieved_B6.b.10": "yes",
+          "not-achieved_B6.b.1": "yes",
+          "not-achieved_B6.b.2": "yes",
+          "not-achieved_B6.b.3": "yes",
+          "achieved_B6.b.7_comment": "",
+          "achieved_B6.b.8_comment": "",
+          "achieved_B6.b.9_comment": "",
+          "achieved_B6.b.10_comment": "",
+          "partially-achieved_B6.b.4": "yes",
+          "partially-achieved_B6.b.5": "yes",
+          "partially-achieved_B6.b.6": "yes",
+          "not-achieved_B6.b.1_comment": "",
+          "not-achieved_B6.b.2_comment": "",
+          "not-achieved_B6.b.3_comment": "",
+          "partially-achieved_B6.b.4_comment": "",
+          "partially-achieved_B6.b.5_comment": "",
+          "partially-achieved_B6.b.6_comment": ""
+        },
+        "review_data": {
+          "review_comment": "yutyu",
+          "review_decision": "achieved"
+        }
+      },
+      "recommendations": [
+        {
+          "text": "This is a recommendation",
+          "title": "Something even riskier"
+        }
+      ],
+      "objective-areas-of-improvement": "tyuyuyt",
+      "objective-areas-of-good-practice": "ytuyu"
+    },
+    "C": {
+      "C1.a": {
+        "indicators": {
+          "achieved_C1.a.9": "yes",
+          "achieved_C1.a.10": "yes",
+          "achieved_C1.a.11": "yes",
+          "achieved_C1.a.12": "yes",
+          "achieved_C1.a.13": "yes",
+          "achieved_C1.a.14": "yes",
+          "not-achieved_C1.a.1": "yes",
+          "not-achieved_C1.a.2": "yes",
+          "not-achieved_C1.a.3": "yes",
+          "not-achieved_C1.a.4": "yes",
+          "achieved_C1.a.9_comment": "",
+          "achieved_C1.a.10_comment": "",
+          "achieved_C1.a.11_comment": "",
+          "achieved_C1.a.12_comment": "",
+          "achieved_C1.a.13_comment": "",
+          "achieved_C1.a.14_comment": "",
+          "partially-achieved_C1.a.5": "yes",
+          "partially-achieved_C1.a.6": "yes",
+          "partially-achieved_C1.a.7": "yes",
+          "partially-achieved_C1.a.8": "yes",
+          "not-achieved_C1.a.1_comment": "",
+          "not-achieved_C1.a.2_comment": "",
+          "not-achieved_C1.a.3_comment": "",
+          "not-achieved_C1.a.4_comment": "",
+          "partially-achieved_C1.a.5_comment": "",
+          "partially-achieved_C1.a.6_comment": "",
+          "partially-achieved_C1.a.7_comment": "",
+          "partially-achieved_C1.a.8_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ytutyu",
+          "review_decision": "achieved"
+        }
+      },
+      "C1.b": {
+        "indicators": {
+          "achieved_C1.b.9": "yes",
+          "achieved_C1.b.10": "yes",
+          "achieved_C1.b.11": "yes",
+          "achieved_C1.b.12": "yes",
+          "achieved_C1.b.13": "yes",
+          "achieved_C1.b.14": "yes",
+          "achieved_C1.b.15": "yes",
+          "not-achieved_C1.b.1": "yes",
+          "not-achieved_C1.b.2": "yes",
+          "not-achieved_C1.b.3": "yes",
+          "not-achieved_C1.b.4": "yes",
+          "not-achieved_C1.b.5": "yes",
+          "achieved_C1.b.9_comment": "",
+          "achieved_C1.b.10_comment": "",
+          "achieved_C1.b.11_comment": "",
+          "achieved_C1.b.12_comment": "",
+          "achieved_C1.b.13_comment": "",
+          "achieved_C1.b.14_comment": "",
+          "achieved_C1.b.15_comment": "",
+          "partially-achieved_C1.b.6": "yes",
+          "partially-achieved_C1.b.7": "yes",
+          "partially-achieved_C1.b.8": "yes",
+          "not-achieved_C1.b.1_comment": "",
+          "not-achieved_C1.b.2_comment": "",
+          "not-achieved_C1.b.3_comment": "",
+          "not-achieved_C1.b.4_comment": "",
+          "not-achieved_C1.b.5_comment": "",
+          "partially-achieved_C1.b.6_comment": "",
+          "partially-achieved_C1.b.7_comment": "",
+          "partially-achieved_C1.b.8_comment": ""
+        },
+        "review_data": {
+          "review_comment": "gghgh",
+          "review_decision": "achieved"
+        }
+      },
+      "C1.c": {
+        "indicators": {
+          "achieved_C1.c.11": "yes",
+          "achieved_C1.c.12": "yes",
+          "achieved_C1.c.13": "yes",
+          "achieved_C1.c.14": "yes",
+          "achieved_C1.c.15": "yes",
+          "achieved_C1.c.16": "yes",
+          "not-achieved_C1.c.1": "yes",
+          "not-achieved_C1.c.2": "yes",
+          "not-achieved_C1.c.3": "yes",
+          "not-achieved_C1.c.4": "yes",
+          "not-achieved_C1.c.5": "yes",
+          "achieved_C1.c.11_comment": "",
+          "achieved_C1.c.12_comment": "",
+          "achieved_C1.c.13_comment": "",
+          "achieved_C1.c.14_comment": "",
+          "achieved_C1.c.15_comment": "",
+          "achieved_C1.c.16_comment": "",
+          "partially-achieved_C1.c.6": "yes",
+          "partially-achieved_C1.c.7": "yes",
+          "partially-achieved_C1.c.8": "yes",
+          "partially-achieved_C1.c.9": "yes",
+          "partially-achieved_C1.c.10": "yes",
+          "not-achieved_C1.c.1_comment": "",
+          "not-achieved_C1.c.2_comment": "",
+          "not-achieved_C1.c.3_comment": "",
+          "not-achieved_C1.c.4_comment": "",
+          "not-achieved_C1.c.5_comment": "",
+          "partially-achieved_C1.c.6_comment": "",
+          "partially-achieved_C1.c.7_comment": "",
+          "partially-achieved_C1.c.8_comment": "",
+          "partially-achieved_C1.c.9_comment": "",
+          "partially-achieved_C1.c.10_comment": ""
+        },
+        "review_data": {
+          "review_comment": "ghgfh",
+          "review_decision": "achieved"
+        }
+      },
+      "C1.d": {
+        "indicators": {
+          "achieved_C1.d.9": "yes",
+          "achieved_C1.d.10": "yes",
+          "achieved_C1.d.11": "yes",
+          "achieved_C1.d.12": "yes",
+          "not-achieved_C1.d.1": "yes",
+          "not-achieved_C1.d.2": "yes",
+          "not-achieved_C1.d.3": "yes",
+          "not-achieved_C1.d.4": "yes",
+          "achieved_C1.d.9_comment": "",
+          "achieved_C1.d.10_comment": "",
+          "achieved_C1.d.11_comment": "",
+          "achieved_C1.d.12_comment": "",
+          "partially-achieved_C1.d.5": "yes",
+          "partially-achieved_C1.d.6": "yes",
+          "partially-achieved_C1.d.7": "yes",
+          "partially-achieved_C1.d.8": "yes",
+          "not-achieved_C1.d.1_comment": "",
+          "not-achieved_C1.d.2_comment": "",
+          "not-achieved_C1.d.3_comment": "",
+          "not-achieved_C1.d.4_comment": "",
+          "partially-achieved_C1.d.5_comment": "",
+          "partially-achieved_C1.d.6_comment": "",
+          "partially-achieved_C1.d.7_comment": "",
+          "partially-achieved_C1.d.8_comment": ""
+        },
+        "review_data": {
+          "review_comment": "gfhjgh",
+          "review_decision": "achieved"
+        }
+      },
+      "C1.e": {
+        "indicators": {
+          "achieved_C1.e.14": "yes",
+          "achieved_C1.e.15": "yes",
+          "achieved_C1.e.16": "yes",
+          "achieved_C1.e.17": "yes",
+          "achieved_C1.e.18": "yes",
+          "achieved_C1.e.19": "yes",
+          "achieved_C1.e.20": "yes",
+          "not-achieved_C1.e.1": "yes",
+          "not-achieved_C1.e.2": "yes",
+          "not-achieved_C1.e.3": "yes",
+          "not-achieved_C1.e.4": "yes",
+          "not-achieved_C1.e.5": "yes",
+          "not-achieved_C1.e.6": "yes",
+          "not-achieved_C1.e.7": "yes",
+          "achieved_C1.e.14_comment": "",
+          "achieved_C1.e.15_comment": "",
+          "achieved_C1.e.16_comment": "",
+          "achieved_C1.e.17_comment": "",
+          "achieved_C1.e.18_comment": "",
+          "achieved_C1.e.19_comment": "",
+          "achieved_C1.e.20_comment": "",
+          "partially-achieved_C1.e.8": "yes",
+          "partially-achieved_C1.e.9": "yes",
+          "partially-achieved_C1.e.10": "yes",
+          "partially-achieved_C1.e.11": "yes",
+          "partially-achieved_C1.e.12": "yes",
+          "partially-achieved_C1.e.13": "yes",
+          "not-achieved_C1.e.1_comment": "",
+          "not-achieved_C1.e.2_comment": "",
+          "not-achieved_C1.e.3_comment": "",
+          "not-achieved_C1.e.4_comment": "",
+          "not-achieved_C1.e.5_comment": "",
+          "not-achieved_C1.e.6_comment": "",
+          "not-achieved_C1.e.7_comment": "",
+          "partially-achieved_C1.e.8_comment": "",
+          "partially-achieved_C1.e.9_comment": "",
+          "partially-achieved_C1.e.10_comment": "",
+          "partially-achieved_C1.e.11_comment": "",
+          "partially-achieved_C1.e.12_comment": "",
+          "partially-achieved_C1.e.13_comment": ""
+        },
+        "review_data": {
+          "review_comment": "hjhfj",
+          "review_decision": "achieved"
+        }
+      },
+      "C2.a": {
+        "indicators": {
+          "achieved_C2.a.3": "yes",
+          "achieved_C2.a.4": "yes",
+          "achieved_C2.a.5": "yes",
+          "achieved_C2.a.6": "yes",
+          "not-achieved_C2.a.1": "yes",
+          "not-achieved_C2.a.2": "yes",
+          "achieved_C2.a.3_comment": "",
+          "achieved_C2.a.4_comment": "",
+          "achieved_C2.a.5_comment": "",
+          "achieved_C2.a.6_comment": "",
+          "not-achieved_C2.a.1_comment": "",
+          "not-achieved_C2.a.2_comment": ""
+        },
+        "review_data": {
+          "review_comment": "hfjhfj",
+          "review_decision": "achieved"
+        }
+      },
+      "C2.b": {
+        "indicators": {
+          "achieved_C2.b.2": "yes",
+          "achieved_C2.b.3": "yes",
+          "not-achieved_C2.b.1": "yes",
+          "achieved_C2.b.2_comment": "",
+          "achieved_C2.b.3_comment": "",
+          "not-achieved_C2.b.1_comment": ""
+        },
+        "review_data": {
+          "review_comment": "hyjhj",
+          "review_decision": "achieved"
+        }
+      },
+      "recommendations": [
+        {
+          "text": "This is a recommendation",
+          "title": "A risk of sorts"
+        }
+      ],
+      "objective-areas-of-improvement": "hgjgh",
+      "objective-areas-of-good-practice": "hgjghjgh"
+    },
+    "D": {
+      "D1.a": {
+        "indicators": {
+          "achieved_D1.a.8": "yes",
+          "achieved_D1.a.9": "yes",
+          "achieved_D1.a.10": "yes",
+          "achieved_D1.a.11": "yes",
+          "not-achieved_D1.a.1": "yes",
+          "not-achieved_D1.a.2": "yes",
+          "not-achieved_D1.a.3": "yes",
+          "achieved_D1.a.8_comment": "",
+          "achieved_D1.a.9_comment": "",
+          "achieved_D1.a.10_comment": "",
+          "achieved_D1.a.11_comment": "",
+          "partially-achieved_D1.a.4": "yes",
+          "partially-achieved_D1.a.5": "yes",
+          "partially-achieved_D1.a.6": "yes",
+          "partially-achieved_D1.a.7": "yes",
+          "not-achieved_D1.a.1_comment": "",
+          "not-achieved_D1.a.2_comment": "",
+          "not-achieved_D1.a.3_comment": "",
+          "partially-achieved_D1.a.4_comment": "",
+          "partially-achieved_D1.a.5_comment": "",
+          "partially-achieved_D1.a.6_comment": "",
+          "partially-achieved_D1.a.7_comment": ""
+        },
+        "review_data": {
+          "review_comment": "jkjhk",
+          "review_decision": "achieved"
+        }
+      },
+      "D1.b": {
+        "indicators": {
+          "achieved_D1.b.4": "yes",
+          "achieved_D1.b.5": "yes",
+          "achieved_D1.b.6": "yes",
+          "achieved_D1.b.7": "yes",
+          "achieved_D1.b.8": "yes",
+          "achieved_D1.b.9": "yes",
+          "not-achieved_D1.b.1": "yes",
+          "not-achieved_D1.b.2": "yes",
+          "not-achieved_D1.b.3": "yes",
+          "achieved_D1.b.4_comment": "",
+          "achieved_D1.b.5_comment": "",
+          "achieved_D1.b.6_comment": "",
+          "achieved_D1.b.7_comment": "",
+          "achieved_D1.b.8_comment": "",
+          "achieved_D1.b.9_comment": "",
+          "not-achieved_D1.b.1_comment": "",
+          "not-achieved_D1.b.2_comment": "",
+          "not-achieved_D1.b.3_comment": ""
+        },
+        "review_data": {
+          "review_comment": "jhkhjk",
+          "review_decision": "achieved"
+        }
+      },
+      "D1.c": {
+        "indicators": {
+          "achieved_D1.c.5": "yes",
+          "achieved_D1.c.6": "yes",
+          "achieved_D1.c.7": "yes",
+          "achieved_D1.c.8": "yes",
+          "not-achieved_D1.c.1": "yes",
+          "not-achieved_D1.c.2": "yes",
+          "not-achieved_D1.c.3": "yes",
+          "not-achieved_D1.c.4": "yes",
+          "achieved_D1.c.5_comment": "",
+          "achieved_D1.c.6_comment": "",
+          "achieved_D1.c.7_comment": "",
+          "achieved_D1.c.8_comment": "",
+          "not-achieved_D1.c.1_comment": "",
+          "not-achieved_D1.c.2_comment": "",
+          "not-achieved_D1.c.3_comment": "",
+          "not-achieved_D1.c.4_comment": ""
+        },
+        "review_data": {
+          "review_comment": "jkjk",
+          "review_decision": "achieved"
+        }
+      },
+      "D2.a": {
+        "indicators": {
+          "achieved_D2.a.3": "yes",
+          "achieved_D2.a.4": "yes",
+          "achieved_D2.a.5": "yes",
+          "not-achieved_D2.a.1": "yes",
+          "not-achieved_D2.a.2": "yes",
+          "achieved_D2.a.3_comment": "",
+          "achieved_D2.a.4_comment": "",
+          "achieved_D2.a.5_comment": "",
+          "not-achieved_D2.a.1_comment": "",
+          "not-achieved_D2.a.2_comment": ""
+        },
+        "review_data": {
+          "review_comment": "jkjk",
+          "review_decision": "achieved"
+        }
+      },
+      "D2.b": {
+        "indicators": {
+          "achieved_D2.b.3": "yes",
+          "achieved_D2.b.4": "yes",
+          "achieved_D2.b.5": "yes",
+          "achieved_D2.b.6": "yes",
+          "achieved_D2.b.7": "yes",
+          "not-achieved_D2.b.1": "yes",
+          "not-achieved_D2.b.2": "yes",
+          "achieved_D2.b.3_comment": "",
+          "achieved_D2.b.4_comment": "",
+          "achieved_D2.b.5_comment": "",
+          "achieved_D2.b.6_comment": "",
+          "achieved_D2.b.7_comment": "",
+          "not-achieved_D2.b.1_comment": "",
+          "not-achieved_D2.b.2_comment": ""
+        },
+        "review_data": {
+          "review_comment": "jhkjh",
+          "review_decision": "achieved"
+        }
+      },
+      "recommendations": [
+        {
+          "text": "This is a recommendation",
+          "title": "A risk of some kind"
+        }
+      ],
+      "objective-areas-of-improvement": "bvnmvnbm",
+      "objective-areas-of-good-practice": "bb"
+    },
+    "system_and_scope": {
+      "completed": "yes",
+      "completed_data": {
+        "system_details": {
+          "system_name": "Test system",
+          "system_ownership": "Another government organisation",
+          "corporate_services": "Office productivity",
+          "system_description": "It provides corporate services or functions required for day-to-day operations for example, payroll",
+          "hosting_and_connectivity": "Hybrid",
+          "other_corporate_services": "",
+          "previous_govassure_self-assessments": "Yes, in 2024/25"
+        },
+        "the_scope_of_this_review": {
+          "caf_version": "Cyber Assessment Framework v3.2",
+          "review_type": "Peer review",
+          "government_caf_profile": "Enhanced",
+          "self-assessment_reference_number": "CAF03102025GFLZ"
+        }
+      }
+    },
+    "review_completion": {
+      "review_completed": "yes",
+      "review_completed_at": "2025-12-23T17:52:01.846950",
+      "review_completed_by": "cyber_advisor ",
+      "review_completed_by_role": "cyber_advisor",
+      "review_completed_by_email": "cyber_advisor@example.gov.uk"
+    },
+    "additional_information": {
+      "iar_period": {
+        "end_date": "12/12/2025",
+        "start_date": "11/11/2024"
+      },
+      "review-method": "This is a review method.",
+      "review_method": "This is another review method.",
+      "company_details": {
+        "company_name": "Assessor company",
+        "company_email": "assessor@example.com"
+      },
+      "quality-of-evidence": "This is the quality of evidence.",
+      "quality_of_evidence": "This is also the quality of evidence."
+    }
+  }
+}
