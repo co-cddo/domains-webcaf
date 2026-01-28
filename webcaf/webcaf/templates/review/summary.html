@@ -225,28 +225,26 @@
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
                         {% if object.is_ready_to_submit %}
-                            Create report
-                            {#                            <a id="task-link-8" class="govuk-link govuk-task-list__link"#}
-                            {#                               href="{% url 'create-report' pk=object.id %}">#}
-                            {#                                Create report#}
-                            {#                            </a>#}
+                            <a id="task-link-8" class="govuk-link govuk-task-list__link"
+                               href="{% url 'create-report' pk=object.id %}">
+                                Create report
+                            </a>
                         {% else %}
                             <span class="govuk-body">Create report</span>
                         {% endif %}
                     </div>
                     <div class="govuk-task-list__status">
-{#                        {% if object.is_ready_to_submit %}#}
-{#                            {% if object.is_review_complete %}#}
-{#                                Completed#}
-{#                            {% else %}#}
-{#                                <strong class="govuk-tag govuk-tag--blue">#}
-{#                                    Incomplete#}
-{#                                </strong>#}
-{#                            {% endif %}#}
-{#                        {% else %}#}
-{#                            Cannot start yet#}
-{#                        {% endif %}#}
-                        Cannot start yet
+                        {% if object.is_ready_to_submit %}
+                            {% if object.is_review_complete %}
+                                Completed
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
+                                </strong>
+                            {% endif %}
+                        {% else %}
+                            Cannot start yet
+                        {% endif %}
                     </div>
                 </li>
             </ul>
