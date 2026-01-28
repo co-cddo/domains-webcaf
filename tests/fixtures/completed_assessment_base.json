@@ -1,0 +1,1136 @@
+{
+  "A1.a": {
+    "indicators": {
+      "achieved_A1.a.5": true,
+      "achieved_A1.a.6": true,
+      "achieved_A1.a.7": true,
+      "achieved_A1.a.8": true,
+      "not-achieved_A1.a.1": false,
+      "not-achieved_A1.a.2": false,
+      "not-achieved_A1.a.3": false,
+      "not-achieved_A1.a.4": false,
+      "achieved_A1.a.5_comment": "",
+      "achieved_A1.a.6_comment": "",
+      "achieved_A1.a.7_comment": "",
+      "achieved_A1.a.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A1.b": {
+    "indicators": {
+      "achieved_A1.b.4": true,
+      "achieved_A1.b.5": true,
+      "achieved_A1.b.6": true,
+      "not-achieved_A1.b.1": false,
+      "not-achieved_A1.b.2": false,
+      "not-achieved_A1.b.3": false,
+      "achieved_A1.b.4_comment": "",
+      "achieved_A1.b.5_comment": "",
+      "achieved_A1.b.6_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A1.c": {
+    "indicators": {
+      "achieved_A1.c.6": true,
+      "achieved_A1.c.7": true,
+      "achieved_A1.c.8": true,
+      "achieved_A1.c.9": true,
+      "not-achieved_A1.c.1": true,
+      "not-achieved_A1.c.2": true,
+      "not-achieved_A1.c.3": true,
+      "not-achieved_A1.c.4": true,
+      "not-achieved_A1.c.5": true,
+      "achieved_A1.c.6_comment": "",
+      "achieved_A1.c.7_comment": "",
+      "achieved_A1.c.8_comment": "",
+      "achieved_A1.c.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Not achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected one or more not achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A2.a": {
+    "indicators": {
+      "achieved_A2.a.15": true,
+      "achieved_A2.a.16": true,
+      "achieved_A2.a.17": true,
+      "achieved_A2.a.18": true,
+      "achieved_A2.a.19": true,
+      "achieved_A2.a.20": true,
+      "achieved_A2.a.21": true,
+      "achieved_A2.a.22": true,
+      "achieved_A2.a.23": true,
+      "not-achieved_A2.a.1": false,
+      "not-achieved_A2.a.2": false,
+      "not-achieved_A2.a.3": false,
+      "not-achieved_A2.a.4": false,
+      "not-achieved_A2.a.5": false,
+      "not-achieved_A2.a.6": false,
+      "not-achieved_A2.a.7": false,
+      "not-achieved_A2.a.8": false,
+      "achieved_A2.a.15_comment": "",
+      "achieved_A2.a.16_comment": "",
+      "achieved_A2.a.17_comment": "",
+      "achieved_A2.a.18_comment": "",
+      "achieved_A2.a.19_comment": "",
+      "achieved_A2.a.20_comment": "",
+      "achieved_A2.a.21_comment": "",
+      "achieved_A2.a.22_comment": "",
+      "achieved_A2.a.23_comment": "",
+      "partially-achieved_A2.a.9": false,
+      "partially-achieved_A2.a.10": false,
+      "partially-achieved_A2.a.11": false,
+      "partially-achieved_A2.a.12": false,
+      "partially-achieved_A2.a.13": false,
+      "partially-achieved_A2.a.14": false,
+      "partially-achieved_A2.a.9_comment": "",
+      "partially-achieved_A2.a.10_comment": "",
+      "partially-achieved_A2.a.11_comment": "",
+      "partially-achieved_A2.a.12_comment": "",
+      "partially-achieved_A2.a.13_comment": "",
+      "partially-achieved_A2.a.14_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A2.b": {
+    "indicators": {
+      "achieved_A2.b.4": true,
+      "achieved_A2.b.5": true,
+      "achieved_A2.b.6": true,
+      "achieved_A2.b.7": true,
+      "achieved_A2.b.8": true,
+      "not-achieved_A2.b.1": false,
+      "not-achieved_A2.b.2": false,
+      "not-achieved_A2.b.3": false,
+      "achieved_A2.b.4_comment": "",
+      "achieved_A2.b.5_comment": "",
+      "achieved_A2.b.6_comment": "",
+      "achieved_A2.b.7_comment": "",
+      "achieved_A2.b.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A3.a": {
+    "indicators": {
+      "achieved_A3.a.6": true,
+      "achieved_A3.a.7": true,
+      "achieved_A3.a.8": true,
+      "achieved_A3.a.9": true,
+      "achieved_A3.a.10": true,
+      "not-achieved_A3.a.1": false,
+      "not-achieved_A3.a.2": false,
+      "not-achieved_A3.a.3": false,
+      "not-achieved_A3.a.4": false,
+      "not-achieved_A3.a.5": false,
+      "achieved_A3.a.6_comment": "",
+      "achieved_A3.a.7_comment": "",
+      "achieved_A3.a.8_comment": "",
+      "achieved_A3.a.9_comment": "",
+      "achieved_A3.a.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "A4.a": {
+    "indicators": {
+      "achieved_A4.a.11": true,
+      "achieved_A4.a.12": true,
+      "achieved_A4.a.13": true,
+      "achieved_A4.a.14": true,
+      "achieved_A4.a.15": true,
+      "achieved_A4.a.16": true,
+      "achieved_A4.a.17": true,
+      "not-achieved_A4.a.1": false,
+      "not-achieved_A4.a.2": false,
+      "not-achieved_A4.a.3": false,
+      "not-achieved_A4.a.4": false,
+      "achieved_A4.a.11_comment": "",
+      "achieved_A4.a.12_comment": "",
+      "achieved_A4.a.13_comment": "",
+      "achieved_A4.a.14_comment": "",
+      "achieved_A4.a.15_comment": "",
+      "achieved_A4.a.16_comment": "",
+      "achieved_A4.a.17_comment": "",
+      "partially-achieved_A4.a.5": false,
+      "partially-achieved_A4.a.6": false,
+      "partially-achieved_A4.a.7": false,
+      "partially-achieved_A4.a.8": false,
+      "partially-achieved_A4.a.9": false,
+      "partially-achieved_A4.a.10": false,
+      "partially-achieved_A4.a.5_comment": "",
+      "partially-achieved_A4.a.6_comment": "",
+      "partially-achieved_A4.a.7_comment": "",
+      "partially-achieved_A4.a.8_comment": "",
+      "partially-achieved_A4.a.9_comment": "",
+      "partially-achieved_A4.a.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B1.a": {
+    "indicators": {
+      "achieved_B1.a.10": true,
+      "achieved_B1.a.11": true,
+      "achieved_B1.a.12": true,
+      "achieved_B1.a.13": true,
+      "achieved_B1.a.14": true,
+      "achieved_B1.a.15": true,
+      "not-achieved_B1.a.1": false,
+      "not-achieved_B1.a.2": false,
+      "not-achieved_B1.a.3": false,
+      "not-achieved_B1.a.4": false,
+      "not-achieved_B1.a.5": false,
+      "not-achieved_B1.a.6": false,
+      "not-achieved_B1.a.7": false,
+      "achieved_B1.a.10_comment": "",
+      "achieved_B1.a.11_comment": "",
+      "achieved_B1.a.12_comment": "",
+      "achieved_B1.a.13_comment": "",
+      "achieved_B1.a.14_comment": "",
+      "achieved_B1.a.15_comment": "",
+      "partially-achieved_B1.a.8": false,
+      "partially-achieved_B1.a.9": false,
+      "partially-achieved_B1.a.8_comment": "",
+      "partially-achieved_B1.a.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B1.b": {
+    "indicators": {
+      "achieved_B1.b.11": true,
+      "achieved_B1.b.12": true,
+      "achieved_B1.b.13": true,
+      "achieved_B1.b.14": true,
+      "not-achieved_B1.b.1": false,
+      "not-achieved_B1.b.2": false,
+      "not-achieved_B1.b.3": false,
+      "not-achieved_B1.b.4": false,
+      "not-achieved_B1.b.5": false,
+      "not-achieved_B1.b.6": false,
+      "achieved_B1.b.11_comment": "",
+      "achieved_B1.b.12_comment": "",
+      "achieved_B1.b.13_comment": "",
+      "achieved_B1.b.14_comment": "",
+      "partially-achieved_B1.b.7": false,
+      "partially-achieved_B1.b.8": false,
+      "partially-achieved_B1.b.9": false,
+      "partially-achieved_B1.b.10": false,
+      "partially-achieved_B1.b.7_comment": "",
+      "partially-achieved_B1.b.8_comment": "",
+      "partially-achieved_B1.b.9_comment": "",
+      "partially-achieved_B1.b.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B2.a": {
+    "indicators": {
+      "achieved_B2.a.13": true,
+      "achieved_B2.a.14": true,
+      "achieved_B2.a.15": true,
+      "achieved_B2.a.16": true,
+      "achieved_B2.a.17": true,
+      "achieved_B2.a.18": true,
+      "not-achieved_B2.a.1": false,
+      "not-achieved_B2.a.2": false,
+      "not-achieved_B2.a.3": false,
+      "not-achieved_B2.a.4": false,
+      "not-achieved_B2.a.5": false,
+      "achieved_B2.a.13_comment": "",
+      "achieved_B2.a.14_comment": "",
+      "achieved_B2.a.15_comment": "",
+      "achieved_B2.a.16_comment": "",
+      "achieved_B2.a.17_comment": "",
+      "achieved_B2.a.18_comment": "",
+      "partially-achieved_B2.a.6": false,
+      "partially-achieved_B2.a.7": false,
+      "partially-achieved_B2.a.8": false,
+      "partially-achieved_B2.a.9": false,
+      "partially-achieved_B2.a.10": false,
+      "partially-achieved_B2.a.11": false,
+      "partially-achieved_B2.a.12": false,
+      "partially-achieved_B2.a.6_comment": "",
+      "partially-achieved_B2.a.7_comment": "",
+      "partially-achieved_B2.a.8_comment": "",
+      "partially-achieved_B2.a.9_comment": "",
+      "partially-achieved_B2.a.10_comment": "",
+      "partially-achieved_B2.a.11_comment": "",
+      "partially-achieved_B2.a.12_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B2.b": {
+    "indicators": {
+      "achieved_B2.b.10": true,
+      "achieved_B2.b.11": true,
+      "achieved_B2.b.12": true,
+      "achieved_B2.b.13": true,
+      "not-achieved_B2.b.1": false,
+      "not-achieved_B2.b.2": false,
+      "not-achieved_B2.b.3": false,
+      "not-achieved_B2.b.4": false,
+      "achieved_B2.b.10_comment": "",
+      "achieved_B2.b.11_comment": "",
+      "achieved_B2.b.12_comment": "",
+      "achieved_B2.b.13_comment": "",
+      "partially-achieved_B2.b.5": false,
+      "partially-achieved_B2.b.6": false,
+      "partially-achieved_B2.b.7": false,
+      "partially-achieved_B2.b.8": false,
+      "partially-achieved_B2.b.9": false,
+      "partially-achieved_B2.b.5_comment": "",
+      "partially-achieved_B2.b.6_comment": "",
+      "partially-achieved_B2.b.7_comment": "",
+      "partially-achieved_B2.b.8_comment": "",
+      "partially-achieved_B2.b.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B2.c": {
+    "indicators": {
+      "achieved_B2.c.12": true,
+      "achieved_B2.c.13": true,
+      "achieved_B2.c.14": true,
+      "achieved_B2.c.15": true,
+      "not-achieved_B2.c.1": false,
+      "not-achieved_B2.c.2": false,
+      "not-achieved_B2.c.3": false,
+      "not-achieved_B2.c.4": false,
+      "not-achieved_B2.c.5": false,
+      "not-achieved_B2.c.6": false,
+      "not-achieved_B2.c.7": false,
+      "achieved_B2.c.12_comment": "",
+      "achieved_B2.c.13_comment": "",
+      "achieved_B2.c.14_comment": "",
+      "achieved_B2.c.15_comment": "",
+      "partially-achieved_B2.c.8": false,
+      "partially-achieved_B2.c.9": false,
+      "partially-achieved_B2.c.10": false,
+      "partially-achieved_B2.c.11": false,
+      "partially-achieved_B2.c.8_comment": "",
+      "partially-achieved_B2.c.9_comment": "",
+      "partially-achieved_B2.c.10_comment": "",
+      "partially-achieved_B2.c.11_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B2.d": {
+    "indicators": {
+      "achieved_B2.d.10": true,
+      "achieved_B2.d.11": true,
+      "achieved_B2.d.12": true,
+      "achieved_B2.d.13": true,
+      "achieved_B2.d.14": true,
+      "not-achieved_B2.d.1": false,
+      "not-achieved_B2.d.2": false,
+      "not-achieved_B2.d.3": false,
+      "not-achieved_B2.d.4": false,
+      "not-achieved_B2.d.5": false,
+      "achieved_B2.d.10_comment": "",
+      "achieved_B2.d.11_comment": "",
+      "achieved_B2.d.12_comment": "",
+      "achieved_B2.d.13_comment": "",
+      "achieved_B2.d.14_comment": "",
+      "partially-achieved_B2.d.6": false,
+      "partially-achieved_B2.d.7": false,
+      "partially-achieved_B2.d.8": false,
+      "partially-achieved_B2.d.9": false,
+      "partially-achieved_B2.d.6_comment": "",
+      "partially-achieved_B2.d.7_comment": "",
+      "partially-achieved_B2.d.8_comment": "",
+      "partially-achieved_B2.d.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B3.a": {
+    "indicators": {
+      "achieved_B3.a.11": true,
+      "achieved_B3.a.12": true,
+      "achieved_B3.a.13": true,
+      "achieved_B3.a.14": true,
+      "achieved_B3.a.15": true,
+      "achieved_B3.a.16": true,
+      "achieved_B3.a.17": true,
+      "achieved_B3.a.18": true,
+      "achieved_B3.a.19": true,
+      "not-achieved_B3.a.1": false,
+      "not-achieved_B3.a.2": false,
+      "not-achieved_B3.a.3": false,
+      "not-achieved_B3.a.4": false,
+      "achieved_B3.a.11_comment": "",
+      "achieved_B3.a.12_comment": "",
+      "achieved_B3.a.13_comment": "",
+      "achieved_B3.a.14_comment": "",
+      "achieved_B3.a.15_comment": "",
+      "achieved_B3.a.16_comment": "",
+      "achieved_B3.a.17_comment": "",
+      "achieved_B3.a.18_comment": "",
+      "achieved_B3.a.19_comment": "",
+      "partially-achieved_B3.a.5": false,
+      "partially-achieved_B3.a.6": false,
+      "partially-achieved_B3.a.7": false,
+      "partially-achieved_B3.a.8": false,
+      "partially-achieved_B3.a.9": false,
+      "partially-achieved_B3.a.10": false,
+      "partially-achieved_B3.a.5_comment": "",
+      "partially-achieved_B3.a.6_comment": "",
+      "partially-achieved_B3.a.7_comment": "",
+      "partially-achieved_B3.a.8_comment": "",
+      "partially-achieved_B3.a.9_comment": "",
+      "partially-achieved_B3.a.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B3.b": {
+    "indicators": {
+      "achieved_B3.b.6": true,
+      "achieved_B3.b.7": true,
+      "achieved_B3.b.8": true,
+      "not-achieved_B3.b.1": false,
+      "not-achieved_B3.b.2": false,
+      "not-achieved_B3.b.3": false,
+      "achieved_B3.b.6_comment": "",
+      "achieved_B3.b.7_comment": "",
+      "achieved_B3.b.8_comment": "",
+      "partially-achieved_B3.b.4": false,
+      "partially-achieved_B3.b.5": false,
+      "partially-achieved_B3.b.4_comment": "",
+      "partially-achieved_B3.b.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B3.c": {
+    "indicators": {
+      "achieved_B3.c.8": true,
+      "achieved_B3.c.9": true,
+      "achieved_B3.c.10": true,
+      "achieved_B3.c.11": true,
+      "achieved_B3.c.12": true,
+      "not-achieved_B3.c.1": false,
+      "not-achieved_B3.c.2": false,
+      "not-achieved_B3.c.3": false,
+      "achieved_B3.c.8_comment": "",
+      "achieved_B3.c.9_comment": "",
+      "achieved_B3.c.10_comment": "",
+      "achieved_B3.c.11_comment": "",
+      "achieved_B3.c.12_comment": "",
+      "partially-achieved_B3.c.4": false,
+      "partially-achieved_B3.c.5": false,
+      "partially-achieved_B3.c.6": false,
+      "partially-achieved_B3.c.7": false,
+      "partially-achieved_B3.c.4_comment": "",
+      "partially-achieved_B3.c.5_comment": "",
+      "partially-achieved_B3.c.6_comment": "",
+      "partially-achieved_B3.c.7_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B3.d": {
+    "indicators": {
+      "achieved_B3.d.7": true,
+      "achieved_B3.d.8": true,
+      "achieved_B3.d.9": true,
+      "not-achieved_B3.d.1": false,
+      "not-achieved_B3.d.2": false,
+      "not-achieved_B3.d.3": false,
+      "achieved_B3.d.7_comment": "",
+      "achieved_B3.d.8_comment": "",
+      "achieved_B3.d.9_comment": "",
+      "partially-achieved_B3.d.4": false,
+      "partially-achieved_B3.d.5": false,
+      "partially-achieved_B3.d.6": false,
+      "partially-achieved_B3.d.4_comment": "",
+      "partially-achieved_B3.d.5_comment": "",
+      "partially-achieved_B3.d.6_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B3.e": {
+    "indicators": {
+      "achieved_B3.e.3": true,
+      "achieved_B3.e.4": true,
+      "not-achieved_B3.e.1": false,
+      "achieved_B3.e.3_comment": "",
+      "achieved_B3.e.4_comment": "",
+      "partially-achieved_B3.e.2": false,
+      "partially-achieved_B3.e.2_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B4.a": {
+    "indicators": {
+      "achieved_B4.a.10": true,
+      "achieved_B4.a.11": true,
+      "achieved_B4.a.12": true,
+      "achieved_B4.a.13": true,
+      "achieved_B4.a.14": true,
+      "not-achieved_B4.a.1": false,
+      "not-achieved_B4.a.2": false,
+      "not-achieved_B4.a.3": false,
+      "not-achieved_B4.a.4": false,
+      "achieved_B4.a.10_comment": "",
+      "achieved_B4.a.11_comment": "",
+      "achieved_B4.a.12_comment": "",
+      "achieved_B4.a.13_comment": "",
+      "achieved_B4.a.14_comment": "",
+      "partially-achieved_B4.a.5": false,
+      "partially-achieved_B4.a.6": false,
+      "partially-achieved_B4.a.7": false,
+      "partially-achieved_B4.a.8": false,
+      "partially-achieved_B4.a.9": false,
+      "partially-achieved_B4.a.5_comment": "",
+      "partially-achieved_B4.a.6_comment": "",
+      "partially-achieved_B4.a.7_comment": "",
+      "partially-achieved_B4.a.8_comment": "",
+      "partially-achieved_B4.a.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B4.b": {
+    "indicators": {
+      "achieved_B4.b.12": true,
+      "achieved_B4.b.13": true,
+      "achieved_B4.b.14": true,
+      "achieved_B4.b.15": true,
+      "achieved_B4.b.16": true,
+      "achieved_B4.b.17": true,
+      "achieved_B4.b.18": true,
+      "achieved_B4.b.19": true,
+      "not-achieved_B4.b.1": false,
+      "not-achieved_B4.b.2": false,
+      "not-achieved_B4.b.3": false,
+      "not-achieved_B4.b.4": false,
+      "not-achieved_B4.b.5": false,
+      "achieved_B4.b.12_comment": "",
+      "achieved_B4.b.13_comment": "",
+      "achieved_B4.b.14_comment": "",
+      "achieved_B4.b.15_comment": "",
+      "achieved_B4.b.16_comment": "",
+      "achieved_B4.b.17_comment": "",
+      "achieved_B4.b.18_comment": "",
+      "achieved_B4.b.19_comment": "",
+      "partially-achieved_B4.b.6": false,
+      "partially-achieved_B4.b.7": false,
+      "partially-achieved_B4.b.8": false,
+      "partially-achieved_B4.b.9": false,
+      "partially-achieved_B4.b.10": false,
+      "partially-achieved_B4.b.11": false,
+      "partially-achieved_B4.b.6_comment": "",
+      "partially-achieved_B4.b.7_comment": "",
+      "partially-achieved_B4.b.8_comment": "",
+      "partially-achieved_B4.b.9_comment": "",
+      "partially-achieved_B4.b.10_comment": "",
+      "partially-achieved_B4.b.11_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B4.c": {
+    "indicators": {
+      "achieved_B4.c.6": true,
+      "achieved_B4.c.7": true,
+      "achieved_B4.c.8": true,
+      "not-achieved_B4.c.1": false,
+      "not-achieved_B4.c.2": false,
+      "achieved_B4.c.6_comment": "",
+      "achieved_B4.c.7_comment": "",
+      "achieved_B4.c.8_comment": "",
+      "partially-achieved_B4.c.3": false,
+      "partially-achieved_B4.c.4": false,
+      "partially-achieved_B4.c.5": false,
+      "partially-achieved_B4.c.3_comment": "",
+      "partially-achieved_B4.c.4_comment": "",
+      "partially-achieved_B4.c.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B4.d": {
+    "indicators": {
+      "achieved_B4.d.11": true,
+      "achieved_B4.d.12": true,
+      "achieved_B4.d.13": true,
+      "achieved_B4.d.14": true,
+      "not-achieved_B4.d.1": false,
+      "not-achieved_B4.d.2": false,
+      "not-achieved_B4.d.3": false,
+      "not-achieved_B4.d.4": false,
+      "not-achieved_B4.d.5": false,
+      "achieved_B4.d.11_comment": "",
+      "achieved_B4.d.12_comment": "",
+      "achieved_B4.d.13_comment": "",
+      "achieved_B4.d.14_comment": "",
+      "partially-achieved_B4.d.6": false,
+      "partially-achieved_B4.d.7": false,
+      "partially-achieved_B4.d.8": false,
+      "partially-achieved_B4.d.9": false,
+      "partially-achieved_B4.d.10": false,
+      "partially-achieved_B4.d.6_comment": "",
+      "partially-achieved_B4.d.7_comment": "",
+      "partially-achieved_B4.d.8_comment": "",
+      "partially-achieved_B4.d.9_comment": "",
+      "partially-achieved_B4.d.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B5.a": {
+    "indicators": {
+      "achieved_B5.a.6": true,
+      "achieved_B5.a.7": true,
+      "not-achieved_B5.a.1": false,
+      "not-achieved_B5.a.2": false,
+      "not-achieved_B5.a.3": false,
+      "achieved_B5.a.6_comment": "",
+      "achieved_B5.a.7_comment": "",
+      "partially-achieved_B5.a.4": false,
+      "partially-achieved_B5.a.5": false,
+      "partially-achieved_B5.a.4_comment": "",
+      "partially-achieved_B5.a.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B5.b": {
+    "indicators": {
+      "achieved_B5.b.6": true,
+      "achieved_B5.b.7": true,
+      "achieved_B5.b.8": true,
+      "achieved_B5.b.9": true,
+      "not-achieved_B5.b.1": false,
+      "not-achieved_B5.b.2": false,
+      "not-achieved_B5.b.3": false,
+      "achieved_B5.b.6_comment": "",
+      "achieved_B5.b.7_comment": "",
+      "achieved_B5.b.8_comment": "",
+      "achieved_B5.b.9_comment": "",
+      "partially-achieved_B5.b.4": false,
+      "partially-achieved_B5.b.5": false,
+      "partially-achieved_B5.b.4_comment": "",
+      "partially-achieved_B5.b.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B5.c": {
+    "indicators": {
+      "achieved_B5.c.6": true,
+      "achieved_B5.c.7": true,
+      "not-achieved_B5.c.1": false,
+      "not-achieved_B5.c.2": false,
+      "not-achieved_B5.c.3": false,
+      "achieved_B5.c.6_comment": "",
+      "achieved_B5.c.7_comment": "",
+      "partially-achieved_B5.c.4": false,
+      "partially-achieved_B5.c.5": false,
+      "partially-achieved_B5.c.4_comment": "",
+      "partially-achieved_B5.c.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B6.a": {
+    "indicators": {
+      "achieved_B6.a.8": true,
+      "achieved_B6.a.9": true,
+      "achieved_B6.a.10": true,
+      "achieved_B6.a.11": true,
+      "achieved_B6.a.12": true,
+      "achieved_B6.a.13": true,
+      "not-achieved_B6.a.1": false,
+      "not-achieved_B6.a.2": false,
+      "not-achieved_B6.a.3": false,
+      "not-achieved_B6.a.4": false,
+      "achieved_B6.a.8_comment": "",
+      "achieved_B6.a.9_comment": "",
+      "achieved_B6.a.10_comment": "",
+      "achieved_B6.a.11_comment": "",
+      "achieved_B6.a.12_comment": "",
+      "achieved_B6.a.13_comment": "",
+      "partially-achieved_B6.a.5": false,
+      "partially-achieved_B6.a.6": false,
+      "partially-achieved_B6.a.7": false,
+      "partially-achieved_B6.a.5_comment": "",
+      "partially-achieved_B6.a.6_comment": "",
+      "partially-achieved_B6.a.7_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "B6.b": {
+    "indicators": {
+      "achieved_B6.b.7": true,
+      "achieved_B6.b.8": true,
+      "achieved_B6.b.9": true,
+      "achieved_B6.b.10": true,
+      "not-achieved_B6.b.1": false,
+      "not-achieved_B6.b.2": false,
+      "not-achieved_B6.b.3": false,
+      "achieved_B6.b.7_comment": "",
+      "achieved_B6.b.8_comment": "",
+      "achieved_B6.b.9_comment": "",
+      "achieved_B6.b.10_comment": "",
+      "partially-achieved_B6.b.4": false,
+      "partially-achieved_B6.b.5": false,
+      "partially-achieved_B6.b.6": false,
+      "partially-achieved_B6.b.4_comment": "",
+      "partially-achieved_B6.b.5_comment": "",
+      "partially-achieved_B6.b.6_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C1.a": {
+    "indicators": {
+      "achieved_C1.a.9": true,
+      "achieved_C1.a.10": true,
+      "achieved_C1.a.11": true,
+      "achieved_C1.a.12": true,
+      "achieved_C1.a.13": true,
+      "achieved_C1.a.14": true,
+      "not-achieved_C1.a.1": false,
+      "not-achieved_C1.a.2": false,
+      "not-achieved_C1.a.3": false,
+      "not-achieved_C1.a.4": false,
+      "achieved_C1.a.9_comment": "",
+      "achieved_C1.a.10_comment": "",
+      "achieved_C1.a.11_comment": "",
+      "achieved_C1.a.12_comment": "",
+      "achieved_C1.a.13_comment": "",
+      "achieved_C1.a.14_comment": "",
+      "partially-achieved_C1.a.5": false,
+      "partially-achieved_C1.a.6": false,
+      "partially-achieved_C1.a.7": false,
+      "partially-achieved_C1.a.8": false,
+      "partially-achieved_C1.a.5_comment": "",
+      "partially-achieved_C1.a.6_comment": "",
+      "partially-achieved_C1.a.7_comment": "",
+      "partially-achieved_C1.a.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C1.b": {
+    "indicators": {
+      "achieved_C1.b.9": true,
+      "achieved_C1.b.10": true,
+      "achieved_C1.b.11": true,
+      "achieved_C1.b.12": true,
+      "achieved_C1.b.13": true,
+      "achieved_C1.b.14": true,
+      "achieved_C1.b.15": true,
+      "not-achieved_C1.b.1": false,
+      "not-achieved_C1.b.2": false,
+      "not-achieved_C1.b.3": false,
+      "not-achieved_C1.b.4": false,
+      "not-achieved_C1.b.5": false,
+      "achieved_C1.b.9_comment": "",
+      "achieved_C1.b.10_comment": "",
+      "achieved_C1.b.11_comment": "",
+      "achieved_C1.b.12_comment": "",
+      "achieved_C1.b.13_comment": "",
+      "achieved_C1.b.14_comment": "",
+      "achieved_C1.b.15_comment": "",
+      "partially-achieved_C1.b.6": false,
+      "partially-achieved_C1.b.7": false,
+      "partially-achieved_C1.b.8": false,
+      "partially-achieved_C1.b.6_comment": "",
+      "partially-achieved_C1.b.7_comment": "",
+      "partially-achieved_C1.b.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C1.c": {
+    "indicators": {
+      "achieved_C1.c.11": true,
+      "achieved_C1.c.12": true,
+      "achieved_C1.c.13": true,
+      "achieved_C1.c.14": true,
+      "achieved_C1.c.15": true,
+      "achieved_C1.c.16": true,
+      "not-achieved_C1.c.1": false,
+      "not-achieved_C1.c.2": false,
+      "not-achieved_C1.c.3": false,
+      "not-achieved_C1.c.4": false,
+      "not-achieved_C1.c.5": false,
+      "achieved_C1.c.11_comment": "",
+      "achieved_C1.c.12_comment": "",
+      "achieved_C1.c.13_comment": "",
+      "achieved_C1.c.14_comment": "",
+      "achieved_C1.c.15_comment": "",
+      "achieved_C1.c.16_comment": "",
+      "partially-achieved_C1.c.6": false,
+      "partially-achieved_C1.c.7": false,
+      "partially-achieved_C1.c.8": false,
+      "partially-achieved_C1.c.9": false,
+      "partially-achieved_C1.c.10": false,
+      "partially-achieved_C1.c.6_comment": "",
+      "partially-achieved_C1.c.7_comment": "",
+      "partially-achieved_C1.c.8_comment": "",
+      "partially-achieved_C1.c.9_comment": "",
+      "partially-achieved_C1.c.10_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C1.d": {
+    "indicators": {
+      "achieved_C1.d.9": true,
+      "achieved_C1.d.10": true,
+      "achieved_C1.d.11": true,
+      "achieved_C1.d.12": true,
+      "not-achieved_C1.d.1": false,
+      "not-achieved_C1.d.2": false,
+      "not-achieved_C1.d.3": false,
+      "not-achieved_C1.d.4": false,
+      "achieved_C1.d.9_comment": "",
+      "achieved_C1.d.10_comment": "",
+      "achieved_C1.d.11_comment": "",
+      "achieved_C1.d.12_comment": "",
+      "partially-achieved_C1.d.5": false,
+      "partially-achieved_C1.d.6": false,
+      "partially-achieved_C1.d.7": false,
+      "partially-achieved_C1.d.8": false,
+      "partially-achieved_C1.d.5_comment": "",
+      "partially-achieved_C1.d.6_comment": "",
+      "partially-achieved_C1.d.7_comment": "",
+      "partially-achieved_C1.d.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C1.e": {
+    "indicators": {
+      "achieved_C1.e.14": true,
+      "achieved_C1.e.15": true,
+      "achieved_C1.e.16": true,
+      "achieved_C1.e.17": true,
+      "achieved_C1.e.18": true,
+      "achieved_C1.e.19": true,
+      "achieved_C1.e.20": true,
+      "not-achieved_C1.e.1": false,
+      "not-achieved_C1.e.2": false,
+      "not-achieved_C1.e.3": false,
+      "not-achieved_C1.e.4": false,
+      "not-achieved_C1.e.5": false,
+      "not-achieved_C1.e.6": false,
+      "not-achieved_C1.e.7": false,
+      "achieved_C1.e.14_comment": "",
+      "achieved_C1.e.15_comment": "",
+      "achieved_C1.e.16_comment": "",
+      "achieved_C1.e.17_comment": "",
+      "achieved_C1.e.18_comment": "",
+      "achieved_C1.e.19_comment": "",
+      "achieved_C1.e.20_comment": "",
+      "partially-achieved_C1.e.8": false,
+      "partially-achieved_C1.e.9": false,
+      "partially-achieved_C1.e.10": false,
+      "partially-achieved_C1.e.11": false,
+      "partially-achieved_C1.e.12": false,
+      "partially-achieved_C1.e.13": false,
+      "partially-achieved_C1.e.8_comment": "",
+      "partially-achieved_C1.e.9_comment": "",
+      "partially-achieved_C1.e.10_comment": "",
+      "partially-achieved_C1.e.11_comment": "",
+      "partially-achieved_C1.e.12_comment": "",
+      "partially-achieved_C1.e.13_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C2.a": {
+    "indicators": {
+      "achieved_C2.a.3": true,
+      "achieved_C2.a.4": true,
+      "achieved_C2.a.5": true,
+      "achieved_C2.a.6": true,
+      "not-achieved_C2.a.1": false,
+      "not-achieved_C2.a.2": false,
+      "achieved_C2.a.3_comment": "",
+      "achieved_C2.a.4_comment": "",
+      "achieved_C2.a.5_comment": "",
+      "achieved_C2.a.6_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "C2.b": {
+    "indicators": {
+      "achieved_C2.b.2": true,
+      "achieved_C2.b.3": true,
+      "not-achieved_C2.b.1": true,
+      "achieved_C2.b.2_comment": "",
+      "achieved_C2.b.3_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Not achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected one or more not achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "D1.a": {
+    "indicators": {
+      "achieved_D1.a.8": true,
+      "achieved_D1.a.9": true,
+      "achieved_D1.a.10": true,
+      "achieved_D1.a.11": true,
+      "not-achieved_D1.a.1": false,
+      "not-achieved_D1.a.2": false,
+      "not-achieved_D1.a.3": false,
+      "achieved_D1.a.8_comment": "",
+      "achieved_D1.a.9_comment": "",
+      "achieved_D1.a.10_comment": "",
+      "achieved_D1.a.11_comment": "",
+      "partially-achieved_D1.a.4": false,
+      "partially-achieved_D1.a.5": false,
+      "partially-achieved_D1.a.6": false,
+      "partially-achieved_D1.a.7": false,
+      "partially-achieved_D1.a.4_comment": "",
+      "partially-achieved_D1.a.5_comment": "",
+      "partially-achieved_D1.a.6_comment": "",
+      "partially-achieved_D1.a.7_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "D1.b": {
+    "indicators": {
+      "achieved_D1.b.4": true,
+      "achieved_D1.b.5": true,
+      "achieved_D1.b.6": true,
+      "achieved_D1.b.7": true,
+      "achieved_D1.b.8": true,
+      "achieved_D1.b.9": true,
+      "not-achieved_D1.b.1": false,
+      "not-achieved_D1.b.2": false,
+      "not-achieved_D1.b.3": false,
+      "achieved_D1.b.4_comment": "",
+      "achieved_D1.b.5_comment": "",
+      "achieved_D1.b.6_comment": "",
+      "achieved_D1.b.7_comment": "",
+      "achieved_D1.b.8_comment": "",
+      "achieved_D1.b.9_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "D1.c": {
+    "indicators": {
+      "achieved_D1.c.5": true,
+      "achieved_D1.c.6": true,
+      "achieved_D1.c.7": true,
+      "achieved_D1.c.8": true,
+      "not-achieved_D1.c.1": false,
+      "not-achieved_D1.c.2": false,
+      "not-achieved_D1.c.3": false,
+      "not-achieved_D1.c.4": false,
+      "achieved_D1.c.5_comment": "",
+      "achieved_D1.c.6_comment": "",
+      "achieved_D1.c.7_comment": "",
+      "achieved_D1.c.8_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "D2.a": {
+    "indicators": {
+      "achieved_D2.a.3": true,
+      "achieved_D2.a.4": true,
+      "achieved_D2.a.5": true,
+      "not-achieved_D2.a.1": false,
+      "not-achieved_D2.a.2": false,
+      "achieved_D2.a.3_comment": "",
+      "achieved_D2.a.4_comment": "",
+      "achieved_D2.a.5_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  },
+  "D2.b": {
+    "indicators": {
+      "achieved_D2.b.3": true,
+      "achieved_D2.b.4": true,
+      "achieved_D2.b.5": true,
+      "achieved_D2.b.6": true,
+      "achieved_D2.b.7": true,
+      "not-achieved_D2.b.1": false,
+      "not-achieved_D2.b.2": false,
+      "achieved_D2.b.3_comment": "",
+      "achieved_D2.b.4_comment": "",
+      "achieved_D2.b.5_comment": "",
+      "achieved_D2.b.6_comment": "",
+      "achieved_D2.b.7_comment": ""
+    },
+    "confirmation": {
+      "outcome_status": "Achieved",
+      "confirm_outcome": "confirm",
+      "outcome_status_message": "You have received this status because you have selected all achieved IGP statements.",
+      "confirm_outcome_confirm_comment": "This is a test outcome comment"
+    }
+  }
+}
