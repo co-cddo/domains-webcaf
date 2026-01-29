@@ -1,5 +1,6 @@
 @media print {
     /*Elements to hide when printing*/
+    .govuk-phase-banner,
     .no_print,
     form input,
     form textarea,
