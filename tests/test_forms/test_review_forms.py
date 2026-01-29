@@ -30,25 +30,25 @@ class TestRecommendationForm(TestCase):
         form = RecommendationForm(data={"DELETE": True})
         self.assertTrue(form.is_valid())
 
-    def test_text_accepts_750_words(self):
-        """Test that text field accepts exactly 750 words (boundary condition)."""
-        text_750_words = " ".join(["word"] * 750)
-        form = RecommendationForm(data={"title": "Title", "text": text_750_words})
+    def test_text_accepts_200_words(self):
+        """Test that text field accepts exactly 200 words (boundary condition)."""
+        text_200_words = " ".join(["word"] * 200)
+        form = RecommendationForm(data={"title": "Title", "text": text_200_words})
         self.assertTrue(form.is_valid())
 
-    def test_text_accepts_under_750_words(self):
-        """Test that text field accepts text under 750 words."""
-        text_500_words = " ".join(["word"] * 500)
-        form = RecommendationForm(data={"title": "Title", "text": text_500_words})
+    def test_text_accepts_under_200_words(self):
+        """Test that text field accepts text under 200 words."""
+        text_150_words = " ".join(["word"] * 150)
+        form = RecommendationForm(data={"title": "Title", "text": text_150_words})
         self.assertTrue(form.is_valid())
 
-    def test_text_rejects_over_750_words(self):
-        """Test that text field rejects text over 750 words."""
-        text_751_words = " ".join(["word"] * 751)
-        form = RecommendationForm(data={"title": "Title", "text": text_751_words})
+    def test_text_rejects_over_200_words(self):
+        """Test that text field rejects text over 200 words."""
+        text_201_words = " ".join(["word"] * 201)
+        form = RecommendationForm(data={"title": "Title", "text": text_201_words})
         self.assertFalse(form.is_valid())
         self.assertIn("text", form.errors)
-        self.assertIn("750", str(form.errors["text"]))
+        self.assertIn("200", str(form.errors["text"]))
 
 
 class TestPreviewForm(TestCase):

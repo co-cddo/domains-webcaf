@@ -14,13 +14,13 @@
                 GovAssure Independent Assurance Review Report (IARR)
             </h1>
             <p class="govuk-body">
-                <strong> Version {{ version }} {% if object_version.current_version_number == version %} (Current – with
-                    organisation){% else %}(This version is superseded by Version
+                <strong> Version {{ version }} {% if object_version.current_version_number == version %}
+                    (Current){% else %}(this version is superseded by Version
                     {{ object_version.current_version_number }}
                     ){% endif %}</strong>
             </p>
             <p class="govuk-body">
-                Updated {{ object_version.last_updated| date:"j F Y \\a\\t g.iA" }}
+                Updated {{ object_version.last_updated| date:"j F Y" }}
             </p>
         </div>
     </header>
@@ -56,7 +56,8 @@
                     {% endfor %}
 
                     <li>
-                        <a class="govuk-link" href="#full-recommendations-table">Full table of recommendations</a>
+                        <a class="govuk-link" href="#full-recommendations-table">Full table of risks and
+                            recommendations</a>
                     </li>
 
                 </ul>
@@ -174,9 +175,10 @@
             <h2 id="period-of-review" class="govuk-heading-m">Period of review</h2>
             <p class="govuk-body statement-para">
                 The independent assurance review was conducted between
-                <strong>{{ iar_period.start_date|parse_date|date:"d F Y"  }}</strong> and <strong>{{ iar_period.end_date|parse_date|date:"d F Y"  }}</strong>.
+                <strong>{{ iar_period.start_date|parse_date|date:"d F Y" }}</strong> and
+                <strong>{{ iar_period.end_date|parse_date|date:"d F Y" }}</strong>.
             </p>
-            <h3 class="govuk-heading-m">Independent Assurance Reviewer (IAR) details</h3>
+            <h2 class="govuk-heading-m">Independent Assurance Reviewer details</h2>
             {% get_path object_version "assessor_response_data.additional_information.company_details" as company_details %}
             <dl class="govuk-summary-list govuk-summary-list">
                 <div class="govuk-summary-list__row">
@@ -320,6 +322,10 @@
             <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
             <h2 id="detail-summary" class="govuk-heading-xl page-break-before">Detailed review of contributing
                 outcomes</h2>
+            <p class="govuk-body">
+                This report includes reviewer comments at the contributing outcome level. Reviewer comments on
+                individual indicators of good practice (IGPs) are available to download from the WebCAF service.
+            </p>
             {% for obj in objectives %}
                 <h2 id="objective-{{ obj.code|lower }}-heading"
                     class="govuk-heading-l {% if forloop.counter != 1 %} page-break-before {% endif %}">
@@ -328,11 +334,10 @@
 
                 <p class="govuk-body">
                     The table below shows the status of each contributing outcome in the <abbr
-                        title="Cyber Assurance Framework">CAF</abbr> objective. It also shows
+                        title="Cyber Assessment Framework">CAF</abbr> objective. It also shows
                     whether each contributing outcome has met the target Government CAF profile in the Independent
                     Assurance Review.
                 </p>
-
                 <table class="govuk-table">
                     <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
@@ -358,7 +363,7 @@
                                 <td class="govuk-table__cell">
                                     {% get_tag_for_status principle_status.review_decision|status_to_label as tag_colour %}
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">
-                                        {{ principle_status.review_decision| capfirst }}
+                                        {{ principle_status.review_decision| status_to_label }}
                                     </strong>
                                 </td>
                                 {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code principle_status.review_decision|status_to_label True as profile_met %}
@@ -383,7 +388,7 @@
                     {% for o in principle.outcomes.values %}
                         <details class="govuk-details">
                             <summary class="govuk-details__summary">
-                                <span class="govuk-details__summary-text">{{ o.code }} - {{ o.title }}</span>
+                                <span class="govuk-details__summary-text print_bold">{{ o.code }} - {{ o.title }}</span>
                             </summary>
                             <div class="govuk-details__text">
                                 {% get_principle object_version obj.code o.code as review_data %}
@@ -394,15 +399,14 @@
                                 </h5>
                                 {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code review_data.review_data.review_decision|status_to_label True as profile_met %}
                                 <h5 class="govuk-heading-s">CAF Baseline profile:
-                                    <strong class="govuk-tag govuk-tag--{% if profile_met %}green{% else %}red{% endif %}">
+                                    <strong class="govuk-tag govuk-tag--{% if profile_met.0 == 'Yes' %}green{% else %}red{% endif %}">
                                         {% if profile_met.0 == 'Not met' %}Not met{% else %} Met{% endif %}
                                     </strong>
                                 </h5>
-                                <h4 class="govuk-heading-s">
+                                <h5 class="govuk-heading-s">
                                     {{ review_data.recommendations|length }}
                                     recommendation{{ review_data.recommendations|length|pluralize }}
-                                    for {{ o.code }}
-                                </h4>
+                                </h5>
                                 <ul class="govuk-list govuk-list--bullet">
                                     {% for recommendation in review_data.recommendations %}
                                         <li id="REC-{{ o.code|cut:"."|upper }}{{ forloop.counter }}">
@@ -416,130 +420,126 @@
                                         </li>
                                     {% endfor %}
                                 </ul>
-                                <h5 class="govuk-heading-s">Comments to support the review</h5>
+                                <h5 class="govuk-heading-s">Comments to support the contributing outcome review</h5>
                                 {% format_with_breaks review_data.review_data.review_comment as parts %}
                                 {% for p in parts %}
                                     <p class="govuk-body statement-para">
                                         {{ p }}
                                     </p>
                                 {% endfor %}
-                                <h5 class="govuk-heading-s">Comments on individual <abbr
-                                        title="Indicators of Good Practice">IGP</abbr> statements</h5>
-                                {% get_indicator_comments object_version obj.code o.code as indicator_comments %}
-                                {% for comment in indicator_comments %}
-                                    {% format_with_breaks comment.comment as parts %}
-                                    {% for p in parts %}
-                                        <p class="govuk-body statement-para">
-                                            {% if forloop.counter == 1 %}
-                                                <strong>{{ comment.section|status_to_label }}
-                                                    statement {{ comment.index }} —</strong>
-                                            {% endif %}
-                                            {{ p }}
-                                        </p>
-                                    {% endfor %}
-                                {% endfor %}
-                                {% if not indicator_comments %}
-                                    <p class="govuk-body statement-para">
-                                        No comments provided
-                                    </p>
-                                {% endif %}
                             </div>
                         </details>
                     {% endfor %}
                 {% endfor %}
             {% endfor %}
 
-            <h2 id="full-recommendations-table" class="govuk-heading-l page-break-before">Full table of
-                recommendations</h2>
-            <h3 class="govuk-heading-m ">Priority recommendations</h3>
-            <p class="govuk-body">These recommendations address gaps identified for contributing outcomes where the
-                target Government CAF profile has not been met.
-            </p>
-            <table class="govuk-table">
-                <thead class="govuk-table__head">
-                <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">Rec number</th>
-                    <th scope="col" class="govuk-table__header">Objective / outcome</th>
-                    <th scope="col" class="govuk-table__header">Title</th>
-                </tr>
-                </thead>
-                <tbody class="govuk-table__body">
+            <h2 id="full-recommendations-table" class="govuk-heading-l page-break-before">
+                Full table of risks and recommendations
+            </h2>
+            <div class="rotate-print">
+                <h3 class="govuk-heading-m ">Priority recommendations</h3>
+                <p class="govuk-body">These recommendations address risks identified for contributing outcomes where
+                    the target Government <abbr title="Cyber Assessment Framework">CAF</abbr> profile has not been met.
+                    Within each contributing outcome,
+                    where multiple recommendations address the same risk, these are shown first.
+                </p>
                 {% get_recommendations object_version 'priority' as top_recommendations %}
-                {% for r in top_recommendations %}
+                <table class="govuk-table">
+                    <colgroup>
+                        <col class="width_5">
+                        <col class="width_5">
+                        <col class="width_40">
+                        <col class="width_50">
+                    </colgroup>
+                    <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">
-                            <strong>{{ r.id }}</strong>
-                        </td>
-                        <td class="govuk-table__cell">Objective {{ r.objective }} / {{ r.outcome }}</td>
-                        <td class="govuk-table__cell">{{ r.title }}</td>
+                        <th scope="col" class="govuk-table__header width_5">ID</th>
+                        <th scope="col" class="govuk-table__header width_5">CO</th>
+                        <th scope="col" class="govuk-table__header width_40">Risk</th>
+                        <th scope="col" class="govuk-table__header width_50">Recommendation</th>
                     </tr>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell" colspan="3">
-                            <details class="govuk-details" id="{{ r.id }}">
-                                <summary class="govuk-details__summary">
-                                <span class="govuk-details__summary-text">
-                                  Recommendation detail
-                                </span>
-                                </summary>
-                                <div class="govuk-details__text">
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for recommendation_group in top_recommendations %}
+                        {% for r in recommendation_group.recommendations %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <strong>{{ r.id }}</strong>
+                                </td>
+                                <td class="govuk-table__cell">{{ r.outcome }}</td>
+                                <td class="govuk-table__cell">
+                                    {% if recommendation_group.title != 'other' %}
+                                        RP{{ recommendation_group.group_index}}:
+                                        &nbsp;{{ r.title }}
+                                    {% else %}
+                                        RP{{ recommendation_group.group_index }}{{ forloop.counter }}:
+                                        &nbsp;{{ r.title }}
+                                    {% endif %}
+                                </td>
+                                <td class="govuk-table__cell">
                                     {% format_with_breaks r.text as parts %}
                                     {% for p in parts %}
                                         <p class="govuk-body statement-para">
                                             {{ p }}
                                         </p>
                                     {% endfor %}
-                                </div>
-                            </details>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <h3 class="govuk-heading-m page-break-before">Other recommendations</h3>
-            <p class="govuk-body">
-                These recommendations address gaps identified for contributing outcomes where the target Government CAF
-                profile has been met.
-            </p>
-            <table class="govuk-table">
-                <thead class="govuk-table__head">
-                <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">Id</th>
-                    <th scope="col" class="govuk-table__header">Objective / outcome</th>
-                    <th scope="col" class="govuk-table__header">Risk</th>
-                </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                {% get_recommendations object_version 'normal' as normal_recommendations %}
-                {% for r in normal_recommendations %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="rotate-print">
+                <h3 class="govuk-heading-m page-break-before">Other recommendations</h3>
+                <p class="govuk-body">
+                    These recommendations address risks identified for contributing outcomes where the target
+                    Government <abbr title="Cyber Assessment Framework">CAF</abbr> profile has been met.
+                    Within each contributing outcome, where multiple recommendations address the same risk,
+                    these are shown first.
+                </p>
+                {% get_recommendations object_version 'normal' as other_recommendations %}
+                <table class="govuk-table">
+                    <colgroup>
+                        <col class="width_5">
+                        <col class="width_5">
+                        <col class="width_40">
+                        <col class="width_50">
+                    </colgroup>
+                    <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">
-                            <strong>{{ r.id }}</strong>
-                        </td>
-                        <td class="govuk-table__cell">Objective {{ r.objective }} / {{ r.outcome }}</td>
-                        <td class="govuk-table__cell">{{ r.title }}</td>
+                        <th scope="col" class="govuk-table__header width_5">ID</th>
+                        <th scope="col" class="govuk-table__header width_5">CO</th>
+                        <th scope="col" class="govuk-table__header width_40">Risk</th>
+                        <th scope="col" class="govuk-table__header width_50">Recommendation</th>
                     </tr>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell" colspan="3">
-                            <details class="govuk-details" id="{{ r.id }}">
-                                <summary class="govuk-details__summary">
-                                    <span class="govuk-details__summary-text">
-                                      Recommendation detail
-                                    </span>
-                                </summary>
-                                <div class="govuk-details__text">
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for recommendation_group in other_recommendations %}
+                        {% for r in recommendation_group.recommendations %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <strong>{{ r.id }}</strong>
+                                </td>
+                                <td class="govuk-table__cell">{{ r.outcome }}</td>
+                                <td class="govuk-table__cell">
+                                    RO{{ recommendation_group.group_index }}:
+                                    &nbsp;{{ r.title }}
+                                </td>
+                                <td class="govuk-table__cell">
                                     {% format_with_breaks r.text as parts %}
                                     {% for p in parts %}
                                         <p class="govuk-body statement-para">
                                             {{ p }}
                                         </p>
                                     {% endfor %}
-                                </div>
-                            </details>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}

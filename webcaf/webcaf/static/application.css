@@ -23,6 +23,7 @@ span.govuk-header__logotype-text {
     justify-content: space-between;
     align-items: center;
 }
+
 /*Style to show button as text*/
 .govuk-button--text {
     background: none;
@@ -228,4 +229,23 @@ span.govuk-header__logotype-text {
 
 .system_overview > div {
     margin-bottom: 5px;
+}
+
+.width_5 {
+    max-width: 5% !important;
+    width: 5% !important;
+    min-width: 5% !important;
+}
+
+
+.width_50 {
+    max-width: 50% !important;
+    width: 50% !important;
+    min-width: 50% !important;
+}
+
+.width_40 {
+    max-width: 40% !important;
+    width: 40% !important;
+    min-width: 40% !important;
 }
