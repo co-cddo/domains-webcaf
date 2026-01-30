@@ -1,8 +1,10 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import Assessment, Review
+from webcaf.webcaf.utils.to_spreadsheet import export_assessment_to_excel
 
 FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "completed_assessment_base.json"
 REVIEW_FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "completed_review.json"
@@ -54,3 +56,18 @@ class TestCSVExport(BaseViewTest):
 
     def test_we_have_some_assessments(self):
         assert len(self.assessments) > 0
+
+    def test_export_single_assessment_to_file(self):
+        assessment = self.assessments[0]
+
+        excel_bytes = export_assessment_to_excel(assessment)
+        assert excel_bytes is not None
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_path = Path(__file__).parent.parent.parent / f"assessment_export_{timestamp}.xlsx"
+
+        with open(output_path, "wb") as f:
+            f.write(excel_bytes)
+
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0
