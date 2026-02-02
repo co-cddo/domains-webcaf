@@ -550,6 +550,7 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Priority Rec")
+        self.assertEqual(result[0].group_index, 1)
         self.assertEqual(result[0].recommendations[0].title, "Priority Rec")
         self.assertEqual(result[0].recommendations[0].text, "Priority Text")
 
@@ -587,6 +588,7 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Normal Rec")
+        self.assertEqual(result[0].group_index, 1)
         self.assertEqual(result[0].recommendations[0].title, "Normal Rec")
         self.assertEqual(result[0].recommendations[0].text, "Normal Text")
 
@@ -624,10 +626,12 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].title, "Normal Rec")
+        self.assertEqual(result[0].group_index, 1)
         self.assertEqual(len(result[0].recommendations), 1)
         self.assertEqual(result[0].recommendations[0].title, "Normal Rec")
 
         self.assertEqual(result[1].title, "Normal Rec")
+        self.assertEqual(result[1].group_index, 2)
         self.assertEqual(len(result[1].recommendations), 1)
         self.assertEqual(result[1].recommendations[0].title, "Normal Rec")
 
@@ -779,17 +783,18 @@ class TestGetRecommendations(TestCase):
 
         self.assertEqual(len(result), 8)
         expected = [
-            ("A1.a", "Shared Risk"),
-            ("A1.a", "Minor Risk A"),
-            ("A1.b", "Outcome A1.b Risk"),
-            ("A1.b", "Outcome A1.b Minor"),
-            ("B1.a", "Shared Risk"),
-            ("B1.a", "Minor Risk B"),
-            ("B1.b", "Outcome B1.b Risk"),
-            ("B1.b", "Outcome B1.b Minor"),
+            ("A1.a", "Shared Risk", 1),
+            ("A1.a", "Minor Risk A", 2),
+            ("A1.b", "Outcome A1.b Risk", 3),
+            ("A1.b", "Outcome A1.b Minor", 4),
+            ("B1.a", "Shared Risk", 5),
+            ("B1.a", "Minor Risk B", 6),
+            ("B1.b", "Outcome B1.b Risk", 7),
+            ("B1.b", "Outcome B1.b Minor", 8),
         ]
-        for index, (outcome, title) in enumerate(expected):
+        for index, (outcome, title, group_index) in enumerate(expected):
             self.assertEqual(result[index].title, title)
+            self.assertEqual(result[index].group_index, group_index)
             self.assertEqual(result[index].recommendations[0].outcome, outcome)
 
 
