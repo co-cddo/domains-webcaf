@@ -368,9 +368,15 @@ def get_recommendations(
             group_index += 1
 
     # Sort the list based on the number of recommendations in each group
+    # Also reindex the group id based on sort ordering
+    group_index = 1
     for _, recommendation_groups in recommendations_by_contributing_outcome.items():
-        # For each outcome, sort recommendation groups by number of recommendations
+        # For each outcome, sort recommendation groups by the number of recommendations
         for group in sorted(recommendation_groups.values(), key=lambda g: len(g.recommendations), reverse=True):
+            # Reindex the group id based on sort ordering
+            group.group_index = group_index
+            group_index += 1
+            # Yield the recommendation group for efficiency
             yield group
 
 
