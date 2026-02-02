@@ -438,7 +438,34 @@ class TestGetRecommendations(TestCase):
                         },
                     }
                 },
-            }
+            },
+            "B": {
+                "code": "B",
+                "title": "Objective B",
+                "principles": {
+                    "B1": {
+                        "code": "B1",
+                        "title": "Principle 1",
+                        "outcomes": {
+                            "B1.a": {
+                                "code": "B1.a",
+                                "title": "Outcome 1.1",
+                                "min_profile_requirement": {"baseline": "Achieved"},
+                            },
+                            "B1.b": {
+                                "code": "B1.b",
+                                "title": "Outcome 1.2",
+                                "min_profile_requirement": {"baseline": "Achieved"},
+                            },
+                            "B1.c": {
+                                "code": "B1.c",
+                                "title": "Outcome 1.2.3",
+                                "min_profile_requirement": {"baseline": "Achieved"},
+                            },
+                        },
+                    }
+                },
+            },
         }
         mock_router.get_sections.return_value = objectives
         mock_router.get_section.side_effect = lambda section_code: objectives.get(section_code, None)
@@ -463,10 +490,22 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
 
-        result = get_recommendations(self.review, "all")
+        result = list(get_recommendations(self.review, "all"))
 
         self.assertEqual(len(result), 1)
         self.assertIsInstance(result[0], RecommendationGroup)
@@ -492,10 +531,22 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
 
-        result = get_recommendations(self.review, "priority")
+        result = list(get_recommendations(self.review, "priority"))
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Priority Rec")
@@ -517,10 +568,22 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
 
-        result = get_recommendations(self.review, "normal")
+        result = list(get_recommendations(self.review, "normal"))
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].title, "Normal Rec")
@@ -542,16 +605,31 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [{"title": "Normal Rec", "text": "Normal Text 2"}],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
 
-        result = get_recommendations(self.review, "normal")
+        result = list(get_recommendations(self.review, "normal"))
 
-        self.assertEqual(len(result), 1)
+        self.assertEqual(len(result), 2)
         self.assertEqual(result[0].title, "Normal Rec")
-        self.assertEqual(len(result[0].recommendations), 2)
+        self.assertEqual(len(result[0].recommendations), 1)
         self.assertEqual(result[0].recommendations[0].title, "Normal Rec")
-        self.assertEqual(result[0].recommendations[1].title, "Normal Rec")
+
+        self.assertEqual(result[1].title, "Normal Rec")
+        self.assertEqual(len(result[1].recommendations), 1)
+        self.assertEqual(result[1].recommendations[0].title, "Normal Rec")
 
     def test_generates_correct_recommendation_ids(self):
         self.review.get_assessor_response.return_value = {
@@ -571,9 +649,21 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [{"title": "Rec 3", "text": "Text 3"}],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
-        result = get_recommendations(self.review, "all")
+        result = list(get_recommendations(self.review, "all"))
 
         self.assertEqual(len(result), 3)
         # All results are grouped in its own group
@@ -602,21 +692,105 @@ class TestGetRecommendations(TestCase):
                     "review_data": {"review_decision": "achieved"},
                     "recommendations": [{"title": "Rec 1", "text": "Text 3", "id": "REC-A1C1"}],
                 },
-            }
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                },
+            },
         }
-        result = get_recommendations(self.review, "all")
+        result = list(get_recommendations(self.review, "all"))
 
-        self.assertEqual(len(result), 2)
+        # Although A1.c has the same code, it will come in a separate group as we
+        # Only group the same title within the same CO
+        self.assertEqual(len(result), 3)
         # All results are grouped under other, so the index should be 1
         self.assertEqual(result[0].group_index, 1)
         self.assertEqual(result[0].title, "Rec 1")
-        # A1.a and A1.c has the same title, so they are grouped under the same group
         self.assertEqual(result[0].recommendations[0].id, "REC-A1A1")
-        self.assertEqual(result[0].recommendations[1].id, "REC-A1C1")
+
         # Other group, with only 1 record
         self.assertEqual(result[1].group_index, 2)
         self.assertEqual(result[1].title, "Rec 2")
         self.assertEqual(result[1].recommendations[0].id, "REC-A1A2")
+
+        # A1.a and A1.c has the same title, so they are grouped under the same group
+        self.assertEqual(result[2].group_index, 3)
+        self.assertEqual(result[2].title, "Rec 1")
+        self.assertEqual(result[2].recommendations[0].id, "REC-A1C1")
+
+    def test_orders_groups_by_outcome_and_count_with_duplicate_titles_across_objectives(self):
+        self.review.get_assessor_response.return_value = {
+            "A": {
+                "A1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [
+                        {"title": "Minor Risk A", "text": "Text A3"},
+                        {"title": "Shared Risk", "text": "Text A1"},
+                        {"title": "Shared Risk", "text": "Text A2"},
+                    ],
+                },
+                "A1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [
+                        {"title": "Outcome A1.b Minor", "text": "Text A7"},
+                        {"title": "Outcome A1.b Risk", "text": "Text A4"},
+                        {"title": "Outcome A1.b Risk", "text": "Text A5"},
+                        {"title": "Outcome A1.b Risk", "text": "Text A6"},
+                    ],
+                },
+                "A1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+            },
+            "B": {
+                "B1.a": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [
+                        {"title": "Minor Risk B", "text": "Text B3"},
+                        {"title": "Shared Risk", "text": "Text B1"},
+                        {"title": "Shared Risk", "text": "Text B2"},
+                    ],
+                },
+                "B1.b": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [
+                        {"title": "Outcome B1.b Minor", "text": "Text B6"},
+                        {"title": "Outcome B1.b Risk", "text": "Text B4"},
+                        {"title": "Outcome B1.b Risk", "text": "Text B5"},
+                    ],
+                },
+                "B1.c": {
+                    "review_data": {"review_decision": "achieved"},
+                    "recommendations": [],
+                },
+            },
+        }
+
+        result = list(get_recommendations(self.review, "all"))
+
+        self.assertEqual(len(result), 8)
+        expected = [
+            ("A1.a", "Shared Risk"),
+            ("A1.a", "Minor Risk A"),
+            ("A1.b", "Outcome A1.b Risk"),
+            ("A1.b", "Outcome A1.b Minor"),
+            ("B1.a", "Shared Risk"),
+            ("B1.a", "Minor Risk B"),
+            ("B1.b", "Outcome B1.b Risk"),
+            ("B1.b", "Outcome B1.b Minor"),
+        ]
+        for index, (outcome, title) in enumerate(expected):
+            self.assertEqual(result[index].title, title)
+            self.assertEqual(result[index].recommendations[0].outcome, outcome)
 
 
 class TestGetIndicatorComments(TestCase):

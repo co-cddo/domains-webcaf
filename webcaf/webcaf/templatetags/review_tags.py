@@ -1,4 +1,4 @@
-from typing import Any, Literal, NamedTuple
+from typing import Any, Generator, Literal, NamedTuple
 
 from django import template
 from django.contrib.auth.models import User
@@ -297,7 +297,9 @@ class RecommendationGroup:
 
 
 @register.simple_tag()
-def get_recommendations(review: Review, mode: Literal["priority", "normal", "all"]) -> list[RecommendationGroup]:
+def get_recommendations(
+    review: Review, mode: Literal["priority", "normal", "all"]
+) -> Generator[RecommendationGroup, Any, None]:
     """
     Generate a list of recommendations based on the assessment review, filtered by the specified mode.
 
@@ -316,8 +318,9 @@ def get_recommendations(review: Review, mode: Literal["priority", "normal", "all
                    categorized as a priority.
                  - "all": Includes all recommendations irrespective of their review decision.
     :type mode: Literal[ "priority", "normal", "all"]
-    :return: A list of filtered recommendations based on the given review and mode. They are grouped by title.
-    and ordered by the recommendation count (The group with the maximum coming first)
+    :return: A list of filtered recommendations based on the given review and mode. They are ordered by the
+    contributing outcome and then by title. Within a given contributing outcome, the risk with the most
+    recommendation count is prioritized, and the group with the maximum recommendation count comes first.
     :rtype: list[RecommendationGroup]
     """
     recommendations_list = []
@@ -353,10 +356,11 @@ def get_recommendations(review: Review, mode: Literal["priority", "normal", "all
                         )
                     )
 
-    recommendation_groups: dict[str, RecommendationGroup] = {}
+    recommendations_by_contributing_outcome: dict[str, dict[str, RecommendationGroup]] = {}
     group_index = 1
     # Groups recommendations; increments group index when needed
     for r in recommendations_list:
+        recommendation_groups = recommendations_by_contributing_outcome.setdefault(r.outcome, {})
         recommendation_groups.setdefault(
             r.title.strip(), RecommendationGroup(r.title, [], group_index)
         ).recommendations.append(r)
@@ -364,7 +368,10 @@ def get_recommendations(review: Review, mode: Literal["priority", "normal", "all
             group_index += 1
 
     # Sort the list based on the number of recommendations in each group
-    return sorted(recommendation_groups.values(), key=lambda g: len(g.recommendations), reverse=True)
+    for _, recommendation_groups in recommendations_by_contributing_outcome.items():
+        # For each outcome, sort recommendation groups by number of recommendations
+        for group in sorted(recommendation_groups.values(), key=lambda g: len(g.recommendations), reverse=True):
+            yield group
 
 
 ReviewComment = NamedTuple("ReviewComment", [("section", str), ("index", int), ("comment", str)])
