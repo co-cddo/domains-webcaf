@@ -3,6 +3,7 @@ from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 
+from django.contrib import messages
 from django.forms import ChoiceField, ModelForm
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -87,11 +88,9 @@ class ReviewDetailView(BaseReviewMixin, DetailView):
         return data
 
 
-class ReviewHistoryView(BaseReviewMixin, UpdateView):
+class ReviewHistoryView(BaseReviewMixin, DetailView):
     model = Review
     template_name = "review/revisions.html"
-    # No fields to edit, we manually update if needed
-    fields = []
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -106,14 +105,45 @@ class ReviewHistoryView(BaseReviewMixin, UpdateView):
         ]
         return data
 
+
+class FinaliseReview(BaseReviewMixin, UpdateView):
+    model = Review
+    template_name = "review/finalise-review.html"
+    # No fields to edit, we manually update if needed
+    fields = []
+    logger = logging.getLogger("FinaliseReview")
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = [
+            {
+                "url": reverse("my-account"),
+                "text": "My account",
+            },
+            {
+                "url": reverse("review-history", kwargs={"pk": self.object.id}),
+                "text": "Report history",
+            },
+            {
+                "text": "Finalise current review",
+            },
+        ]
+        return data
+
     def form_valid(self, form):
         if not self.object.is_review_complete():
-            form.add_error(None, "You cannot edit a review that has not been completed.")
+            form.add_error(None, "You cannot finalise a review that has not been completed.")
             return self.form_invalid(form)
+        self.logger.info(f"Finalising report for {self.object.reference}")
+        form.instance.finalise_review(SessionUtil.get_current_user_profile(self.request))
+        messages.success(
+            self.request,
+            f"Final report updated. Version {self.object.current_version_number} is now the final report.",
+        )
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("reopen-review", kwargs={"pk": self.object.id})
+        return reverse("review-history", kwargs={"pk": self.object.id})
 
 
 class ReopenReviewView(BaseReviewMixin, UpdateView):
@@ -140,7 +170,7 @@ class ReopenReviewView(BaseReviewMixin, UpdateView):
         return data
 
     def form_valid(self, form):
-        if not self.object.is_review_complete():
+        if not self.object.is_review_complete() and not self.object.is_review_finalised():
             form.add_error(None, "You cannot edit a review that has not been completed.")
             return self.form_invalid(form)
         form.instance.reopen()

@@ -988,7 +988,11 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     def is_review_complete(self):
         review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
-        return review_completion.get("review_completed") == "yes"
+        return review_completion.get("review_completed") == "yes" and self.status == "completed"
+
+    def is_review_finalised(self):
+        review_finalised = _get_or_create_nested_path(self.review_data, "review_finalised")
+        return self.is_review_complete() and review_finalised
 
     @property
     def completion_info(self) -> dict | None:
@@ -1024,13 +1028,24 @@ class Review(ReferenceGeneratorMixin, models.Model):
         :return: Updates the report status and clears specific review data for further
                  reassessment.
         """
-        if self.status != "completed":
+        if self.status != "completed" or self.is_review_finalised():
             raise ValidationError("Invalid state for report reopening.")
 
-        self.status = "in_progress"
         review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
+        self.status = "in_progress"
         # Remove the review_completed key and its associated values
         review_completion.clear()
+
+    def finalise_review(self, profile: UserProfile):
+        if self.status != "completed":
+            raise ValidationError("Invalid state for report finalising.")
+
+        review_completion = _get_or_create_nested_path(self.review_data, "review_finalised")
+        # Add the finalised timestamp
+        review_completion["review_finalised_at"] = datetime.now().isoformat()
+        review_completion["review_finalised_by"] = f"{profile.user.first_name} {profile.user.last_name}"
+        review_completion["review_finalised_by_email"] = profile.user.email
+        review_completion["review_finalised_by_role"] = profile.role
 
     def save(self, *args, **kwargs):
         """
@@ -1050,7 +1065,14 @@ class Review(ReferenceGeneratorMixin, models.Model):
         if self.pk:
             old = Review.objects.get(pk=self.pk)
             # Prevent changing review_data if the status was already "completed"
-            if old.status == "completed" == self.status and self.review_data != old.review_data:
+            # This allows the addition of finalised review data to the json
+            # while it is still in the completed state
+            if (old.status == "completed" and "completed" == self.status) and (
+                self.review_data.get("review_completion", {}) != old.review_data.get("review_completion", {})
+                or self.review_data.get("assessor_response_data", {})
+                != old.review_data.get("assessor_response_data", {})
+                or old.is_review_finalised()
+            ):
                 raise ValidationError("Review data cannot be changed after it has been marked as completed.")
 
             # If we have specifically added permissions for this object, then we should check that

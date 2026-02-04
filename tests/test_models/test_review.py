@@ -292,6 +292,71 @@ class ReviewIsObjectiveCompleteTests(BaseViewTest):
         self.assertFalse(result)
 
 
+class ReviewCompletionStateTests(BaseViewTest):
+    @classmethod
+    def setUpTestData(cls):
+        BaseViewTest.setUpTestData()
+
+        cls.assessment = Assessment.objects.create(
+            system=cls.test_system,
+            assessment_period="24/25",
+            framework="caf32",
+            caf_profile="baseline",
+            review_type="independent",
+        )
+
+    def test_review_data_cannot_change_when_completed(self):
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {"initial": "value"},
+                "review_completion": {"review_completed": "yes"},
+            },
+        )
+
+        review.review_data = {
+            "assessor_response_data": {"initial": "updated"},
+            "review_completion": {"review_completed": "yes"},
+        }
+
+        with self.assertRaises(ValidationError):
+            review.save()
+
+    def test_review_can_be_finalised_when_completed(self):
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {"initial": "value"},
+                "review_completion": {"review_completed": "yes"},
+            },
+        )
+
+        review.finalise_review(self.user_profile)
+        review.save()
+
+        review.refresh_from_db()
+        self.assertIn("review_finalised", review.review_data)
+        self.assertTrue(review.review_data["review_finalised"].get("review_finalised_at"))
+
+    def test_review_cannot_be_reopened_after_finalised(self):
+        review = Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "assessor_response_data": {"initial": "value"},
+                "review_completion": {"review_completed": "yes"},
+            },
+        )
+
+        review.finalise_review(self.user_profile)
+        review.save()
+
+        with self.assertRaises(ValidationError):
+            review.reopen()
+
+
 class ReviewSaveMethodTests(BaseViewTest):
     """
     Tests for the Review.save() method.
@@ -349,10 +414,10 @@ class ReviewSaveMethodTests(BaseViewTest):
         review = Review()
         review.assessment = self.assessment
         review.status = "completed"
-        review.review_data = {"test": "data"}
+        review.review_data = {"assessor_response_data": {"test": "data"}}
         review.save()
 
-        review.review_data = {"test": "modified_data"}
+        review.review_data = {"assessor_response_data": {"test": "modified_data"}}
         with self.assertRaises(ValidationError) as context:
             review.save()
         self.assertIn("Review data cannot be changed", str(context.exception))
@@ -474,11 +539,11 @@ class ReviewSaveMethodTests(BaseViewTest):
         review = Review()
         review.assessment = self.assessment
         review.status = "completed"
-        review.review_data = {"test": "data"}
+        review.review_data = {"assessor_response_data": {"test": "data"}}
         review.save()
 
         review.can_edit = False
-        review.review_data = {"test": "modified"}
+        review.review_data = {"assessor_response_data": {"test": "modified"}}
         # The completed status check comes before can_edit check
         with self.assertRaises(ValidationError) as context:
             review.save()
@@ -490,17 +555,17 @@ class ReviewSaveMethodTests(BaseViewTest):
         review = Review()
         review.assessment = self.assessment
         review.status = "completed"
-        review.review_data = {"test": "data"}
+        review.review_data = {"assessor_response_data": {"test": "data"}}
         review.save()
 
         original_last_updated = review.last_updated
 
         # Update the review to change last_updated
-        review.review_data = {"test": "data"}  # Keep data same
+        review.review_data = {"assessor_response_data": {"test": "data"}}  # Keep data same
         review.save()
 
         # Now try to modify review_data with outdated timestamp
-        review.review_data = {"test": "modified"}
+        review.review_data = {"assessor_response_data": {"test": "modified"}}
         review._original_last_updated = original_last_updated
         # Should raise completed status error, not stale data error
         with self.assertRaises(ValidationError) as context:
