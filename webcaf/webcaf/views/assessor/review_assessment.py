@@ -197,7 +197,7 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                 label="review comment",
                 validators=([WordCountValidator(1500)]),
                 widget=Textarea(
-                    attrs={"rows": 10, "max_words": 1500},
+                    attrs={"rows": 20, "max_words": 1500},
                 ),
             )
             return fields
