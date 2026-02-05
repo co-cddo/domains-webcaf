@@ -1,0 +1,40 @@
+{% extends "review-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Report history - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">Do you want version {{ object.current_version_number }} to be the final
+                report?</h1>
+            <p class="govuk-body">
+                You must confirm you want version {{ object.current_version_number }} to be marked as the final report
+                for {{ object.assessment.reference }}.
+            </p>
+            <p class="govuk-body">This will not create a new version.
+            </p>
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    If you have any problems, contact <code class="govspeak-code">webcaf@dsit.gov.uk</code>.
+                </strong>
+            </div>
+
+            <form method="post" id="finalise-review-form">
+                {% csrf_token %}
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button govuk-button"
+                            {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                    >Confirm and make final
+                    </button>
+                    <a class="govuk-link" href="{% url 'review-history' pk=object.id %}">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

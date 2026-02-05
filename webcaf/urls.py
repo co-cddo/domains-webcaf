@@ -40,6 +40,7 @@ from webcaf.webcaf.views import (
 from webcaf.webcaf.views.assessor.review import (
     DownloadReport,
     EditReviewSystemView,
+    FinaliseReview,
     ReopenReviewView,
     ReviewDetailView,
     ReviewHistoryView,
@@ -163,6 +164,7 @@ urlpatterns = [
     path("review-list/", ReviewIndexView.as_view(), name="review-list"),
     path("review/<int:pk>/", ReviewDetailView.as_view(), name="edit-review"),
     path("review/<int:pk>/revisions", ReviewHistoryView.as_view(), name="review-history"),
+    path("review/<int:pk>/finalise", FinaliseReview.as_view(), name="finalise-review"),
     path("review/<int:pk>/reopen", ReopenReviewView.as_view(), name="reopen-review"),
     path("review/<int:pk>/system-and-scope", SystemAndScopeView.as_view(), name="system-and-scope"),
     path("review/<int:pk>/system/<str:field_to_change>", EditReviewSystemView.as_view(), name="edit-review-system"),

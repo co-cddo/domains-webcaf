@@ -4,20 +4,61 @@
 {% load permission_extras %}
 {% block title %}Report history - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
+    {% if messages %}
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="region"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Success
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                {% for message in messages %}
+                    <p class="govuk-notification-banner__heading">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Report history</h1>
-            <p class="govuk-body">
-                This page lists all versions of the IAR report for this system.
-                You can view and download the current report or re-open the review to update it.
-            </p>
-
-            <p class="govuk-body">When you re-open the latest review it will create a new version of the report based on
-                your changes.
-                <br><br>Earlier versions of the report are saved for audit purposes.
-            </p>
+            {% if not object.is_review_finalised %}
+                <p class="govuk-body">
+                    This page lists all versions of the Independent Assurance Review Report for this system.
+                    You can view and download the current report or re-open the review to update it.
+                </p>
+                <p class="govuk-body">When you re-open the latest review it will create a new version of the report
+                    based on your changes.<br><br>
+                    Earlier versions of the report are saved for audit purposes.
+                </p>
+            {% else %}
+                <p class="govuk-body">
+                    Use this page to manage your IAR reports. Download the final report or browse the version history
+                    below.
+                </p>
+                <div class="govuk-inset-text">
+                    <p class="govuk-body govuk-!-margin-bottom-1">
+                        <strong>Final report:</strong> Version {{ object.all_versions|length }}
+                        ({{ object.completion_info.review_completed_at|date:"d F Y" }}
+                        at {{ object.completion_info.review_completed_at|date:"H:i" }})
+                    </p>
+                    <p class="govuk-body govuk-!-margin-bottom-0">
+                        {% with  object.all_versions|length as revision_number %}
+                            <a class="govuk-link"
+                               href="{% url 'show-report' pk=object.id version=revision_number %}">View
+                                final report</a> |
+                            <a class="govuk-link"
+                               href="{% url 'download-report' pk=object.id version=revision_number %}">Download
+                                (PDF)</a>
+                        {% endwith %}
+                    </p>
+                </div>
+            {% endif %}
 
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--m">List of created reports</caption>
@@ -45,39 +86,55 @@
                         <td class="govuk-table__cell">{{ revision.instance.completion_info.review_completed_by }}</td>
                         <td class="govuk-table__cell">
                             {% if forloop.counter == 1 %}
-                                <span class="govuk-tag govuk-tag--blue">Current - with organisation</span>
+                                {% if revision.instance.is_review_finalised %}
+                                    <span class="govuk-tag govuk-tag--blue">Final</span>
+                                {% else %}
+                                    <span class="govuk-tag govuk-tag--blue">Current</span>
+                                {% endif %}
                             {% else %}
                                 <span class="govuk-tag govuk-tag--grey">Superseded</span>
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell">
-                            <a class="govuk-link" href="{% url 'show-report' pk=revision.instance.id version=forloop.revcounter %}">View report</a>
-                            <a class="govuk-link" target="_blank" href="{% url 'download-report' pk=revision.instance.id version=forloop.revcounter %}">Download (PDF)</a>
+                            <a class="govuk-link"
+                               href="{% url 'show-report' pk=revision.instance.id version=forloop.revcounter %}">View
+                                report</a>
+                            <a class="govuk-link" target="_blank"
+                               href="{% url 'download-report' pk=revision.instance.id version=forloop.revcounter %}">Download
+                                (PDF)</a>
                         </td>
                     </tr>
                 {% endfor %}
             </table>
-
-            <h2 class="govuk-heading-m"> Create a new report version</h2>
-            <p class="govuk-body">
-                To create a new version of the report, you must <strong>re-open the current review</strong>
-                and make the changes you need.
-                You will be able to change outcome statuses, recommendations and comments.
-            </p>
-
-            <form method="post" id="reopen-review-form">
-                {% csrf_token %}
-                <button type="submit" class="govuk-button govuk-button--warning"
-                        {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
-                >Open current review to create a new
-                    report
-                </button>
-            </form>
-
+            {% if not object.is_review_finalised %}
+                <h2 class="govuk-heading-m"> Create a new report version</h2>
+                <p class="govuk-body">
+                    To create a new version of the report, you must re-open the current review
+                    and make the changes you need. You will be able to change outcome statuses,
+                    recommendations and comments.
+                </p>
+                <h2 class="govuk-heading-m">Create a final report</h2>
+                <p class="govuk-body">
+                    When you are ready to finalise your review, you can mark the most recent version of the report as
+                    final.
+                </p>
+                <form method="GET" id="reopen-review-form" action="{% url 'reopen-review' pk=object.id %}">
+                    {% csrf_token %}
+                    <div class="govuk-button-group">
+                        <button type="submit" class="govuk-button govuk-button--warning"
+                                {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
+                        >
+                            Open current review to create a new report
+                        </button>
+                        <a class="govuk-link" href="{% url 'finalise-review' pk=object.id %}">Mark latest report
+                            version as final
+                        </a>
+                    </div>
+                </form>
+            {% endif %}
             <p class="govuk-body govuk-!-margin-top-6">
                 <a href="{% url 'my-account' %}" class="govuk-link">Return to My account</a>
             </p>
-
         </div>
     </div>
 {% endblock %}

@@ -14,10 +14,18 @@
                 GovAssure Independent Assurance Review Report (IARR)
             </h1>
             <p class="govuk-body">
-                <strong> Version {{ version }} {% if object_version.current_version_number == version %}
-                    (Current){% else %}(this version is superseded by Version
-                    {{ object_version.current_version_number }}
-                    ){% endif %}</strong>
+                <strong> Version {{ version }}
+                    {% if object_version.current_version_number == version %}
+                        {% if object_version.is_review_finalised %}
+                            (Final)
+                        {% else %}
+                            (Current)
+                        {% endif %}
+                    {% else %}(this version is superseded by Version
+                        {{ object_version.current_version_number }}
+                        )
+                    {% endif %}
+                </strong>
             </p>
             <p class="govuk-body">
                 Updated {{ object_version.last_updated| date:"j F Y" }}
@@ -469,7 +477,7 @@
                                 <td class="govuk-table__cell">{{ r.outcome }}</td>
                                 <td class="govuk-table__cell">
                                     {% if recommendation_group.title != 'other' %}
-                                        RP{{ recommendation_group.group_index}}:
+                                        RP{{ recommendation_group.group_index }}:
                                         &nbsp;{{ r.title }}
                                     {% else %}
                                         RP{{ recommendation_group.group_index }}{{ forloop.counter }}:
