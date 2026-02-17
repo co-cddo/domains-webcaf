@@ -249,3 +249,12 @@ span.govuk-header__logotype-text {
     width: 40% !important;
     min-width: 40% !important;
 }
+
+.remove-button {
+    margin-top: 10px;
+}
+
+main {
+    padding-top: 10px !important;
+    margin-top: 0 !important;
+}

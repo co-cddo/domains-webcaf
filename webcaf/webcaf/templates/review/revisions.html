@@ -29,12 +29,20 @@
             <h1 class="govuk-heading-l">Report history</h1>
             {% if not object.is_review_finalised %}
                 <p class="govuk-body">
-                    This page lists all versions of the Independent Assurance Review Report for this system.
+                    {% if object.assessment.review_type == 'peer_review' %}
+                        This page lists all versions of the Peer Review Report for this system.
+                    {% else %}
+                        This page lists all versions of the Independent Assurance Review Report for this system.
+                    {% endif %}
                     You can view and download the current report or re-open the review to update it.
                 </p>
-                <p class="govuk-body">When you re-open the latest review it will create a new version of the report
-                    based on your changes.<br><br>
-                    Earlier versions of the report are saved for audit purposes.
+                <p class="govuk-body">
+                    When you re-open the latest review it will create a new version of the report
+                    based on your changes. Earlier versions of the report are saved for audit purposes.
+                </p>
+                <p class="govuk-body">
+                    If you have agreed to finalise the report with the organisation,
+                    you can choose to mark the most recent version as final.
                 </p>
             {% else %}
                 <p class="govuk-body">
@@ -55,6 +63,9 @@
                             <a class="govuk-link"
                                href="{% url 'download-report' pk=object.id version=revision_number %}">Download
                                 (PDF)</a>
+                            <a class="govuk-link"
+                               href="{% url 'download-excel-report' pk=object.id version=revision_number %}">Download
+                                (Excel)</a>
                         {% endwith %}
                     </p>
                 </div>
@@ -98,10 +109,13 @@
                         <td class="govuk-table__cell">
                             <a class="govuk-link"
                                href="{% url 'show-report' pk=revision.instance.id version=forloop.revcounter %}">View
-                                report</a>
+                                report</a><br/>
                             <a class="govuk-link" target="_blank"
                                href="{% url 'download-report' pk=revision.instance.id version=forloop.revcounter %}">Download
-                                (PDF)</a>
+                                (PDF)</a><br/>
+                            <a class="govuk-link" target="_blank"
+                               href="{% url 'download-excel-report' pk=revision.instance.id version=forloop.revcounter %}">Download
+                                (Excel)</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -126,9 +140,15 @@
                         >
                             Open current review to create a new report
                         </button>
-                        <a class="govuk-link" href="{% url 'finalise-review' pk=object.id %}">Mark latest report
-                            version as final
-                        </a>
+                        {% if can_finalise_report %}
+                            <a class="govuk-link" href="{% url 'finalise-review' pk=object.id %}">Mark latest report
+                                version as final
+                            </a>
+                        {% else %}
+                            <span class="govuk-body">
+                            Mark latest report version as final
+                            </span>
+                        {% endif %}
                     </div>
                 </form>
             {% endif %}

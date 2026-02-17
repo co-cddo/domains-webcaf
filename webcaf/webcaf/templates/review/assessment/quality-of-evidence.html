@@ -13,17 +13,24 @@
             <h1 class="govuk-heading-l">Describe the quality of the self-assessment</h1>
             <p class="govuk-body">
                 Provide your comments on the quality of the organisation’s self-assessment including:
+                {% if object.assessment.review_type != 'peer_review' %}
+                    <br><br>
+                    Include details of:
+                {% endif %}
+
             </p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>the contributing outcome summaries
                 </li>
-                <li>explanations of any alternative controls or exemptions for individual <abbr title="indicator of good practice">IGPs</abbr>
+                <li>explanations of any alternative controls or exemptions for individual <abbr
+                        title="indicator of good practice">IGPs</abbr>
                 </li>
                 <li>supporting evidence you have seen outside the WebCAF service
                 </li>
             </ul>
             <p class="govuk-body">
-                Consider the level of detail provided by the organisation, and the appropriateness and completeness of supporting evidence.
+                Consider the level of detail provided by the organisation, and the appropriateness and
+                completeness of supporting evidence.
             </p>
             <form method="post" id="comment-form">
                 {% csrf_token %}

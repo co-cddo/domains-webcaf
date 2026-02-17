@@ -2,7 +2,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %} Areas of good practice {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %} Areas for improvement - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}
@@ -10,22 +10,23 @@
         <div class="govuk-grid-column-three-quarters">
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
-            <h1 class="govuk-heading-l">Areas of good practice</h1>
+            <h1 class="govuk-heading-l">Areas for improvement</h1>
             <p class="govuk-body">
-                Use this section to comment on areas of good practice for this <abbr title="Cyber Assessment Framework">CAF</abbr> objective.
+                Use this section to comment on any areas for improvement.
             </p>
             <p class="govuk-body">
-                Your comments will be included in the final Independent Assurance Review (IAR) report.
+                Your comments will be included in the final Peer Review Report.
             </p>
             <p class="govuk-body">
                 Your comments should:
             </p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>summarise key themes across the contributing outcomes and principles in the objective
+                <li>summarise key weaknesses across the <abbr title="Cyber Assessment Framework">CAF</abbr> objectives
+                    and principles
                 </li>
-                <li>reference specific areas of good practice such as clear governance structures,
-                    consistent risk management processes, or well‑embedded procedures, and explain how these support the
-                    achievement of the objective
+                <li>outline resulting risks to the organisation</li>
+                <li>reference specific high-priority areas for improvement such as immaturity of controls,
+                    insufficient governance or particular vulnerabilities
                 </li>
             </ul>
             <form method="post" id="comment-form">
@@ -35,9 +36,9 @@
                         data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
                         class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
                     <label class="govuk-label" for="id_form-text">Your comments</label>
-                    <textarea class="govuk-textarea govuk-js-character-count"
+                    <textarea class="govuk-textarea govuk-js-character-count" name="{{ form.text.html_name }}" cols="40"
+                              rows="5"
                               aria-describedby="id_form-text-info"
-                              name="{{ form.text.html_name }}" cols="40" rows="5"
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>
                     <div id="id_form-text-info"
                          class="govuk-hint govuk-character-count__message">You can

@@ -29,17 +29,21 @@
                             <li>select your response to each <abbr title="indicator of good practice">IGP</abbr>
                                 statement
                             </li>
-                            <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
-                                the organisation has named alternative controls or
-                                exemptions
-                            </li>
-                            <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
-                                your response is different to the organisation’s selection
-                            </li>
+                            {% if object.assessment.review_type != 'peer_review' %}
+                                <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
+                                    the organisation has named alternative controls or
+                                    exemptions
+                                </li>
+
+                                <li>add your comments for each <abbr title="indicator of good practice">IGP</abbr> where
+                                    your response is different to the organisation’s selection
+                                </li>
+                            {% endif %}
                             <li>select a contributing outcome status</li>
                             <li>write a summary for the contributing outcome</li>
                         </ul>
                         <p class="govuk-body">Please refer to the full <a
+                                class="govuk-link"
                                 href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
                                 target="_blank">stage 4 guidance (opens in new tab)</a> to support you. </p>
                     </section>
@@ -62,37 +66,73 @@
                 <p class="govuk-body avoid-break statement-para">{{ section }}</p>
             {% endfor %}
             <h2 class="govuk-heading-m">Review each <abbr title="indicator of good practice">IGP</abbr> statement</h2>
-            <p class="govuk-body">
-                When completing their self-assessment, the organisation selects an <abbr
-                    title="indicator of good practice">IGP</abbr> statement if they believe it
-                applies to their system or organisation.
-            </p>
-            <div class="govuk-warning-text">
-                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                <strong class="govuk-warning-text__text">
-                    <span class="govuk-warning-text__assistive"></span>
-                    You must respond ‘Yes’ or ‘No’ to the <abbr title="indicator of good practice">IGP</abbr>
-                    statement,
-                    not whether you agree with the organisation’s response to the statement.
-                </strong>
-            </div>
-            <p class="govuk-body">If your response to the statement is different to the organisation’s selection
-                you will need to use the comment box to explain why and refer to relevant evidence.
-            </p>
-            <p class="govuk-body">
-                You do not need to add comments if you agree with the organisation’s response,
-                except where they have noted alternative controls or exemptions.
-            </p>
+            {% if object.assessment.review_type != 'peer_review' %}
+                <p class="govuk-body">
+                    When completing their self-assessment, the organisation selects an <abbr
+                        title="indicator of good practice">IGP</abbr> statement if they believe it
+                    applies to their system or organisation.
+                </p>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-warning-text__assistive"></span>
+                        You must respond ‘Yes’ or ‘No’ to the <abbr title="indicator of good practice">IGP</abbr>
+                        statement,
+                        not whether you agree with the organisation’s response to the statement.
+                    </strong>
+                </div>
+                <p class="govuk-body">If your response to the statement is different to the organisation’s selection
+                    you will need to use the comment box to explain why and refer to relevant evidence.
+                </p>
+                <p class="govuk-body">
+                    You do not need to add comments if you agree with the organisation’s response,
+                    except where they have noted alternative controls or exemptions.
+                </p>
+            {% else %}
+                <p class="govuk-body">When completing their self-assessment,
+                    the organisation selects an IGP statement if they believe it applies to their system or
+                    organisation. You must make your own decision on each statement,
+                    based on the organisation’s self-assessment and supporting evidence.
+                </p>
+                <p class="govuk-body">When you have read each IGP statement you must select:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>‘Yes’ if you believe the statement applies to the system or organisation</li>
+                    <li>‘No’ if you believe the statement does not apply to the system or organisation</li>
+                </ul>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        Where the organisation has provided comments on alternative controls or exemptions, you should
+                        select ‘Yes’ to the <abbr title="indicator of good practice">IGP</abbr> statement if you accept
+                        that they have provided a reasonable
+                        justification and supporting evidence.
+                    </strong>
+                </div>
+                <p class="govuk-body">See the <a class="govuk-link"
+                                                 href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
+                                                 target="_blank">
+                    stage 4 guidance (opens in new tab)</a> for more information. </p>
+            {% endif %}
             <form method="post" novalidate="">
                 {% csrf_token %}
                 {% get_outcome_category_names as outcome_category_names %}
                 <table class="govuk-table govuk-!-margin-bottom-8">
                     <thead>
                     <tr>
-                        <th class="govuk-table__header govuk-!-width-one-half"><abbr
-                                title="indicator of good practice">IGP</abbr> statement
+                        <th class="govuk-table__header govuk-!-width-one-half">
+                            {% if object.assessment.review_type == 'peer_review' %}
+                                <abbr title="indicator of good practice">IGP</abbr> statement and organisation response
+                            {% else %}
+                                <abbr title="indicator of good practice">IGP</abbr> statement
+                            {% endif %}
                         </th>
-                        <th class="govuk-table__header govuk-!-width-one-half">Your review
+                        <th class="govuk-table__header govuk-!-width-one-half">
+                            {% if object.assessment.review_type == 'peer_review' %}
+                                Your response
+                            {% else %}
+                                Your review
+                            {% endif %}
                         </th>
                     </tr>
                     </thead>
@@ -104,7 +144,12 @@
                                 <td class="govuk-table__cell">
                                     <strong>{{ field.label|capfirst }}</strong>
                                     <p class="govuk-body-s govuk-!-margin-top-1">
-                                        <strong>Organisation {{ selected_tag }}</strong>
+                                        {% if object.assessment.review_type == 'peer_review' %}
+                                            <strong>Organisation response: {% if selected_tag == 'selected' %}
+                                                Yes {% else %} No {% endif %}</strong>
+                                        {% else %}
+                                            <strong>Organisation {{ selected_tag }}</strong>
+                                        {% endif %}
                                         <br/>
                                         <br/>
                                         {{ field.help_text }}
@@ -124,15 +169,24 @@
                                         <fieldset class="govuk-fieldset" id="id_{{ field.name|safe_id }}">
                                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                                 <h1 class="govuk-fieldset__heading">
-                                                    Does the <abbr title="indicator of good practice">IGP</abbr>
-                                                    statement apply to the system or organisation?
+                                                    {% if object.assessment.review_type == 'peer_review' %}
+                                                        Does the statement apply?
+                                                    {% else %}
+                                                        Does the <abbr title="indicator of good practice">IGP</abbr>
+                                                        statement apply to the system or organisation?
+                                                    {% endif %}
                                                 </h1>
                                             </legend>
                                             {# Only show this hint text if there is alternate controls entered                                       #}
                                             {% if comment_field.help_text %}
                                                 <div id="agree-2-hint" class="govuk-hint">
-                                                    Choose yes if you agree that the alternative controls
-                                                    or exemptions are reasonable evidence.
+                                                    {% if object.assessment.review_type == 'peer_review' %}
+                                                        Choose yes if you agree that the alternative control or
+                                                        exemption is acceptable.
+                                                    {% else %}
+                                                        Choose yes if you agree that the alternative controls
+                                                        or exemptions are reasonable evidence.
+                                                    {% endif %}
                                                 </div>
                                             {% endif %}
                                             <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
@@ -162,14 +216,14 @@
                                         </fieldset>
                                     </div>
                                     {% get_comment_field form field.name as comment_field %}
-                                    <div class="govuk-form-group">
+                                    <div class="govuk-form-group {% if object.assessment.review_type == 'peer_review' %} govuk-visually-hidden {% endif %}">
                                         <div id="{{ comment_field.auto_id|safe_id }}_outer"
                                              class="govuk-form-group govuk-character-count"
                                              data-module="govuk-character-count"
                                              data-maxwords={{ comment_field.field.widget.attrs.max_words }}>
                                             <label class="govuk-label" for="{{ comment_field.auto_id|safe_id }}">
                                                 Provide your comments
-                                                {% if not comment_field.help_text %}
+                                                {% if not comment_field.field.required %}
                                                     (optional)
                                                 {% endif %}
                                             </label>
@@ -252,9 +306,11 @@
                                             organisation has noted
                                             alternative controls or exemptions
                                         </li>
-                                        <li>where relevant, if the organisation is close to achieving the target
-                                            resilience level for the contributing outcome
-                                        </li>
+                                        {% if object.assessment.review_type != 'peer_review' %}
+                                            <li>where relevant, if the organisation is close to achieving the target
+                                                resilience level for the contributing outcome
+                                            </li>
+                                        {% endif %}
                                     </ul>
                                 </section>
                             </div>

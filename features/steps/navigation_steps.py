@@ -259,7 +259,7 @@ def create_new_assessment(
             caf_profile=caf_profile,
             assessment_period=get_current_assessment_period()[0],
             status=status,
-            review_type="peer_review",
+            review_type="independent",
             framework="caf32",
             assessments_data=initial_assessment_data,
         )

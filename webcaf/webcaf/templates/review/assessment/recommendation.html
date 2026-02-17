@@ -30,16 +30,28 @@
                 </div>
             {% endif %}
             <span class="govuk-caption-l">{{ title }}</span>
-            <h1 class="govuk-heading-l">Add risks and recommendations</h1>
-            <p class="govuk-body">Each recommendation must address a risk that you have identified. </p>
-            <p class="govuk-body">Each recommendation must be recorded separately. If you make more than one
-                recommendation for the same risk, you must select ‘Add another recommendation’ and repeat the risk for
-                each one.
-            </p>
+            {% if object.assessment.review_type != 'peer_review' %}
+                <h1 class="govuk-heading-l">Add risks and recommendations</h1>
+                <p class="govuk-body">Each recommendation must address a risk that you have identified. </p>
+                <p class="govuk-body">Each recommendation must be recorded separately. If you make more than one
+                    recommendation for the same risk, you must select ‘Add another recommendation’ and repeat the risk
+                    for
+                    each one.
+                </p>
+            {% else %}
+                <h1 class="govuk-heading-l">Add recommendations</h1>
+                <p class="govuk-body">Each recommendation must be recorded separately.
+                    If you make more than one recommendation, select ‘Add another recommendation’.</p>
+                <p class="govuk-body">
+                    Where appropriate, you should use language from the relevant <abbr
+                        title="indicator of good practice">IGP</abbr>(s).
+                </p>
+            {% endif %}
             <p class="govuk-body">Use the <a class="govuk-link"
                                              href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
                                              target="_blank">stage 4 guidance (opens in new tab)
             </a> to support you.</p>
+
             <form method="post" id="review-form">
                 {% csrf_token %}
                 {{ form.management_form }}
@@ -57,7 +69,7 @@
                             <h2 class="govuk-heading-m recommendation_title">
                                 Recommendation {{ forloop.counter0|add:1 }}
                             </h2>
-                            <div class="govuk-character-count title_count govuk-form-group {% if form_.title.errors %}govuk-form-group--error{% endif %}"
+                            <div class="govuk-character-count title_count govuk-form-group {% if form_.title.errors %}govuk-form-group--error{% endif %} {% if object.assessment.review_type == 'peer_review' %} govuk-visually-hidden{% endif %}"
                                  data-module="govuk-character-count"
                                  data-maxwords="{{ form_.title.field.widget.attrs.max_words }}">
                                 <label class="govuk-label"
@@ -73,11 +85,14 @@
                             <div data-module="govuk-character-count"
                                  data-maxwords="{{ form_.text.field.widget.attrs.max_words }}"
                                  class="govuk-character-count text_count govuk-form-group {% if form_.text.errors %}govuk-form-group--error{% endif %}">
-                                <label class="govuk-label"
-                                       for="id_form-{{ forloop.counter0 }}-text">
-                                    Recommendation details. If appropriate, you should use language from the relevant
-                                    <abbr title="indicator of good practice">IGP</abbr>(s).
-                                </label>
+                                {% if object.assessment.review_type != 'peer_review' %}
+                                    <label class="govuk-label"
+                                           for="id_form-{{ forloop.counter0 }}-text">
+                                        Recommendation details. If appropriate, you should use language from the
+                                        relevant
+                                        <abbr title="indicator of good practice">IGP</abbr>(s).
+                                    </label>
+                                {% endif %}
                                 <textarea class="govuk-textarea govuk-js-character-count"
                                           autocomplete="off"
                                           name="{{ form_.text.html_name }}" cols="40" rows="5"
@@ -88,6 +103,7 @@
                                     {{ form_.text.field.widget.attrs.max_words }} words
                                 </div>
                             </div>
+                            <br/>
                             <button type="button" class="govuk-button govuk-button--secondary remove-button"
                                     data-module="govuk-button"
                                     {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}
@@ -116,9 +132,9 @@
     </div>
     <div class="govuk-form-group govuk-visually-hidden" id="recommendation-container_--counter--">
         <h2 class="govuk-heading-m recommendation_title">Recommendation --counter-plus-one--</h2>
-        <div class="govuk-character-count title_count govuk-form-group"
+        <div class="govuk-character-count title_count govuk-form-group {% if object.assessment.review_type == 'peer_review' %} govuk-visually-hidden{% endif %}"
              id="id_form---counter---title-container"
-             data-maxwords="250">
+             data-maxwords="{% if object.assessment.review_type == 'peer_review' %}100{% else %}250{% endif %}">
             <label class="govuk-label"
                    for="id_form---counter---title">Risk</label>
             <textarea class="govuk-textarea govuk-js-character-count"
@@ -129,25 +145,29 @@
             ></textarea>
             <div id="id_form---counter---title-info"
                  class="govuk-hint govuk-character-count__message">You can
-                enter up to 250 words
+                enter up to {% if object.assessment.review_type == 'peer_review' %}100{% else %}250{% endif %} words
             </div>
         </div>
         <div class="govuk-character-count text_count govuk-form-group"
              id="id_form---counter---text-container"
                 {#Had to hardcode the value here as we dont have a form instance access#}
-             data-maxwords="750">
-            <label class="govuk-label" for="id_form---counter---text">
+             data-maxwords="{% if object.assessment.review_type == 'peer_review' %}100{% else %}750{% endif %}">
+
+            <label class="govuk-label {% if object.assessment.review_type == 'peer_review' %}govuk-visually-hidden{% endif %}"
+                   for="id_form---counter---text">
                 Recommendation details. If appropriate, you should use language from the relevant
                 <abbr title="indicator of good practice">IGP</abbr>(s).
             </label>
+
             <textarea class="govuk-textarea govuk-js-character-count"
                       name="form---counter---text" cols="40" rows="5"
                       id="id_form---counter---text"></textarea>
             <div id="id_form---counter---text-info"
                  class="govuk-hint govuk-character-count__message">You can
-                enter up to 750 words
+                enter up to {% if object.assessment.review_type == 'peer_review' %}100{% else %}750{% endif %} words
             </div>
         </div>
+        <br/>
         <button type="button" class="govuk-button govuk-button--secondary remove-button"
                 data-module="govuk-button"
                 data-idx="--counter--"

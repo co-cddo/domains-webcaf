@@ -18,15 +18,20 @@
                 Include details of:
             </p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>
-                    the scope of the review and any excluded components as described in the scoping document
-                </li>
+                {% if object.assessment.review_type != "peer_review" %}
+                    <li>
+                        the scope of the review and any excluded components as described in the scoping document
+                    </li>
+                {% endif %}
                 <li>
                     your data collection methods and how you reviewed evidence
                 </li>
-                <li>
-                    the quality and depth of your review
-                </li>
+                {% if object.assessment.review_type != "peer_review" %}
+                    {#Peer review does not need extra depth of information #}
+                    <li>
+                        the quality and depth of your review
+                    </li>
+                {% endif %}
                 <li>
                     any limitations or constraints you encountered during your review
                 </li>
