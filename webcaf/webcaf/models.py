@@ -807,24 +807,46 @@ class Review(ReferenceGeneratorMixin, models.Model):
         assessor_response_data = self.get_assessor_response()
         review_objective = _get_or_create_nested_path(assessor_response_data, objective_code)
         caf_objective = self.assessment.get_caf_objective_by_id(objective_code)
+        # Objective level key check.
+        # Peer review does not have the objective level improvement and goof practice comments
+        if self.assessment.review_type != "peer_review" and not {
+            "objective-areas-of-improvement",
+            "objective-areas-of-good-practice",
+        }.issubset(review_objective.keys()):
+            return False
+
+        # Local import to prevent cyclical imports
+        from webcaf.webcaf.caf.util import IndicatorStatusChecker
+
         for principal in caf_objective["principles"].values():
-            # Objective level key check.
-            if not {"objective-areas-of-improvement", "objective-areas-of-good-practice"}.issubset(
-                review_objective.keys()
-            ):
-                return False
             for outcome in principal["outcomes"].values():
                 outcome_data = review_objective.get(outcome["code"], {})
                 # Outcome level check
                 # if the status is not present or not achieved state, then
                 # we need recommendations
                 if review_decision := outcome_data.get("review_data", {}).get("review_decision"):
-                    if (
-                        not review_decision
-                        or review_decision != "achieved"
-                        and not outcome_data.get("recommendations", [])
-                    ):
-                        return False
+                    if self.assessment.review_type == "peer_review":
+                        # For peer review, we only need recommendations if the min profile requirement is not met
+                        if (
+                            not review_decision
+                            or IndicatorStatusChecker.indicator_min_profile_requirement_met(
+                                self.assessment,
+                                principal_id=principal["code"],
+                                indicator_id=outcome["code"],
+                                status=IndicatorStatusChecker.key_to_status(review_decision),
+                            )
+                            != "Yes"
+                            and not outcome_data.get("recommendations", [])
+                        ):
+                            return False
+                    else:
+                        # Independent assessment
+                        if (
+                            not review_decision
+                            or review_decision != "achieved"
+                            and not outcome_data.get("recommendations", [])
+                        ):
+                            return False
                 else:
                     return False
         return True
@@ -862,6 +884,12 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
     def is_company_details_complete(self) -> bool:
         return self.get_additional_detail("company_details") is not None
+
+    def is_areas_of_good_practice_complete(self) -> bool:
+        return self.get_additional_detail("areas_of_good_practice") is not None
+
+    def is_areas_for_improvement_complete(self) -> bool:
+        return self.get_additional_detail("areas_for_improvement") is not None
 
     def get_additional_detail(self, detail_key) -> str | None:
         """

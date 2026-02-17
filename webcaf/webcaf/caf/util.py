@@ -196,9 +196,9 @@ class IndicatorStatusChecker:
         """
         if status == "achieved":
             status_key = "Achieved"
-        elif status == "partially_achieved":
+        elif status in ["partially_achieved", "partially-achieved"]:
             status_key = "Partially achieved"
-        elif status == "not_achieved":
+        elif status in ["not_achieved", "not-achieved"]:
             status_key = "Not achieved"
         else:
             raise ValueError(f"Invalid key: {status}")

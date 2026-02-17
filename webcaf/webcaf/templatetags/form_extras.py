@@ -8,6 +8,7 @@ from django.forms import Form
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Assessment, Configuration, Review, System, UserProfile
+from webcaf.webcaf.utils.review import review_status_to_label
 from webcaf.webcaf.utils.session import SessionUtil
 
 register = template.Library()
@@ -441,6 +442,8 @@ def format_with_breaks(text_chunk: str):
     :param text_chunk:
     :return:
     """
+    if not text_chunk:
+        return
     for section in text_chunk.split("\n"):
         if section.strip():
             yield section.strip()
@@ -453,16 +456,7 @@ def status_to_label(status):
     :param status:
     :return:
     """
-    return {
-        "draft": "Draft",
-        "submitted": "Submitted",
-        "review": "In review",
-        "published": "Published",
-        "cancelled": "Cancelled",
-        "achieved": "Achieved",
-        "not-achieved": "Not achieved",
-        "partially-achieved": "Partially achieved",
-    }.get(status, status)
+    return review_status_to_label(status)
 
 
 @register.filter

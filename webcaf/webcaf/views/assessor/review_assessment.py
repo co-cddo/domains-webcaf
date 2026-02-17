@@ -21,6 +21,9 @@ from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.forms.review import (
     CommentsForm,
     CompanyDetailsForm,
+    PeerReviewCommentsForm,
+    PeerReviewCommentsFormMax300Words,
+    PeerReviewRecommendationForm,
     PreviewForm,
     RecommendationForm,
     ReviewPeriodForm,
@@ -151,6 +154,7 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             principle, _ = outcome_code.split(".")
             outcome = review.assessment.get_caf_outcome_by_id(objective_code, outcome_code)
             answered_statements = review.assessment.get_section_by_outcome_id(outcome_code)
+
             fields = {}
             labels = {
                 "achieved": "Achieved",
@@ -171,13 +175,15 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                         widget=RadioSelect(),
                     )
                     idx += 1
+                    max_word_count = 750 if review.assessment.review_type != "peer_review" else 500
                     fields[indicator_comment] = CharField(
                         label="Alternative controls",
                         help_text=answered_statements["indicators"].get(indicator_comment, ""),
-                        validators=([WordCountValidator(750)]),
-                        widget=Textarea(attrs={"rows": 5, "max_words": 750}),
+                        validators=([WordCountValidator(max_word_count)]),
+                        widget=Textarea(attrs={"rows": 5, "max_words": max_word_count}),
                         # You only require the inout if they have entered any text already
-                        required=answered_statements["indicators"].get(indicator_comment, "") != "",
+                        required=review.assessment.review_type != "peer_review"
+                        and answered_statements["indicators"].get(indicator_comment, "") != "",
                     )
 
             fields["review_decision"] = ChoiceField(
@@ -192,12 +198,13 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                 if outcome["indicators"].get("partially-achieved")
                 else [("achieved", "Achieved"), ("not-achieved", "Not achieved")],
             )
+            max_word_count = 1500 if self.object.assessment.review_type != "peer_review" else 500
             fields["review_comment"] = CharField(
                 help_text="Comment on the contributing outcome",
                 label="review comment",
-                validators=([WordCountValidator(1500)]),
+                validators=([WordCountValidator(max_word_count)]),
                 widget=Textarea(
-                    attrs={"rows": 20, "max_words": 1500},
+                    attrs={"rows": 20, "max_words": max_word_count},
                 ),
             )
             return fields
@@ -254,7 +261,7 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
         Formset for collecting recommendations.
         """
         return formset_factory(
-            RecommendationForm,
+            PeerReviewRecommendationForm if self.object.assessment.review_type == "peer_review" else RecommendationForm,
             # Show the extra form initially, otherwise let the user decide if they want to add more recommendations
             extra=1 if not self.get_initial() else 0,
             can_delete=True,
@@ -306,6 +313,7 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
         """
         preview_form = PreviewForm(self.request.POST)
         preview_form.full_clean()
+        context_data = self.get_context_data()
         if preview_form.cleaned_data["preview_status"] == "confirm":
             comments = [
                 {
@@ -323,11 +331,14 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
             for form in comment_formset.forms:
                 if not form.cleaned_data:
                     form.add_error("text", ValidationError("This field is required.", code="required"))
-                    form.add_error("title", ValidationError("This field is required.", code="required"))
+                    # Peer review does not need a title
+                    if self.object.assessment.review_type != "peer_review":
+                        form.add_error("title", ValidationError("This field is required.", code="required"))
                 elif not form.cleaned_data.get("DELETE", False):
                     if not form.cleaned_data["text"]:
                         form.add_error("text", ValidationError("This field is required.", code="required"))
-                    if not form.cleaned_data["title"]:
+                    #     Peer review does not need a title
+                    if not form.cleaned_data["title"] and not self.object.assessment.review_type == "peer_review":
                         form.add_error("title", ValidationError("This field is required.", code="required"))
 
             errors_added = any(form.errors for form in comment_formset.forms)
@@ -335,14 +346,18 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
                 return TemplateResponse(
                     request=self.request,
                     template=self.template_name,
-                    context=self.get_context_data() | {"form": comment_formset},
+                    context=context_data | {"form": comment_formset},
                 )
             # If no validation errors were found, we can proceed with the preview
+            # Change the breadcrumb to indicate we are in the confirm view
+            context_data["breadcrumbs"][-1]["text"] = context_data["breadcrumbs"][-1]["text"].replace(
+                "Add", "Check your"
+            )
             return TemplateResponse(
                 request=self.request,
                 template="review/assessment/recommendation-confirmation.html",
                 # Override the preview form so the next submission confirms the preview
-                context=self.get_context_data()
+                context=context_data
                 | {"preview_form": PreviewForm(initial={"preview_status": "confirm"}), "form": comment_formset},
             )
 
@@ -351,7 +366,7 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
             request=self.request,
             template="review/assessment/recommendation.html",
             # Override the preview form so the next submission confirms the preview
-            context=self.get_context_data()
+            context=context_data
             | {"preview_form": PreviewForm(initial={"preview_status": "preview"}), "form": comment_formset},
         )
 
@@ -387,7 +402,7 @@ class AddOutcomeRecommendationView(AddRecommendationView):
         outcome = self.object.assessment.get_caf_outcome_by_id(
             self.kwargs["objective_code"], self.kwargs["outcome_code"]
         )
-        data["title"] = f"{outcome['code']} - {outcome['title']} review"
+        data["title"] = f"{outcome['code']} - {outcome['title']}"
         data["recommendation_type"] = "outcome"
         data["description"] = ""
         data["breadcrumbs"] = data["breadcrumbs"] + [
@@ -400,7 +415,7 @@ class AddOutcomeRecommendationView(AddRecommendationView):
             },
             {
                 "url": None,
-                "text": f"Add risks and recommendations for {outcome['code']} - {outcome['title']}",
+                "text": f"Add{' ' if self.object.assessment.review_type == 'peer_review' else ' risks and '}recommendations for {outcome['code']} - {outcome['title']}",
             },
         ]
         return data
@@ -424,7 +439,8 @@ class BaseAddCommentsView(BaseReviewMixin, UpdateView, ABC):
     :type form_class: type[ModelForm]
     """
 
-    form_class: type[ModelForm] = CommentsForm
+    def get_form_class(self):
+        return CommentsForm if self.object.assessment.review_type != "peer_review" else PeerReviewCommentsForm
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -709,6 +725,11 @@ class AddQualityOfEvidenceView(AddReviewCommentsView):
 
     template_name = "review/assessment/quality-of-evidence.html"
 
+    def get_form_class(self):
+        if self.object.assessment.review_type == "peer_review":
+            return PeerReviewCommentsFormMax300Words
+        return super().get_form_class()
+
     def get_comment_category(self):
         return "quality_of_evidence"
 
@@ -717,7 +738,7 @@ class AddQualityOfEvidenceView(AddReviewCommentsView):
         data["breadcrumbs"] = data["breadcrumbs"] + [
             {
                 "url": None,
-                "text": "Quality of evidence",
+                "text": "Describe the quality of the self-assessment",
             }
         ]
         return data
@@ -738,6 +759,11 @@ class AddReviewMethodView(AddReviewCommentsView):
 
     template_name = "review/assessment/review-method.html"
 
+    def get_form_class(self):
+        if self.object.assessment.review_type == "peer_review":
+            return PeerReviewCommentsFormMax300Words
+        return super().get_form_class()
+
     def get_comment_category(self):
         return "review_method"
 
@@ -746,7 +772,7 @@ class AddReviewMethodView(AddReviewCommentsView):
         data["breadcrumbs"] = data["breadcrumbs"] + [
             {
                 "url": None,
-                "text": "Review method",
+                "text": "Describe your review method",
             }
         ]
         return data
@@ -767,7 +793,9 @@ class AddIarPeriodView(AddReviewCommentsView):
     """
 
     template_name = "review/assessment/iar-period.html"
-    form_class = ReviewPeriodForm
+
+    def get_form_class(self):
+        return ReviewPeriodForm
 
     def get_comment_category(self):
         return "iar_period"
@@ -798,7 +826,20 @@ class AddCompanyDetailsView(AddReviewCommentsView):
     """
 
     template_name = "review/assessment/company_details.html"
-    form_class = CompanyDetailsForm
+
+    def get_form_class(self):
+        return CompanyDetailsForm
+
+    def get_form(self, form_class=CompanyDetailsForm):
+        form_instance = super().get_form(form_class)
+        # Change the labels if we are in peer review mode
+        if form_instance.instance.assessment.review_type == "peer_review":
+            form_instance.fields["company_name"].label = "Organisation name"
+            form_instance.fields["lead_assessor_name"].label = "Lead reviewer name"
+            form_instance.fields["lead_assessor_email"].label = "Lead reviewer email"
+            # Peer review does not require a lead assessor email
+            form_instance.fields["lead_assessor_email"].required = False
+        return form_instance
 
     def get_comment_category(self):
         return "company_details"
@@ -808,7 +849,51 @@ class AddCompanyDetailsView(AddReviewCommentsView):
         data["breadcrumbs"] = data["breadcrumbs"] + [
             {
                 "url": None,
-                "text": "Company details",
+                "text": "Company details"
+                if self.object.assessment.review_type != "peer_review"
+                else "Organisation details",
+            }
+        ]
+        return data
+
+
+class AddAreasOfGoodPracticeView(AddReviewCommentsView):
+    """
+    Represents a detailed view for adding comments related to review areas of good practice.
+    """
+
+    template_name = "review/assessment/areas-of-good-practice.html"
+
+    def get_comment_category(self):
+        return "areas_of_good_practice"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = data["breadcrumbs"] + [
+            {
+                "url": None,
+                "text": "Areas of good practice",
+            }
+        ]
+        return data
+
+
+class AddAreasOfImprovementView(AddReviewCommentsView):
+    """
+    Handles the addition of comments related to areas for improvement in a review or assessment context.
+    """
+
+    template_name = "review/assessment/areas-of-improvement.html"
+
+    def get_comment_category(self):
+        return "areas_for_improvement"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["breadcrumbs"] = data["breadcrumbs"] + [
+            {
+                "url": None,
+                "text": "Areas for improvement",
             }
         ]
         return data

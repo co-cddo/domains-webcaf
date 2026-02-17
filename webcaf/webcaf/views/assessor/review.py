@@ -13,6 +13,7 @@ from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import Configuration, Review, System
 from webcaf.webcaf.utils.session import SessionUtil
+from webcaf.webcaf.utils.to_spreadsheet import review_to_excel
 from webcaf.webcaf.views.assessor.util import BaseReviewMixin
 
 """
@@ -103,6 +104,11 @@ class ReviewHistoryView(BaseReviewMixin, DetailView):
                 "text": "Report history",
             },
         ]
+        # Only assessor and reviewer can finalise
+        data["can_finalise_report"] = SessionUtil.get_current_user_profile(self.request).role in [
+            "assessor",
+            "reviewer",
+        ]
         return data
 
 
@@ -112,6 +118,12 @@ class FinaliseReview(BaseReviewMixin, UpdateView):
     # No fields to edit, we manually update if needed
     fields = []
     logger = logging.getLogger("FinaliseReview")
+
+    def get_allowed_roles(self) -> list[str]:
+        return [
+            "reviewer",
+            "assessor",
+        ]
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -596,4 +608,24 @@ class DownloadReport(ShowReportView):
         # Return as PDF response
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Content-Disposition"] = f'inline; filename="UK-OFFICIAL-SENSITIVE-{obj.reference}.pdf"'
+        return response
+
+
+class DownloadExcelReport(ShowReportView):
+    """
+    Handles the Excel generation and response for a downloadable excel report.
+    """
+
+    logger: logging.Logger = logging.getLogger("DownloadExcelReport")
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        version = kwargs["version"]
+        obj = obj.get_version(version).instance
+
+        # Return as Excel response
+        response = HttpResponse(
+            review_to_excel(obj), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = f'inline; filename="UK-OFFICIAL-SENSITIVE-{obj.reference}.xlsx"'
         return response

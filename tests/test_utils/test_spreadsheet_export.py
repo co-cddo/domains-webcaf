@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import Assessment, Review
-from webcaf.webcaf.utils.to_spreadsheet import export_assessment_to_excel
+from webcaf.webcaf.utils.to_spreadsheet import review_to_excel
 
 FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "completed_assessment_base.json"
 REVIEW_FIXTURE_PATH = Path(__file__).parent.parent / "fixtures" / "completed_review.json"
@@ -63,11 +63,11 @@ class TestCSVExport(BaseViewTest):
     def test_igp_numbering_restarts_per_category(self):
         assessment = self.assessments[0]
 
-        excel_bytes = export_assessment_to_excel(assessment)
+        excel_bytes = review_to_excel(assessment.reviews.first())
         assert excel_bytes is not None
 
         wb = load_workbook(BytesIO(excel_bytes))
-        ws = wb["Indicator Level"]
+        ws = wb["IGPs"]
 
         igp_labels = []
         for row in ws.iter_rows(min_row=2, values_only=True):
@@ -103,9 +103,9 @@ class TestCSVExport(BaseViewTest):
     def test_indicator_values_displayed_as_y_or_n(self):
         assessment = self.assessments[0]
 
-        excel_bytes = export_assessment_to_excel(assessment)
+        excel_bytes = review_to_excel(assessment.reviews.first())
         wb = load_workbook(BytesIO(excel_bytes))
-        ws = wb["Indicator Level"]
+        ws = wb["IGPs"]
 
         for row in ws.iter_rows(min_row=2, max_row=10, values_only=True):
             self_assessment = row[3]
@@ -117,7 +117,7 @@ class TestCSVExport(BaseViewTest):
     def test_export_single_assessment_to_file(self):
         assessment = self.assessments[0]
 
-        excel_bytes = export_assessment_to_excel(assessment)
+        excel_bytes = review_to_excel(assessment.reviews.first())
         assert excel_bytes is not None
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

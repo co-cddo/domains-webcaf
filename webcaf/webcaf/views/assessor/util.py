@@ -64,6 +64,12 @@ class BaseReviewMixin(UserRoleCheckMixin):
             assessment__assessment_period=configuration.get_current_assessment_period(),
         )
 
+        # Show only the relevant reviews based on the user role
+        if user_profile.role == "assessor":
+            base_filter = base_filter.filter(assessment__review_type="independent")
+        elif user_profile.role == "reviewer":
+            base_filter = base_filter.filter(assessment__review_type="peer_review")
+        # All other roles (org lead and the cyber advisor) will see everything
         return base_filter
 
     def get_queryset(self):
