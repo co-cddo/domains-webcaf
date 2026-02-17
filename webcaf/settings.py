@@ -90,6 +90,7 @@ MIDDLEWARE = [
     "webcaf.middleware.AssessmentNotSelectedHandlerMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
+    "webcaf.middleware.DisableCacheMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
@@ -270,7 +271,10 @@ if SSO_MODE.lower() == "external":
     LOGOUT_REDIRECT_URL = env.str("LOGOUT_REDIRECT_URL")
     NOTIFY_API_KEY = env.str("NOTIFY_API_KEY", "")
     NOTIFY_OTP_TEMPLATE_ID = env.str("NOTIFY_OTP_TEMPLATE_ID", "")
-    ENABLED_2FA = True
+    # Disable 2FA in dev and test environments, this is needed to enable access for more than
+    # 5 users as the Notify service does not allow us to use more than 5 users
+    # for the non-live notify service
+    ENABLED_2FA = ENVIRONMENT not in ["dev", "test"]
 else:
     sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"

@@ -10,6 +10,34 @@ from django.utils.deprecation import MiddlewareMixin
 log_context: contextvars.ContextVar = contextvars.ContextVar("log_context", default={})
 
 
+class DisableCacheMiddleware:
+    """
+    Middleware that disables caching for all requests.
+
+    This middleware adds headers to the response to ensure that caching
+    is disabled. It sets "Cache-Control", "Pragma", and "Expires" headers in
+    the response object to prevent browsers and intermediate caches from storing
+    the response. This is useful in scenarios where the responses must be dynamic
+    and reflect the latest state of the application.
+
+    This is specifically needed to prevent CloudFront from caching the requests, which
+    could lead to serious session-related issues.
+
+    :ivar get_response: Callable that takes a request and returns a response.
+    :type get_response: Callable
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
+        return response
+
+
 class RequestLoggingMiddleware:
     """
     Middleware for logging request context.

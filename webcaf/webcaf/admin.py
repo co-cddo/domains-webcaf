@@ -314,8 +314,16 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
 class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
     search_fields = ["status", "system__name", "reference"]
-    list_display = ["status", "reference", "system_name", "system_organisation", "created_on", "last_updated"]
-    list_filter = ["status", "system__organisation"]
+    list_display = [
+        "status",
+        "reference",
+        "review_type",
+        "system_name",
+        "system_organisation",
+        "created_on",
+        "last_updated",
+    ]
+    list_filter = ["status", "system__organisation", "review_type"]
     ordering = ["-created_on"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
@@ -399,6 +407,7 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     list_display = [
         "assessment_system_name",
         "assessment_framework",
+        "assessment_review_type",
         "assessment_reference",
         "assessment_organisation",
         "status",
@@ -407,6 +416,7 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "assessment__system__name",
         "assessment__framework",
         "assessment__system__organisation",
+        "assessment__review_type",
         "status",
     ]
     list_select_related = [
@@ -422,9 +432,14 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         return qs.annotate(
             assessment_system_name=F("assessment__system__name"),
             assessment_framework=F("assessment__framework"),
+            assessment_review_type=F("assessment__review_type"),
             assessment_reference=F("assessment__reference"),
             assessment_organisation=F("assessment__system__organisation__name"),
         )
+
+    @admin.display(ordering="assessment_review_type", description="Review type")
+    def assessment_review_type(self, obj):
+        return obj.assessment_review_type
 
     @admin.display(ordering="assessment_system_name", description="System")
     def assessment_system_name(self, obj):
