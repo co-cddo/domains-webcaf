@@ -38,6 +38,7 @@ from webcaf.webcaf.views import (
     ViewSubmittedAssessmentsView,
 )
 from webcaf.webcaf.views.assessor.review import (
+    DownloadExcelReport,
     DownloadReport,
     EditReviewSystemView,
     FinaliseReview,
@@ -49,6 +50,8 @@ from webcaf.webcaf.views.assessor.review import (
     SystemAndScopeView,
 )
 from webcaf.webcaf.views.assessor.review_assessment import (
+    AddAreasOfGoodPracticeView,
+    AddAreasOfImprovementView,
     AddCompanyDetailsView,
     AddIarPeriodView,
     AddObjectiveAreasOfGoodPracticeView,
@@ -158,6 +161,7 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),
     path("review/", TemplateView.as_view(template_name="assessor-index.html"), name="assessor-index"),
+    path("peer-review/", TemplateView.as_view(template_name="peer-review-index.html"), name="peer-review-index"),
     path("session-expired/", session_expired, name="session-expired"),
     path("verify-2fa-token/", Verify2FATokenView.as_view(), name="verify-2fa-token"),
     # Review paths
@@ -199,6 +203,16 @@ urlpatterns = [
         name="review-objective-areas-of-good-practice",
     ),
     path(
+        "review/<int:pk>/areas-of-good-practice/",
+        AddAreasOfGoodPracticeView.as_view(),
+        name="areas-of-good-practice",
+    ),
+    path(
+        "review/<int:pk>/areas-of-improvement/",
+        AddAreasOfImprovementView.as_view(),
+        name="areas-of-improvement",
+    ),
+    path(
         "review/<int:pk>/quality-of-evidence/",
         AddQualityOfEvidenceView.as_view(),
         name="quality-of-evidence",
@@ -237,5 +251,10 @@ urlpatterns = [
         "review/<int:pk>/<int:version>/download-report/",
         DownloadReport.as_view(),
         name="download-report",
+    ),
+    path(
+        "review/<int:pk>/<int:version>/download-excel-report/",
+        DownloadExcelReport.as_view(),
+        name="download-excel-report",
     ),
 ]

@@ -8,6 +8,7 @@ from django.forms.boundfield import BoundField
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Organisation, Review
 from webcaf.webcaf.templatetags.form_extras import status_to_label
+from webcaf.webcaf.utils.review import RecommendationGroup, get_review_recommendations
 
 register = template.Library()
 
@@ -94,25 +95,38 @@ def get_review_completed_percentage(review: Review):
     """
     info = review.get_completed_outcomes_info()
     # Assign 90% to completed outcomes
-    # This is due to the fact we have 5 more steps outside outcome completion steps, that are considered
-    # as part of the review process. Each of these steps contributes 2% to the total completion.
     completed_outcomes_percentage = (
         90 * info.get("completed_outcomes", 0) // info.get("total_outcomes") if info.get("total_outcomes") else 0
     )
 
-    # Calculate the remaining 2% based on the review attributes
-    completed_outcomes_percentage += 2 * sum(
-        x
-        for x in [
-            review.is_iar_period_complete(),
-            review.is_quality_of_evidence_complete(),
-            review.is_review_method_complete(),
-            review.is_system_and_scope_complete(),
-            review.is_company_details_complete(),
-        ]
-    )
+    if review.assessment.review_type == "peer_review":
+        # Divide the remaining 10% equally among the 7 review attributes
+        completed_outcomes_percentage += 1.4 * sum(
+            x
+            for x in [
+                review.is_iar_period_complete(),
+                review.is_quality_of_evidence_complete(),
+                review.is_review_method_complete(),
+                review.is_system_and_scope_complete(),
+                review.is_company_details_complete(),
+                review.is_areas_of_good_practice_complete(),
+                review.is_areas_for_improvement_complete(),
+            ]
+        )
 
-    return completed_outcomes_percentage
+    else:
+        # Divide the remaining 10% equally among the 5 review attributes
+        completed_outcomes_percentage += 2 * sum(
+            x
+            for x in [
+                review.is_iar_period_complete(),
+                review.is_quality_of_evidence_complete(),
+                review.is_review_method_complete(),
+                review.is_system_and_scope_complete(),
+                review.is_company_details_complete(),
+            ]
+        )
+    return round(completed_outcomes_percentage)
 
 
 # report page tags
@@ -264,120 +278,29 @@ def get_principle_profile_status(review: Review, objective_code: str, principle_
     )
 
 
-"""
-Recommendation is a named tuple representing a single recommendation with fields for id, title, text, objective (code),
-and outcome (code).
-On the UI, the title field is labelled as 'Risk' and this is the primary identifier for the recommendation.
-"""
-Recommendation = NamedTuple(
-    "Recommendation", [("id", str), ("title", str), ("text", str), ("objective", str), ("outcome", str)]
-)
-
-
-class RecommendationGroup:
-    """
-    Represents a group of recommendations with a title and an index.
-
-    The RecommendationGroup class is designed to organize and manage a collection
-    of recommendations under a specified title. Each group is further indexed with
-    a unique identifier for ordering or categorization purposes.
-
-    :ivar title: The title of the recommendation group.
-    :type title: str
-    :ivar recommendations: A list of recommendations within the group.
-    :type recommendations: list[Recommendation]
-    :ivar group_index: The unique index of the recommendation group.
-    :type group_index: int
-    """
-
-    def __init__(self, title: str, recommendations: list[Recommendation], group_index: int):
-        self.title = title
-        self.recommendations = recommendations
-        self.group_index = group_index
-
-
 @register.simple_tag()
 def get_recommendations(
     review: Review, mode: Literal["priority", "normal", "all"]
 ) -> Generator[RecommendationGroup, Any, None]:
     """
-    Generate a list of recommendations based on the assessment review, filtered by the specified mode.
+    Fetches and returns a generator that produces recommendation groups based on the
+    provided review and mode. The recommendation groups may differ depending on the
+    mode utilized, which can be either "priority", "normal", or "all".
 
-    This function iterates through the objectives, principles, and outcomes within a review’s assessment.
-    For each outcome, it evaluates the review decision to determine priority and normal recommendations
-    and filters them accordingly to construct a list of recommendations.
-
-    Outcome decision is considered a priority if it does not meet the minimum profile requirement.
-
-    :param review: The review object that contains the assessment and assessor response data.
+    :param review: The review object for which recommendations are to be generated.
+        This object typically contains information about the user's interaction or
+        feedback.
     :type review: Review
-    :param mode: The filtering mode for recommendations. Possible values are:
-                 - "priority": Only include priority recommendations where the review decision
-                   is "not-achieved" or "partially-achieved".
-                 - "normal": Only includes normal recommendations where the review decision is not
-                   categorized as a priority.
-                 - "all": Includes all recommendations irrespective of their review decision.
-    :type mode: Literal[ "priority", "normal", "all"]
-    :return: A list of filtered recommendations based on the given review and mode. They are ordered by the
-    contributing outcome and then by title. Within a given contributing outcome, the risk with the most
-    recommendation count is prioritized, and the group with the maximum recommendation count comes first.
-    :rtype: list[RecommendationGroup]
+    :param mode: The mode of recommendation filtering. The accepted values are:
+        - "priority": Fetches only the high-priority recommendations.
+        - "normal": Fetches recommendations in normal mode.
+        - "all": Fetches all recommendations without filtering.
+    :type mode: Literal["priority", "normal", "all"]
+    :return: A generator that yields RecommendationGroup objects, representing
+        recommendations based on the criteria specified by the mode and review inputs.
+    :rtype: Generator[RecommendationGroup, Any, None]
     """
-    recommendations_list = []
-    for objective in review.assessment.get_all_caf_objectives():
-        for principle in objective["principles"].values():
-            for outcome in principle["outcomes"].values():
-                data = review.get_assessor_response()[objective["code"]][outcome["code"]]
-                review_decision = data["review_data"]["review_decision"]
-
-                # It is considered a priority if the review decision is not met the minimum profile requirement
-                is_priority = (
-                    IndicatorStatusChecker.indicator_min_profile_requirement_met(
-                        review.assessment, principle["code"], outcome["code"], status_to_label(review_decision)
-                    )
-                    != "Yes"
-                )
-
-                if mode == "priority" and not is_priority:
-                    continue
-                if mode == "normal" and is_priority:
-                    continue
-
-                recommendations = data.get("recommendations", [])
-                rec_id_prefix = f"REC-{outcome['code']}".replace(".", "").upper()
-                for idx, recommendation in enumerate(recommendations):
-                    recommendations_list.append(
-                        Recommendation(
-                            f"{rec_id_prefix}{idx + 1}",
-                            recommendation["title"],
-                            recommendation["text"],
-                            objective["code"],
-                            outcome["code"],
-                        )
-                    )
-
-    recommendations_by_contributing_outcome: dict[str, dict[str, RecommendationGroup]] = {}
-    group_index = 1
-    # Groups recommendations; increments group index when needed
-    for r in recommendations_list:
-        recommendation_groups = recommendations_by_contributing_outcome.setdefault(r.outcome, {})
-        recommendation_groups.setdefault(
-            r.title.strip(), RecommendationGroup(r.title, [], group_index)
-        ).recommendations.append(r)
-        if len(recommendation_groups[r.title.strip()].recommendations) == 1:
-            group_index += 1
-
-    # Sort the list based on the number of recommendations in each group
-    # Also reindex the group id based on sort ordering
-    group_index = 1
-    for _, recommendation_groups in recommendations_by_contributing_outcome.items():
-        # For each outcome, sort recommendation groups by the number of recommendations
-        for group in sorted(recommendation_groups.values(), key=lambda g: len(g.recommendations), reverse=True):
-            # Reindex the group id based on sort ordering
-            group.group_index = group_index
-            group_index += 1
-            # Yield the recommendation group for efficiency
-            yield group
+    return get_review_recommendations(review, mode)
 
 
 ReviewComment = NamedTuple("ReviewComment", [("section", str), ("index", int), ("comment", str)])
@@ -421,3 +344,45 @@ def get_principle(review: Review, objective_code: str, principle_code: str) -> d
     :rtype: dict
     """
     return review.review_data["assessor_response_data"][objective_code][principle_code]
+
+
+@register.simple_tag()
+def recommendations_required(review: Review, objective_code: str, principle_code: str, outcome_code: str) -> bool:
+    """
+    Determine whether recommendations are required based on the review type and outcome status.
+
+    This function evaluates the necessity for recommendations depending on whether
+    the review is a peer review or an independent review. It checks the outcome status
+    and utilizes utility methods to assess if the requirements for the review have been met.
+
+    :param review: The review object containing all assessment-related data.
+    :type review: Review
+    :param objective_code: The unique code representing the objective of the review.
+    :type objective_code: str
+    :param principle_code: The unique code representing the principle associated with the review.
+    :type principle_code: str
+    :param outcome_code: The unique code for the outcome status of the review.
+    :type outcome_code: str
+    :return: A boolean indicating whether recommendations are required.
+    :rtype: bool
+    """
+    outcome_status = get_outcome_status(objective_code, outcome_code, review)
+
+    if review.assessment.review_type == "peer_review":
+        return (
+            # We need recommendations is min requirement is not met
+            IndicatorStatusChecker.indicator_min_profile_requirement_met(
+                review.assessment,
+                principle_code,
+                outcome_code,
+                IndicatorStatusChecker.key_to_status(outcome_status),
+            )
+            != "Yes"
+            if outcome_status
+            else False
+        )
+
+    # For independent review, recommendations are required based on the outcome status
+    if outcome_status and (outcome_status == "not-achieved" or outcome_status == "partially-achieved"):
+        return True
+    return False

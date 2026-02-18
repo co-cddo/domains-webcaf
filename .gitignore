@@ -176,3 +176,6 @@ webcaf/static
 
 /reports/*
 /artifacts/*
+
+# Exported assessment/reviews created by the tests
+*.xlsx

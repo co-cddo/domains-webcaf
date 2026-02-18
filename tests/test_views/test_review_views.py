@@ -31,6 +31,9 @@ class TestReviewIndexVisibility(BaseViewTest):
         self.client = Client()
         self.org = Organisation.objects.get(name=self.organisation_name)
         self.system = System.objects.get(name=self.system_name, organisation=self.org)
+        self.peer_review_system = System.objects.get(
+            name=self.org_map[self.organisation_name]["systems"]["Large system"], organisation=self.org
+        )
         Configuration.objects.create(
             name="2050 Assessment Period",
             config_data={
@@ -44,12 +47,17 @@ class TestReviewIndexVisibility(BaseViewTest):
 
         # Reviews in current org and current period
         self.assessment_ok = Assessment.objects.create(
-            system=self.system,
-            status="submitted",
-            assessment_period=self.period,
+            system=self.system, status="submitted", assessment_period=self.period, review_type="independent"
         )
         self.review_ok = Review.objects.create(
             assessment=self.assessment_ok,
+        )
+
+        self.peer_assessment_ok = Assessment.objects.create(
+            system=self.peer_review_system, status="submitted", assessment_period=self.period, review_type="peer_review"
+        )
+        self.peer_review_ok = Review.objects.create(
+            assessment=self.peer_assessment_ok,
         )
 
         # Same org but different period (should be hidden)
@@ -126,6 +134,7 @@ class TestReviewIndexVisibility(BaseViewTest):
             system=self.org_map["Large organisation"]["systems"]["Big system"],
             status="submitted",
             assessment_period=self.period,
+            review_type="independent",
         )
         hidden_review = Review.objects.create(
             assessment=assessment_hidden,
@@ -144,7 +153,7 @@ class TestReviewIndexVisibility(BaseViewTest):
         resp = client_r.get(reverse("review-list"))
         self.assertEqual(resp.status_code, 200)
         reviews = list(resp.context["reviews"])  # filtered by membership
-        self.assertIn(self.review_ok, reviews)
+        self.assertIn(self.peer_review_ok, reviews)
         self.assertNotIn(hidden_review, reviews)
 
 

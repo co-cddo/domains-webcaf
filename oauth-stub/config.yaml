@@ -57,3 +57,8 @@ staticPasswords:
     hash: "$2b$12$O0ojmC7GBIDohHuBFlUQQeEBZSxWEPCCayq43ACYbTqQ8fqrNtuEO"
     username: "test_assessor"
     userID: "7"
+  - email: "peer@example.com"
+    # bcrypt hash for password "password"
+    hash: "$2b$12$O0ojmC7GBIDohHuBFlUQQeEBZSxWEPCCayq43ACYbTqQ8fqrNtuEO"
+    username: "peer"
+    userID: "8"

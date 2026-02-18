@@ -10,7 +10,7 @@
         <div class="govuk-grid-column-three-quarters">
             <span class="govuk-caption-l">{{ title }}</span>
             <h1 class="govuk-heading-l">Check your recommendations</h1>
-            <p class="govuk-body">Please check your recommendations. You can change them before confirming</p>
+            <p class="govuk-body">Please check your recommendations. You can change them before confirming.</p>
             <h2 class="govuk-heading-m"> {{ form|get_recommendation_count }} recommendations added</h2>
 
             <form method="post">
@@ -22,9 +22,11 @@
                 {{ form.management_form }}
                 <dl class="govuk-summary-list govuk-!-margin-top-4">
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                            Risk
-                        </dt>
+                        {% if object.assessment.review_type != 'peer_review' %}
+                            <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                Risk
+                            </dt>
+                        {% endif %}
                         <dt class="govuk-summary-list__key govuk-!-width-one-half">
                             Recommendation detail
                         </dt>
@@ -44,9 +46,11 @@
                         >
                         {% if not form_.DELETE.value %}
                             <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                                    <p class="govuk-body">{{ form_.title.value|default:"" }}</p>
-                                </dt>
+                                {% if object.assessment.review_type != 'peer_review' %}
+                                    <dt class="govuk-summary-list__key govuk-!-width-one-half">
+                                        <p class="govuk-body">{{ form_.title.value|default:"" }}</p>
+                                    </dt>
+                                {% endif %}
                                 <dd class="govuk-summary-list__value">
                                     {% format_with_breaks form_.text.value|default:"" as sections %}
                                     {% for section in sections %}

@@ -130,6 +130,8 @@ class LoginRequiredMiddleware:
             "/",
             "/review/",
             "/review",
+            "/peer-review/",
+            "/peer-review",
         ]
 
     def __call__(self, request):

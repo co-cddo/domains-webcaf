@@ -12,7 +12,11 @@
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Create report</h1>
             <p class="govuk-body">
-                In this section you will be able to create your GovAssure Independent Assurance Review (IAR) Report.
+                {% if object.assessment.review_type == 'peer_review' %}
+                    In this section you will be able to create a GovAssure Peer Review Report.
+                {% else %}
+                    In this section you will be able to create your GovAssure Independent Assurance Review (IAR) Report.
+                {% endif %}
             </p>
             <p class="govuk-body">The report will include details of the system and all your contributions and
                 comments as poart of this review.

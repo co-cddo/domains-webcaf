@@ -32,28 +32,50 @@ class RecommendationForm(Form):
     :type text: CharField
     """
 
+    max_words = 200
+
     title = CharField(
         label="Risk",
-        validators=([WordCountValidator(200)]),
-        widget=Textarea(
-            attrs={"rows": 3, "max_words": 200},
-        ),
+        widget=Textarea(attrs={"rows": 3}),
         required=False,
     )
     text = CharField(
-        validators=([WordCountValidator(200)]),
-        widget=Textarea(
-            attrs={"rows": 10, "max_words": 200},
-        ),
         label="Details and rationale",
+        widget=Textarea(attrs={"rows": 10}),
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        validator = WordCountValidator(self.max_words)
+
+        for field_name in ["title", "text"]:
+            field = self.fields[field_name]
+            field.validators = [validator]
+            field.widget.attrs["max_words"] = self.max_words
 
     def clean(self):
         cleaned_data = self.cleaned_data
         # Don't validate if the recommendation is marked for deletion
         if not cleaned_data.get("DELETE"):
             super().clean()
+
+
+class PeerReviewRecommendationForm(RecommendationForm):
+    """
+    Represents a peer review recommendation form.
+
+    This class extends the base RecommendationForm and is specifically tailored
+    for peer review scenarios. It includes constraints and attributes that ensure
+    recommendations adhere to specific formatting or word count rules. Typically
+    used in systems where peer assessment and structured feedback are required.
+
+    :ivar max_words: The maximum number of words allowed for the recommendation.
+    :type max_words: int
+    """
+
+    max_words = 100
 
 
 class PreviewForm(Form):
@@ -83,18 +105,62 @@ class CommentsForm(ModelForm):
     :type text: CharField
     """
 
+    max_words = 750
     text = CharField(
-        validators=([WordCountValidator(750)]),
         widget=Textarea(
-            attrs={"rows": 10, "max_words": 750},
+            attrs={
+                "rows": 10,
+            },
         ),
         label="Comment",
         required=True,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        validator = WordCountValidator(self.max_words)
+        for field_name in ["text"]:
+            field = self.fields[field_name]
+            field.validators = [validator]
+            field.widget.attrs["max_words"] = self.max_words
+
     class Meta:
         model = Review
         fields: list[str] = []
+
+
+class PeerReviewCommentsForm(CommentsForm):
+    """
+    Represents a form specifically designed for handling peer review comments.
+
+    This class extends the base `CommentsForm` to include a maximum word count
+    restriction for peer review comments, ensuring inputs remain concise and
+    within the defined limit. It serves as a template for managing user
+    feedback in peer review workflows. Developers can extend or adapt this
+    class as needed for related use cases.
+
+    :ivar max_words: Maximum allowed word count for a comment in the form.
+    :type max_words: int
+    """
+
+    max_words = 500
+
+
+class PeerReviewCommentsFormMax300Words(PeerReviewCommentsForm):
+    """
+    Represents a form specifically designed for handling peer review comments.
+
+    This class extends the base `PeerReviewCommentsForm` to include a maximum word count
+    restriction for peer review comments, ensuring inputs remain concise and
+    within the defined limit. It serves as a template for managing user
+    feedback in peer review workflows. Developers can extend or adapt this
+    class as needed for related use cases.
+
+    :ivar max_words: Maximum allowed word count for a comment in the form.
+    :type max_words: int
+    """
+
+    max_words = 300
 
 
 class ReviewPeriodForm(ModelForm):

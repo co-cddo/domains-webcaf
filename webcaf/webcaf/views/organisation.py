@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm
 from django.shortcuts import redirect, render
@@ -145,6 +147,7 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
 
     template_name = "user-pages/change-organisation.html"
     login_url = "/oidc/authenticate/"  # OIDC login route
+    logger = logging.getLogger("ChangeActiveProfileView")
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -169,9 +172,11 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
         """
         profile_id = request.POST.get("profile_id")
         if profile_id:
+            self.logger.info(f"The user {self.request.user.id} switching to  profile_id: {profile_id}")
             profile = UserProfile.objects.filter(user=self.request.user, id=profile_id).first()
             if profile:
                 self.request.session["current_profile_id"] = profile.id
             else:
+                self.logger.error(f"The user {self.request.user.id} could not switch profile as not found")
                 return render(request, "user-pages/no-profile-setup.html", status=403)
         return redirect(reverse("my-account"))

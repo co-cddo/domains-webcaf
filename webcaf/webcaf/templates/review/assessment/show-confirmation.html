@@ -13,7 +13,11 @@
                 <div class="govuk-grid-column-two-thirds">
                     <div class="govuk-panel govuk-panel--confirmation">
                         <h1 class="govuk-panel__title">
-                            Your IAR report has been created (Version {{ object.current_version_number }})
+                            {% if object.assessment.review_type == 'peer_review' %}
+                                Your Peer Review report has been created (Version {{ object.current_version_number }})
+                            {% else %}
+                                Your IAR report has been created (Version {{ object.current_version_number }})
+                            {% endif %}
                         </h1>
                         <div class="govuk-panel__body">
                             Reference number<br><strong id="reference_number">{{ object.reference }}</strong>
@@ -60,8 +64,14 @@
                         </div>
                     </dl>
                     <p class="govuk-body">
-                        You have now successfully created your GovAssure Independent Assurance Review (IAR) report. You
-                        will find a copy of the report in your GovAssure account. </p>
+                        {% if object.assessment.review_type == 'peer_review' %}
+                            You have now successfully created your GovAssure Peer Review Report. You will find a copy of
+                            the report in your GovAssure account.
+                        {% else %}
+                            You have now successfully created your GovAssure Independent Assurance Review (IAR) report.
+                            You will find a copy of the report in your GovAssure account.
+                        {% endif %}
+                    </p>
                     <h2 class="govuk-heading-m">Next steps</h2>
                     <p class="govuk-body">
                         You can now download the report to share and discuss it with the organisation. </p>
