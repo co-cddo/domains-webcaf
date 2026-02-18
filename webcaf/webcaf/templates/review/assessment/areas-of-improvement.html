@@ -37,7 +37,7 @@
                         class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
                     <label class="govuk-label" for="id_form-text">Your comments</label>
                     <textarea class="govuk-textarea govuk-js-character-count" name="{{ form.text.html_name }}" cols="40"
-                              rows="5"
+                              rows="20"
                               aria-describedby="id_form-text-info"
                               id="id_form-text">{{ form.text.value|default:"" }}</textarea>
                     <div id="id_form-text-info"

@@ -48,7 +48,11 @@
                 </p>
             {% endif %}
             <p class="govuk-body">Use the <a class="govuk-link"
+                                             {% if object.assessment.review_type == 'peer_review' %}
+                                             href="https://www.security.gov.uk/policy-and-guidance/govassure/govassure-guidance/stage-4-complete-a-peer-review-using-webcaf"
+                                             {% else %}
                                              href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-4-independent-assurance-review/"
+                                             {% endif %}
                                              target="_blank">stage 4 guidance (opens in new tab)
             </a> to support you.</p>
 
