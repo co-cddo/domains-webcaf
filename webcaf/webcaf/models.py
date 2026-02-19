@@ -341,15 +341,16 @@ class UserProfile(models.Model):
         "cyber_advisor": [
             "add new systems",
             "modify existing systems",
-            "manage users within an organisation",
+            "manage users",
             "view self-assessments",
-            "view Independent Assurance Reviews",
+            "view stage 4 reviews",
         ],
         "organisation_lead": [
             "start a new self-assessment",
             "continue a draft self-assessment",
+            "manage users",
             "view self-assessments already sent for review",
-            "view Independent Assurance Reviews",
+            "view stage 4 reviews",
         ],
         "organisation_user": [
             "continue a draft self-assessment",
