@@ -45,7 +45,7 @@
                     {% csrf_token %}
                     <div class="govuk-button-group">
                         <button type="submit" class="govuk-button govuk-button--primary" data-module="govuk-button">
-                            Add new system
+                            Add a new system
                         </button>
                         {% if system_count %}
                             <a href="{% url 'view-systems' %}" class="govuk-link govuk-link--no-visited-state">
@@ -112,23 +112,17 @@
                     View a stage 4 review
                 </h2>
                 {% get_review_count current_profile as review_count %}
-                {% if not review_count %}
-                    <p class="govuk-body govuk-!-margin-bottom-2 govuk-hint">You have no stage 4 reviews.
+                {% if review_count %}
+                    <p class="govuk-body"
+                       title="View {{ review_count }} review{{ review_count  | pluralize }}">
+                        <a href="{% url 'review-list' %}"
+                           class="govuk-link govuk-link--no-visited-state">
+                            You have {{ review_count }} stage 4
+                            review{{ review_count  | pluralize }}
+                        </a>
                     </p>
                 {% else %}
-                    {% if review_count > 0 %}
-                        <p class="govuk-body"
-                           title="View {{ review_count| length }} Independent Assurance Review{{ completed_assessment_count  | pluralize }}">
-                            <a href="{% url 'review-list' %}"
-                               class="govuk-link govuk-link--no-visited-state">
-                                You have {{ review_count }} stage 4
-                                review{{ completed_assessment_count  | pluralize }}.
-                            </a>
-                        </p>
-                    {% else %}
-                        <p class="govuk-body">You have no Independent Assurance Reviews.</p>
-                    {% endif %}
-
+                    <p class="govuk-body">You do not have any stage 4 reviews</p>
                 {% endif %}
             {% endif %}
         </div>
