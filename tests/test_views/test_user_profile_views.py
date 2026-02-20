@@ -144,24 +144,24 @@ class TestUserProfileView(BaseViewTest):
 
     def test_form_valid_raises_permission_error_for_cyber_advisor_role(self):
         """
-        Test that form_valid raises PermissionError when trying to set cyber_advisor role
+        Test that form_valid raises PermissionDenied when trying to set cyber_advisor role
         Not allowed to change role to cyber_advisor
         """
         # Get the edit profile page first
         self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
 
-        # Assert PermissionError is raised when trying to set cyber_advisor role
-        with pytest.raises(PermissionError, match="You are not allowed to change this role"):
-            self.client.post(
-                reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
-                data={
-                    "email": self.target_user.email,
-                    "role": "cyber_advisor",
-                    "action": "confirm",
-                    "first_name": "Test",
-                    "last_name": "User",
-                },
-            )
+        # Assert PermissionDenied is raised when trying to set cyber_advisor role
+        response = self.client.post(
+            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            data={
+                "email": self.target_user.email,
+                "role": "cyber_advisor",
+                "action": "confirm",
+                "first_name": "Test",
+                "last_name": "User",
+            },
+        )
+        self.assertEqual(response.status_code, 403)
 
     def test_form_valid_does_not_save_with_change_action(self):
         """Test that form_valid does not persist changes when action is 'change'"""
@@ -226,19 +226,18 @@ class TestUserProfileView(BaseViewTest):
         # Get the create profile page
         self.client.get(reverse("create-new-profile"))
 
-        # Assert PermissionError is raised when trying to create cyber_advisor
-        with pytest.raises(PermissionError, match="You are not allowed to change this role"):
-            self.client.post(
-                reverse("create-new-profile"),
-                data={
-                    "email": new_email,
-                    "role": "cyber_advisor",
-                    "action": "confirm",
-                    "first_name": "Test",
-                    "last_name": "User",
-                },
-            )
-
+        # Assert PermissionDenied is raised when trying to create cyber_advisor
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": new_email,
+                "role": "cyber_advisor",
+                "action": "confirm",
+                "first_name": "Test",
+                "last_name": "User",
+            },
+        )
+        self.assertEqual(response.status_code, 403)
         # Assert user was not created with cyber_advisor role
         self.assertFalse(User.objects.filter(email=new_email).exists())
 

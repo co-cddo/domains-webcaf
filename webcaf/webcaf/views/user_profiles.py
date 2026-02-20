@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from django import forms
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.db.transaction import atomic
 from django.shortcuts import redirect, render
@@ -37,7 +38,7 @@ class UserProfilesView(UserRoleCheckMixin, FormView):
         data["current_profile"] = user_profile
         data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         if not PermissionUtil.current_user_can_view_users(user_profile):
-            raise PermissionError("You are not allowed to view this page")
+            raise PermissionDenied("You are not allowed to view this page")
         return data
 
 
@@ -189,7 +190,7 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
             self.logger.error(
                 f"User {self.request.user.pk} is not allowed to delete user profile {self.kwargs['user_profile_id']}"
             )
-            raise PermissionError("You are not allowed to delete this user profile")
+            raise PermissionDenied("You are not allowed to delete this user profile")
 
         profile_to_delete = UserProfile.objects.get(id=self.kwargs["user_profile_id"])
 
@@ -198,7 +199,7 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
                 f"User {self.request.user.pk} attempted to delete user profile {self.kwargs['user_profile_id']} "
                 f"from different organisation {profile_to_delete.organisation}"
             )
-            raise PermissionError("You are not allowed to delete this user profile in a different organisation")
+            raise PermissionDenied("You are not allowed to delete this user profile in a different organisation")
 
         self.logger.info(f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}")
         profile_to_delete.delete()

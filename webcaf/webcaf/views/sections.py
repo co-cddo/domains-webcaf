@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.forms import Form
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -239,7 +240,7 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         user_profile = SessionUtil.get_current_user_profile(self.request)
         if not user_profile:
-            raise PermissionError("You are not allowed to view this page")
+            raise PermissionDenied("You are not allowed to view this page")
         assessment = Assessment.objects.get(
             id=kwargs["assessment_id"], status="submitted", system__organisation=user_profile.organisation
         )

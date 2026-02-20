@@ -2,6 +2,7 @@ import logging
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 
 from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.utils import mask_email
@@ -42,7 +43,7 @@ class UserProfileForm(forms.ModelForm):
     def clean_role(self):
         role = self.cleaned_data["role"]
         if role == "cyber_advisor":
-            raise PermissionError("You are not allowed to change this role")
+            raise PermissionDenied("You are not allowed to change this role")
         return role
 
     def clean_email(self):
