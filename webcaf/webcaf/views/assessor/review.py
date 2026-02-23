@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.forms import ChoiceField, ModelForm
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -243,7 +244,7 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         assessment = data["object"].assessment
         if assessment.system.organisation != data["current_profile"].organisation:
-            raise PermissionError("You do not have access to this review")
+            raise PermissionDenied("You do not have access to this review")
         data["breadcrumbs"] = [
             {
                 "url": reverse("my-account"),

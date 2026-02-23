@@ -396,25 +396,29 @@
                     {% for o in principle.outcomes.values %}
                         <details class="govuk-details">
                             <summary class="govuk-details__summary">
-                                <span class="govuk-details__summary-text print_bold">{{ o.code }} - {{ o.title }}</span>
+                                {% if pdf_printing %}
+                                    <h4 class="govuk-details__summary-text print_bold">{{ o.code }} - {{ o.title }}</h4>
+                                {% else %}
+                                    <span class="govuk-details__summary-text print_bold">{{ o.code }} - {{ o.title }}</span>
+                                {% endif %}
                             </summary>
                             <div class="govuk-details__text">
                                 {% get_principle object_version obj.code o.code as review_data %}
                                 {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
 
-                                <h5 class="govuk-heading-s">Review status:
+                                <p class="govuk-heading-s">Review status:
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ review_data.review_data.review_decision|status_to_label }}</strong>
-                                </h5>
+                                </p>
                                 {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code review_data.review_data.review_decision|status_to_label True as profile_met %}
-                                <h5 class="govuk-heading-s">CAF Baseline profile:
+                                <p class="govuk-heading-s">CAF Baseline profile:
                                     <strong class="govuk-tag govuk-tag--{% if profile_met.0 == 'Yes' %}green{% else %}red{% endif %}">
                                         {% if profile_met.0 == 'Not met' %}Not met{% else %} Met{% endif %}
                                     </strong>
-                                </h5>
-                                <h5 class="govuk-heading-s">
+                                </p>
+                                <p class="govuk-heading-s">
                                     {{ review_data.recommendations|length }}
                                     recommendation{{ review_data.recommendations|length|pluralize }}
-                                </h5>
+                                </p>
                                 <ul class="govuk-list govuk-list--bullet">
                                     {% for recommendation in review_data.recommendations %}
                                         <li id="REC-{{ o.code|cut:"."|upper }}{{ forloop.counter }}">
@@ -428,7 +432,7 @@
                                         </li>
                                     {% endfor %}
                                 </ul>
-                                <h5 class="govuk-heading-s">Comments to support the contributing outcome review</h5>
+                                <p class="govuk-heading-s">Comments to support the contributing outcome review</p>
                                 {% format_with_breaks review_data.review_data.review_comment as parts %}
                                 {% for p in parts %}
                                     <p class="govuk-body statement-para">

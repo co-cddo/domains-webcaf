@@ -40,6 +40,38 @@ class OptionalFieldsAdminMixin:
         return form
 
 
+class SortedOrganisationFilter(admin.SimpleListFilter):
+    """
+    A Django admin filter for sorting and filtering querysets by Organisation.
+    This filter dynamically detects the appropriate field chain in the queryset
+    model to apply the organisation filtering based on its structure.
+
+    :ivar title: The display name for the filter in the admin interface.
+    :type title: str
+    :ivar parameter_name: The query parameter name used in the URL for the filter.
+    :type parameter_name: str
+    """
+
+    title = "Organisation"
+    parameter_name = "organisation"  # the query parameter used in the URL
+
+    def lookups(self, request, model_admin):
+        # Generic: works with Organisation model, sorts alphabetically
+        orgs = Organisation.objects.all().order_by("name")
+        return [(org.id, org.name) for org in orgs]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            # We need to detect which field exists on the model
+            if hasattr(queryset.model, "organisation"):
+                return queryset.filter(organisation__id=self.value())
+            if hasattr(queryset.model, "system__organisation"):
+                return queryset.filter(system__organisation__id=self.value())
+            if hasattr(queryset.model, "assessment__system__organisation"):
+                return queryset.filter(assessment__system__organisation__id=self.value())
+        return queryset
+
+
 @admin.register(UserProfile)
 class UserProfileAdmin(SimpleHistoryAdmin):
     model = UserProfile
@@ -293,7 +325,7 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     list_display = ["name", "reference", "organisation_name", "system_type", "description"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
-    list_filter = ["organisation", "system_type"]
+    list_filter = [SortedOrganisationFilter, "system_type"]
     list_select_related = ["organisation"]
 
     def get_queryset(self, request):
@@ -323,7 +355,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
         "created_on",
         "last_updated",
     ]
-    list_filter = ["status", "system__organisation", "review_type"]
+    list_filter = ["status", SortedOrganisationFilter, "review_type"]
     ordering = ["-created_on"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
@@ -404,6 +436,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    search_fields = ["assessment_system_name", "assessment_reference", "assessment_organisation"]
     list_display = [
         "assessment_system_name",
         "assessment_framework",
@@ -415,7 +448,7 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     list_filter = [
         "assessment__system__name",
         "assessment__framework",
-        "assessment__system__organisation",
+        SortedOrganisationFilter,
         "assessment__review_type",
         "status",
     ]

@@ -1,4 +1,5 @@
 import logging
+from functools import wraps
 from typing import Any
 
 from django.conf import settings
@@ -28,6 +29,25 @@ class AssessmentNotSelectedException(Exception):
     """
 
     pass
+
+
+def assessment_required(func):
+    """
+    Decorator that ensures an assessment is selected before invoking the decorated function. It checks whether
+    the "draft_assessment" session data contains a valid "assessment_id". If "assessment_id" is missing, an
+    `AssessmentNotSelectedException` is raised.
+
+    :param func: The function to be decorated.
+    :return: The decorated function wrapped with the assessment validation logic.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not self.request.session.get("draft_assessment", {}).get("assessment_id"):
+            raise AssessmentNotSelectedException
+        return func(self, *args, **kwargs)
+
+    return wrapper
 
 
 class FormViewWithBreadcrumbs(FormView):

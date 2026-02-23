@@ -49,19 +49,19 @@ class TestEditAssessmentSystemViewFormValid(
         self.assertEqual(self.assessment.system.id, available_systems["Large system"].id)
 
     def test_form_valid_raises_permission_error_for_wrong_organisation(self):
-        """Test that form_valid raises PermissionError when system belongs to different organisation"""
+        """Test that form_valid raises PermissionDenied when system belongs to different organisation"""
         # Create another organisation and system
         other_system = self.org_map["Large organisation"]["systems"]["Large system"]
         # View page
 
         self.client.get(reverse("edit-draft-assessment-system", kwargs={"assessment_id": self.assessment.id}))
 
-        # Assert PermissionError is raised
-        with pytest.raises(PermissionError, match="You do not have access to this system"):
-            self.client.post(
-                reverse(
-                    "edit-draft-assessment-system",
-                    kwargs={"assessment_id": self.assessment.id},
-                ),
-                data={"system": other_system.id},
-            )
+        # Assert PermissionDenied is raised
+        response = self.client.post(
+            reverse(
+                "edit-draft-assessment-system",
+                kwargs={"assessment_id": self.assessment.id},
+            ),
+            data={"system": other_system.id},
+        )
+        self.assertEqual(response.status_code, 403)

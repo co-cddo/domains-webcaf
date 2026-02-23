@@ -19,7 +19,7 @@ from webcaf.webcaf.forms.general import ContinueForm, NextActionForm
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.caf import CafFormUtil
 from webcaf.webcaf.utils.session import SessionUtil
-from webcaf.webcaf.views.general import FormViewWithBreadcrumbs
+from webcaf.webcaf.views.general import FormViewWithBreadcrumbs, assessment_required
 
 
 class NextObjectiveForm(NextActionForm):
@@ -48,6 +48,7 @@ class ObjectiveView(FormViewWithBreadcrumbs):
             }
         ]
 
+    @assessment_required
     def form_valid(self, form):
         # Redirect to the appropriate destination
         assessment = SessionUtil.get_current_assessment(self.request)
@@ -125,6 +126,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             }
         ]
 
+    @assessment_required
     def form_valid(self, form):
         """
         Validates the form data and updates the current assessment's data.
@@ -342,6 +344,7 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         data["assessment"] = assessment
         return data
 
+    @assessment_required
     def form_valid(self, form):
         cleaned_data = form.cleaned_data
         outcome = cleaned_data["confirm_outcome"]
