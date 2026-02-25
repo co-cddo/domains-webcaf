@@ -540,9 +540,17 @@ class ShowReportView(BaseReviewMixin, DetailView):
     """
 
     model = Review
-    template_name = "review/review-report.html"
     # No fields to edit, we manually update if needed
     fields: list[str] = []
+
+    def get_template_names(self):
+        """
+        Select the template based on the assessment type
+        :return:
+        """
+        if self.get_object().assessment.review_type == "peer_review":
+            return ["review/peer-review-report.html"]
+        return ["review/review-report.html"]
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -595,7 +603,7 @@ class DownloadReport(ShowReportView):
         obj = obj.get_version(version).instance
         context = {"object_version": obj, "object": obj, "version": version, "pdf_printing": True}
 
-        html_string = render_to_string(self.template_name, context, request=request)
+        html_string = render_to_string(self.get_template_names(), context, request=request)
 
         # Generate PDF
         # Need to set the absolute path to the static files as pdf generation does not work with relative paths

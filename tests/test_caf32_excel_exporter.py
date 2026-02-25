@@ -33,7 +33,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         self.assertTrue(any(title.endswith("Objective B") or title.endswith("Objective - B") for title in sheet_titles))
 
     def test_top_header_contents_on_first_sheet(self):
-        ws: Worksheet = self.wb.worksheets[0]
+        ws = self.wb.worksheets[0]
         # Title merged across C..I at row 1 with the expected text
         self.assertEqual(ws.cell(row=1, column=3).value, "PLEASE ENTER CLASSIFICATION (OFFICIAL IF BLANK)")
         # Resource Links header exists
@@ -50,7 +50,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         self.assertIn("WebCAF", texts)
 
     def test_outcome_sections_and_validations_present(self):
-        ws: Worksheet = self.wb.worksheets[0]
+        ws = self.wb.worksheets[0]
         # Find the first outcome header row by searching for a known pattern "A1.a -" or similar
         found_outcome_row = self._find_first_outcome_row(ws)
         self.assertIsNotNone(found_outcome_row, "Outcome header not found")
@@ -77,7 +77,7 @@ class TestCAF32ExcelExporter(unittest.TestCase):
 
     def test_indicator_fill_colours(self):
         # Validate fill colors for the first indicator line across achieved/partially/not columns
-        ws: Worksheet = self.wb.worksheets[0]
+        ws = self.wb.worksheets[0]
         # Locate the first header row as in previous test
         found_outcome_row = self._find_first_outcome_row(ws, "A2.a")
         self.assertIsNotNone(

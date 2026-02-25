@@ -62,14 +62,22 @@ class SortedOrganisationFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            # We need to detect which field exists on the model
-            if hasattr(queryset.model, "organisation"):
+            model = queryset.model
+            if self._has_field(model, "organisation"):
                 return queryset.filter(organisation__id=self.value())
-            if hasattr(queryset.model, "system__organisation"):
+            if self._has_field(model, "system"):
                 return queryset.filter(system__organisation__id=self.value())
-            if hasattr(queryset.model, "assessment__system__organisation"):
+            if self._has_field(model, "assessment"):
                 return queryset.filter(assessment__system__organisation__id=self.value())
         return queryset
+
+    @staticmethod
+    def _has_field(model, name: str) -> bool:
+        try:
+            model._meta.get_field(name)
+            return True
+        except Exception:
+            return False
 
 
 @admin.register(UserProfile)
@@ -77,7 +85,7 @@ class UserProfileAdmin(SimpleHistoryAdmin):
     model = UserProfile
     search_fields = ["organisation__name", "user__email"]
     list_display = ["user_email", "organisation_name", "role"]
-    list_filter = ["role", "organisation__name"]
+    list_filter = ["role", SortedOrganisationFilter]
     autocomplete_fields = ["organisation", "user"]
     list_select_related = ["user", "organisation"]
 
