@@ -287,3 +287,15 @@ main {
     padding-top: 10px !important;
     margin-top: 0 !important;
 }
+
+.status-stack {
+    margin-bottom: 10px;
+}
+
+.status-stack__item {
+    padding: 6px 0;
+}
+
+.status-stack__label {
+    margin: 0 0 4px 0;
+}

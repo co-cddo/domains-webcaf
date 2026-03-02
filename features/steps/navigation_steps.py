@@ -392,7 +392,7 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
     heading_element = page.locator("h1").filter(has_text=f"{context.outcome_text} Outcome")
     heading_element.wait_for(state="visible")
 
-    status_element = page.locator("h2").filter(has_text=f"Status: {outcome_status}")
+    status_element = page.locator("strong.outcome_status").filter(has_text=outcome_status)
     status_element.wait_for(state="visible")
 
     # Load all radio on the page

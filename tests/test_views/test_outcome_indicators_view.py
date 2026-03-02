@@ -88,7 +88,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         response = self.client.post(self.url, data=form_data, follow=True)
         self.assertEqual(response.redirect_chain[0][1], 302)
         self.assertEqual(response.redirect_chain[0][0], reverse("caf32_confirmation_A1.a"))
-        self.assertRegex(response.content.decode(), rf"Status: {expected_outcome}")
+        self.assertRegex(response.content.decode(), rf"{expected_outcome}")
         # Confirm the database has recorded the information
         self.assessment.refresh_from_db()
         self.assertEqual(form_data, self.assessment.assessments_data["A1.a"]["indicators"])
@@ -133,7 +133,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertRegex(response.content.decode(), r"Status: Not achieved")
+        self.assertContains(response, "Not achieved")
         self.assertRegex(response.content.decode(), r"You must provide a summary.")
 
     def test_post_confirmation_with_summary(self):
