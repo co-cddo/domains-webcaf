@@ -10,6 +10,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import FormView, TemplateView
 
+from webcaf.webcaf.utils.session import SessionUtil
+
 
 @method_decorator(never_cache, name="dispatch")
 class Index(TemplateView):
@@ -68,6 +70,7 @@ class FormViewWithBreadcrumbs(FormView):
     def get_context_data(self, **kwargs: Any):
         context_data = FormView.get_context_data(self, **kwargs)
         context_data["breadcrumbs"] = context_data["breadcrumbs"] + self.build_breadcrumbs()
+        context_data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         return context_data
 
     def build_breadcrumbs(self):

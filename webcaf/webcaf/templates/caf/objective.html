@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load permission_extras %}
 {% load tz %}
 {% load static %}
 {% load csp %}
@@ -51,7 +52,8 @@
                             </div>
                         </fieldset>
                     </div>
-                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
+                    <button type="submit" {% if not can_edit_assessments %}disabled{% endif %} class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
                         Save and continue
                     </button>
                 </form>
