@@ -9,7 +9,8 @@ from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Review
 
 Recommendation = NamedTuple(
-    "Recommendation", [("id", str), ("title", str), ("text", str), ("objective", str), ("outcome", str)]
+    "Recommendation",
+    [("id", str), ("title", str), ("text", str), ("objective", str), ("outcome", str), ("outcome_title", str)],
 )
 
 
@@ -109,6 +110,7 @@ def get_review_recommendations(
                             recommendation["text"],
                             objective["code"],
                             outcome["code"],
+                            outcome["title"],
                         )
                     )
 

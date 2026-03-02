@@ -71,7 +71,7 @@ def _add_metadata_tab(wb: Workbook, assessment: Assessment):
     ws.append(["Organisation:", assessment.system.organisation.name])
     ws.append(["System name:", assessment.system.name])
     ws.append(["Review year:", assessment.assessment_period])
-    ws.append(["Review type:", review_type_label])
+    ws.append(["Review type:", review_type_label.title()])
     ws.append(["CAF version:", framework_label])
     ws.append(["Assigned target CAF profile:", profile_label])
     _set_header_properties(ws, [30, 40], fix=False, bold=False)
@@ -104,8 +104,14 @@ def _add_indicator_tab(wb: Workbook, review: Review):
             "Self-assessment",
             "Self-assessment comments",
             "Review",
-            "Review comments",
         ]
+        + (
+            [
+                "Review comments",
+            ]
+            if assessment.review_type != "peer_review"
+            else []
+        )
     )
     _set_header_properties(ws, [50, 30, 50, 20, 50, 10, 50])
 
@@ -164,8 +170,8 @@ def _add_indicator_tab(wb: Workbook, review: Review):
                                 self_assessment_display,
                                 self_assessment_comment,
                                 review_display,
-                                review_comment,
                             ]
+                            + ([review_comment] if assessment.review_type != "peer_review" else [])
                         )
                         _wrap_row_text(ws)
 
@@ -263,14 +269,24 @@ def _add_recommendations_tab(wb: Workbook, review: Review):
 
     :return: None
     """
-    ws = wb.create_sheet("Risks and recommendations")
+    ws = wb.create_sheet(
+        "Risks and recommendations" if review.assessment.review_type != "peer_review" else "Recommendations"
+    )
     ws.append(
         [
             "Contributing outcome",
             "Target CAF profile",
             "Risk number",
-            "Risk",
-            "Recommendation number",
+        ]
+        + (
+            [
+                "Risk",
+                "Recommendation number",
+            ]
+            if review.assessment.review_type != "peer_review"
+            else []
+        )
+        + [
             "Recommendation",
         ]
     )
@@ -297,8 +313,16 @@ def _add_recommendations_tab(wb: Workbook, review: Review):
                         contributing_outcome_titles[recommendation.outcome],
                         profile_met,
                         f"{prefix}{recommendation_group.group_index}",
-                        recommendation.title,
-                        recommendation.id,
+                    ]
+                    + (
+                        [
+                            recommendation.title,
+                            recommendation.id,
+                        ]
+                        if review.assessment.review_type != "peer_review"
+                        else []
+                    )
+                    + [
                         recommendation.text,
                     ]
                 )

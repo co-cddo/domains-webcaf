@@ -306,7 +306,7 @@
             <ul class="govuk-task-list" id="section-4">
                 <li class="govuk-task-list__item">
                     <div class="govuk-task-list__name-and-hint">
-                        {% if object.is_ready_to_submit and object.assessment.review_type != 'peer_review' %}
+                        {% if object.is_ready_to_submit %}
                             <a id="task-link-8" class="govuk-link govuk-task-list__link"
                                href="{% url 'create-report' pk=object.id %}">
                                 Create report
@@ -316,7 +316,7 @@
                         {% endif %}
                     </div>
                     <div class="govuk-task-list__status">
-                        {% if object.is_ready_to_submit and object.assessment.review_type != 'peer_review' %}
+                        {% if object.is_ready_to_submit %}
                             {% if object.is_review_complete %}
                                 Completed
                             {% else %}
