@@ -22,7 +22,7 @@
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
                         {{ assessment.get_caf_profile_display }} CAF profile requirement</p>
-                    {% get_tag_for_status profile_met.1 as tag_colour%}
+                    {% get_tag_for_status profile_met.1 as tag_colour %}
                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ profile_met.1 }}</strong>
                 </div>
                 <div class="status-stack__item">
@@ -138,7 +138,7 @@
                                                       aria-describedby="{{ the_field_comment.auto_id|safe_id }}-info"
                                                       id="{{the_field_comment.auto_id|safe_id}}"
                                                       name="{{ the_field_comment.name }}"
-                                                      rows="20">{{ the_field_comment|striptags|default:"" }}</textarea>
+                                                      rows="20">{% if the_field_comment.value  %}{{ the_field_comment.value|striptags|default:"" }}{% endif %}</textarea>
                                              <!-- @formatter:on -->
                                             <div id="{{ the_field_comment.auto_id|safe_id }}-info"
                                                  class="govuk-hint govuk-character-count__message">You can

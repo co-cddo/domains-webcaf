@@ -1,17 +1,18 @@
 {% load form_extras %}
-<div class="govuk-checkboxes__item " >
+<div class="govuk-checkboxes__item ">
     <input class="govuk-checkboxes__input" id="{{ item.auto_id|safe_id }}" name="{{ item.name }}" type="checkbox"
            value="agreed"
             {% if item.value %}
            checked="checked"
             {% endif %}
     >
-    <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}" for="{{ item.auto_id|safe_id }}">
+    <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}"
+           for="{{ item.auto_id|safe_id }}">
         {{ forloop.counter }}. {{ item.field.label }}
         {% if item.field.label_suffix %}
             <br/>
             <strong class="govuk-tag--grey govuk-!-font-size-16">
-                                {{ item.field.label_suffix }}</strong>
+                {{ item.field.label_suffix }}</strong>
         {% endif %}
     </label>
     {% get_comment_field form item.name as the_field_comment %}
@@ -22,11 +23,14 @@
                 <label class="govuk-label" for="{{ the_field_comment.auto_id|safe_id }}">
                     {{ the_field_comment.label }}
                 </label>
+                <!-- @formatter:off -->
+                {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
                 <textarea class="govuk-textarea govuk-js-character-count"
                           id="{{ the_field_comment.auto_id|safe_id }}"
                           data-module="govuk-character-count"
                           name="{{ the_field_comment.name }}"
-                          rows="5">{{ the_field_comment|striptags|default:"" }}</textarea>
+                          rows="5">{% if the_field_comment.value %}{{ the_field_comment.value|striptags|default:"" }}{% endif %}</textarea>
+                <!-- @formatter:on -->
                 <div id="{{ the_field_comment.auto_id|safe_id }}-info"
                      class="govuk-hint govuk-character-count__message">You can enter up to
                     {{ the_field_comment.field.widget.attrs.max_words }} words
