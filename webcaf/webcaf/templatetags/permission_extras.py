@@ -132,6 +132,19 @@ def current_user_can_view_assessments(user_profile: UserProfile) -> bool:
 
 
 @register.simple_tag()
+def current_user_can_edit_assessments(user_profile: UserProfile) -> bool:
+    """
+    Determines whether the current user has permission to view assessments.
+
+    :param user_profile: An instance of UserProfile representing the user's profile.
+    :type user_profile: UserProfile
+    :return: A boolean indicating whether the user can view assessments.
+    :rtype: bool
+    """
+    return PermissionUtil.current_user_can_edit_assessments(user_profile)
+
+
+@register.simple_tag()
 def get_my_account_text(user_profile: UserProfile) -> list[str]:
     """
     Determines and retrieves a description text specific to the role of the provided user profile. The text varies

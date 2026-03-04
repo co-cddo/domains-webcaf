@@ -271,6 +271,7 @@ def get_review_count(user_profile: UserProfile) -> int:
     """
     default_config = Configuration.objects.get_default_config()
     return Review.objects.filter(
+        assessment__status__in=["submitted"],
         assessment__system__organisation=user_profile.organisation,
         assessment__assessment_period=default_config.get_current_assessment_period(),
     ).count()

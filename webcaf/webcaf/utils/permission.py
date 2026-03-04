@@ -119,6 +119,24 @@ class PermissionUtil:
         return user_profile and user_profile.role in ["cyber_advisor", "organisation_lead", "organisation_user"]
 
     @staticmethod
+    def current_user_can_edit_assessments(user_profile: UserProfile):
+        """
+        Determines if the current user has permission to edit assessments.
+
+        This method checks whether the given user's role grants them the ability
+        to edit assessments. Only users with specific roles are allowed
+        to edit assessments within the system.
+
+        :param user_profile: The user profile containing role information
+            of the current user.
+        :type user_profile: UserProfile
+        :return: True if the user has the required permissions to edit
+            assessments, False otherwise.
+        :rtype: bool
+        """
+        return user_profile and user_profile.role in ["organisation_lead", "organisation_user"]
+
+    @staticmethod
     def current_user_can_submit_assessment(user_profile: UserProfile):
         """
         Checks if the current user has permissions to submit an assessment.

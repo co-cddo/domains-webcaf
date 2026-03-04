@@ -112,6 +112,9 @@ class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: 
     list_display = ["name", "reference"]
     readonly_fields = ["reference"]
     optional_fields = ["reference"]
+    autocomplete_fields = [
+        "parent_organisation",
+    ]
 
     logger = logging.getLogger("OrganisationAdmin")
     csv_headers = [
@@ -383,6 +386,18 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
     @admin.display(ordering="system_organisation", description="Organisation")
     def system_organisation(self, obj):
         return obj.system_organisation
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "system":
+            object_id = request.resolver_match.kwargs.get("object_id")
+            obj = self.get_object(request, object_id)
+            if object_id and obj and obj.system:
+                # If we are editing an assessment, then we can make sure
+                # that we only pick systems from the current organisation only
+                kwargs["queryset"] = System.objects.filter(organisation=obj.system.organisation)
+
+        form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return form_field
 
 
 class CustomConfigForm(ModelForm):
