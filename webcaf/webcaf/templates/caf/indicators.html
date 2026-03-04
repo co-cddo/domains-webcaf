@@ -12,12 +12,14 @@
 
 
 {% block content %}
-{% include "partials/error_message.html" %}
+    {% include "partials/error_message.html" %}
     <span class="govuk-caption-l">{{ assessment.system.name }}</span>
     <h1 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h1>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <p class="govuk-body">You must read each indicator of good practice (IGP). Select the statements that apply to your systems. If you have alternative controls and exemptions you must still select the statements and add your comments to explain this.</p>
+            <p class="govuk-body">You must read each indicator of good practice (IGP). Select the statements that apply
+                to your systems. If you have alternative controls and exemptions you must still select the statements
+                and add your comments to explain this.</p>
             {% is_duplicate_questions_present form as is_duplicate_questions_present %}
             {% if is_duplicate_questions_present %}
                 <div class="govuk-warning-text">
@@ -34,14 +36,15 @@
                 <div class="govuk-form-group {% if form.non_field_errors %}govuk-form-group--error{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="a3aAc-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                          Achieved statements
+                            Achieved statements
                         </legend>
                         <div id="a3aAc-hint" class="govuk-hint">
                             You will achieve this outcome if you select all statements.
                         </div>
                         {% if form.non_field_errors %}
                             <p id="confirmation-summary-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You need to select at least one statement
+                                <span class="govuk-visually-hidden">Error:</span> You need to select at least one
+                                statement
                             </p>
                         {% endif %}
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
@@ -62,7 +65,8 @@
                             </div>
                             {% if form.non_field_errors %}
                                 <p id="confirmation-summary-error" class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> You need to select at least one statement
+                                    <span class="govuk-visually-hidden">Error:</span> You need to select at least one
+                                    statement
                                 </p>
                             {% endif %}
                             <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
@@ -76,15 +80,16 @@
                 <div class="govuk-form-group {% if form.non_field_errors %}govuk-form-group--error{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="a3aNa-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                          Not achieved statements
+                            Not achieved statements
                         </legend>
                         <div id="a3aNa-hint" class="govuk-hint">
                             You will not achieve this outcome if you select any of these statements.
                         </div>
                         {% if form.non_field_errors %}
-                                <p id="confirmation-summary-error" class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> You need to select at least one statement
-                                </p>
+                            <p id="confirmation-summary-error" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error:</span> You need to select at least one
+                                statement
+                            </p>
                         {% endif %}
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
                             {% for item in form|filter_fields:"not-achieved" %}
