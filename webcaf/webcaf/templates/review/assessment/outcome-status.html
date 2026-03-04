@@ -11,6 +11,7 @@
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }} review</h1>
+            <p class="govuk-body">{{ outcome.description }}</p>
             <details class="govuk-details">
                 <summary class="govuk-details__summary">
                     <span class="govuk-details__summary-text">
@@ -53,16 +54,30 @@
                     </section>
                 </div>
             </details>
-            <div class="govuk-inset-text">
-                        <span class="govuk-heading-s">
-                            Self-assessment outcome status
-                        </span>
-                {% get_tag_for_status answered_statements.confirmation.outcome_status as tag_colour %}
-                <p class="govuk-body">
-                        <span class="govuk-tag govuk-tag--{{ tag_colour }}">
-                            {{ answered_statements.confirmation.outcome_status }}
-                        </span>
-                </p>
+            <div class="govuk-inset-text status-stack">
+                {% indicator_min_profile_requirement_met object.assessment outcome.code|slice:2 outcome.code outcome_status.outcome_status True as profile_met %}
+                <div class="status-stack__item">
+                    <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
+                        {{ object.assessment.get_caf_profile_display }} <abbr title="Cyber Assessment Framework">CAF</abbr> profile requirement
+                    </p>
+                    {%  get_tag_for_status profile_met.1 as tag_colour %}
+                    <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ profile_met.1 }}</strong>
+                </div>
+                <div class="status-stack__item">
+                    <p class="govuk-body govuk-!-font-weight-bold status-stack__label">Self-assessment status</p>
+                    {% get_tag_for_status answered_statements.confirmation.outcome_status as tag_colour %}
+                    <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ answered_statements.confirmation.outcome_status }}</strong>
+                </div>
+                <div class="status-stack__item">
+                    <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
+                        {{ object.assessment.get_caf_profile_display }} <abbr title="Cyber Assessment Framework">CAF</abbr> profile
+                    </p>
+                    {% if profile_met.0 == 'Not met' %}
+                        <strong class="govuk-tag govuk-tag--red">{{ profile_met.0 }}</strong>
+                    {% else %}
+                        <strong class="govuk-tag govuk-tag--green">Met</strong>
+                    {% endif %}
+                </div>
             </div>
             <h2 class="govuk-heading-m">Organisation's contributing outcome summary</h2>
             {% format_with_breaks answered_statements.confirmation.confirm_outcome_confirm_comment as sections %}
