@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load permission_extras %}
 {% load static %}
 {% load csp %}
 {% load form_extras %}
@@ -93,7 +94,10 @@
                     </fieldset>
                 </div>
                 <div class="govuk-button-group">
-                    <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">
+                    {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
+                    <button type="submit" class="govuk-button" data-module="govuk-button"
+                            {% if not can_edit_assessments %} disabled {% endif %}
+                            data-govuk-button-init="">
                         Save and continue
                     </button>
                     <a class="govuk-link" href="{% url back_url %}">Back to {{ objective_name }} </a>
