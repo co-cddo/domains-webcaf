@@ -276,17 +276,17 @@ def _add_recommendations_tab(wb: Workbook, review: Review):
         [
             "Contributing outcome",
             "Target CAF profile",
-            "Risk number",
         ]
         + (
             [
+                "Risk number",
                 "Risk",
-                "Recommendation number",
             ]
             if review.assessment.review_type != "peer_review"
             else []
         )
         + [
+            "Recommendation number",
             "Recommendation",
         ]
     )
@@ -312,17 +312,17 @@ def _add_recommendations_tab(wb: Workbook, review: Review):
                     [
                         contributing_outcome_titles[recommendation.outcome],
                         profile_met,
-                        f"{prefix}{recommendation_group.group_index}",
                     ]
                     + (
                         [
+                            f"{prefix}{recommendation_group.group_index}",
                             recommendation.title,
-                            recommendation.id,
                         ]
                         if review.assessment.review_type != "peer_review"
                         else []
                     )
                     + [
+                        recommendation.id,
                         recommendation.text,
                     ]
                 )

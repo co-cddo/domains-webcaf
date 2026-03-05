@@ -206,7 +206,7 @@ class TestReviewToExcelPeerReview(TestCase):
         self.assertIn("Recommendation number", headers)
 
     def test_recommendations_tab_no_risk_columns_for_peer_review(self):
-        """Test that recommendations tab does NOT include 'Risk' and 'Recommendation number' for peer review."""
+        """Test that recommendations tab does NOT include 'Risk' and 'Risk number' for peer review."""
         excel_bytes = review_to_excel(self.peer_review)
         wb = load_workbook(BytesIO(excel_bytes))
         ws = wb["Recommendations"]
@@ -214,7 +214,7 @@ class TestReviewToExcelPeerReview(TestCase):
         # Get header row
         headers = [cell.value for cell in ws[1]]
         self.assertNotIn("Risk", headers)
-        self.assertNotIn("Recommendation number", headers)
+        self.assertNotIn("Risk number", headers)
 
     def test_recommendations_tab_column_count_differs_by_review_type(self):
         """Test that recommendations tab has different column counts for different review types."""
@@ -251,7 +251,7 @@ class TestReviewToExcelPeerReview(TestCase):
 
     def test_recommendations_tab_common_columns_present(self):
         """Test that common columns are present in recommendations tab for both review types."""
-        common_columns = ["Contributing outcome", "Target CAF profile", "Risk number", "Recommendation"]
+        common_columns = ["Contributing outcome", "Target CAF profile", "Recommendation number", "Recommendation"]
 
         # Test independent review
         excel_bytes = review_to_excel(self.independent_review)
@@ -346,14 +346,14 @@ class TestReviewToExcelOtherReviewTypes(TestCase):
         self.assertNotIn("Review comments", headers)
 
     def test_peer_review_does_not_have_risk_columns(self):
-        """Test that peer_review does NOT have 'Risk' and 'Recommendation number' columns."""
+        """Test that peer_review does NOT have 'Risk' and 'Risk number' columns."""
         review = self.reviews["peer_review"]
         excel_bytes = review_to_excel(review)
         wb = load_workbook(BytesIO(excel_bytes))
         ws = wb["Recommendations"]
         headers = [cell.value for cell in ws[1]]
         self.assertNotIn("Risk", headers)
-        self.assertNotIn("Recommendation number", headers)
+        self.assertNotIn("Risk number", headers)
 
 
 class TestReviewToExcelDataIntegrity(TestCase):
