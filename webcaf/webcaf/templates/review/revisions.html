@@ -64,8 +64,8 @@
                                href="{% url 'download-report' pk=object.id version=revision_number %}">Download
                                 (PDF)</a> |
                             <a class="govuk-link"
-                               href="{% url 'download-excel-report' pk=object.id version=revision_number %}">Download
-                                (XLS)</a>
+                               href="{% url 'download-excel-report' pk=object.id version=revision_number %}">Download data
+                                </a>
                         {% endwith %}
                     </p>
                 </div>
@@ -121,8 +121,8 @@
                                href="{% url 'download-report' pk=revision.instance.id version=forloop.revcounter %}">Download
                                 (PDF)</a><br/>
                             <a class="govuk-link" target="_blank"
-                               href="{% url 'download-excel-report' pk=revision.instance.id version=forloop.revcounter %}">Download
-                                (XLS)</a>
+                               href="{% url 'download-excel-report' pk=revision.instance.id version=forloop.revcounter %}">Download data
+                                </a>
                         </td>
                     </tr>
                 {% endfor %}
