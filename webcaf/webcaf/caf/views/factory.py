@@ -18,6 +18,7 @@ from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.forms.general import ContinueForm, NextActionForm
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.caf import CafFormUtil
+from webcaf.webcaf.utils.permission import PermissionUtil
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.views.general import FormViewWithBreadcrumbs, assessment_required
 
@@ -141,9 +142,16 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             validation.
         :return: The HTTP response returned by the parent class's form_valid method.
         """
+
+        current_user_profile = SessionUtil.get_current_user_profile(self.request)
+        # If the user does not have the edit permissions, then skip the
+        # update and show the next page.
+        if not PermissionUtil.current_user_can_edit_assessments(current_user_profile):
+            self.logger.info("Current user only has view permission, so not saving any data")
+            return FormView.form_valid(self, form)
+
         assessment = SessionUtil.get_current_assessment(self.request)
         if assessment:
-            current_user_profile = SessionUtil.get_current_user_profile(self.request)
             if self.class_id not in assessment.assessments_data:
                 assessment.assessments_data[self.class_id] = {}
             if self.stage not in assessment.assessments_data[self.class_id]:

@@ -101,9 +101,8 @@
                 <div class="govuk-button-group">
                     {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
                     <button type="submit" class="govuk-button" data-module="govuk-button"
-                            {% if not can_edit_assessments %} disabled {% endif %}
                             data-govuk-button-init="">
-                        Save and continue
+                        {% if not can_edit_assessments %}Continue{% else %}Save and continue{% endif %}
                     </button>
                     <a class="govuk-link" href="{% url back_url %}">Back to {{ objective_name }} </a>
                 </div>

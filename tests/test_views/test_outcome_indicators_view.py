@@ -93,6 +93,41 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         self.assessment.refresh_from_db()
         self.assertEqual(form_data, self.assessment.assessments_data["A1.a"]["indicators"])
 
+    def test_cyber_advisor_does_not_save_indicator_data(self):
+        cyber_advisor_profile = UserProfile.objects.get(role="cyber_advisor", organisation__name="Big organisation")
+        self.client.force_login(cyber_advisor_profile.user)
+        session = self.client.session
+        session["current_profile_id"] = cyber_advisor_profile.id
+        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session.save()
+
+        original_data = {}
+        self.assessment.assessments_data = original_data
+        self.assessment.last_updated_by = None
+        self.assessment.save()
+
+        form_data = {
+            "achieved_A1.a.5": True,
+            "achieved_A1.a.6": True,
+            "achieved_A1.a.7": True,
+            "achieved_A1.a.8": True,
+            "not-achieved_A1.a.1": False,
+            "not-achieved_A1.a.2": False,
+            "not-achieved_A1.a.3": False,
+            "not-achieved_A1.a.4": False,
+            "achieved_A1.a.5_comment": "Achieved comment one",
+            "achieved_A1.a.6_comment": "",
+            "achieved_A1.a.7_comment": "",
+            "achieved_A1.a.8_comment": "",
+        }
+        response = self.client.post(self.url, data=form_data, follow=False)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], self.confirmation_url)
+        self.assessment.refresh_from_db()
+        self.assertEqual(self.assessment.assessments_data, original_data)
+        self.assertIsNone(self.assessment.last_updated_by)
+
     def test_post_confirmation_with_no_summary(self):
         """
         Summary:
