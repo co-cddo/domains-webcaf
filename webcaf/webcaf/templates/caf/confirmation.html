@@ -34,7 +34,7 @@
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
                         {{ assessment.get_caf_profile_display }} CAF profile</p>
-                    {% if profile_met == 'Not met' %}
+                    {% if profile_met.0 == 'Not met' %}
                         <strong class="outcome_profile_status govuk-tag govuk-tag--red">{{ profile_met.0 }}</strong>
                     {% else %}
                         <strong class="govuk-tag govuk-tag--green">Met</strong>
