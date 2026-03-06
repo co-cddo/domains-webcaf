@@ -55,7 +55,7 @@
                 </div>
             </details>
             <div class="govuk-inset-text status-stack">
-                {% indicator_min_profile_requirement_met object.assessment outcome.code|slice:2 outcome.code outcome_status.outcome_status True as profile_met %}
+                {% indicator_min_profile_requirement_met object.assessment outcome.code|slice:2 outcome.code answered_statements.confirmation.outcome_status True as profile_met %}
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
                         {{ object.assessment.get_caf_profile_display }} <abbr title="Cyber Assessment Framework">CAF</abbr> profile requirement
