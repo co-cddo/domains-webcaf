@@ -132,6 +132,8 @@ class LoginRequiredMiddleware:
             "/review",
             "/peer-review/",
             "/peer-review",
+            "/robots.txt",
+            "/sitemap.xml",
         ]
 
     def __call__(self, request):
