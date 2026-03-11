@@ -29,15 +29,17 @@
                         Now you have completed your self-assessment, you must make sure that your independent assessor
                         or third-party reviewer can access it before starting stage 4.
                     </p>
-                    <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-visually-hidden">Warning</span>
-                            For your system to be assessed in GovAssure for 20{{ current_assessment_period }}, your
-                            stage 4 review must be
-                            completed by {{ cutoff_date_time }}.
-                        </strong>
-                    </div>
+                    {% should_display_cutoff as display_cutoff %}
+                    {% if display_cutoff %}
+                        <div class="govuk-warning-text">
+                            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                            <strong class="govuk-warning-text__text">
+                                <span class="govuk-visually-hidden">Warning</span>
+                                For your system to be assessed in GovAssure for 2025/26, your
+                                stage 4 review must be completed by 11:59PM on 31 March 2026.
+                            </strong>
+                        </div>
+                    {% endif %}
                     <p class="govuk-body">
                         <a href="https://forms.office.com/e/34eLTYNqnL" class="govuk-link">What did you
                             think of this service?</a> (takes 30 seconds)

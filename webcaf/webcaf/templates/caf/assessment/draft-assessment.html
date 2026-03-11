@@ -18,11 +18,14 @@
             <h1 class="govuk-heading-l">Complete a WebCAF self-assessment
             </h1>
             <p class="govuk-body"><strong>Draft self-assessment</strong></p>
-            <div class="govuk-inset-text">
-                For it to be assessed in GovAssure 20{{ current_assessment_period }} your stage 4 review must be
-                completed by
-                <strong>{{ cutoff_time }}</strong> on <strong>{{ cutoff_date }}</strong>.
-            </div>
+            {% should_display_cutoff as display_cutoff %}
+            {% if display_cutoff %}
+                <div class="govuk-inset-text">
+                    For it to be assessed in GovAssure 2025/26 your stage 4 review must be
+                    completed by
+                    <strong>11:59PM</strong> on <strong>31 March 2026</strong>.
+                </div>
+            {% endif %}
             <h2 class="govuk-heading-m">1. Give system details and profile to be assessed</h2>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item govuk-task-list__item--with-link">

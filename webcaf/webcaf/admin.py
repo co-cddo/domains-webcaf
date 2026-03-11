@@ -1,8 +1,10 @@
 import csv
 import logging
+import zoneinfo
 from datetime import datetime
 from io import BytesIO, StringIO, TextIOWrapper
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
 from django import forms
 from django.contrib import admin, messages
@@ -427,27 +429,72 @@ class CustomConfigForm(ModelForm):
         required=True,
     )
     default_framework = ChoiceField(required=True, choices=Assessment.FRAMEWORK_CHOICES)
+    # Parameter to control the cutoff date display
+    banner_display_until = forms.DateTimeField(
+        widget=DateTimeInput(
+            attrs={
+                "type": "datetime-local",
+                "class": "vDateTimeField",
+            }
+        ),
+        required=True,
+    )
 
     class Meta:
         model = Configuration
-        fields = ["name", "current_assessment_period", "assessment_period_end", "default_framework"]
+        fields = [
+            "name",
+            "current_assessment_period",
+            "assessment_period_end",
+            "banner_display_until",
+            "default_framework",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["current_assessment_period"].initial = self.instance.get_current_assessment_period()
-        self.fields["assessment_period_end"].initial = datetime.strptime(
-            self.instance.get_assessment_period_end(), "%d %B %Y %I:%M%p"
-        ).strftime("%Y-%m-%dT%H:%M")
+        assessment_period = self.instance.get_current_assessment_period()
+        if assessment_period is None:
+            return
+
+        def set_local_tz(input_date):
+            """
+            Removes the UTC timezone from a date string and returns it in local timezone format.
+            This is needed because the django app is running in UTC and the dates are stored in the local timezone
+            for this form.
+            :param input_date:
+            :return:
+            """
+            parsed_date = datetime.strptime(input_date, "%d %B %Y %I:%M%p")
+            parsed_date.replace(tzinfo=ZoneInfo("Europe/London"))
+            return parsed_date.strftime("%Y-%m-%dT%H:%M")
+
+        self.fields["current_assessment_period"].initial = assessment_period
+        self.fields["assessment_period_end"].initial = set_local_tz(self.instance.get_assessment_period_end())
+        if self.instance.get_banner_display_until():
+            self.fields["banner_display_until"].initial = set_local_tz(self.instance.get_banner_display_until())
         self.fields["default_framework"].initial = self.instance.get_default_framework()
 
     def save(self, commit=True):
         if not self.instance.config_data:
             self.instance.config_data = {}
         self.instance.config_data["current_assessment_period"] = self.cleaned_data["current_assessment_period"]
+
         # Convert back to the string representation
-        self.instance.config_data["assessment_period_end"] = self.cleaned_data["assessment_period_end"].strftime(
-            "%d %B %Y %I:%M%p"
-        )
+        def to_local(date_time):
+            """
+            Converts a datetime object to local timezone format.
+            :param date_time:
+            :return:
+            """
+            local_tz = zoneinfo.ZoneInfo("Europe/London")
+            date_time.replace(tzinfo=local_tz)
+            return date_time.strftime("%d %B %Y %I:%M%p")
+
+        # The user is inputting the date/time in their timezone, but django
+        # assumes that the date/time is in UTC as that is the setting in the settings.py,
+        # Therefore, manually convert to Europe/London before saving to the database
+        self.instance.config_data["assessment_period_end"] = to_local(self.cleaned_data["assessment_period_end"])
+        self.instance.config_data["banner_display_until"] = to_local(self.cleaned_data["banner_display_until"])
         self.instance.config_data["default_framework"] = self.cleaned_data["default_framework"]
         return super().save(commit=commit)
 

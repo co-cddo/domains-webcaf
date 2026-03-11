@@ -45,13 +45,13 @@
             </h1>
             <p class="govuk-body"><strong>{% if object.is_system_and_scope_completed %}In-progress{% else %}
                 Draft{% endif %} review</strong></p>
-
-            <div class="govuk-inset-text">
-                For it to be assessed in GovAssure 20{{ current_assessment_period }} your stage 4 review must be
-                completed by
-                <strong>{{ cutoff_time }}</strong> on <strong>{{ cutoff_date }}</strong>.
-            </div>
-
+            {% should_display_cutoff as display_cutoff %}
+            {% if display_cutoff %}
+                <div class="govuk-inset-text">
+                    For it to be assessed in GovAssure 2025/26 your stage 4 review must be
+                    completed by <strong>11:59PM</strong> on <strong>31 March 2026</strong>.
+                </div>
+            {% endif %}
 
             <h2 class="govuk-heading-m">1. Confirm self-assessment</h2>
             <ul class="govuk-task-list">
