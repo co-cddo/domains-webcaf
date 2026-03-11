@@ -109,7 +109,8 @@ class TestReviewIndexVisibility(BaseViewTest):
             self.assertEqual(resp.status_code, 200)
             reviews = list(resp.context["reviews"])  # provided by ReviewIndexView
             self.assertIn(self.review_ok, reviews)
-            self.assertNotIn(self.review_other_period, reviews)
+            # All reviews are allowed to be viewed regardless of the assessment period
+            self.assertIn(self.review_other_period, reviews)
             self.assertNotIn(self.review_foreign, reviews)
 
     def test_assessor_and_reviewer_only_see_reviews_for_their_organisation(self):
