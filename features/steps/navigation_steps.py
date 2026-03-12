@@ -4,6 +4,7 @@ import os
 import re
 import uuid
 from collections import defaultdict
+from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 from typing import Any, Literal, Optional
@@ -529,3 +530,83 @@ def table_with_header(context: Context, header: str):
     expect(table).to_be_visible()
     header_cell = table.locator("th").filter(has_text=header)
     expect(header_cell).to_be_visible()
+
+
+@then('they click on the link with text "Review"')
+def click_review_link(context: Context):
+    """
+    Click on the Review link in the assessment table.
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    page.get_by_role("link", name="Review", exact=True).click()
+
+
+@then('they click on the link with text "Confirm system overview"')
+def click_confirm_system_overview_link(context: Context):
+    """
+    Click on the Confirm system overview link.
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    page.get_by_role("link", name="Confirm system overview", exact=True).click()
+
+
+@step('select radio with label "{label}" in row "{row_text}"')
+def select_radio_by_label_in_row(context: Context, label: str, row_text: str):
+    """
+    Select a radio button by label within a specific row context.
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    row = page.get_by_role("row", name=row_text)
+    expect(row).to_be_visible()
+    row.get_by_role("radio", name=label, exact=True).check()
+
+
+@step('select radio with label "{label}" in fieldset "{fieldset_text}"')
+def select_radio_by_label_in_fieldset(context: Context, label: str, fieldset_text: str):
+    """
+    Select a radio button by label within a specific fieldset context.
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    fieldset = page.locator("fieldset").filter(has_text=fieldset_text)
+    expect(fieldset).to_be_visible()
+    fieldset.get_by_role("radio", name=label, exact=True).check()
+
+
+@step("we enter review dates with start date as today and end date as {days} days from today")
+def enter_review_dates_dynamic(context: Context, days: int):
+    """
+    Enter review dates dynamically - start date as today and end date as days from today.
+    """
+
+    if "think_time" in context:
+        sleep(context.think_time)
+
+    page = context.page
+    today = datetime.now()
+    end_date = today + timedelta(days=int(days))
+
+    # Enter start date (today)
+    start_day = str(today.day).zfill(2)
+    start_month = str(today.month).zfill(2)
+    start_year = str(today.year)
+
+    # Enter end date
+    end_day = str(end_date.day).zfill(2)
+    end_month = str(end_date.month).zfill(2)
+    end_year = str(end_date.year)
+
+    page.locator("#id_start_date_day").fill(start_day)
+    page.locator("#id_start_date_month").fill(start_month)
+    page.locator("#id_start_date_year").fill(start_year)
+
+    page.locator("#id_end_date_day").fill(end_day)
+    page.locator("#id_end_date_month").fill(end_month)
+    page.locator("#id_end_date_year").fill(end_year)
