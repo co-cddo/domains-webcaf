@@ -61,7 +61,6 @@ class BaseReviewMixin(UserRoleCheckMixin):
         base_filter = Review.objects.filter(
             assessment__status__in=["submitted"],
             assessment__system__organisation=user_profile.organisation,
-            assessment__assessment_period=configuration.get_current_assessment_period(),
         )
 
         # Show only the relevant reviews based on the user role

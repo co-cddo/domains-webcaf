@@ -27,6 +27,7 @@ dependencies = [
     "notifications-python-client (==10.0.1)",
     "fonttools (>=4,<5)",
     "pypdf (>=6,<7)",
+    "charset-normalizer (>=3.4.5,<4.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]

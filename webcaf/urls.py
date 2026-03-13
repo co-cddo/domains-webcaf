@@ -157,6 +157,14 @@ urlpatterns = [
     path("public/privacy/", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
     path("public/help/", TemplateView.as_view(template_name="help.html"), name="help"),
     path("public/accessibility/", TemplateView.as_view(template_name="accessibility.html"), name="accessibility"),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+    ),
+    path(
+        "sitemap.xml",
+        TemplateView.as_view(template_name="sitemap.xml", content_type="application/xml"),
+    ),
     # Application pages that does not need login
     path("logout/", logout_view, name="logout"),
     path("", Index.as_view(), name="index"),

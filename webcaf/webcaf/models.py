@@ -2,6 +2,7 @@ import logging
 import typing
 from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -445,18 +446,29 @@ class Configuration(models.Model):
     def get_default_framework(self):
         return self.config_data.get("default_framework")
 
+    def get_banner_display_until(self):
+        return self.config_data.get("banner_display_until")
+
     def get_submission_due_date(self):
         """
         Convert the get_assessment_period_end in to a datetime object.
         The format is 31 March 2026 11:59pm.
+        The time is always in London time.
         :return:
         """
         assessment_period_end = self.get_assessment_period_end()
         # Parse the date string in format "31 March 2026 11:59pm"
-        return make_aware(datetime.strptime(assessment_period_end, "%d %B %Y %I:%M%p"))
+        parsed_time = datetime.strptime(assessment_period_end, "%d %B %Y %I:%M%p")
+        parsed_time.replace(tzinfo=ZoneInfo("Europe/London"))
+        return parsed_time
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Configuration"
+        verbose_name_plural = "Configurations"
+        unique_together = ("name",)
 
 
 class GovNotifyEmailDevice(EmailDevice):

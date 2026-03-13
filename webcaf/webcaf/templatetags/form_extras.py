@@ -2,9 +2,11 @@ import re
 from collections import namedtuple
 from datetime import datetime
 from typing import Any, Literal, Optional
+from zoneinfo import ZoneInfo
 
 from django import template
 from django.forms import Form
+from django.utils import timezone
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import Assessment, Configuration, Review, System, UserProfile
@@ -269,11 +271,9 @@ def get_review_count(user_profile: UserProfile) -> int:
         based on the current assessment period.
     :rtype: int
     """
-    default_config = Configuration.objects.get_default_config()
     return Review.objects.filter(
         assessment__status__in=["submitted"],
         assessment__system__organisation=user_profile.organisation,
-        assessment__assessment_period=default_config.get_current_assessment_period(),
     ).count()
 
 
@@ -478,3 +478,18 @@ def parse_date(date_str: str):
     :return:
     """
     return datetime.strptime(date_str, "%d/%m/%Y")
+
+
+@register.simple_tag()
+def should_display_cutoff():
+    """
+    Determine if the cutoff date should be displayed based on the current date
+    :return: True if the cutoff date should be displayed, False otherwise
+    """
+    current_config = Configuration.objects.get_default_config()
+    if display_until := current_config.get_banner_display_until():
+        # The value of display_until is always in local time
+        cutoff_time = datetime.strptime(display_until, "%d %B %Y %I:%M%p").replace(tzinfo=ZoneInfo("Europe/London"))
+        london_now = timezone.now().astimezone(ZoneInfo("Europe/London"))
+        return london_now <= cutoff_time
+    return False
