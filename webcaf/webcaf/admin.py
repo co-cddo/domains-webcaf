@@ -340,6 +340,7 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     optional_fields = ["reference"]
     list_filter = [SortedOrganisationFilter, "system_type"]
     list_select_related = ["organisation"]
+    autocomplete_fields = ["organisation"]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
