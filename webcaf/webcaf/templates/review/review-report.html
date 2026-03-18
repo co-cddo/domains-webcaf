@@ -352,7 +352,10 @@
                         <th scope="col" class="govuk-table__header">Contributing outcome</th>
                         <th scope="col" class="govuk-table__header">Self-assessment status</th>
                         <th scope="col" class="govuk-table__header">Review status</th>
-                        <th scope="col" class="govuk-table__header">CAF Baseline profile</th>
+                        <th scope="col"
+                            class="govuk-table__header">{{ object_version.assessment.get_caf_profile_display }} CAF
+                            profile
+                        </th>
                     </tr>
                     </thead>
                     <tbody class="govuk-table__body">
@@ -405,12 +408,20 @@
                             <div class="govuk-details__text">
                                 {% get_principle object_version obj.code o.code as review_data %}
                                 {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
-
+                                {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code review_data.review_data.review_decision|status_to_label True as profile_met %}
+                                <p class="govuk-heading-s">{{ object_version.assessment.get_caf_profile_display }} CAF
+                                    profile requirement:
+                                    {% get_tag_for_status profile_met.1 as tag_colour %}
+                                    <strong class="govuk-tag govuk-tag--{{ tag_colour }}">
+                                        {{ profile_met.1 }}
+                                    </strong>
+                                </p>
+                                {% get_tag_for_status review_data.review_data.review_decision as tag_colour %}
                                 <p class="govuk-heading-s">Review status:
+                                    {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ review_data.review_data.review_decision|status_to_label }}</strong>
                                 </p>
-                                {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code review_data.review_data.review_decision|status_to_label True as profile_met %}
-                                <p class="govuk-heading-s">CAF Baseline profile:
+                                <p class="govuk-heading-s">Baseline CAF profile:
                                     <strong class="govuk-tag govuk-tag--{% if profile_met.0 == 'Yes' %}green{% else %}red{% endif %}">
                                         {% if profile_met.0 == 'Not met' %}Not met{% else %} Met{% endif %}
                                     </strong>
