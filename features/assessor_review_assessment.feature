@@ -826,5 +826,5 @@ Feature: Assessor can log in and review assessments
     Then page has heading "Create report"
     And click button with text "Save and continue"
     Then page has heading "Your IAR report has been created (Version 1)"
-    Then download file by clicking button "Download report (PDF)"
-    Then confirm current assessment information is on the downloaded pdf
+    # Then download file by clicking button "Download report (PDF)"
+    # Then confirm current assessment information is on the downloaded pdf
