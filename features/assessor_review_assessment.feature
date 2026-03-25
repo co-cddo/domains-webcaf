@@ -24,7 +24,7 @@ Feature: Assessor can log in and review assessments
     Then page has heading "System overview"
     And click button with text "Save and continue"
 
-  Scenario: Assessor fills Objective A: Managing security risk
+  Scenario: Assessor fills Objective A Managing security risk
     Given there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "current" in "submitted" status and data "alice_completed_assessment.json"
     And the user logs in with username  "test_assessor@example.com" and password "password"
     And Think time 1 seconds
@@ -825,3 +825,6 @@ Feature: Assessor can log in and review assessments
     When click link with text "Create report"
     Then page has heading "Create report"
     And click button with text "Save and continue"
+    Then page has heading "Your IAR report has been created (Version 1)"
+    Then download file by clicking button "Download report (PDF)"
+    Then confirm current assessment information is on the downloaded pdf
