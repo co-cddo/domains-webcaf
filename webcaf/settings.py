@@ -297,6 +297,7 @@ else:
 # Confirmation email template ID
 # System will not send a confirmation email if this is not set
 NOTIFY_CONFIRMATION_TEMPLATE_ID = env.str("NOTIFY_CONFIRMATION_TEMPLATE_ID", "")
+NOTIFY_ASSESSMENT_READY_TEMPLATE_ID = env.str("NOTIFY_ASSESSOR_EMAIL_TEMPLATE_ID", "")
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")

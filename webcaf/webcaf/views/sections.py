@@ -4,6 +4,7 @@ from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -15,7 +16,7 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Assessment, Configuration, Review
+from webcaf.webcaf.models import Assessment, Configuration, Review, UserProfile
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
@@ -91,34 +92,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                         f"Assessment {assessment.id} reference {assessment.reference} submitted"
                         f" at {datetime.now(tz=uk_tz).strftime('%Y-%m-%d %H:%M:%S')}"
                     )
-                    if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
-                        self.logger.info(
-                            mask_email(
-                                f"Sending confirmation email for {assessment.id} to {self.request.user.pk} {self.request.user.email}"
-                            )
-                        )
-                        try:
-                            send_notify_email(
-                                [self.request.user.email],
-                                {
-                                    "first_name": self.request.user.first_name,
-                                    "last_name": self.request.user.last_name,
-                                    "submitted_by": self.request.user.email,
-                                    "submitted_on": datetime.now(tz=uk_tz).strftime("%Y-%m-%d %H:%M:%S"),
-                                    "reference": assessment.reference,
-                                    "system_name": assessment.system.name,
-                                    "organisation_name": assessment.system.organisation.name,
-                                    "caf_version": assessment.framework,
-                                },
-                                settings.NOTIFY_CONFIRMATION_TEMPLATE_ID,
-                            )
-                        except Exception:  # type: ignore
-                            self.logger.exception(
-                                mask_email(
-                                    f"GOV.UK Notify: Failed to send confirmation email for {assessment.id} user {self.request.user.pk}"
-                                )
-                            )
-
+                    self._send_emails(assessment, uk_tz)
                 else:
                     self.logger.info(f"Assessment {assessment.id} already submitted")
                 return redirect(reverse("show-submission-confirmation"))
@@ -133,6 +107,115 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
             self.logger.info(f"No assessment found in session {self.request.user.pk}")
 
         return redirect(reverse("my-account"))
+
+    def _send_emails(self, assessment: Assessment, uk_tz: ZoneInfo):
+        submitted_time = datetime.now(tz=uk_tz).strftime("%Y-%m-%d %H:%M:%S")
+        if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
+            self.logger.info(
+                mask_email(
+                    f"Sending confirmation email for {assessment.id} to {self.request.user.pk} {self.request.user.email}"  # type: ignore[union-attr]
+                )
+            )
+            self.send_email(
+                assessment,
+                {
+                    "first_name": self.request.user.first_name,  # type: ignore[union-attr]
+                    "last_name": self.request.user.last_name,  # type: ignore[union-attr]
+                    "submitted_by": self.request.user.email,  # type: ignore[union-attr]
+                    "submitted_on": submitted_time,
+                    "reference": assessment.reference,
+                    "system_name": assessment.system.name,
+                    "organisation_name": assessment.system.organisation.name,
+                    "caf_version": assessment.framework,
+                },
+                [self.request.user.email],  # type: ignore[list-item,union-attr]
+                settings.NOTIFY_CONFIRMATION_TEMPLATE_ID,
+                "confirmation",
+            )
+
+        if settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID:
+            profile_list = self._get_assessment_ready_recipients(assessment)
+            self.logger.info(f"Sending assessment ready emails to {len(profile_list)} {assessment.review_type} users")
+            addresses = []
+            for profile in profile_list:
+                self.logger.info(
+                    mask_email(
+                        f"Sending assessment ready email for {assessment.id} to {profile.user.pk} {profile.user.email}"
+                    )
+                )
+                if profile.user.email:
+                    addresses.append(profile.user.email)
+            if addresses:
+                self.send_email(
+                    assessment,
+                    {
+                        "submitted_by": self.request.user.email,  # type: ignore[union-attr]
+                        "submitted_on": submitted_time,
+                        "reference": assessment.reference,
+                        "system_name": assessment.system.name,
+                        "organisation_name": assessment.system.organisation.name,
+                        "caf_version": assessment.framework,
+                    },
+                    addresses,
+                    settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID,
+                    "assessment ready",
+                )
+            else:
+                self.logger.info("No recipients found to send assessment ready emails")
+
+    def _get_assessment_ready_recipients(self, assessment: Assessment) -> list[UserProfile]:
+        """
+        Retrieves the list of user profiles eligible to receive notifications for the
+        provided assessment, based on its review type and associated roles.
+
+        :param assessment: The assessment object, which determines the review type and
+            links to the organization and its members.
+        :type assessment: Assessment
+        :return: A list of user profiles who are eligible recipients based on their roles
+            in the organization's system and the review type of the assessment.
+        :rtype: list[UserProfile]
+        """
+        review_type_to_roles = {"independent": ["assessor"], "peer_review": ["reviewer"]}
+        recipients_list: list[UserProfile] = []
+        roles_list = review_type_to_roles.get(assessment.review_type, [])
+        recipients_list.extend(assessment.system.organisation.members.filter(role__in=roles_list))
+        return recipients_list
+
+    def send_email(
+        self,
+        assessment: Assessment,
+        data: dict[str, Any],
+        email_addresses: list[str],
+        template_id: str,
+        email_type: str,
+    ):
+        """
+        Sends an email using the specified template and data via the GOV.UK Notify service.
+
+        :param assessment: The assessment instance related to the email being sent.
+        :type assessment: Assessment
+        :param data: A dictionary containing the data used to populate the email template fields.
+        :type data: dict[str, Any]
+        :param email_addresses: A list of email addresses to which the email will be sent.
+        :type email_addresses: list[str]
+        :param template_id: The ID of the email template used for email generation.
+        :type template_id: str
+        :param email_type: The type or purpose of the email being sent (e.g., notification, reminder).
+        :type email_type: str
+        :return: None. The function is called for its side effects.
+        """
+        try:
+            send_notify_email(
+                email_addresses,
+                data,
+                template_id,
+            )
+        except Exception:  # type: ignore
+            self.logger.exception(
+                mask_email(
+                    f"GOV.UK Notify: Failed to send {email_type} email for {assessment.id} user {self.request.user.pk}"
+                )
+            )
 
 
 class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
