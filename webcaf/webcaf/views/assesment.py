@@ -40,7 +40,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
 
     login_url = "/oidc/authenticate/"
     template_name = "assessment/draft-assessment.html"
-    logger = logging.Logger("EditAssessmentView")
+    logger = logging.getLogger("EditAssessmentView")
 
     def get_context_data(self, **kwargs):
         data = {}
@@ -324,7 +324,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
 
     login_url = "/oidc/authenticate/"  # OIDC login route
     template_name = "assessment/draft-assessment.html"
-    logger = logging.Logger("CreateAssessmentView")
+    logger = logging.getLogger("CreateAssessmentView")
     form_class = BaseAssessmentForm
 
     def get_context_data(self, **kwargs):

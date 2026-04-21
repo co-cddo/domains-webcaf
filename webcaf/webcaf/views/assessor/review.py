@@ -234,7 +234,7 @@ class SystemAndScopeView(BaseReviewMixin, UpdateView):
     template_name = "review/system_and_scope.html"
     form_class = SystemAndScopeForm
     model = Review
-    logger = logging.Logger("SystemAndScopeView")
+    logger = logging.getLogger("SystemAndScopeView")
 
     def get_success_url(self):
         return reverse("edit-review", kwargs={"pk": self.object.id})
@@ -347,7 +347,7 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
 
     model = System
     template_name = "review/edit-system.html"
-    logger = logging.Logger("EditReviewSystemView")
+    logger = logging.getLogger("EditReviewSystemView")
 
     def get_object(self, queryset=None) -> System:
         """

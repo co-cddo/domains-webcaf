@@ -38,7 +38,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
 
     template_name = "assessment/objective-confirmation.html"
     form_class = Form
-    logger = logging.Logger("ObjectiveConfirmationView")
+    logger = logging.getLogger("ObjectiveConfirmationView")
 
     def get_allowed_roles(self) -> list[str]:
         return ["organisation_lead"]
@@ -265,7 +265,7 @@ class ViewSubmittedAssessmentsView(UserRoleCheckMixin, TemplateView):
     """
 
     template_name = "user-pages/submitted-assessments.html"
-    logger = logging.Logger("ViewSubmittedAssessmentsView")
+    logger = logging.getLogger("ViewSubmittedAssessmentsView")
 
     def get_allowed_roles(self) -> list[str]:
         return [
@@ -312,7 +312,7 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.logger = logging.Logger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def get_allowed_roles(self) -> list[str]:
         return [
