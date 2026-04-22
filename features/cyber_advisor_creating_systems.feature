@@ -5,16 +5,16 @@ Feature: Cyber advisor can maintain systems
     Given Organisation "Ministry of Agriculture" of type "ministerial-department" exists with systems "System 1, System 2, System 3"
 #    Database does not store the passwords
     And the user "cyber_advisor@example.gov.uk" exists
-    And User "cyber_advisor@example.gov.uk" has the profile "GDS cyber advisor" assigned in "Ministry of Agriculture"
+    And User "cyber_advisor@example.gov.uk" has the profile "Cyber advisor" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
     And the user logs in with username  "cyber_advisor@example.gov.uk" and password "password"
     And there is no system with name "My system" for organisation "Ministry of Agriculture"
 
 
-  Scenario: GDS cyber advisor can see option to create systems
+  Scenario: Cyber advisor can see option to create systems
     Given Think time 1 seconds
-    Then they should see page title "GDS cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
@@ -25,9 +25,9 @@ Feature: Cyber advisor can maintain systems
     And link with text "System 2"
     And link with text "System 3"
 
-  Scenario: GDS cyber advisor can crete new System
+  Scenario: Cyber advisor can crete new System
     Given Think time 1 seconds
-    Then they should see page title "GDS cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
@@ -54,9 +54,9 @@ Feature: Cyber advisor can maintain systems
     And System "does" exist with name "My system" for organisation "Ministry of Agriculture"
 
 
-  Scenario: GDS cyber advisor can update a System
+  Scenario: Cyber advisor can update a System
     Given Think time 1 seconds
-    Then they should see page title "GDS cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
@@ -80,9 +80,9 @@ Feature: Cyber advisor can maintain systems
     Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And System "does" exist with name "System 3" for organisation "Ministry of Agriculture"
 
-  Scenario: GDS cyber advisor can crete new System, review summary card and change
+  Scenario: Cyber advisor can crete new System, review summary card and change
     Given Think time 1 seconds
-    Then they should see page title "GDS cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
@@ -113,9 +113,9 @@ Feature: Cyber advisor can maintain systems
     And link with text "My system"
     And System "does" exist with name "My system" for organisation "Ministry of Agriculture"
 
-  Scenario: GDS cyber advisor can update and then change a System
+  Scenario: Cyber advisor can update and then change a System
     Given Think time 1 seconds
-    Then they should see page title "GDS cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"

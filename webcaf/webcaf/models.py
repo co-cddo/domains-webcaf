@@ -361,7 +361,7 @@ class UserProfile(models.Model):
         "reviewer": [],
     }
     ROLE_CHOICES = [
-        ("cyber_advisor", "GDS cyber advisor"),
+        ("cyber_advisor", "Cyber advisor"),
         ("organisation_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
         ("reviewer", "Peer reviewer"),
