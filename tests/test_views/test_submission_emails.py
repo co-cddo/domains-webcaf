@@ -11,6 +11,7 @@ from webcaf.webcaf.models import Assessment, UserProfile
 @override_settings(
     NOTIFY_CONFIRMATION_TEMPLATE_ID="test-confirm-template",
     NOTIFY_ASSESSMENT_READY_TEMPLATE_ID="test-ready-template",
+    SEND_ASSESSMENT_COMPLETION_EMAILS=True,
 )
 class TestSubmissionEmails(BaseViewTest):
     """

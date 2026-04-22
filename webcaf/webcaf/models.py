@@ -449,6 +449,9 @@ class Configuration(models.Model):
     def get_banner_display_until(self):
         return self.config_data.get("banner_display_until")
 
+    def get_gov_assure_email(self):
+        return self.config_data.get("gov_assure_email")
+
     def get_submission_due_date(self):
         """
         Convert the get_assessment_period_end in to a datetime object.

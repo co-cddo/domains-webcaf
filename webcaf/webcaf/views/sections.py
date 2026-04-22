@@ -113,7 +113,8 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
             self.logger.info(
                 mask_email(
-                    f"Sending confirmation email for {assessment.id} to {self.request.user.pk} {self.request.user.email}"  # type: ignore[union-attr]
+                    f"Sending confirmation email for {assessment.id} to {self.request.user.pk} "
+                    f"{self.request.user.email}"  # type: ignore[union-attr]
                 )
             )
             self.send_email(
@@ -135,31 +136,37 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
 
         if settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID:
             profile_list = self._get_assessment_ready_recipients(assessment)
-            self.logger.info(f"Sending assessment ready emails to {len(profile_list)} {assessment.review_type} users")
+            self.logger.info(f"Sending {assessment.review_type} assessment ready emails to {len(profile_list)} users")
             addresses = []
             for profile in profile_list:
                 self.logger.info(
-                    mask_email(
-                        f"Sending assessment ready email for {assessment.id} to {profile.user.pk} {profile.user.email}"
-                    )
+                    mask_email(f"Sending assessment ready email for {assessment.id} to {profile.user.email}")
                 )
                 if profile.user.email:
                     addresses.append(profile.user.email)
             if addresses:
-                self.send_email(
-                    assessment,
-                    {
-                        "submitted_by": self.request.user.email,  # type: ignore[union-attr]
-                        "submitted_on": submitted_time,
-                        "reference": assessment.reference,
-                        "system_name": assessment.system.name,
-                        "organisation_name": assessment.system.organisation.name,
-                        "caf_version": assessment.framework,
-                    },
-                    addresses,
-                    settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID,
-                    "assessment ready",
-                )
+                # Filter out these emails being sent from non-production environments
+                if settings.SEND_ASSESSMENT_COMPLETION_EMAILS:
+                    default_config = Configuration.objects.get_default_config()
+                    gov_assure_email = default_config.get_gov_assure_email()
+                    if gov_assure_email:
+                        addresses.append(gov_assure_email)
+                    self.send_email(
+                        assessment,
+                        {
+                            "submitted_by": self.request.user.email,  # type: ignore[union-attr]
+                            "submitted_on": submitted_time,
+                            "reference": assessment.reference,
+                            "system_name": assessment.system.name,
+                            "organisation_name": assessment.system.organisation.name,
+                            "caf_version": assessment.framework,
+                        },
+                        addresses,
+                        settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID,
+                        "assessment ready",
+                    )
+                else:
+                    self.logger.info("Not sending ready emails for this environment")
             else:
                 self.logger.info("No recipients found to send assessment ready emails")
 
@@ -206,7 +213,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         """
         try:
             send_notify_email(
-                email_addresses,
+                list(set(email_addresses)),
                 data,
                 template_id,
             )

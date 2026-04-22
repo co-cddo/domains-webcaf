@@ -371,3 +371,6 @@ if SENTRY_DSN:
 USER_IDLE_TIMEOUT = 90 * 60
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Only send emails for staging and prod environments
+SEND_ASSESSMENT_COMPLETION_EMAILS = ENVIRONMENT in ["staging", "prod"]
