@@ -143,7 +143,7 @@ class PeerReviewCommentsForm(CommentsForm):
     :type max_words: int
     """
 
-    max_words = 500
+    max_words = 1000
 
 
 class PeerReviewCommentsFormMax300Words(PeerReviewCommentsForm):

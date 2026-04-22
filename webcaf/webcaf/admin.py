@@ -11,7 +11,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
-from django.forms import CharField, DateTimeInput, ModelForm
+from django.forms import CharField, DateTimeInput, EmailField, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -441,6 +441,8 @@ class CustomConfigForm(ModelForm):
         required=True,
     )
 
+    gov_assure_email = EmailField(label="GovAssure contact email", help_text="Used for email CC", required=False)
+
     class Meta:
         model = Configuration
         fields = [
@@ -449,6 +451,7 @@ class CustomConfigForm(ModelForm):
             "assessment_period_end",
             "banner_display_until",
             "default_framework",
+            "gov_assure_email",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -474,6 +477,7 @@ class CustomConfigForm(ModelForm):
         if self.instance.get_banner_display_until():
             self.fields["banner_display_until"].initial = set_local_tz(self.instance.get_banner_display_until())
         self.fields["default_framework"].initial = self.instance.get_default_framework()
+        self.fields["gov_assure_email"].initial = self.instance.get_gov_assure_email()
 
     def save(self, commit=True):
         if not self.instance.config_data:
@@ -497,6 +501,7 @@ class CustomConfigForm(ModelForm):
         self.instance.config_data["assessment_period_end"] = to_local(self.cleaned_data["assessment_period_end"])
         self.instance.config_data["banner_display_until"] = to_local(self.cleaned_data["banner_display_until"])
         self.instance.config_data["default_framework"] = self.cleaned_data["default_framework"]
+        self.instance.config_data["gov_assure_email"] = self.cleaned_data["gov_assure_email"]
         return super().save(commit=commit)
 
 

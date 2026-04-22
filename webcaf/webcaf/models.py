@@ -361,7 +361,7 @@ class UserProfile(models.Model):
         "reviewer": [],
     }
     ROLE_CHOICES = [
-        ("cyber_advisor", "GDS cyber advisor"),
+        ("cyber_advisor", "Cyber advisor"),
         ("organisation_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
         ("reviewer", "Peer reviewer"),
@@ -448,6 +448,9 @@ class Configuration(models.Model):
 
     def get_banner_display_until(self):
         return self.config_data.get("banner_display_until")
+
+    def get_gov_assure_email(self):
+        return self.config_data.get("gov_assure_email")
 
     def get_submission_due_date(self):
         """
