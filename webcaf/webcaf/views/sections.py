@@ -83,10 +83,12 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     # Initiate the review
                     if assessment.review_type in ["independent", "peer_review"]:
                         review, _ = Review.objects.get_or_create(assessment=assessment)
-                        self.logger.info(f"Initiating review for {assessment.id} by {self.request.user.pk} {review.id}")
+                        self.logger.info(
+                            f"Initiating review for {assessment.reference} by user {self.request.user.pk} review ref={review.reference}"
+                        )
                     else:
                         self.logger.info(
-                            f"No review initiated for {assessment.id} by {self.request.user.pk} as review type is not independent or peer review"
+                            f"No review initiated for {assessment.reference} by user {self.request.user.pk} as review type is not independent or peer review"
                         )
                     self.logger.info(
                         f"Assessment {assessment.id} reference {assessment.reference} submitted"
@@ -94,17 +96,17 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     )
                     self._send_emails(assessment, uk_tz)
                 else:
-                    self.logger.info(f"Assessment {assessment.id} already submitted")
+                    self.logger.info(f"Assessment {assessment.reference} already submitted")
                 return redirect(reverse("show-submission-confirmation"))
             else:
                 # User has not completed all objectives and should not have reached this page
                 self.logger.error(
                     mask_email(
-                        f"User {self.request.user.pk} has not completed all objectives, but tried to submit {assessment.id}"
+                        f"User {self.request.user.pk} has not completed all objectives, but tried to submit {assessment.reference}"
                     )
                 )
         else:
-            self.logger.info(f"No assessment found in session {self.request.user.pk}")
+            self.logger.info(f"No assessment found in session for user {self.request.user.pk}")
 
         return redirect(reverse("my-account"))
 
@@ -113,7 +115,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
             self.logger.info(
                 mask_email(
-                    f"Sending confirmation email for {assessment.id} to {self.request.user.pk} "
+                    f"Sending confirmation email for assessment {assessment.reference} to user {self.request.user.pk} - "
                     f"{self.request.user.email}"  # type: ignore[union-attr]
                 )
             )
@@ -140,7 +142,9 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
             addresses = []
             for profile in profile_list:
                 self.logger.info(
-                    mask_email(f"Sending assessment ready email for {assessment.id} to {profile.user.email}")
+                    mask_email(
+                        f"Sending assessment ready email for assessment {assessment.reference} to {profile.user.email}"
+                    )
                 )
                 if profile.user.email:
                     addresses.append(profile.user.email)
@@ -213,7 +217,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         """
         try:
             send_notify_email(
-                list(set(email_addresses)),
+                email_addresses,
                 data,
                 template_id,
             )
