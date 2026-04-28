@@ -153,6 +153,7 @@ if not DEBUG:
     WHITENOISE_MAX_AGE = 86400  # 24 hours (in seconds)
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
+AWS_STORAGE_BUCKET_NAME = env.str("S3_DATA_BUCKET", "")
 
 # Content Security Policy: only allow images, stylesheets and scripts from the
 # same origin as the HTML
