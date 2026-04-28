@@ -344,7 +344,7 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
         progress_dict["principle_name"] = section_detail["principles"][principle]["title"]
 
     # calculate the number of completed outcomes across the whole assessment, this is indicative of
-    # having completed a previous indicator page and confirming it's completion
+    # having completed a previous indicator page and confirming its completion
     completed_outcomes = len(
         [
             p
