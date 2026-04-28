@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+
+# Data migration artifacts
+data-migration/data/assessments-combined/cos-igps/*.gz
+data-migration/data/assessments-combined/overview/*.gz
+data-migration/data/assessment-definitions/*.gz
+data-migration/data/hashed_ids/*.gz
+data-migration/data/assessments-transformed/*.json
+data_migration/data/assessments-combined/*
+data_migration/data/assessments-transformed/*
+data_migration/data/assessment-definitions/*
+data_migration/data/hashed_ids/*
