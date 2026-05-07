@@ -23,6 +23,7 @@ from webcaf.webcaf.models import (
     Configuration,
     Organisation,
     Review,
+    Settings,
     System,
     UserProfile,
 )
@@ -80,6 +81,29 @@ class SortedOrganisationFilter(admin.SimpleListFilter):
             return True
         except Exception:
             return False
+
+
+class SettingsAdminForm(forms.ModelForm):
+    class Meta:
+        model = Settings
+        fields = "__all__"
+        labels = {"admin_verification_enabled": "Enable admin 2f verification"}
+
+
+@admin.register(Settings)
+class SettingsAdmin(SimpleHistoryAdmin):
+    form = SettingsAdminForm
+
+    def get_changeform_initial_data(self, request):
+        """
+        Force the new screen to have the values from the singleton
+        :param request:
+        :return:
+        """
+        settings_instance = Settings.get_instance()
+        return {
+            "admin_verification_enabled": settings_instance.admin_verification_enabled,
+        }
 
 
 @admin.register(UserProfile)
