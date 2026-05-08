@@ -12,11 +12,17 @@
             <div class="govuk-inset-text">
                 We have deleted your responses on pages which you did not save.
             </div>
-
-            <a href="{% url 'my-account' %}" role="button" draggable="false" class="govuk-button"
-               title="Continue to login page">
-                Continue
-            </a>
+            {% if is_staff %}
+                <a href="{% url 'admin:index' %}" role="button" draggable="false" class="govuk-button"
+                   title="Continue to login page">
+                    Continue
+                </a>
+            {% else %}
+                <a href="{% url 'my-account' %}" role="button" draggable="false" class="govuk-button"
+                   title="Continue to login page">
+                    Continue
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
