@@ -2,15 +2,22 @@
 {% load govuk_frontend_django %}
 {% block title %}Manage user - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
+    {% if user_doesnt_exist %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                {% include "partials/error_banner.html" %}
+            </div>
+        </div>
+    {% endif %}
     <form action="" method="post">
         {% csrf_token %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if user_doesnt_exist %}govuk-visually-hidden{% endif %}">
                     <fieldset class="govuk-fieldset" aria-describedby="removeUser-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             Do you want to
-                            remove {{ user_profile_to_delete.user.first_name }} {{ user_profile_to_delete.user.last_name }}?
+                            remove {{ object.user.first_name }} {{ object.user.last_name }}?
                         </legend>
                         <div id="removeUser-hint" class="govuk-hint">
                         </div>
@@ -18,6 +25,7 @@
                              data-govuk-radios-init="">
                             <div class="govuk-radios__item">
                                 <input class="govuk-radios__input" id="removeUser" name="action" type="radio"
+                                       {% if user_doesnt_exist %}disabled{% endif %}
                                        value="confirm">
                                 <label class="govuk-label govuk-radios__label" for="removeUser">
                                     Yes
