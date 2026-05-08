@@ -2,7 +2,7 @@ import logging
 
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic.edit import FormView
 from django_otp import login as otp_login
 
@@ -52,7 +52,6 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
 
     template_name = "users/verify-2fa-token.html"
     form_class = TokenForm
-    success_url = reverse_lazy("my-account")
 
     def get(self, request, *args, **kwargs):
         """
@@ -63,23 +62,44 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         `device.generate_challenge()` to send a new token. This effectively
         sends a new code every time the user visits or refreshes the page.
         """
-        try:
-            device, created = GovNotifyEmailDevice.objects.get_or_create(user=request.user, email=request.user.email)
-            if created:
-                logger.info(f"Created new GovNotifyEmailDevice for user {request.user.pk}")
+        data = self.get_context_data()
+        if not request.user.is_anonymous and request.user.email:
+            try:
+                device, created = GovNotifyEmailDevice.objects.get_or_create(
+                    user=request.user, email=request.user.email
+                )
+                if created:
+                    logger.info(f"Created new GovNotifyEmailDevice for user {request.user.pk}")
 
-            device.generate_challenge()
-            logger.info(f"Generated new 2FA token challenge for user {request.user.pk}")
+                device.generate_challenge()
+                logger.info(f"Generated new 2FA token challenge for user {request.user.pk}")
 
-        except Exception as e:
-            logger.error(
-                mask_email(
-                    f"Error in Verify2FATokenView.dispatch for user {request.user.pk} {request.user.email}: {e}"
-                ),
-                exc_info=True,
-            )
+            except Exception as e:
+                logger.error(
+                    mask_email(
+                        f"Error in Verify2FATokenView.dispatch for user {request.user.pk} {request.user.email}: {e}"
+                    ),
+                    exc_info=True,
+                )
+                data["error_sending_code"] = True
+        else:
+            # Add non form level error message
+            data["error_sending_code"] = True
+            data["error_message"] = {
+                "title": "There was an error sending your one-time code.",
+                "paragraphs": [
+                    """If you are a Cyber Advisor you must <a class='govuk-notification-banner__link' href='/logout'
+                    title='log out'>log out</a> of the admin panel and log in again.
+                    """,
+                    """
+                    If you are a WebCAF user,<a class="govuk-notification-banner__link" href="mailto:govassure@dsit.gov.uk"
+                    title="contact the GovAssure team">contact the GovAssure team.</a>
+                    """,
+                ],
+            }
+            logger.error(f"User {request.user.pk} does not have an email associated with the account")
 
-        return super().get(request, *args, **kwargs)
+        return self.render_to_response(data)
 
     def form_invalid(self, form):
         """
@@ -126,3 +146,14 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         logger.info(f"Successful 2FA verification for user {self.request.user.pk}")
         otp_login(self.request, device)
         return super().form_valid(form)
+
+    def get_success_url(self):
+        """
+        Decide where to redirect based on current user status
+        :return:
+            admin:index url if the logged-in user is admin, and
+            it will be front end my-account for normal users
+        """
+        if self.request.user.is_staff:
+            return reverse("admin:index")
+        return reverse("my-account")

@@ -53,14 +53,23 @@ class OIDCBackend(OIDCAuthenticationBackend):
             }
         """
         self.logger.info(mask_email(f"Create user for {claims.get('email')}"))
-        user = super().create_user(claims)
-        user.email = claims.get("email")
-        user.username = claims.get("email")
-        user.first_name = claims.get("given_name", claims.get("name", ""))
-        user.last_name = claims.get("family_name", "")
-        user.save()
+        user_email = claims.get("email")
+        first_name = claims.get("given_name", claims.get("name", ""))
+        last_name = claims.get("family_name", "")
+        user = self.UserModel.objects.create_user(
+            user_email, email=user_email, is_staff=False, first_name=first_name, last_name=last_name
+        )
         self.logger.info(mask_email(f"Created user {user.pk} {user.email}"))
         return user
+
+    def filter_users_by_claims(self, claims):
+        """Return all users matching the specified email."""
+        email = claims.get("email")
+        if not email:
+            return self.UserModel.objects.none()
+        # We set the username and the email the same value
+        # when we create the accounts
+        return self.UserModel.objects.filter(username__iexact=email, email__iexact=email, is_staff=False)
 
     def update_user(self, user, claims):
         """
@@ -115,8 +124,6 @@ class LoginRequiredMiddleware:
             reverse("oidc_authentication_init"),
             reverse("oidc_authentication_callback"),
             reverse("oidc_logout"),
-            # Admin authentication is done separately
-            "/admin/",
             # public pages and static assets
             "/assets/",
             "/static/",
@@ -157,12 +164,18 @@ class LoginRequiredMiddleware:
         ):
             # you need to be authenticated to access any page outside the non secure list
             if not request.user.is_authenticated or request.user.is_anonymous:
-                if request.path == reverse("verify-2fa-token") and request.method == "POST":
+                if request.path == reverse("verify-2fa-token"):
                     # The only possibility of this happening is that the session timing out
                     # while the user is trying to submit the 2FA token.
                     # So, reset the flow and get a new token
                     self.logger.info("Session expired while submitting 2FA token. Redirecting to session-expired")
                     return redirect("session-expired")
+
+                # Decide on the form of authentication based on the accessed url path
+                # Let the admin screen handle the authentication if not authenticated yet
+                if request.path.startswith("/admin"):
+                    return self.get_response(request)
+
                 self.logger.debug("Force authentication for %s", request.path)
                 return redirect("oidc_authentication_init")
 
@@ -171,12 +184,11 @@ class LoginRequiredMiddleware:
                 # handle the local dev for when 2FA is disabled
                 self.logger.debug("Allowing access for local development or testing")
                 return self.get_response(request)
-            elif not request.user.is_verified():
-                if not request.user.is_staff:
-                    # No varification support yet for the staff users
-                    # Allow access to the verification page
-                    if request.path == reverse("verify-2fa-token"):
-                        return self.get_response(request)
+            elif not request.user.is_verified() and not request.path == reverse("verify-2fa-token"):
+                from webcaf.webcaf.models import Settings
+
+                admin_verification_enabled = Settings.get_instance().admin_verification_enabled
+                if not request.user.is_staff or admin_verification_enabled:
                     # Any other unverified user access to urls is redirected to the verification page
                     verify_url = reverse("verify-2fa-token")
                     return redirect(verify_url)
