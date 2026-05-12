@@ -111,7 +111,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
         return redirect(reverse("my-account"))
 
     def _send_emails(self, assessment: Assessment, uk_tz: ZoneInfo):
-        submitted_time = datetime.now(tz=uk_tz).strftime("%Y-%m-%d %H:%M:%S")
+        submitted_time = datetime.now(tz=uk_tz).strftime("%d %B %Y")
         if settings.NOTIFY_CONFIRMATION_TEMPLATE_ID:
             self.logger.info(
                 mask_email(
@@ -163,7 +163,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                             "reference": assessment.reference,
                             "system_name": assessment.system.name,
                             "organisation_name": assessment.system.organisation.name,
-                            "caf_version": assessment.framework,
+                            "caf_version": assessment.get_framework_display(),
                         },
                         addresses,
                         settings.NOTIFY_ASSESSMENT_READY_TEMPLATE_ID,
