@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 from django.db.transaction import atomic
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic import FormView, UpdateView
+from django.views.generic import DeleteView, FormView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
@@ -146,12 +146,14 @@ class CreateOrSkipUserProfileView(UserProfilesView):
             return reverse("my-account")
 
 
-class RemoveUserProfileView(UserRoleCheckMixin, FormView):
+class RemoveUserProfileView(UserRoleCheckMixin, DeleteView):
     """
     View to confirm the user profile deletion and action it.
     This only removes the profile (user association with the organisation) and not the user from the system
     """
 
+    model = UserProfile
+    object: UserProfile | None
     form_class = NextActionForm
     template_name = "users/delete-user.html"
     logger = logging.getLogger("RemoveUserProfileView")
@@ -159,13 +161,49 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
     def get_allowed_roles(self) -> list[str]:
         return ["cyber_advisor", "organisation_lead"]
 
+    def get_object(self, queryset: QuerySet[Any, Any] | None = None) -> UserProfile | None:
+        user_profile: UserProfile | None = SessionUtil.get_current_user_profile(self.request)
+        if not user_profile:
+            raise PermissionDenied("Shouldn't have reached this code")
+        try:
+            return UserProfile.objects.get(id=self.kwargs["user_profile_id"], organisation=user_profile.organisation)
+        except UserProfile.DoesNotExist:
+            # Return None if the profile is not found.
+            # we will display an error to the user
+            # see the get method implementation
+            ...
+
+        return None
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles HTTP GET requests to retrieve the object and update the context data with
+        relevant information. If the object does not exist, the context is updated with
+        an error message and a flag indicating the user doesn't exist.
+
+        :param request: The HTTP request object associated with the GET call.
+        :type request: HttpRequest
+        :param args: Additional positional arguments passed to the method.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments passed to the method.
+        :type kwargs: dict
+        :return: The HTTP response rendered with the updated context data.
+        :rtype: HttpResponse
+        """
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        if not self.object:
+            context["error_message"] = {
+                "title": "There was an error deleting the user.",
+                "paragraphs": [
+                    """This user no longer exists.""",
+                ],
+            }
+            context["user_doesnt_exist"] = True
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        current_profile_id = self.request.session.get("current_profile_id")
-        user_profile = UserProfile.objects.filter(user=self.request.user, id=current_profile_id).get()
-        user_profile_to_delete = UserProfile.objects.get(
-            id=self.kwargs["user_profile_id"], organisation=user_profile.organisation
-        )
         data["breadcrumbs"] = [
             {
                 "url": reverse("my-account"),
@@ -177,16 +215,15 @@ class RemoveUserProfileView(UserRoleCheckMixin, FormView):
             },
             {"text": "Delete user"},
         ]
-        data["user_profile_to_delete"] = user_profile_to_delete
         return data
 
     def form_valid(self, form):
-        if self.request.POST.get("action") != "confirm":
+        if form.cleaned_data["action"] != "confirm":
             return redirect(reverse("view-profiles"))
 
         current_user_profile = SessionUtil.get_current_user_profile(self.request)
 
-        if not PermissionUtil.current_user_can_delete_user(current_user_profile):
+        if current_user_profile and not PermissionUtil.current_user_can_delete_user(current_user_profile):
             self.logger.error(
                 f"User {self.request.user.pk} is not allowed to delete user profile {self.kwargs['user_profile_id']}"
             )

@@ -367,6 +367,16 @@ class TestUserProfileView(BaseViewTest):
         self.assertEqual(old_user.id, old_user_id)
         self.assertFalse(UserProfile.objects.filter(user=old_user, organisation=self.test_organisation).exists())
 
+    def test_delete_non_existing_profile_shows_error_message(self):
+        """Test that requesting deletion of a non-existing profile ID renders an error message"""
+        non_existing_id = 999999
+
+        response = self.client.get(reverse("remove-profile", kwargs={"user_profile_id": non_existing_id}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("This user no longer exists", response.context["error_message"]["paragraphs"][0])
+        self.assertTrue(response.context["user_doesnt_exist"])
+
     def test_update_profile_with_existing_email_associates_existing_user_and_orphans_old(self):
         """
         When updating a profile with an email that matches an existing user,

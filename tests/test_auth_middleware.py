@@ -8,7 +8,7 @@ for non-exempt URLs and handles 2FA verification.
 from unittest.mock import Mock, patch
 
 from django.http import HttpRequest, HttpResponse
-from django.test import SimpleTestCase, override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from webcaf.auth import LoginRequiredMiddleware
@@ -28,7 +28,7 @@ def make_user(*, authenticated=True, verified=True, staff=False, user_id=1):
 
 
 @override_settings(DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}})
-class LoginRequiredMiddlewareTest(SimpleTestCase):
+class LoginRequiredMiddlewareTest(TestCase):
     """Test suite for LoginRequiredMiddleware."""
 
     def setUp(self):
@@ -43,7 +43,6 @@ class LoginRequiredMiddlewareTest(SimpleTestCase):
         self.assertIn(reverse("oidc_authentication_init"), self.middleware.exempt_url_prefixes)
         self.assertIn(reverse("oidc_authentication_callback"), self.middleware.exempt_url_prefixes)
         self.assertIn(reverse("oidc_logout"), self.middleware.exempt_url_prefixes)
-        self.assertIn("/admin/", self.middleware.exempt_url_prefixes)
         self.assertIn("/assets/", self.middleware.exempt_url_prefixes)
         self.assertIn("/static/", self.middleware.exempt_url_prefixes)
         self.assertIn("/media", self.middleware.exempt_url_prefixes)
@@ -135,8 +134,12 @@ class LoginRequiredMiddlewareTest(SimpleTestCase):
         self.get_response.assert_called_with(self.request)
 
     @override_settings(ENABLED_2FA=True)
-    def test_unverified_staff_user_is_allowed(self):
-        """Unverified staff users should not be redirected to verification page."""
+    def test_unverified_staff_user_is_allowed_when_admin_verification_disabled(self):
+        """Unverified staff users bypass 2FA when admin_verification_enabled is False."""
+        from webcaf.webcaf.models import Settings
+
+        Settings.objects.update_or_create(pk=1, defaults={"admin_verification_enabled": False})
+
         self.request.path = "/some/protected/path"
         self.request.user = self.user
         self.request.user.is_verified = Mock(return_value=False)
@@ -145,6 +148,22 @@ class LoginRequiredMiddlewareTest(SimpleTestCase):
         response = self.middleware(self.request)
         self.assertEqual(response.status_code, 200)
         self.get_response.assert_called_with(self.request)
+
+    @override_settings(ENABLED_2FA=True)
+    def test_unverified_staff_user_redirected_when_admin_verification_enabled(self):
+        """Unverified staff users are redirected to 2FA when admin_verification_enabled is True."""
+        from webcaf.webcaf.models import Settings
+
+        Settings.objects.update_or_create(pk=1, defaults={"admin_verification_enabled": True})
+
+        self.request.path = "/some/protected/path"
+        self.request.user = self.user
+        self.request.user.is_verified = Mock(return_value=False)
+        self.request.user.is_staff = True
+
+        response = self.middleware(self.request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("verify-2fa-token"))
 
     def test_multiple_non_exempt_paths_redirect_unauthenticated(self):
         """Test multiple non-exempt paths redirect unauthenticated users."""
@@ -203,8 +222,8 @@ class LoginRequiredMiddlewareTest(SimpleTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("session-expired"))
 
-    def test_unauthenticated_get_to_verify_2fa_redirects_oidc(self):
-        """Unauthenticated GET to verify-2fa-token should redirect to OIDC init."""
+    def test_unauthenticated_get_to_verify_2fa_redirects_session_expired(self):
+        """Unauthenticated GET to verify-2fa-token should redirect to session expired."""
         self.request.path = reverse("verify-2fa-token")
         self.request.method = "GET"
         self.request.user = make_user(authenticated=False)
@@ -212,4 +231,25 @@ class LoginRequiredMiddlewareTest(SimpleTestCase):
         response = self.middleware(self.request)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("oidc_authentication_init"))
+        self.assertEqual(response.url, reverse("session-expired"))
+
+    def test_unauthenticated_admin_paths_pass_through_to_django_admin(self):
+        """Unauthenticated requests to /admin/* are passed to Django admin, not redirected to OIDC."""
+        admin_paths = ["/admin/", "/admin/users/", "/admin/webcaf/assessment/"]
+        for path in admin_paths:
+            self.request.path = path
+            self.request.user = make_user(authenticated=False)
+            response = self.middleware(self.request)
+            self.assertEqual(response.status_code, 200, f"Expected admin passthrough for {path}")
+            self.get_response.assert_called_with(self.request)
+
+    @override_settings(ENABLED_2FA=True)
+    def test_authenticated_verified_user_allowed_with_2fa_enabled(self):
+        """Authenticated and verified users are allowed through when 2FA is enabled."""
+        self.request.path = "/some/protected/path"
+        self.request.user = make_user(authenticated=True, verified=True, staff=False)
+
+        response = self.middleware(self.request)
+
+        self.assertEqual(response.status_code, 200)
+        self.get_response.assert_called_with(self.request)

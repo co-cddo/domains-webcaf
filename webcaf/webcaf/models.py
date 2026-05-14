@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Func, QuerySet, Value
+from django.db.models import BooleanField, F, Func, QuerySet, Value
 from django.db.models.functions import Cast
 from django.utils.timezone import make_aware
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -1208,3 +1208,35 @@ class Review(ReferenceGeneratorMixin, models.Model):
             if self.all_versions and version_number > 0 and version_number - 1 < len(self.all_versions)
             else None
         )
+
+
+class Settings(models.Model):
+    """
+    Represents application-wide settings with singleton behavior.
+
+    This class is designed to enforce a single instance in the database, ensuring
+    that application settings remain consistent across the system. The primary
+    purpose is to enable global configuration and enforce constraints for
+    features such as admin verification.
+
+    :ivar admin_verification_enabled: Indicates whether admin verification
+        is enabled or disabled.
+    :type admin_verification_enabled: bool
+    """
+
+    admin_verification_enabled = BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # force single row
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "Default site wide settings"
+
+    class Meta:
+        constraints = [models.CheckConstraint(check=models.Q(pk=1), name="single_row_only")]

@@ -12,6 +12,22 @@ span.govuk-header__logotype-text {
     padding: 0;
 }
 
+.govuk-notification-banner--error {
+    border: 5px solid #d4351c;
+}
+
+.govuk-notification-banner--error .govuk-notification-banner__header {
+    background-color: #d4351c;
+}
+
+.govuk-notification-banner--error .govuk-notification-banner__title {
+    color: #ffffff;
+}
+
+.govuk-notification-banner--error .govuk-notification-banner__content {
+    border-color: #d4351c;
+}
+
 /*Apply to long tags so they do not wrap around when there are spaces in the label*/
 .long_tag {
     max-width: 100%;
