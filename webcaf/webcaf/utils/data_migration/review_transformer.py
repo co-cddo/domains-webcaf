@@ -23,7 +23,9 @@ def transform_review_v1_to_v2(
     status_map = {"ACH": "achieved", "PAC": "partially-achieved", "NAC": "not-achieved"}
 
     # Parse old assessment data
-    group_comments, outcomes, supplementary_questions = _parse_old_assessment_data(old_assessment_data)
+    group_comments, group_assessor_comments, outcomes, supplementary_questions = _parse_old_assessment_data(
+        old_assessment_data
+    )
 
     # Process all outcomes
     objectives = definition_structure[version_key].get("objectives", {})
@@ -31,7 +33,9 @@ def transform_review_v1_to_v2(
         objective_entry = review.setdefault(objective_key, {})
         for principle_key, principle in objective.get("principles", {}).items():
             for outcome_key, outcome in principle.get("outcomes", {}).items():
-                outcome_structure = _process_review_outcome(outcome_key, outcome, outcomes, status_map)
+                outcome_structure = _process_review_outcome(
+                    outcome_key, outcome, outcomes, status_map, group_assessor_comments
+                )
                 if outcome_structure:
                     objective_entry[outcome_key] = outcome_structure
     return review
@@ -42,6 +46,7 @@ def _process_review_outcome(
     outcome: dict[str, Any],
     outcomes: dict[str, list],
     status_map: dict[str, str],
+    group_assessor_comments: dict[str, list[str]],
 ) -> dict[str, Any] | None:
     """Process a single outcome and return its assessment structure."""
     outcome_data = outcomes.get(outcome_key, [])
@@ -55,12 +60,18 @@ def _process_review_outcome(
 
     # Process all indicator types
     indicators_dict = {}
-    indicators_dict.update(_process_review_indicators_by_type(achieved_indicators, "achieved", indicator_entries))
     indicators_dict.update(
-        _process_review_indicators_by_type(partially_achieved_indicators, "partially-achieved", indicator_entries)
+        _process_review_indicators_by_type(achieved_indicators, "achieved", indicator_entries, group_assessor_comments)
     )
     indicators_dict.update(
-        _process_review_indicators_by_type(not_achieved_indicators, "not-achieved", indicator_entries)
+        _process_review_indicators_by_type(
+            partially_achieved_indicators, "partially-achieved", indicator_entries, group_assessor_comments
+        )
+    )
+    indicators_dict.update(
+        _process_review_indicators_by_type(
+            not_achieved_indicators, "not-achieved", indicator_entries, group_assessor_comments
+        )
     )
 
     if not outcome_entry:
@@ -81,10 +92,19 @@ def _process_review_outcome(
     }
 
 
+def _get_indicator_comment(entry: dict[str, Any], group_comments: dict[str, list]) -> str:
+    """Extract comment from indicator entry."""
+    g_key: str | None = entry.get("group_key")
+    if g_key and g_key in group_comments:
+        return "\n\n".join(group_comments[g_key])
+    return entry.get("assessor_comment") or ""
+
+
 def _process_review_indicators_by_type(
     indicators: dict[str, Any],
     indicator_type: str,
     indicator_entries: list[dict[str, Any]],
+    group_assessor_comments: dict[str, Any],
 ) -> dict[str, Any]:
     """Process all indicators of a specific type (achieved, partially-achieved, not-achieved)."""
     indicators_dict: dict[str, Any] = {}
@@ -92,7 +112,9 @@ def _process_review_indicators_by_type(
         try:
             entry = next(filter(lambda x: x["key"] == ind_id, indicator_entries))
             indicators_dict[f"{indicator_type}_{ind_id}"] = entry["assessor_answer"] or ""
-            indicators_dict[f"{indicator_type}_{ind_id}_comment"] = entry["assessor_comment"] or ""
+            indicators_dict[f"{indicator_type}_{ind_id}_comment"] = _get_indicator_comment(
+                entry, group_assessor_comments
+            )
         except StopIteration:
             print(f"Indicator is not found: Indicator entry not found for ID: {ind_id}")
     return indicators_dict

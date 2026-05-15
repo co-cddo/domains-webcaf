@@ -260,7 +260,9 @@ def transform_review(
         "app_version": metadata["app_version"],
         "assessment_id": metadata["assessment_id"],
         "review_details": {
-            "review_period": additional_information.get("iar_period", {}),
+            # Need to put the structure correct so the Athena tables do not get confused
+            # when generating the schema
+            "review_period": additional_information.get("iar_period", {"end_date": None, "start_date": None}),
             "company_name": additional_information.get("company_details", {}).get("company_name"),
             "review_method": additional_information.get("review_method"),
             "quality_self_assessment": additional_information.get("quality_of_evidence"),
@@ -311,7 +313,7 @@ def _build_recommendations(
                 "recommendation_id": f"{rec_id_prefix}{idx + 1}",
                 "recommendation_text": recommendation.get("text"),
                 "risk_text": recommendation.get("title"),
-                "priority_recommendation": (review_profile_met.lower() != "yes" if review_profile_met else ""),
+                "priority_recommendation": (review_profile_met.lower() != "met" if review_profile_met else ""),
             }
         )
 

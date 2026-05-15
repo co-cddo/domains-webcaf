@@ -288,16 +288,27 @@ def _write_organisations_data(organisations: dict[str, Any]) -> None:
             )
 
 
-def _write_systems_data(systems: dict[str, Any]) -> None:
+def _write_systems_data(
+    systems: dict[str, Any], organisations: dict[str, Any], assessments_metadata: dict[str, Any]
+) -> None:
     """Write systems data to individual files."""
     for system_id, system_data in systems.items():
         output_file_path = Path(__file__).parent / TRANSFORMED_DATA_DIR / SYSTEMS_OUTPUT_DIR / f"{system_id}.json"
         with open(output_file_path, "w") as output_file:
+            matched_assessment = next(
+                filter(
+                    lambda assessment_data: assessment_data["hashed_system_id"] == system_id,
+                    assessments_metadata.values(),
+                )
+            )
+            hashed_organisation_id = matched_assessment["hashed_organisation_id"]
+            organisation = organisations.get(hashed_organisation_id, {})
             json.dump(
                 transform_system(
                     {
                         "system_name": system_data["system_name"],
                         "system_id": system_data["system_id"],
+                        "organisation_id": organisation.get("organisation_id"),
                         "app_version": "webcaf-1",
                     }
                 ),
@@ -385,7 +396,7 @@ def main() -> None:
 
     # Write organisations and systems data
     _write_organisations_data(organisations)
-    _write_systems_data(systems)
+    _write_systems_data(systems, organisations, assessments_metadata)
 
     # Report results
     _report_missing_assessments(missing_assessments)

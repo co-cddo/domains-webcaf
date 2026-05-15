@@ -97,7 +97,7 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
                     """,
                 ],
             }
-            logger.error(f"User {request.user.pk} does not have an email associated with the account")
+            logger.warning(f"User {request.user.pk} does not have an email associated with the account")
 
         return self.render_to_response(data)
 
