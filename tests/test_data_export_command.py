@@ -715,3 +715,73 @@ class TestExportSystemsIntegration(TestCase):
             },
             system_body,
         )
+
+    def test_export_systems_edge_cases(self):
+        """
+        Verify that multi-select fields are handled correctly:
+        - hosting_type and system_owner should only export the first value.
+        - corporate_services should export the full list.
+        - Empty values should result in None for single-value fields and empty list for multi-value.
+        """
+        # System with multiple values
+        system_multi = System.objects.create(
+            name="Multi Value System",
+            organisation=self.child_org,
+            hosting_type=["hosted_on_premises", "hosted_on_cloud"],
+            corporate_services=["hr", "payroll"],
+            system_owner=["owned_by_organisation_being_assessed", "owned_by_another_government_organisation"],
+        )
+
+        # System with empty values
+        system_empty = System.objects.create(
+            name="Empty Value System",
+            organisation=self.child_org,
+            hosting_type=[],
+            corporate_services=[],
+            system_owner=[],
+        )
+
+        s3 = MagicMock()
+        Command().export_organisation_and_systems("analytics-bucket", s3)
+
+        # Index all calls by S3 key
+        calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
+
+        # Check multi value system
+        multi_body = calls_by_key[f"systems/{system_multi.reference}.json"]
+        self.assertEqual(multi_body["hosting_type"], "hosted_on_premises")  # only first
+        self.assertEqual(multi_body["corporate_services"], ["hr", "payroll"])  # all
+        self.assertEqual(multi_body["system_owner"], "owned_by_organisation_being_assessed")  # only first
+
+        # Check empty value system
+        empty_body = calls_by_key[f"systems/{system_empty.reference}.json"]
+        self.assertIsNone(empty_body["hosting_type"])
+        self.assertIsNone(empty_body["corporate_services"])
+        self.assertIsNone(empty_body["system_owner"])
+
+    def test_export_systems_none_values(self):
+        """
+        Verify that multi-select fields are handled correctly when they are None:
+        - hosting_type and system_owner should result in None.
+        - corporate_services should result in None.
+        """
+        # System with None values
+        system_none = System.objects.create(
+            name="None Value System",
+            organisation=self.child_org,
+            hosting_type=None,
+            corporate_services=None,
+            system_owner=None,
+        )
+
+        s3 = MagicMock()
+        Command().export_organisation_and_systems("analytics-bucket", s3)
+
+        # Index all calls by S3 key
+        calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
+
+        # Check none value system
+        none_body = calls_by_key[f"systems/{system_none.reference}.json"]
+        self.assertIsNone(none_body["hosting_type"])
+        self.assertIsNone(none_body["corporate_services"])
+        self.assertIsNone(none_body["system_owner"])
