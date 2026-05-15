@@ -285,39 +285,15 @@ class Command(BaseCommand):
                             {
                                 "system_name": system.name,
                                 "system_type": system.system_type,
-                                "hosting_type": system.hosting_type,
+                                "hosting_type": system.hosting_type[0] if system.hosting_type[0] else None,
                                 "corporate_services": system.corporate_services,
-                                "system_owner": system.system_owner,
+                                "system_owner": system.system_owner[0] if system.system_owner[0] else None,
                                 "organisation_id": system.organisation.id,
                                 "system_id": system.id,
-                                "last_assessed": _transform_last_assessed(system.last_assessed),
+                                "last_assessed": system.last_assessed,
                                 "app_version": "webcaf-2",
                                 "legacy_system_id": None,
                             }
                         )
                     ),
                 )
-
-
-# Mapping from ``System.last_assessed`` database values to the short
-# period labels used in the analytics export.
-_LAST_ASSESSED_TO_PERIODS: dict[str, list[str]] = {
-    "assessed_in_2324": ["23/24"],
-    "assessed_in_2425": ["24/25"],
-    "assessed_in_2324_and_2425": ["23/24", "24/25"],
-}
-
-
-def _transform_last_assessed(last_assessed: str | None) -> list[str]:
-    """Map a ``last_assessed`` database value to short period labels.
-
-    Args:
-        last_assessed: Raw value from the ``System.last_assessed`` field.
-
-    Returns:
-        A list of period strings (e.g. ``["23/24"]``), or an empty list
-        if the value is falsy or unrecognised.
-    """
-    if not last_assessed:
-        return []
-    return list(_LAST_ASSESSED_TO_PERIODS.get(last_assessed, []))

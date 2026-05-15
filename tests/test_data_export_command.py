@@ -129,11 +129,12 @@ class TestExportReviews(TestCase):
                                 "achieved_A1.a.1_comment": "Strong evidence",
                                 "not-achieved_A1.a.2": "no",
                             },
+                            "recommendations": [{"text": "Rec 1", "title": "Title 1"}],
                         }
                     },
                     "B": {"B1.a": {"review_data": {"review_decision": "achieved"}}},
                     "C": {
-                        "C1.a": {},
+                        "C1.a": {"recommendations": [{"text": "Rec 2", "title": "Title 2"}]},
                         "objective-areas-of-improvement": "everything",
                         "objective-areas-of-good-practice": "nothing",
                     },
@@ -192,7 +193,14 @@ class TestExportReviews(TestCase):
                         {
                             "outcome_id": "A1.a",
                             "outcome_min_profile_requirement": "Achieved",
-                            "recommendations": [],
+                            "recommendations": [
+                                {
+                                    "recommendation_id": "REC-A1A1",
+                                    "recommendation_text": "Rec 1",
+                                    "risk_text": "Title 1",
+                                    "priority_recommendation": False,
+                                }
+                            ],
                             "review_decision": "Achieved",
                             "review_profile_met": "Met",
                             "review_comment": "Well implemented",
@@ -223,7 +231,14 @@ class TestExportReviews(TestCase):
                         {
                             "outcome_id": "C1.a",
                             "outcome_min_profile_requirement": "",
-                            "recommendations": [],
+                            "recommendations": [
+                                {
+                                    "recommendation_id": "REC-C1A1",
+                                    "recommendation_text": "Rec 2",
+                                    "risk_text": "Title 2",
+                                    "priority_recommendation": "",
+                                }
+                            ],
                             "review_decision": "N/A",
                             "review_profile_met": "",  # N/A → callback not called → ""
                             "review_comment": "",
@@ -249,7 +264,7 @@ class TestExportReviews(TestCase):
                         "company_name": None,
                         "quality_self_assessment": None,
                         "review_method": None,
-                        "review_period": {},
+                        "review_period": {"end_date": None, "start_date": None},
                     },
                     "review_commentary": {
                         "objective_level": [
@@ -405,6 +420,7 @@ class TestExportReviewsIntegration(TestCase):
                                 "not-achieved_A1.a.3_comment": "",
                                 "not-achieved_A1.a.4_comment": "",
                             },
+                            "recommendations": [{"text": "Priority Rec", "title": "Priority Title"}],
                         },
                         "A1.b": {
                             "review_data": {
@@ -524,6 +540,18 @@ class TestExportReviewsIntegration(TestCase):
         # "Not achieved" (score 1) < "Achieved" (score 3) → "Not met"
         self.assertEqual("Not met", a1a["review_profile_met"])
 
+        self.assertEqual(
+            [
+                {
+                    "recommendation_id": "REC-A1A1",
+                    "recommendation_text": "Priority Rec",
+                    "risk_text": "Priority Title",
+                    "priority_recommendation": True,
+                }
+            ],
+            a1a["recommendations"],
+        )
+
         self.assertEqual(_LOREM_IPSUM, a1a["review_comment"])
 
         # Indicators: comment keys stripped; "yes" → True, "no" → False
@@ -551,6 +579,18 @@ class TestExportReviewsIntegration(TestCase):
         # review_profile_met: CAF 3.2 A1.b baseline min requirement = "Achieved";
         # "Achieved" (score 3) >= "Achieved" (score 3) → "Met"
         self.assertEqual("Met", a1b["review_profile_met"])
+
+        self.assertEqual(
+            [
+                {
+                    "recommendation_id": "REC-A1B1",
+                    "recommendation_text": "Recommendation text",
+                    "risk_text": "recommendation title",
+                    "priority_recommendation": False,
+                }
+            ],
+            a1b["recommendations"],
+        )
 
         self.assertEqual("retretr", a1b["review_comment"])
 
@@ -664,13 +704,13 @@ class TestExportSystemsIntegration(TestCase):
                 # CharField choice — full display label, no split
                 "system_type": "directly_delivers_public_services",
                 # MultiSelectField single values — split produces a one-element list
-                "hosting_type": ["hosted_on_cloud"],
+                "hosting_type": "hosted_on_cloud",
                 "corporate_services": ["payroll"],
-                "system_owner": ["owned_by_organisation_being_assessed"],
+                "system_owner": "owned_by_organisation_being_assessed",
                 "organisation_id": self.child_org.id,
                 "system_id": self.system.id,
                 # Mapping the last assessed values in to something usable in analasys
-                "last_assessed": ["23/24"],
+                "last_assessed": "assessed_in_2324",
                 "legacy_system_id": None,
             },
             system_body,

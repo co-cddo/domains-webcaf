@@ -29,7 +29,9 @@ def transform_assessment_v1_to_v2(
     version_key = assessment_meta.get("assessment_version_id", "unknown")
 
     # Parse old assessment data
-    group_comments, outcomes, supplementary_questions = _parse_old_assessment_data(old_assessment_data)
+    group_comments, group_assessor_comments, outcomes, supplementary_questions = _parse_old_assessment_data(
+        old_assessment_data
+    )
 
     # Process all outcomes
     objectives = definition_structure[version_key].get("objectives", {})
@@ -147,9 +149,10 @@ def _process_indicators_by_type(
 
 def _parse_old_assessment_data(
     old_assessment_data: list[dict[str, Any]]
-) -> tuple[dict[str, list], dict[str, list], dict[str, list]]:
+) -> tuple[dict[str, list], dict[str, list], dict[str, list], dict[str, list]]:
     """Parse old assessment data into group comments, outcomes, and supplementary questions."""
     group_comments = defaultdict(list)
+    group_review_comments = defaultdict(list)
     outcomes = defaultdict(list)
     supplementary_questions = defaultdict(list)
 
@@ -157,9 +160,11 @@ def _parse_old_assessment_data(
         key = entry.get("key")
         group_key = entry.get("group_key")
         org_comment = entry.get("org_comment")
-
+        assessor_comment = entry.get("assessor_comment")
         if group_key and org_comment:
             group_comments[group_key].append(org_comment)
+        if group_key and assessor_comment:
+            group_review_comments[group_key].append(assessor_comment)
 
         # Outcome keys (e.g., A1.a) or Indicator keys (e.g., A1.a.1)
         if key and key.count(".") == 1:
@@ -171,7 +176,7 @@ def _parse_old_assessment_data(
             outcome_key = ".".join(key.split(".")[:2])
             outcomes[outcome_key].append(("indicator", entry))
 
-    return group_comments, outcomes, supplementary_questions
+    return group_comments, group_review_comments, outcomes, supplementary_questions
 
 
 def _get_indicator_comment(entry: dict[str, Any], group_comments: dict[str, list]) -> str:
