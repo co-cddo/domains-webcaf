@@ -285,9 +285,9 @@ class Command(BaseCommand):
                             {
                                 "system_name": system.name,
                                 "system_type": system.system_type,
-                                "hosting_type": system.hosting_type[0] if system.hosting_type[0] else None,
-                                "corporate_services": system.corporate_services,
-                                "system_owner": system.system_owner[0] if system.system_owner[0] else None,
+                                "hosting_type": system.hosting_type[0] if system.hosting_type else None,
+                                "corporate_services": system.corporate_services if system.corporate_services else None,
+                                "system_owner": system.system_owner[0] if system.system_owner else None,
                                 "organisation_id": system.organisation.id,
                                 "system_id": system.id,
                                 "last_assessed": system.last_assessed,
