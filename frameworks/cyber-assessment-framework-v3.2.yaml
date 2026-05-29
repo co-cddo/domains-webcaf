@@ -1074,7 +1074,7 @@ objectives:
             assessment-rules: *standard-rules
             min_profile_requirement:
               baseline: *partially_achieved
-              enhanced: *partially_achieved
+              enhanced: *achieved
           B2.d:
             code: B2.d
             title: Identity and Access Management (IdAM)
@@ -1148,7 +1148,7 @@ objectives:
             assessment-rules: *standard-rules
             min_profile_requirement:
               baseline: *partially_achieved
-              enhanced: *partially_achieved
+              enhanced: *achieved
       B3:
         code: B3
         title: Data Security
