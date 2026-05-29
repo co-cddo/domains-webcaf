@@ -44,7 +44,7 @@ parameterized = "^0.9.0"
 mypy = "^1.15.0"
 django-stubs = { extras = ["compatible-mypy"], version = "^5.1.3" }
 playwright = "^1.55.0"
-pytest = "^8.4.1"
+pytest = "^9.0.3"
 pytest-playwright = "^0.7.0"
 behave = "^1.2.6"
 ruamel-yaml = "^0.18.15"
