@@ -1,16 +1,17 @@
 import logging
 import typing
-from datetime import datetime
-from typing import Any
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from typing import Any, Literal
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.db import models
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import models, transaction
 from django.db.models import BooleanField, F, Func, QuerySet, Value
 from django.db.models.functions import Cast
-from django.utils.timezone import make_aware
+from django.utils import timezone as django_utils_timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 from multiselectfield import MultiSelectField
 from simple_history.models import HistoricalRecords
@@ -405,7 +406,7 @@ class ConfigurationManager(models.Manager):
 
         :return: The default configuration if found, otherwise None.
         """
-        now = make_aware(datetime.now())
+        now = django_utils_timezone.now()
         # Annotate the model with a datetime parsed from JSON field
         qs = (
             self.get_queryset()
@@ -1038,6 +1039,24 @@ class Review(ReferenceGeneratorMixin, models.Model):
         review_finalised = _get_or_create_nested_path(self.review_data, "review_finalised")
         return self.is_review_complete() and review_finalised
 
+    def finalised_date(self) -> datetime | None:
+        """
+        Determines and returns the finalised date of a review if it has been marked as
+        finalised. The method accesses the nested review data to retrieve the
+        "review_finalised" information and converts the "review_finalised_at" timestamp
+        from ISO format to a datetime object.
+
+        :return: The finalised date as a datetime object, or None if the review is not
+            finalised or the date is unavailable
+        :rtype: datetime | None
+        """
+        if self.is_review_finalised():
+            review_finalised = _get_or_create_nested_path(self.review_data, "review_finalised")
+            review_finalised_at: str | None = review_finalised.get("review_finalised_at")
+            if review_finalised_at:
+                return datetime.fromisoformat(review_finalised_at)
+        return None
+
     @property
     def completion_info(self) -> dict | None:
         """
@@ -1080,6 +1099,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         # Remove the review_completed key and its associated values
         review_completion.clear()
 
+    @transaction.atomic
     def finalise_review(self, profile: UserProfile):
         if self.status != "completed":
             raise ValidationError("Invalid state for report finalising.")
@@ -1090,6 +1110,20 @@ class Review(ReferenceGeneratorMixin, models.Model):
         review_completion["review_finalised_by"] = f"{profile.user.first_name} {profile.user.last_name}"
         review_completion["review_finalised_by_email"] = profile.user.email
         review_completion["review_finalised_by_role"] = profile.role
+
+        # Create the tip instance upon finalisation
+        Tip.objects.get_or_create(review=self)
+
+    def rollback_to_in_progress(self):
+        """
+        Rolls back the review status to 'in_progress' and clears the finalised review data.
+        """
+        if self.status != "completed":
+            raise ValidationError("Invalid state for rolling back to in progress.")
+
+        self.review_data.pop("review_completion", None)
+        self.review_data.pop("review_finalised", None)
+        self.status = "in_progress"
 
     def save(self, *args, **kwargs):
         """
@@ -1212,16 +1246,16 @@ class Review(ReferenceGeneratorMixin, models.Model):
 
 class Settings(models.Model):
     """
-    Represents application-wide settings with singleton behavior.
+        Represents application-wide settings with singleton behavior.
 
-    This class is designed to enforce a single instance in the database, ensuring
-    that application settings remain consistent across the system. The primary
-    purpose is to enable global configuration and enforce constraints for
-    features such as admin verification.
-
-    :ivar admin_verification_enabled: Indicates whether admin verification
-        is enabled or disabled.
-    :type admin_verification_enabled: bool
+        This class is designed to enforce a single instance in the database, ensuring
+        that application settings remain consistent across the system. The primary
+        purpose is to enable global configuration and enforce constraints for
+        features such as admin verification.
+    `
+        :ivar admin_verification_enabled: Indicates whether admin verification
+            is enabled or disabled.
+        :type admin_verification_enabled: bool
     """
 
     admin_verification_enabled = BooleanField(default=False)
@@ -1240,3 +1274,416 @@ class Settings(models.Model):
 
     class Meta:
         constraints = [models.CheckConstraint(check=models.Q(pk=1), name="single_row_only")]
+
+
+@dataclass
+class RecommendationAction:
+    action_type: Literal["action_planned", "action_not_planned"]
+    action_details: dict[str, Any]
+    # Actioned time in iso format
+    actioned_time: str | None
+    actioned_by: int | None
+    recommendation_category: Literal["priority", "other"]
+    recommendation_id: str
+    recommendation_reviewed: Literal["yes", "no"]
+
+    def __post_init__(self):
+        if self.action_type not in ["action_planned", "action_not_planned"]:
+            raise ValueError("action_type must be 'action_planned' or 'action_not_planned'")
+        if not isinstance(self.action_details, dict):
+            raise ValueError("action_details must be a dictionary")
+        if self.recommendation_category not in ["priority", "other"]:
+            raise ValueError("recommendation_category must be 'priority' or 'other'")
+        if self.actioned_by is None:
+            raise ValueError("actioned_by must be provided for actioned recommendations")
+        if self.actioned_time is None and self.action_type == "action_planned":
+            raise ValueError("actioned_time must be provided for planned recommendations")
+
+    def __repr__(self) -> str:
+        return f"RecommendationAction(action_type={self.action_type}, recommendation_category={self.recommendation_category}, recommendation_id={self.recommendation_id})"
+
+
+class TipStatus(models.TextChoices):
+    """
+    ```mermaid
+        state diagram
+        [*] --> to_do
+        to_do --> in_progress
+        in_progress --> review
+        review --> rejected
+        rejected --> in_progress
+        review --> approved
+        approved --> submit
+        submit --> [*]
+
+    ```
+    """
+
+    TO_DO = "to_do", "To do"
+    IN_PROGRESS = "in_progress", "In-progress"
+    REVIEW = "review", "Review"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
+    COMPLETED = "completed", "Closed"
+    CANCELLED = "cancelled", "Cancelled"
+
+
+class ActionStatus(models.TextChoices):
+    TODO = "action_added", "Action added"
+    IN_PROGRESS = "no_action_planned", "No action planned"
+
+
+class Tip(ReferenceGeneratorMixin, models.Model):
+    """
+    Represents a Tip model used for managing information about tips associated with reviews.
+
+    The Tip model stores details about the tip's status, related review, and other metadata
+    to help in tracking its lifecycle. It provides a way to handle tips categorized by their
+    statuses (`TO_DO`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`) and enables recording associated
+    actions in a structured manner.
+
+    The model includes fields for creation and last update timestamps, user responsible for
+    last update, status of the tip, its associated data, a unique reference, and a one-to-one
+    relationship with a `Review`. Tips are ordered by creation time in descending order, and
+    each review can be associated with only one tip.
+
+    :ivar created_on: The datetime when the tip was created.
+    :type created_on: datetime
+
+    :ivar last_updated: The datetime when the tip was last updated.
+    :type last_updated: datetime
+
+    :ivar last_updated_by: The user responsible for the last update to the tip.
+    :type last_updated_by: User or None
+
+    :ivar status: Current status of the tip. Possible values are `TO_DO`, `IN_PROGRESS`,
+        `COMPLETED`, or `CANCELLED`.
+    :type status: str
+
+    :ivar tip_data: Additional data related to the tip, represented in JSON format.
+    :type tip_data: dict
+
+    :ivar reference: A unique reference string associated with the tip.
+    :type reference: str or None
+
+    :ivar review: A one-to-one relationship link to the associated `Review` model.
+        If the review is deleted, the associated tip will also be deleted.
+    :type review: Review
+
+    """
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=25, choices=TipStatus.choices, default=TipStatus.TO_DO)  # type: ignore
+    tip_data = models.JSONField(default=dict, null=False, blank=True)
+    reference = models.CharField(max_length=20, null=True, unique=True)
+    # If the review is deleted, we need to delete the Tip also
+    review = models.OneToOneField(
+        Review,
+        on_delete=models.CASCADE,
+        related_name="tip",
+    )
+    history = HistoricalRecords()
+
+    class Meta:
+        ordering = ["-created_on"]
+        unique_together = [
+            "review",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Keep track of the original status for comparison
+        self._original_status = self.status
+
+    def save(self, *args, **kwargs):
+        """
+        Saves the current instance of the object, performing necessary validations and updates
+        before persisting it to the database. If the object has specific edit permissions
+        associated with it, a check is performed to ensure the user has permission to edit
+        the object. Additionally, the status of the object may be updated to 'IN_PROGRESS'
+        if certain conditions are met regarding recommendations.
+
+        :param args: Positional arguments passed to the parent class's save method.
+        :type args: tuple
+        :param kwargs: Keyword arguments passed to the parent class's save method.
+        :type kwargs: dict
+        :raises ValidationError: If the object has edit restrictions and the user does not
+            have the necessary permissions to modify it.
+        :return: None
+        """
+        # If we have specifically added permissions for this object, then we should check that
+        if hasattr(self, "can_edit") and not getattr(self, "can_edit"):
+            raise ValidationError("You do not have permission to edit this report.")
+
+        # # If we have recommendation actions, set status to IN_PROGRESS
+        # if self.status == TipStatus.TO_DO and self.tip_data.get("recommendation_actions", {}):
+        #     self.status = TipStatus.IN_PROGRESS
+        #
+        # # Report cannot exist in completed state without finalisation
+        # if self.status in [TipStatus.COMPLETED] and not self.tip_data.get("recommendation_finalise", {}):
+        #     raise ValidationError("Cannot complete a report with incomplete finalisation")
+
+        super().save(*args, **kwargs)
+
+    @property
+    def is_priority_recommendations_completed(self) -> bool:
+        """
+        Returns TRue if all priority recommendation actions have been completed
+        :return:
+        """
+        from webcaf.webcaf.utils.review import get_review_recommendations
+
+        priority_recommendations = get_review_recommendations(self.review, "priority")
+        for group in priority_recommendations:
+            for recommendation in group.recommendations:
+                if not self.get_action(recommendation.id):
+                    return False
+        return True
+
+    @property
+    def is_other_recommendations_completed(self) -> bool:
+        """
+        Returns True if all other recommendation actions have been completed
+        :return:
+        """
+        from webcaf.webcaf.utils.review import get_review_recommendations
+
+        other_recommendations = get_review_recommendations(self.review, "normal")
+        for group in other_recommendations:
+            for recommendation in group.recommendations:
+                if not self.get_action(recommendation.id):
+                    return False
+        return True
+
+    @property
+    def is_ready_to_review_actions(self) -> bool:
+        """
+        Returns True if all recommendation actions are ready to be reviewed
+        :return:
+        """
+        return self.is_priority_recommendations_completed and self.is_other_recommendations_completed
+
+    @property
+    def is_editable(self) -> bool:
+        """
+        Returns True if the tip is editable
+        :return:
+        """
+        return self.status in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.APPROVED, TipStatus.REJECTED]
+
+    def is_reviewed(self, recommendation_id: str) -> bool:
+        """
+        Check if a recommendation has been reviewed by the user.
+        Action only exists if the recommendation has been actioned/reviewed.
+        :param recommendation_id:
+        :return: True if recommendation is reviewed, False otherwise
+        """
+        # Check if the recommendation has been actioned
+        action = self.get_action(recommendation_id)
+        return action is not None and action.recommendation_reviewed == "yes"
+
+    def get_action(self, recommendation_id: str) -> RecommendationAction | None:
+        """
+        Get the action for a recommendation
+        :param recommendation_id:
+        :return: Action for the recommendation, None if not found
+        """
+        recommendations = self.tip_data.get("recommendation_actions", {})
+        action_data = recommendations.get(recommendation_id)
+        if action_data is None:
+            return None
+        return RecommendationAction(**action_data)
+
+    def get_all_actions(self) -> dict[str, RecommendationAction]:
+        """
+        Get all actions for the tip
+        :return: Dictionary of recommendation_id: RecommendationAction
+        """
+        return self.tip_data.get("recommendation_actions", {})
+
+    def get_actions_with_owners(self) -> dict[str, RecommendationAction]:
+        """
+        Get all actions for the tip with owners
+        :return: Dictionary of recommendation_id: RecommendationAction
+        """
+        return {
+            recommendation_id: action
+            for recommendation_id, action in self.tip_data.get("recommendation_actions", {}).items()
+            if action["action_details"].get("action_owner") is not None
+        }
+
+    def reset_recommendation_action(self, recommendation_id: str):
+        """
+        Reset the recommendation data
+        :param recommendation_id:
+        :return:
+        """
+        if self._original_status not in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.REJECTED]:
+            raise ValueError("Cannot reset recommendation action for a different status")
+        recommendations = self.tip_data.get("recommendation_actions", {})
+        recommendations.pop(recommendation_id, None)
+        self.tip_data["recommendation_actions"] = recommendations
+        self.status = TipStatus.IN_PROGRESS
+
+    def set_recommendation_action(self, action: RecommendationAction):
+        """
+        Set the recommendation action for the tip and move to in progress status
+        :param action:
+        :return:
+        """
+        if self._original_status not in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.REJECTED]:
+            raise ValueError(f"Cannot action a recommendation when it is in {self._original_status}")
+        recommendations = self.tip_data.get("recommendation_actions", {})
+        recommendations[action.recommendation_id] = asdict(action)
+        self.tip_data["recommendation_actions"] = recommendations
+        self.status = TipStatus.IN_PROGRESS
+
+    def confirm_answers(self, confirmation: dict[str, Any]):
+        """
+        Confirm the answers for the tip and move to review status
+        :param confirmation:
+        :return:
+        """
+        if self._original_status != TipStatus.IN_PROGRESS:
+            raise ValidationError("Only in-progress tips can have answers confirmed")
+        self.tip_data["recommendation_confirmation"] = confirmation
+        self.status = TipStatus.REVIEW
+
+    @property
+    def is_answers_confirmed(self) -> bool:
+        """
+        Check if answers for the tip are confirmed
+        :return: True if answers are confirmed, False otherwise
+        """
+        return bool(self.tip_data.get("recommendation_confirmation", {}).get("confirmed_by"))
+
+    @property
+    def is_ready_to_submit(self) -> bool:
+        """
+        Check if the tip is ready to be submitted for review
+        :return: True if the tip is ready to be submitted, False otherwise
+        """
+        return (
+            self.is_other_recommendations_completed
+            and self.is_priority_recommendations_completed
+            and self.is_answers_confirmed
+            and self.status == TipStatus.APPROVED
+        )
+
+    def submit_report(self, confirmed_by: UserProfile):
+        """
+        Submit the finalised report for review
+        :param confirmed_by: The user profile confirming the report
+        """
+        if not confirmed_by:
+            raise ValueError("Current profile cannot be None")
+        if not self.is_ready_to_submit:
+            raise ValueError("Report is not ready to be submitted")
+
+        confirmation = self.tip_data.get("recommendation_finalise", {})
+        confirmation["confirmed_by"] = confirmed_by.user.id
+        confirmation["confirmed_at"] = django_utils_timezone.now().isoformat()
+        confirmation["confirmation_role"] = confirmed_by.role
+        self.tip_data["recommendation_finalise"] = confirmation
+        self.status = TipStatus.COMPLETED
+        self.save()
+
+    @property
+    def submitted_date_time(self):
+        confirmed_at = self.tip_data.get("recommendation_finalise", {}).get("confirmed_at")
+        if confirmed_at:
+            utc_dt = datetime.fromisoformat(confirmed_at).replace(tzinfo=timezone.utc)
+            return utc_dt
+        return None
+
+    @property
+    def is_submitted(self) -> bool:
+        return self.status == TipStatus.COMPLETED
+
+    @property
+    def is_approved(self) -> bool:
+        return self.status == TipStatus.APPROVED
+
+    @property
+    def is_rejected(self) -> bool:
+        return self.status == TipStatus.REJECTED
+
+    def approve(self, current_user: User):
+        """
+        Approves the current tip application if the necessary conditions are met.
+
+        :param current_user: The user attempting to approve the tip.
+        :type current_user: User
+        :raises PermissionDenied: If the current user is not a staff member.
+        :raises ValueError: If the application's status is not in review.
+        :return: None
+        """
+        if not current_user or not current_user.is_staff:
+            raise PermissionDenied("Only staff members can approve tips")
+        if self._original_status not in [TipStatus.REVIEW]:
+            raise ValueError("Application must be in review status to be approved")
+        self.status = TipStatus.APPROVED
+
+    def reject(self, current_user: User):
+        """
+        Rejects a tip by changing its status to `REJECTED` and removing any existing
+        recommendation confirmation data. This method is restricted to staff members
+        and can only be called if the current status of the tip is `REVIEW`.
+
+        :param current_user: The user attempting to perform the rejection. Must be a
+            staff member.
+        :type current_user: User
+
+        :raises PermissionDenied: If the `current_user` is not a staff member.
+        :raises ValueError: If the tip is not in a `REVIEW` status.
+
+        :return: None
+        """
+        if not current_user or not current_user.is_staff:
+            raise PermissionDenied("Only staff members can reject tips")
+        if self._original_status not in [TipStatus.REVIEW]:
+            raise ValueError("Application must be in review status to be rejected")
+        self.tip_data.pop("recommendation_confirmation", None)
+        self.status = TipStatus.REJECTED
+
+    def reopen(self, current_user: User):
+        """
+        Reopen an approved application and update its status to in-progress, removing
+        specific recommendation data. Only staff members are permitted to perform this
+        action.
+
+        :param current_user: The user performing the action. Must be a staff user.
+        :type current_user: User
+        :raises PermissionDenied: If the user is not a staff member.
+        :raises ValueError: If the application is not in a completed status.
+        :return: None
+        """
+        if not current_user or not current_user.is_staff:
+            raise PermissionDenied("Only staff members can reopen tips")
+        if self._original_status not in [TipStatus.APPROVED]:
+            raise ValueError("Application must be in completed status to be reopened")
+        self.tip_data.pop("recommendation_confirmation", None)
+        self.tip_data.pop("recommendation_finalise", None)
+        self.status = TipStatus.IN_PROGRESS
+
+    @property
+    def completed_percentage(self) -> int:
+        from webcaf.webcaf.utils.review import get_review_recommendations
+
+        recommendations = get_review_recommendations(self.review, "all")
+        total_recommendations = 0
+        reviewed_recommendations = 0
+        for recommendation_group in recommendations:
+            for recommendation in recommendation_group.recommendations:
+                total_recommendations += 1
+                action = self.get_action(recommendation.id)
+                if action and action.recommendation_reviewed == "yes":
+                    reviewed_recommendations += 1
+        if total_recommendations == 0:
+            return 0
+        return int((reviewed_recommendations / total_recommendations) * 100)
+
+    def __str__(self):
+        return f"Tip ref {self.reference} for system {self.review.assessment.system.name}"

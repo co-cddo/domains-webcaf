@@ -36,15 +36,18 @@ class RecommendationGroup:
         self.group_index = group_index
 
 
-def review_status_to_label(status):
+def review_status_to_label(status: str) -> str:
     """
-    Utility function to convert keys to labels
+    Utility function to convert keys to labels.
+    If the key is not found, then the key will be returned as is.
     :param status:
-    :return:
+    :return: Human readable label of the recommendation status.
+    :rtype: str
     """
     return {
         "draft": "Draft",
         "submitted": "Submitted",
+        "rejected": "Rejected",
         "review": "In review",
         "published": "Published",
         "cancelled": "Cancelled",
