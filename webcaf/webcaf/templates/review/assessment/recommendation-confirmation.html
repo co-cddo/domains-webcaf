@@ -6,7 +6,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}
-        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        {% include "partials/progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-three-quarters">
             <span class="govuk-caption-l">{{ title }}</span>
             <h1 class="govuk-heading-l">Check your recommendations</h1>
