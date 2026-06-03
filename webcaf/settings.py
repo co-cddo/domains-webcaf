@@ -90,6 +90,7 @@ MIDDLEWARE = [
     "webcaf.middleware.AssessmentNotSelectedHandlerMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
+    "webcaf.middleware.LastOrganisationCookieMiddleware",
     "webcaf.middleware.DisableCacheMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
