@@ -160,7 +160,7 @@
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                {% for recommendation, recommendation_group in all_recommendations %}
+                {% for recommendation, recommendation_group, recommendation_action in all_recommendations %}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell"><span
                                 class="govuk-!-font-weight-bold">{{ recommendation.id }}</span></td>
@@ -180,10 +180,9 @@
                             {{ recommendation.text }}
                         </td>
                         <td class="govuk-table__cell">
-                            {% get_recommendation_action recommendation object as recommendation_action %}
                             {% with query_string="?objective="|add:objective|add:"&outcome="|add:outcome|add:"&status="|add:status %}
                                 {% if not recommendation_action %}
-                                    <a class="govuk-link" `
+                                    <a class="govuk-link"
                                        href="
                                                {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}">Read</a>
                                 {% else %}
