@@ -1,0 +1,99 @@
+{% extends "tip-base.html" %}
+{% load tip_tags %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Submit TIP - {{ block.super }}{% endblock %}
+{% block content %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">
+                Submit and download your TIP
+            </h1>
+            <p class="govuk-body">
+                Your Targeted Improvement Plan (TIP) is ready to be downloaded and passed to the appropriate role for
+                submission.
+            </p>
+            <div class="govuk-inset-text">
+                You can go back to check your answers, download the TIP to complete final sign-off, or continue to
+                submission.
+            </div>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Priority recommendations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if object.is_priority_recommendations_completed %}Completed{% else %}Incomplete{% endif %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Other recommendations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if object.is_other_recommendations_completed %}Completed{% else %}Incomplete{% endif %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Checked your answers
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if object.is_answers_confirmed %}Completed{% else %}Incomplete{% endif %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        GovAssure approval
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if object.is_approved %}Completed{% else %}Incomplete{% endif %}
+                    </dd>
+                </div>
+            </dl>
+            <section class="govuk-accordion__section">
+                <h2 class="govuk-heading-m">Download TIP</h2>
+                <p class="govuk-body">
+                    <a href="{% url 'tip:view-report' pk=object.pk %}?mode=pdf" target="_blank" class="govuk-link">
+                        Download {% if object.status != 'completed' %} Draft {% else %} Completed {% endif %} TIP
+                        (PDF)</a>
+                </p>
+                <p class="govuk-body">
+                    <a href="{% url 'tip:view-report' pk=object.pk %}?mode=excel" target="_blank" class="govuk-link">
+                        Download {% if object.status != 'completed' %} Draft {% else %} Completed {% endif %} TIP
+                        (Excel)</a>
+                </p>
+            </section>
+            <section class="govuk-accordion__section">
+                <h2 class="govuk-heading-m">Confirm before continuing</h2>
+                <p class="govuk-hint">You must confirm this before continuing</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="govuk-checkboxes">
+                        <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
+                             id="id_confirm">
+                            <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm" type="checkbox"
+                                   value="True" aria-describedby="confirm-checkbox-hint">
+                            <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I can confirm that
+                                all actions in this TIP have been signed off by the relevant managers, teams, or
+                                stakeholders.</label>
+                        </div>
+                        <br/>
+                        <br/>
+                    </div>
+                    <div class="govuk-button-group">
+                        <button class='govuk-button govuk-button--primary' {% if not object.can_edit %}
+                                disabled="disabled" aria-disabled="true"  {% endif %} type="submit"
+                                name="confirm_button">Confirm
+                            and continue
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock %}

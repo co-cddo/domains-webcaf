@@ -1,0 +1,10 @@
+{% extends "admin/submit_line.html" %}
+{% block submit-row %}
+    {% if original and original.status == 'review' %}
+        <input type="submit" value="Approve" name="_approve" class="button-approve">
+        <input type="submit" value="Reject" name="_reject" class="button-reject">
+    {% elif original.status == 'approved' %}
+        <input type="submit" value="Re Open" name="_reopen" class="button-reject">
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

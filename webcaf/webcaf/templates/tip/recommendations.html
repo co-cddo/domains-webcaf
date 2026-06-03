@@ -1,0 +1,302 @@
+{% extends "tip-base.html" %}
+{% load tip_tags %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Recommendations - {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include "partials/progress_indicator.html" with percentage=object.completed_percentage progress_type="TIP" tag_line=tag_line %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'partials/error_message.html' %}
+            {% include 'partials/success_message.html' %}
+            <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">
+                {{ recommendation_type|capfirst }} recommendations ({{ total_recommendations }})
+            </h1>
+            <p class="govuk-body">
+                You must read all the {{ recommendation_type }} recommendations for this system and the risks associated
+                with them.
+                The independent assurance reviewer reported that the contributing outcome failed to meet
+                the {{ caf_profile|capfirst }} Government CAF profile.
+            </p>
+            <p class="govuk-heading-m">Provide actions</p>
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    {% if recommendation_type == 'priority' %}
+                        You must provide an action for every {{ recommendation_type }} recommendation. If you do not
+                        plan to add an action, you must give a reason.
+                    {% else %}
+                        You do not have to provide actions against these recommendations, as the contributing outcomes
+                        met the Government CAF profile
+                    {% endif %}
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="app-filter-panel">
+                <div class="app-filter-panel__content">
+                    <div class="app-filter-panel__header">
+                        <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
+                            Filter recommendations
+                        </h2>
+                        <p class="govuk-body govuk-hint app-filter-panel__hint">
+                            Use filters to narrow the recommendations below
+                        </p>
+                    </div>
+                    <form method="get" id="recommendation-filter-form">
+                        <div class="govuk-grid-row">
+                            <div class="govuk-form-group govuk-grid-column-one-third">
+                                <label class="govuk-label govuk-label--s" for="objective">
+                                    Objective
+                                </label>
+                                <select
+                                        class="govuk-select"
+                                        id="objective"
+                                        name="objective">
+                                    <option value="">All objectives</option>
+                                    {% for objective_ in objective_list %}
+                                        <option value="{{ objective_ }}"
+                                                {% if request.GET.objective == objective_ %}selected{% endif %}>
+                                            Objective {{ objective_ }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="govuk-form-group govuk-grid-column-one-third">
+                                <label class="govuk-label govuk-label--s" for="outcome">
+                                    Outcome
+                                </label>
+                                <select
+                                        class="govuk-select"
+                                        id="outcome"
+                                        name="outcome">
+                                    <option value="">All outcomes</option>
+                                    {% for outcome_ in outcome_list %}
+                                        <option value="{{ outcome_ }}"
+                                                {% if request.GET.outcome == outcome_ %}selected{% endif %}>
+                                            {{ outcome_ }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="govuk-form-group govuk-grid-column-one-third">
+                                <label class="govuk-label govuk-label--s" for="status">
+                                    Status
+                                </label>
+                                <select
+                                        class="govuk-select"
+                                        id="status"
+                                        name="status">
+                                    <option value="">All</option>
+                                    <option value="not_reviewed"
+                                            {% if request.GET.status == 'not_reviewed' %}selected{% endif %}>Not
+                                        reviewed
+                                    </option>
+                                    <option value="action_planned"
+                                            {% if request.GET.status == 'action_planned' %}selected{% endif %}>Action
+                                        added
+                                    </option>
+                                    <option value="action_not_planned"
+                                            {% if request.GET.status == 'action_not_planned' %}selected{% endif %}>No
+                                        action planned
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="app-filter-panel__actions">
+                            <button class="govuk-button" type="submit" aria-label="Apply filters">
+                                Apply filters
+                            </button>
+                            <a class="govuk-link govuk-!-padding-bottom-5"
+                               id="clear-filters-link"
+                               href="{% url 'tip:recommendations' pk=object.id recommendation_type=recommendation_type %}"
+                               aria-label="Clear filters for recommendations">
+                                Clear filters
+                            </a>
+                        </div>
+                    </form>
+                    <div id="results-announcer"
+                         class="govuk-visually-hidden"
+                         aria-live="polite"
+                         aria-atomic="true"
+                    ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tip-results-wrap">
+        <p class="govuk-body-s govuk-!-margin-bottom-3" id="tip-results-count">
+            Showing {{ all_recommendations|length }} of {{ total_recommendations }} recommendations
+        </p>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <table class="govuk-table govuk-!-font-size-16 compact">
+                <colgroup>
+                    <col class="width_10">
+                    <col class="width_5">
+                    <col class="width_20">
+                    <col class="width_45">
+                    <col class="width_20">
+                </colgroup>
+                <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header width_10">ID</th>
+                    <th scope="col" class="govuk-table__header width_5">CO</th>
+                    <th scope="col" class="govuk-table__header width_20">Risk</th>
+                    <th scope="col" class="govuk-table__header width_45">Recommendation</th>
+                    <th scope="col" class="govuk-table__header width_20">Status</th>
+                </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                {% for recommendation, recommendation_group in all_recommendations %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell"><span
+                                class="govuk-!-font-weight-bold">{{ recommendation.id }}</span></td>
+                        <td class="govuk-table__cell">
+                            {{ recommendation.outcome }}
+                        </td>
+                        <td class="govuk-table__cell">
+                                <span class="govuk-!-font-weight-bold">
+                                {% if recommendation_type == 'priority' %}
+                                    RP{{ recommendation_group.group_index }}:
+                                {% else %}
+                                    RO{{ recommendation_group.group_index }}:
+                                {% endif %}
+                                </span>{{ recommendation.title }}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {{ recommendation.text }}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {% get_recommendation_action recommendation object as recommendation_action %}
+                            {% with query_string="?objective="|add:objective|add:"&outcome="|add:outcome|add:"&status="|add:status %}
+                                {% if not recommendation_action %}
+                                    <a class="govuk-link" `
+                                       href="
+                                               {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}">Read</a>
+                                {% else %}
+                                    {% if recommendation_action.action_type == 'action_not_planned' %}
+                                        <strong class="govuk-tag govuk-tag--grey tip-status-tag">No action
+                                            planned</strong>
+                                        <br><br>
+                                        <a href="
+                                                {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}"
+                                           class="govuk-link govuk-link--no-visited-state">Change response</a>
+                                    {% else %}
+                                        <strong class="govuk-tag govuk-tag--blue tip-status-tag">Action added</strong>
+                                        <br><br>
+                                        <a href="
+                                                {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}"
+                                           class="govuk-link govuk-link--no-visited-state">Change</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% if show_bulk_update %}
+                <div class="govuk-!-margin-top-7">
+                    <h2 class="govuk-heading-m">Mark all recommendations as read</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="govuk-form-group">
+                            <fieldset id="id_confirm_bulk_review" class="govuk-fieldset">
+                                <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                    Have you read all the recommendations?
+                                </legend>
+                                <div class="govuk-radios--inline {% if form.confirm_bulk_review.errors %}govuk-form-group--error{% endif %}"
+                                     data-module="govuk-radios">
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="confirm_bulk_review"
+                                               name="confirm_bulk_review"
+                                               type="radio" value="yes" aria-controls="conditional-confirm_bulk_review"
+                                               {% if form.confirm_bulk_review.value == "yes" %}checked{% endif %}
+                                               aria-expanded="false">
+                                        <label class="govuk-label govuk-radios__label" for="confirm_bulk_review">
+                                            Yes
+                                        </label>
+                                    </div>
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="confirm_bulk_review-2"
+                                               name="confirm_bulk_review"
+                                               {% if form.confirm_bulk_review.value == "no" %}checked{% endif %}
+                                               type="radio" value="no">
+                                        <label class="govuk-label govuk-radios__label" for="confirm_bulk_review-2">
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <button type="submit" class="govuk-button" data-module="govuk-button"
+                                {% if not object.can_edit %} disabled="disabled" aria-disabled="true"  {% endif %}>
+                            Save and continue
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <p class="govuk-body govuk-!-margin-top-6">
+                <a href="{% url 'tip:edit' pk=object.id %}" class="govuk-link">Return to task list</a>
+            </p>
+        </div>
+    </div>
+
+    <script nonce="{{ request.csp_nonce }}">
+
+        {#            Automatically scroll to the last position on the view #}
+        {#            This will enable smooth transition after filtering the data #}
+        const form = document.getElementById('recommendation-filter-form');
+        form.addEventListener('submit', function () {
+            sessionStorage.setItem('scrollPosition', window.scrollY);
+        });
+        const clear_link = document.getElementById('clear-filters-link');
+        clear_link.addEventListener('click', function () {
+            sessionStorage.setItem('scrollPosition', window.scrollY);
+        });
+        const outcome_select = document.getElementById('outcome');
+
+        function set_list_filters(outcome_select) {
+            Array.from(outcome_select.options).forEach(option => {
+                if (objective_select.value !== '' && (!option.value.startsWith(objective_select.value) && option.value !== '')) {
+                    option.style.display = 'none'
+                } else {
+                    option.style.display = 'block'
+                }
+            })
+        }
+
+        window.addEventListener('load', function () {
+            const scrollPosition = sessionStorage.getItem('scrollPosition');
+
+            if (scrollPosition) {
+                window.scrollTo({
+                    top: parseInt(scrollPosition, 10),
+                    behavior: 'instant'
+                });
+                sessionStorage.removeItem('scrollPosition');
+            }
+        });
+
+        objective_select = document.getElementById('objective')
+        objective_select.addEventListener('change', function () {
+            set_list_filters(outcome_select)
+            outcome_select.value = ''
+            document.getElementById("results-announcer").textContent = `The outcome options have been filtered based on your Objective ${objective_select.value} selection.`
+        });
+        set_list_filters(outcome_select)
+    </script>
+{% endblock %}
