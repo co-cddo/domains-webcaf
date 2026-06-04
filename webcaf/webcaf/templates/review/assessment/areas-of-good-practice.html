@@ -2,7 +2,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %} Areas of good practice - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}Areas of good practice {{ block.super }}{% endblock %}
 {% block content %}
     {% get_review_completed_percentage object as percentage %}
     {% include "partials/review_progress_indicator.html" with percentage=percentage %}

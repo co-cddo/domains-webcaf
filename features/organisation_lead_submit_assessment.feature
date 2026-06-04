@@ -12,7 +12,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead can can submit a completed assessment
     Given Think time 1 seconds
-    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
@@ -24,7 +24,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead can download the pdf assessment after submitting it
     Given Think time 1 seconds
-    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"
@@ -42,7 +42,7 @@ Feature: Organisation lead can submit assessment
 
   Scenario: Organisation lead cannot start a new assessment for an already submitted system
     Given Think time 1 seconds
-    Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "GovAssure lead - My account - Complete a WebCAF self-assessment - GOV.UK"
     And click link with text "View 1 draft self-assessment"
     And click link in table row containing value "System 1" with text "View"
     And click link with text "Complete the full self-assessment"

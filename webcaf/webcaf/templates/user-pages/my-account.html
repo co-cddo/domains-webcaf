@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}{{ current_profile.get_role_display }} - My account - {{ user.first_name }}
-    {{ block.super }}{% endblock %}
+{% block title %}{{ current_profile.get_role_display }} - My account {{ block.super }}{% endblock %}
 {% block content %}
     {% current_user_can_start_assessment current_profile as can_start_assessment %}
     <div class="govuk-grid-row">
