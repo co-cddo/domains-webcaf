@@ -255,16 +255,12 @@
     <script nonce="{{ request.csp_nonce }}" src='{% static "js.cookie.min.js" %}'></script>
     <script nonce="{{ request.csp_nonce }}" src='{% static "cookies.js" %}'></script>
 {% endif %}
-<script type="module" nonce="{{ request.csp_nonce }}">
-    import {initAll, CharacterCount} from '{% static "govuk-frontend-5.11.1.min.js" %}'
 
-    initAll()
-    window.init_char_count = function (element) {
-        new CharacterCount(element);
-    }
-    window.init_all = function () {
+<script type="module" defer nonce="{{ request.csp_nonce }}">
+    import { initAll } from '{% static "govuk-frontend-5.11.1.min.js" %}'
+    window.addEventListener('DOMContentLoaded', () => {
         initAll()
-    }
+    })
 </script>
 </body>
 </html>

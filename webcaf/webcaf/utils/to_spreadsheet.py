@@ -1,16 +1,110 @@
 from io import BytesIO
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.worksheet import Worksheet
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, Review
+from webcaf.webcaf.models import Assessment, Review, Tip
 from webcaf.webcaf.utils.review import get_review_recommendations
 
 MIN_WIDTH = 20
 PADDING = 2
+
+
+def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
+    ws = wb.create_sheet("Actioned recommendations")
+    ws.append(
+        [
+            "Type",
+            "Contributing outcome",
+            "Associated risk",
+            "Reviewer recommendation",
+            "Recommendation and risk reviewed",
+            "Status",
+            "Action",
+            "Action owner",
+            "Resource available",
+            "Budget available",
+            "Estimated completion date",
+            "Reason for no completion date",
+        ]
+    )
+    _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50, 20, 20, 20, 20, 50])
+    for recommendation_type in ["priority_recommendations", "other_recommendations"]:
+        for recommendation, group, action in context.get(recommendation_type, []):
+            if action.action_type == "action_planned":
+                action_details = action.action_details
+                ws.append(
+                    [
+                        action.recommendation_category.capitalize(),
+                        f"{recommendation.outcome} {recommendation.outcome_title}",
+                        f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                        recommendation.id + " - " + recommendation.text,
+                        action.recommendation_reviewed.capitalize(),
+                        "Action planned",
+                        action_details.get("action_taken_description", ""),
+                        action_details.get("action_owner", ""),
+                        action_details.get("resources_available", ""),
+                        action_details.get("budget_available", ""),
+                        f"{action_details.get('target_day_day', '')}/{action_details.get('target_day_month', '')}/{action_details.get('target_day_year', '')}"
+                        if action_details.get("target_date_provided", "no") == "yes"
+                        else "No target date",
+                        action_details.get("target_date_unavailable_reason", "N/A")
+                        if action_details.get("target_date_provided", "yes") == "no"
+                        else "N/A",
+                    ]
+                )
+                _wrap_row_text(ws)
+
+
+def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
+    ws = wb.create_sheet("Not actioned recommendations")
+    ws.append(
+        [
+            "Type",
+            "Contributing outcome",
+            "Associated risk",
+            "Reviewer recommendation",
+            "Recommendation and risk reviewed",
+            "Status",
+            "Reason for not actioned",
+        ]
+    )
+    _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50])
+    for recommendation_type in ["priority_recommendations", "other_recommendations"]:
+        for recommendation, group, action in context.get(recommendation_type, []):
+            if action.action_type == "action_not_planned":
+                action_details = action.action_details
+                ws.append(
+                    [
+                        action.recommendation_category.capitalize(),
+                        f"{recommendation.outcome} {recommendation.outcome_title}",
+                        f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                        recommendation.id + " - " + recommendation.text,
+                        action.recommendation_reviewed.capitalize(),
+                        "No action planned",
+                        action_details.get("action_not_planned_reason", "-"),
+                    ]
+                )
+                _wrap_row_text(ws)
+
+
+def tip_to_excel(tip: Tip, context: dict[str, Any]) -> bytes | None:
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    ws = _add_metadata_tab(wb, tip.review.assessment)
+    ws.append(["Status", "Submitted" if tip.is_submitted else "Draft"])
+    _add_actioned_tab(wb, tip, context)
+    _add_not_actioned_tab(wb, tip, context)
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return output.getvalue()
 
 
 def review_to_excel(review: Review) -> bytes | None:
@@ -45,11 +139,11 @@ def review_to_excel(review: Review) -> bytes | None:
     return output.getvalue()
 
 
-def _add_metadata_tab(wb: Workbook, assessment: Assessment):
+def _add_metadata_tab(wb: Workbook, assessment: Assessment) -> Worksheet:
     """
     Adds a metadata tab to the given Excel workbook. This function creates a new sheet titled
     "Review details" and appends various metadata about the assessment, such as organization
-    details, assessment period, review type, CAF version, and assigned target profile. It
+    details, assessment period, review type, framework, CAF version, and assigned target profile. It
     formats the sheet by setting appropriate column widths.
 
     :param wb:
@@ -60,7 +154,7 @@ def _add_metadata_tab(wb: Workbook, assessment: Assessment):
         review type, framework, and CAF profile details.
     :type assessment: Assessment
     :return:
-        None
+        Worksheet
     """
     ws = wb.create_sheet("Review details")
 
@@ -75,6 +169,7 @@ def _add_metadata_tab(wb: Workbook, assessment: Assessment):
     ws.append(["CAF version:", framework_label])
     ws.append(["Assigned target CAF profile:", profile_label])
     _set_header_properties(ws, [30, 40], fix=False, bold=False)
+    return ws
 
 
 def _add_indicator_tab(wb: Workbook, review: Review):

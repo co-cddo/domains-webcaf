@@ -187,6 +187,20 @@ class PermissionUtil:
             "reviewer",
         ]
 
+    @classmethod
+    def current_user_can_view_tips(cls, user_profile: UserProfile) -> bool:
+        """
+        Check if the user role belongs to the
+        list of roles that are allowed to view tips.
+        :param user_profile:
+        :return:
+        """
+        return user_profile is not None and user_profile.role in [
+            "cyber_advisor",
+            "organisation_lead",
+            "organisation_user",
+        ]
+
 
 class UserRoleCheckMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
@@ -194,7 +208,7 @@ class UserRoleCheckMixin(LoginRequiredMixin):
             return self.handle_no_permission()
         else:
             user_profile = SessionUtil.get_current_user_profile(request)
-            if not user_profile or user_profile.role not in self.get_allowed_roles():
+            if user_profile is None or user_profile.role not in self.get_allowed_roles():
                 return self.handle_no_permission()
             return super().dispatch(request, *args, **kwargs)
 

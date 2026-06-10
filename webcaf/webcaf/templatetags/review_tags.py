@@ -280,7 +280,7 @@ def get_principle_profile_status(review: Review, objective_code: str, principle_
 
 @register.simple_tag()
 def get_recommendations(
-    review: Review, mode: Literal["priority", "normal", "all"]
+    review: Review, mode: Literal["priority", "other", "all"]
 ) -> Generator[RecommendationGroup, Any, None]:
     """
     Fetches and returns a generator that produces recommendation groups based on the
@@ -300,7 +300,9 @@ def get_recommendations(
         recommendations based on the criteria specified by the mode and review inputs.
     :rtype: Generator[RecommendationGroup, Any, None]
     """
-    return get_review_recommendations(review, mode)
+    # Have to map from other -> normal if we are using the term other to represent
+    # the normal recommendations
+    return get_review_recommendations(review, mode if mode != "other" else "normal")
 
 
 ReviewComment = NamedTuple("ReviewComment", [("section", str), ("index", int), ("comment", str)])

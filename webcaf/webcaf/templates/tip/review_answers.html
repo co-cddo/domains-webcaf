@@ -1,0 +1,96 @@
+{% extends "tip-base.html" %}
+{% load tip_tags %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Review answers - {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include "partials/progress_indicator.html" with percentage=object.completed_percentage progress_type="TIP" tag_line=tag_line %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">
+                Check your answers
+            </h1>
+            <p class="govuk-body">Review the information you have provided for this TIP before continuing.</p>
+            <h2 class="govuk-heading-m">
+                Priority recommendations
+            </h2>
+            <p class="govuk-body-s govuk-!-margin-bottom-5">
+                {% actioned_and_not_actioned_counts recommendations=priority_recommendations %}
+            </p>
+            {% include 'tip/review_summary_card.html' with recommendations=priority_recommendations recommendation_type='priority' show_edit=True min_mode=True %}
+
+            <h2 class="govuk-heading-l">
+                Other recommendations and actions
+            </h2>
+            <p class="govuk-body-s govuk-!-margin-bottom-5">
+                {% actioned_and_not_actioned_counts recommendations=other_recommendations %}
+            </p>
+            {% include 'tip/review_summary_card.html' with recommendations=other_recommendations recommendation_type='other' show_edit=True min_mode=True %}
+            <h2 class="govuk-heading-l">Download your draft TIP</h2>
+            <div id="changedName-hint" class="govuk-hint">
+                Your draft Targeted Improvement Plan (TIP) is ready to be downloaded and passed to the relevant
+                managers,
+                teams or stakeholders for final sign-off.
+            </div>
+            <p class="govuk-body">
+                <a href="{% url 'tip:view-report' pk=object.id %}?mode=pdf"
+                   class="govuk-link govuk-link--no-visited-state"
+                   download="UK-OFFICIAL-SENSITIVE-TIP_{{ object.reference }}.pdf">Download draft TIP (PDF)</a><br>
+                <a href="{% url 'tip:view-report' pk=object.id %}?mode=excel"
+                   class="govuk-link govuk-link--no-visited-state"
+                   download="UK-OFFICIAL-SENSITIVE-TIP_{{ object.reference }}.xlsx">Download draft TIP Excel data
+                    (XLSX)</a>
+            </p>
+            <form method="post" novalidate="">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.submit_action.errors %}govuk-form-group--error{% endif %}">
+                    <fieldset class="govuk-fieldset ">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            Do you confirm that the information in this TIP is correct?
+                        </legend>
+                        <div id="confirmAnswers-hint" class="govuk-hint">
+                            GovAssure must approve each TIP before final submission.
+                        </div>
+                        <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios" id="id_submit_action">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="confirmAnswers" name="submit_action"
+                                       type="radio" value="yes">
+                                <label class="govuk-label govuk-radios__label" for="confirmAnswers">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="confirmAnswers-2" name="submit_action"
+                                       type="radio" value="no">
+                                <label class="govuk-label govuk-radios__label" for="confirmAnswers-2">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                {% if object.is_rejected %}
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            GovAssure team expects you to update one or more actions before submitting this again.
+                        </strong>
+                    </div>
+                {% endif %}
+                <button type="submit" class="govuk-button" data-module="govuk-button" {% if not object.can_edit %}
+                        disabled="disabled" aria-disabled="true"  {% endif %}>
+                    Continue
+                </button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

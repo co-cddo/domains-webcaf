@@ -6,7 +6,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}
-        {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+        {% include "partials/progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-three-quarters">
             {% if form.non_form_errors or form.errors|filter_empty %}
                 <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1">

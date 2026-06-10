@@ -125,6 +125,24 @@
                     <p class="govuk-body">You do not have any stage 4 reviews</p>
                 {% endif %}
             {% endif %}
+            {% current_user_can_view_tips current_profile as can_view_tips %}
+            {% if can_view_tips %}
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    View a stage 5 TIP
+                </h2>
+                {% get_tip_count current_profile as tip_count %}
+                {% if tip_count %}
+                    <p class="govuk-body"
+                       title="View {{ tip_count }} TIP{{ tip_count  | pluralize }}">
+                        <a href="{% url 'tip:list' %}"
+                           class="govuk-link govuk-link--no-visited-state">
+                            View and manage {{ tip_count }} Targeted Improvement Plan{{tip_count|pluralize}} (TIP)
+                        </a>
+                    </p>
+                {% else %}
+                    <p class="govuk-body">You do not have any stage 4 reviews</p>
+                {% endif %}
+            {% endif %}
         </div>
 
         <div class="govuk-grid-column-one-third">

@@ -1,4 +1,5 @@
 import csv
+import json
 import logging
 import zoneinfo
 from datetime import datetime
@@ -15,7 +16,9 @@ from django.forms import CharField, DateTimeInput, EmailField, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import path
+from django.urls import path, reverse
+from django.utils import timezone
+from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 
 from webcaf.webcaf.models import (
@@ -25,8 +28,10 @@ from webcaf.webcaf.models import (
     Review,
     Settings,
     System,
+    Tip,
     UserProfile,
 )
+from webcaf.webcaf.tip.util import RecommendationService
 from webcaf.webcaf.views.system import SystemForm
 
 
@@ -636,3 +641,192 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         if hasattr(obj, "last_updated_by"):
             obj.last_updated_by = request.user
         super().save_model(request, obj, form, change)
+
+
+class PrettyJSONWidget(forms.Textarea):
+    def format_value(self, value):
+        if value in ("", None):
+            return ""
+        try:
+            if isinstance(value, str):
+                value = json.loads(value)
+            return json.dumps(value, indent=4)
+        except Exception:
+            return value
+
+
+class TipAdminForm(forms.ModelForm):
+    class Meta:
+        model = Tip
+        fields = "__all__"
+        widgets = {
+            "tip_data": PrettyJSONWidget(
+                attrs={
+                    "rows": 20,
+                    "cols": 60,
+                    # "style": "font-family: monospace; width: 100%;"
+                }
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.tip_data:
+            self.initial["tip_data"] = self.instance.tip_data
+
+    def clean_tip_data(self):
+        value = self.cleaned_data["tip_data"]
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
+
+
+@admin.register(Tip)
+class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    form = TipAdminForm
+    exclude = ("status",)
+    search_fields = [
+        "assessment_system_name",
+        "assessment_reference",
+        "assessment_organisation",
+    ]
+    readonly_fields = [
+        "status_badge",
+        "created_on",
+        "last_updated",
+        "last_updated_by",
+        "reference",
+        "pdf_link",
+    ]
+    optional_fields = ["reference"]
+    list_display = [
+        "status_badge",
+        "assessment_system_name",
+        "assessment_framework",
+        "assessment_review_type",
+        "assessment_reference",
+        "assessment_organisation",
+        "pdf_link",
+    ]
+    list_filter = [
+        "review__assessment__system__name",
+        SortedOrganisationFilter,
+        "review__assessment__review_type",
+        "status",
+    ]
+    actions: list[str] = []
+
+    @admin.display(ordering="assessment_review_type", description="Review type")
+    def assessment_review_type(self, obj):
+        return obj.assessment_review_type
+
+    @admin.display(ordering="assessment_system_name", description="System")
+    def assessment_system_name(self, obj):
+        return obj.assessment_system_name
+
+    @admin.display(ordering="assessment_reference", description="Assessment Ref")
+    def assessment_reference(self, obj):
+        return obj.assessment_reference
+
+    @admin.display(ordering="assessment_framework", description="Framework")
+    def assessment_framework(self, obj):
+        return obj.assessment_framework
+
+    @admin.display(ordering="assessment_organisation", description="Organisation")
+    def assessment_organisation(self, obj):
+        return obj.assessment_organisation
+
+    @admin.display(description="Status")
+    def status_badge(self, obj):
+        if obj.status == "review":
+            return format_html(
+                '<span class="status-pending">{}</span>',
+                obj.get_status_display(),
+            )
+        elif obj.status == "approved":
+            return format_html(
+                '<span class="status-approved">{}</span>',
+                obj.get_status_display(),
+            )
+        elif obj.status == "rejected":
+            return format_html(
+                '<span class="status-rejected">{}</span>',
+                obj.get_status_display(),
+            )
+        elif obj.status == "completed":
+            return format_html(
+                '<span class="status-completed">{}</span>',
+                obj.get_status_display(),
+            )
+        return obj.get_status_display()
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            assessment_system_name=F("review__assessment__system__name"),
+            assessment_framework=F("review__assessment__framework"),
+            assessment_review_type=F("review__assessment__review_type"),
+            assessment_reference=F("review__assessment__reference"),
+            assessment_organisation=F("review__assessment__system__organisation__name"),
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+
+        custom_urls = [
+            path(
+                "<int:tip_id>/pdf/",
+                self.admin_site.admin_view(self.pdf_view),
+                name="tip_pdf",
+            ),
+        ]
+        return custom_urls + urls
+
+    def pdf_view(self, request, tip_id):
+        """
+        Generates and returns a PDF response based on the provided template and recommendations.
+
+        This view fetches a tip object corresponding to the given ID, initializes a
+        RecommendationService with required data, and renders a PDF using a specified
+        template. Recommendations are categorized as "priority" and "other" and passed
+        to the template for rendering.
+
+        :param request: The HTTP request instance.
+        :type request: HttpRequest
+        :param tip_id: The ID of the tip object to be fetched and used.
+        :type tip_id: int
+        :return: An HTTP response containing the rendered PDF.
+        :rtype: HttpResponse
+        """
+        tip = Tip.objects.get(pk=tip_id)
+        service = RecommendationService(tip, request)
+        return service.render_pdf(
+            "tip/report.html",
+            {
+                "object": tip,
+                "priority_recommendations": service.filter_recommendations("priority"),
+                "other_recommendations": service.filter_recommendations("other"),
+            },
+        )
+
+    def pdf_link(self, obj):
+        url = reverse("admin:tip_pdf", args=[obj.pk])
+        return format_html('<a href="{url}" target="_blank">View PDF</a>', url=url)
+
+    pdf_link.short_description = "PDF download"  # type: ignore[attr-defined]
+
+    def save_model(self, request, obj: Tip, form, change):
+        if "_approve" in request.POST:
+            obj.approve(request.user)
+
+        elif "_reject" in request.POST:
+            obj.reject(request.user)
+
+        elif "_reopen" in request.POST:
+            obj.reopen(request.user)
+        obj.last_updated_by = request.user
+        obj.last_updated = timezone.now()
+        super().save_model(request, obj, form, change)
+
+    class Media:
+        css = {"all": ("webcaf/admin.css",)}
