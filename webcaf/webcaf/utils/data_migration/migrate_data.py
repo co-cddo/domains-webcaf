@@ -62,6 +62,7 @@ from typing import Any, Tuple
 
 from webcaf.webcaf.utils.data_analysis import (
     transform_assessment,
+    transform_definition,
     transform_organisation,
     transform_review,
     transform_system,
@@ -85,7 +86,14 @@ ASSESSMENTS_OUTPUT_DIR = "assessments"
 REVIEWS_OUTPUT_DIR = "reviews"
 ORGANISATIONS_OUTPUT_DIR = "organisations"
 SYSTEMS_OUTPUT_DIR = "systems"
-OUTPUT_SUBDIRS = [ASSESSMENTS_OUTPUT_DIR, REVIEWS_OUTPUT_DIR, ORGANISATIONS_OUTPUT_DIR, SYSTEMS_OUTPUT_DIR]
+DEFINITIONS_OUTPUT_DIR = "definitions"
+OUTPUT_SUBDIRS = [
+    ASSESSMENTS_OUTPUT_DIR,
+    REVIEWS_OUTPUT_DIR,
+    ORGANISATIONS_OUTPUT_DIR,
+    SYSTEMS_OUTPUT_DIR,
+    DEFINITIONS_OUTPUT_DIR,
+]
 
 
 def _build_metadata(
@@ -374,6 +382,38 @@ def _report_missing_assessments(missing_assessments: list[str]) -> None:
         print(f"Assessment not found {missing_assessment_id}")
 
 
+def _write_definitions(definition_structure: dict[str, dict[str, Any]]) -> None:
+    """
+    Processes and structures definitions into a formatted data structure.
+
+    :param definition_structure: A dictionary containing definitions. Each definition is formatted
+        as a nested dictionary with keys for "display_name", "objectives",
+        and further structural components such as "principles", "outcomes",
+        and "indicators".
+    :type definition_structure: dict[str, dict[str, Any]]
+
+    :return: A formatted list of processed definitions where each definition is transformed
+        into a refined and structured dictionary for further use.
+    :rtype: list[dict]
+    """
+    for _, definition in definition_structure.items():
+        structure_ = transform_definition(
+            definition
+            | {
+                "app_version": "webcaf-1",
+                "caf_version": re.sub(r"[^0-9.]", "", definition["display_name"]),
+            }
+        )
+        name_ = definition["display_name"]
+        output_file_path = Path(__file__).parent / TRANSFORMED_DATA_DIR / DEFINITIONS_OUTPUT_DIR / f"{name_}.json"
+        with open(output_file_path, "w") as output_file:
+            json.dump(
+                structure_,
+                output_file,
+                separators=(",", ":"),
+            )
+
+
 def main() -> None:
     """Main entry point for the data migration and transformation process."""
     # Load data
@@ -388,6 +428,8 @@ def main() -> None:
 
     # Create output directories
     _create_output_directories()
+
+    _write_definitions(definition_structure)
 
     # Process assessments
     missing_assessments = _process_assessments(

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 
 from webcaf.webcaf.management.commands.export_data import Command
-from webcaf.webcaf.models import Assessment, Organisation, Review, System
+from webcaf.webcaf.models import Assessment, Organisation, Review, System, Tip
 
 _LOREM_IPSUM = "Lorem ipsum."
 
@@ -785,3 +785,170 @@ class TestExportSystemsIntegration(TestCase):
         self.assertIsNone(none_body["hosting_type"])
         self.assertIsNone(none_body["corporate_services"])
         self.assertIsNone(none_body["system_owner"])
+
+
+class TestExportTips(TestExportReviewsIntegration):
+    def setUp(self):
+        self.tip = Tip.objects.create(
+            review=self.review,
+            tip_data={
+                "recommendation_actions": {
+                    "REC-A1B1": {
+                        "action_type": "action_planned",
+                        "actioned_by": 35,
+                        "actioned_time": "2026-06-08T17:27:40.888088+00:00",
+                        "action_details": {
+                            "action_owner": "Uncle Bob",
+                            "target_day_day": None,
+                            "target_day_year": None,
+                            "budget_available": "unknown",
+                            "target_day_month": None,
+                            "resources_available": "yes",
+                            "target_date_provided": "no",
+                            "action_taken_description": "I will fix it tomorrow x",
+                            "target_date_unavailable_reason": "I don't have time for this",
+                        },
+                        "recommendation_id": "REC-A1B1",
+                        "recommendation_category": "priority",
+                        "recommendation_reviewed": "yes",
+                    },
+                    "REC-A1B2": {
+                        "action_type": "action_not_planned",
+                        "actioned_by": 35,
+                        "actioned_time": "2026-06-08T17:27:45.558593+00:00",
+                        "action_details": {"action_not_planned_reason": "Will do it later"},
+                        "recommendation_id": "REC-A1B2",
+                        "recommendation_category": "priority",
+                        "recommendation_reviewed": "yes",
+                    },
+                    "REC-A1C1": {
+                        "action_type": "action_not_planned",
+                        "actioned_by": 35,
+                        "actioned_time": "2026-06-08T12:19:40.779586+00:00",
+                        "action_details": {"action_not_planned_reason": "Will do it later. I changed it now"},
+                        "recommendation_id": "REC-A1C1",
+                        "recommendation_category": "priority",
+                        "recommendation_reviewed": "yes",
+                    },
+                }
+            },
+        )
+
+    def test_export_tip_data(self):
+        """
+        Tests the export of tip data to an S3 bucket.
+
+        This method verifies that the `export_tips` function of the `Command` class correctly
+        formats and uploads tip-related data to an S3 bucket. The test ensures that the data
+        uploaded matches the expected output by asserting equality between critical data fields.
+
+        :raises AssertionError: If any of the assertions for equality between the S3 data body and
+            the expected values fail during the test execution.
+        """
+        s3 = MagicMock()
+        Command().export_tips("analytics-bucket", s3)
+        # Index all calls by S3 key
+        calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
+        s3_data_body = calls_by_key[f"tips/{self.tip.reference}.json"]
+
+        self.assertEqual(s3_data_body["assessment_id"], self.review.assessment_id)
+        self.assertEqual(s3_data_body["review_id"], self.review.id)
+        self.assertEqual(s3_data_body["app_version"], "webcaf-2")
+        self.assertEqual(s3_data_body["tip_id"], self.tip.id)
+        self.assertEqual(
+            s3_data_body["actioned_recommendations"],
+            [
+                {
+                    "action_owner": "Uncle Bob",
+                    "action_taken_description": "I will fix it tomorrow x",
+                    "budget_available": "unknown",
+                    "recommendation_category": "priority",
+                    "recommendation_id": "REC-A1B1",
+                    "resources_available": "yes",
+                    "target_date_provided": "no",
+                    "target_date_unavailable_reason": "I don't have time for this",
+                    "target_day_day": None,
+                    "target_day_month": None,
+                    "target_day_year": None,
+                }
+            ],
+        )
+        self.assertEqual(
+            s3_data_body["not_actioned_recommendations"],
+            [
+                {
+                    "action_not_planned_reason": "Will do it later",
+                    "recommendation_category": "priority",
+                    "recommendation_id": "REC-A1B2",
+                },
+                {
+                    "action_not_planned_reason": "Will do it later. I changed it now",
+                    "recommendation_category": "priority",
+                    "recommendation_id": "REC-A1C1",
+                },
+            ],
+        )
+
+
+class TestExportDefinitions(TestCase):
+    """
+    Unit tests for verifying the behavior of exporting definitions.
+
+    This test class is designed to validate the functionality of the `export_definitions`
+    method by mocking S3 operations. It ensures that the exported JSON data meets the
+    expected schema, content, and format requirements.
+
+    """
+
+    def test_export_definitions(self):
+        """
+        Tests the `export_definitions` method to ensure proper behavior and expected
+        output when invoking the export functionality on a mock S3 object.
+
+        The test verifies that data is exported to the correct S3 keys with appropriate
+        contents. It checks the `display_name` value of the specific JSON data stored
+        under the `definitions/caf32-webcaf-2.json` key.
+
+        :param self: Represents the instance of the test class in which this test
+            function is being executed.
+        :return: No explicit return value. The test assertion determines the success
+            or failure of the test case.
+        """
+        s3 = MagicMock()
+        Command().export_definitions("analytics-bucket", s3)
+        # Index all calls by S3 key
+        calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
+        s3_data_body = calls_by_key["definitions/caf32-webcaf-2.json"]
+
+        self.assertEqual(s3_data_body["display_name"], "CAF 3.2 GovAssure")
+        self.assertEqual(s3_data_body["app_version"], "webcaf-2")
+        self.assertIn("objectives", s3_data_body)
+        self.assertIsInstance(s3_data_body["objectives"], list)
+        self.assertGreater(len(s3_data_body["objectives"]), 0)
+
+        first_objective = s3_data_body["objectives"][0]
+        self.assertIn("code", first_objective)
+        self.assertIn("title", first_objective)
+        self.assertIn("principles", first_objective)
+        self.assertIsInstance(first_objective["principles"], list)
+        self.assertGreater(len(first_objective["principles"]), 0)
+
+        first_principle = first_objective["principles"][0]
+        self.assertIn("code", first_principle)
+        self.assertIn("title", first_principle)
+        self.assertIn("description", first_principle)
+        self.assertIn("outcomes", first_principle)
+        self.assertIsInstance(first_principle["outcomes"], list)
+
+        first_outcome = first_principle["outcomes"][0]
+        self.assertIn("code", first_outcome)
+        self.assertIn("title", first_outcome)
+        self.assertIn("description", first_outcome)
+        self.assertIn("indicators", first_outcome)
+        self.assertIsInstance(first_outcome["indicators"], list)
+
+        if len(first_outcome["indicators"]) > 0:
+            first_indicator = first_outcome["indicators"][0]
+            self.assertIn("code", first_indicator)
+            self.assertIn("description", first_indicator)
+            self.assertIn("category", first_indicator)

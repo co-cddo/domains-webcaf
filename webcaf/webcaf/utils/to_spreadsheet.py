@@ -70,14 +70,12 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
             "Reviewer recommendation",
             "Recommendation and risk reviewed",
             "Status",
-            "Reason for not actioned",
         ]
     )
     _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50])
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
             if action.action_type == "action_not_planned":
-                action_details = action.action_details
                 ws.append(
                     [
                         action.recommendation_category.capitalize(),
@@ -86,7 +84,6 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
                         recommendation.id + " - " + recommendation.text,
                         action.recommendation_reviewed.capitalize(),
                         "No action planned",
-                        action_details.get("action_not_planned_reason", "-"),
                     ]
                 )
                 _wrap_row_text(ws)
