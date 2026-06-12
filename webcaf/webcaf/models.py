@@ -1501,7 +1501,8 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         Get all actions for the tip
         :return: Dictionary of recommendation_id: RecommendationAction
         """
-        return self.tip_data.get("recommendation_actions", {})
+        actions_dict = self.tip_data.get("recommendation_actions", {})
+        return {key: RecommendationAction(**data) for key, data in actions_dict.items()}
 
     def get_actions_with_owners(self) -> dict[str, RecommendationAction]:
         """
