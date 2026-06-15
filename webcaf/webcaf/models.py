@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import BooleanField, F, Func, QuerySet, Value
+from django.db.models import BooleanField, EmailField, F, Func, QuerySet, Value
 from django.db.models.functions import Cast
 from django.utils import timezone as django_utils_timezone
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -449,9 +449,6 @@ class Configuration(models.Model):
 
     def get_banner_display_until(self):
         return self.config_data.get("banner_display_until")
-
-    def get_gov_assure_email(self):
-        return self.config_data.get("gov_assure_email")
 
     def get_submission_due_date(self):
         """
@@ -1259,6 +1256,11 @@ class Settings(models.Model):
     """
 
     admin_verification_enabled = BooleanField(default=False)
+    gov_assure_email = EmailField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1  # force single row

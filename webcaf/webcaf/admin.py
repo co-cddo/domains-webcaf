@@ -12,7 +12,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
-from django.forms import CharField, DateTimeInput, EmailField, ModelForm
+from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -92,7 +92,10 @@ class SettingsAdminForm(forms.ModelForm):
     class Meta:
         model = Settings
         fields = "__all__"
-        labels = {"admin_verification_enabled": "Enable admin 2f verification"}
+        labels = {
+            "admin_verification_enabled": "Enable admin 2f verification",
+            "gov_assure_email": "GovAssure email address",
+        }
 
 
 @admin.register(Settings)
@@ -470,8 +473,6 @@ class CustomConfigForm(ModelForm):
         required=True,
     )
 
-    gov_assure_email = EmailField(label="GovAssure contact email", help_text="Used for email CC", required=False)
-
     class Meta:
         model = Configuration
         fields = [
@@ -480,7 +481,6 @@ class CustomConfigForm(ModelForm):
             "assessment_period_end",
             "banner_display_until",
             "default_framework",
-            "gov_assure_email",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -506,7 +506,6 @@ class CustomConfigForm(ModelForm):
         if self.instance.get_banner_display_until():
             self.fields["banner_display_until"].initial = set_local_tz(self.instance.get_banner_display_until())
         self.fields["default_framework"].initial = self.instance.get_default_framework()
-        self.fields["gov_assure_email"].initial = self.instance.get_gov_assure_email()
 
     def save(self, commit=True):
         if not self.instance.config_data:
@@ -530,7 +529,6 @@ class CustomConfigForm(ModelForm):
         self.instance.config_data["assessment_period_end"] = to_local(self.cleaned_data["assessment_period_end"])
         self.instance.config_data["banner_display_until"] = to_local(self.cleaned_data["banner_display_until"])
         self.instance.config_data["default_framework"] = self.cleaned_data["default_framework"]
-        self.instance.config_data["gov_assure_email"] = self.cleaned_data["gov_assure_email"]
         return super().save(commit=commit)
 
 
@@ -697,6 +695,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "last_updated_by",
         "reference",
         "pdf_link",
+        "excel_link",
     ]
     optional_fields = ["reference"]
     list_display = [
@@ -707,6 +706,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "assessment_reference",
         "assessment_organisation",
         "pdf_link",
+        "excel_link",
     ]
     list_filter = [
         "review__assessment__system__name",
@@ -741,7 +741,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         if obj.status == "review":
             return format_html(
                 '<span class="status-pending">{}</span>',
-                obj.get_status_display(),
+                "Pending Review",
             )
         elif obj.status == "approved":
             return format_html(
@@ -775,14 +775,14 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
         custom_urls = [
             path(
-                "<int:tip_id>/pdf/",
-                self.admin_site.admin_view(self.pdf_view),
-                name="tip_pdf",
+                "<int:tip_id>/download/<str:mode>/",
+                self.admin_site.admin_view(self.download_view),
+                name="tip_download",
             ),
         ]
         return custom_urls + urls
 
-    def pdf_view(self, request, tip_id):
+    def download_view(self, request: HttpRequest, tip_id: int, mode: str):
         """
         Generates and returns a PDF response based on the provided template and recommendations.
 
@@ -791,6 +791,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         template. Recommendations are categorized as "priority" and "other" and passed
         to the template for rendering.
 
+        :param mode:
         :param request: The HTTP request instance.
         :type request: HttpRequest
         :param tip_id: The ID of the tip object to be fetched and used.
@@ -800,20 +801,34 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         """
         tip = Tip.objects.get(pk=tip_id)
         service = RecommendationService(tip, request)
-        return service.render_pdf(
-            "tip/report.html",
+        if mode == "pdf":
+            return service.render_pdf(
+                "tip/report.html",
+                {
+                    "object": tip,
+                    "priority_recommendations": service.filter_recommendations("priority"),
+                    "other_recommendations": service.filter_recommendations("other"),
+                },
+            )
+        return service.render_excel(
             {
                 "object": tip,
                 "priority_recommendations": service.filter_recommendations("priority"),
                 "other_recommendations": service.filter_recommendations("other"),
-            },
+            }
         )
 
     def pdf_link(self, obj):
-        url = reverse("admin:tip_pdf", args=[obj.pk])
+        url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
         return format_html('<a href="{url}" target="_blank">View PDF</a>', url=url)
 
     pdf_link.short_description = "PDF download"  # type: ignore[attr-defined]
+
+    def excel_link(self, obj):
+        url = reverse("admin:tip_download", args=[obj.pk, "excel"])
+        return format_html('<a href="{url}" target="_blank">View Excel</a>', url=url)
+
+    excel_link.short_description = "Excel download"  # type: ignore[attr-defined]
 
     def save_model(self, request, obj: Tip, form, change):
         if "_approve" in request.POST:
