@@ -2,6 +2,7 @@ import os
 import unittest
 from unittest.mock import Mock, patch
 
+import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 from django.urls.resolvers import URLPattern
@@ -28,7 +29,8 @@ class CAF32RouterWithFixture(CAF32Router):
         return os.path.join(os.path.dirname(__file__), "fixtures", "caf-v3.2-dummy.yaml")
 
 
-# We test for the validity of the CAF YAML elsewhere, so this module assmes the YAML is valid
+# We test for the validity of the CAF YAML elsewhere, so this module assumes the YAML is valid
+@pytest.mark.django_db
 class TestCAF32Router(unittest.TestCase):
     def setUp(self):
         self._original_urlpatterns = list(urls.urlpatterns)

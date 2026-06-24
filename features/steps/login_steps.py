@@ -116,7 +116,7 @@ def assign_user_profile(context, user_name, role, organisation_name):
 @step('the user logs in with username  "{user_name}" and password "{password}"')
 def user_logging_in(context, user_name, password):
     page = context.page
-    page.get_by_text("Sign in").click()
+    page.get_by_role("button", name="Sign in").click()
     if "think_time" in context:
         sleep(context.think_time)
     expect(page.get_by_role("heading")).to_contain_text("Log in to Your Account")
@@ -145,3 +145,13 @@ def check_page_message(context: Context, page_text: str):
     """
     page: Page = context.page
     expect(page.locator("p.govuk-notification-banner__heading")).to_contain_text(page_text)
+
+
+@then('page contains text "{page_text}" in header')
+def check_page_header(context: Context, page_text: str):
+    """
+    :type context: behave.runner.Context
+    :type page_text: str
+    """
+    page: Page = context.page
+    expect(page.locator("h1")).to_contain_text(page_text)
