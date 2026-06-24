@@ -44,12 +44,14 @@ parameterized = "^0.9.0"
 mypy = "^1.15.0"
 django-stubs = { extras = ["compatible-mypy"], version = "^5.1.3" }
 playwright = "^1.55.0"
-pytest = "^8.4.1"
 pytest-playwright = "^0.7.0"
 behave = "^1.2.6"
 ruamel-yaml = "^0.18.15"
 behave-html-formatter = "^0.9.10"
 freezegun = "^1.5.5"
+pytest = "^9.1.1"
+pytest-django = "^4.12.0"
+pytest-html = "^4.2.0"
 
 [tool.isort]
 profile = "black"
