@@ -72,7 +72,7 @@ class TipDetailView(BaseTipMixin, DetailView):
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
@@ -116,7 +116,7 @@ class TipRecommendationsView(BaseTipMixin, UpdateView):
 
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
@@ -130,7 +130,9 @@ class TipRecommendationsView(BaseTipMixin, UpdateView):
             },
             {
                 "url": None,
-                "text": f"Review {recommendation_type if recommendation_type == 'priority' else 'other'} recommendations and actions",
+                "text": "Priority recommendation and action"
+                if recommendation_type == "priority"
+                else "Other recommendations",
             },
         ]
         data["recommendation_type"] = recommendation_type
@@ -204,7 +206,7 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
 
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
@@ -220,7 +222,9 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
                 "url": reverse(
                     "tip:recommendations", kwargs={"pk": self.object.pk, "recommendation_type": recommendation_type}
                 ),
-                "text": f"Review {recommendation_type if recommendation_type == 'priority' else 'other'} recommendations and actions",
+                "text": "Respond to priority recommendation"
+                if recommendation_type == "priority"
+                else "Review other recommendation",
             },
             {
                 "url": None,
@@ -293,6 +297,9 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
         the_object.can_edit &= the_object.is_editable  # type: ignore [attr-defined]
         return the_object
 
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
     def form_valid(self, form: RecommendationActionForm):
         self.logger.info(f"Saving recommendation action for tip {self.kwargs['pk']}")
         if self.object.is_answers_confirmed:
@@ -303,12 +310,12 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
         submit_action = self.request.POST.get("submit_action", "back_to_summary")
         recommendation_type_ = self.kwargs["recommendation_type"]
 
-        if submit_action == "back_to_summary":
+        if submit_action.endswith("back_to_summary"):
             base_url = reverse(
                 "tip:recommendations",
                 kwargs={"pk": self.kwargs["pk"], "recommendation_type": recommendation_type_},
             )
-        elif submit_action == "next_recommendation":
+        elif submit_action.endswith("next_recommendation"):
             base_url = reverse(
                 "tip:recommendation-action",
                 kwargs={
@@ -317,7 +324,7 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
                     "recommendation_type": recommendation_type_,
                 },
             )
-        elif submit_action == "back_to_answers":
+        elif submit_action.endswith("back_to_answers"):
             base_url = reverse(
                 "tip:review-answers",
                 kwargs={
@@ -346,7 +353,7 @@ class TipReviewAnswersView(BaseTipMixin, UpdateView):
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
@@ -435,7 +442,7 @@ class TipSubmitView(BaseTipMixin, UpdateView):
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
@@ -511,21 +518,12 @@ class TipReportView(BaseTipMixin, DetailView):
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         data["breadcrumbs"] = [
             {
-                "url": reverse("my-account"),
+                "url": reverse("tip:list"),
                 "text": "My account",
             },
             {
-                "url": reverse(
-                    "tip:edit",
-                    kwargs={
-                        "pk": self.object.pk,
-                    },
-                ),
-                "text": "Edit draft TIP",
-            },
-            {
                 "url": None,
-                "text": "TIP report",
+                "text": ("Draft " if self.object.status != "approved" else "") + "Targeted Improvement Plan (TIP)",
             },
         ]
         data["priority_recommendations"] = self.recommendation_service.filter_recommendations("priority")
@@ -540,4 +538,6 @@ class TipReportView(BaseTipMixin, DetailView):
             return self.recommendation_service.render_pdf(self.template_name, self.get_context_data())
         if mode == "excel":
             return self.recommendation_service.render_excel(self.get_context_data())
+        if mode == "template":
+            return self.recommendation_service.render_template(self.get_context_data())
         return super().get(request, *args, **kwargs)

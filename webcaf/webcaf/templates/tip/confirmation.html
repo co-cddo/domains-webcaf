@@ -14,15 +14,15 @@
                 <div class="govuk-grid-column-two-thirds">
                     <div class="govuk-panel govuk-panel--confirmation">
                         <h1 class="govuk-panel__title">
-                            TIP submitted
+                            TIP under review
                         </h1>
                         <div class="govuk-panel__body">
                             Reference number<br><strong id="reference_number">{{ object.reference }}</strong>
                         </div>
                     </div>
-
+                    <p class="govuk-body">Thank you for your submission. We have sent you a confirmation email.</p>
                     <h2 class="govuk-heading-m">
-                        TIP details
+                        Submission details
                     </h2>
                     <dl class="govuk-summary-list govuk-!-margin-top-4">
                         <div class="govuk-summary-list__row">
@@ -60,24 +60,30 @@
                             </dd>
                         </div>
                     </dl>
+
+                    <h2 class="govuk-heading-m">What happens next</h2>
                     <p class="govuk-body">
-                        You have now successfully submitted your TIP. You will find a copy of the
-                        submitted TIP output in your GovAssure account.
+                        You have now successfully sent your TIP to the GovAssure team.
                     </p>
-                    <h2 class="govuk-heading-m">Next steps</h2>
+                    <div class="govuk-inset-text">
+                        The GovAssure team will review your TIP and contact you about next steps.
+                    </div>
+                    <h2 class="govuk-heading-m">View or download your TIP</h2>
                     <p class="govuk-body">
-                        You can now download the TIP to share and discuss it with the organisation. </p>
-                    <p class="govuk-body">You have now produced your final TIP. GovAssure will be in touch in
-                        approximately 6 months to track progress of your actions.
+                        You can view the TIP you submitted in HTML format or download as a PDF or XLS file.
                     </p>
                     <div class="govuk-button-group govuk-!-margin-top-6">
                         <a href="{% url 'tip:view-report' pk=object.pk %}"
-                           class="govuk-button" role="button">View TIP output (HTML)</a>
+                           class="govuk-button govuk-!-font-size-16" role="button">View TIP (HTML)</a>
                         <a href="{% url 'tip:view-report' pk=object.pk %}?mode=pdf" target="_blank"
-                           class="govuk-button govuk-button--secondary" role="button">Download report (PDF)</a>
+                           class="govuk-button govuk-!-font-size-16 govuk-button--secondary" role="button">Download
+                            TIP (PDF)</a>
+                        <a href="{% url 'tip:view-report' pk=object.pk %}?mode=excel" target="_blank"
+                           class="govuk-button govuk-!-font-size-16 govuk-button--secondary" role="button">Download
+                            TIP (XLS)</a>
                     </div>
                     <p class="govuk-body govuk-!-margin-top-6">
-                        <a href="{% url 'my-account' %}" class="govuk-link">Back to My account</a>
+                        <a href="{% url 'tip:list' %}" class="govuk-link">Back to My account</a>
                     </p>
                 </div>
             </div>

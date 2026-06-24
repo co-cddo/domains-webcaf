@@ -23,7 +23,10 @@ from webcaf.webcaf.utils.review import (
     get_review_recommendations,
 )
 from webcaf.webcaf.utils.session import SessionUtil
-from webcaf.webcaf.utils.to_spreadsheet import tip_to_excel
+from webcaf.webcaf.utils.to_spreadsheet import (
+    review_to_tip_template_excel,
+    tip_to_excel,
+)
 
 RecommendationType = Literal["priority", "other", "all"]
 InternalRecommendationType = Literal["priority", "normal", "all"]
@@ -157,6 +160,9 @@ class RecommendationService:
             if action is None:
                 if self.filter_status == "not_reviewed":
                     filtered_by_status.append((recommendation, group, None))
+            elif self.filter_status == "in_progress":
+                if not action.is_reviewed:
+                    filtered_by_status.append((recommendation, group, action))
             elif self.filter_status == action.action_type:
                 filtered_by_status.append((recommendation, group, action))
         return filtered_by_status
@@ -169,16 +175,20 @@ class RecommendationService:
         no_action_count = 0
         actioned_count = 0
         not_reviewed_count = 0
+        in_progress_count = 0
         for recommendation, _group, _ in recommendation_with_group:
             action = self.object.get_action(recommendation.id)
             if action is None:
                 not_reviewed_count += 1
+            elif action.recommendation_reviewed == "no":
+                in_progress_count += 1
             elif action.action_type == "action_planned":
                 actioned_count += 1
             else:
                 no_action_count += 1
         return (
-            f"{actioned_count} actions added · {no_action_count} no action planned · {not_reviewed_count} not reviewed"
+            f"{actioned_count} actions added · {in_progress_count} in progress · "
+            f"{no_action_count} no action planned · {not_reviewed_count} not read yet"
         )
 
     def recommendations_with_actions(
@@ -222,11 +232,30 @@ class RecommendationService:
         return response
 
     def render_excel(self, context: dict[str, Any]) -> HttpResponse:
+        """
+        Generates the XLS representation of the TIP
+        :param context:
+        :return:
+        """
         response = HttpResponse(
             tip_to_excel(self.object, context),
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
         response["Content-Disposition"] = f'filename="UK-OFFICIAL-SENSITIVE-TIP_{self.object.reference}.xlsx"'
+        return response
+
+    def render_template(self, context: dict[str, Any]) -> HttpResponse:
+        """
+        Generates the XLS template to be used
+        for offline information gathering
+        :param context:
+        :return:
+        """
+        response = HttpResponse(
+            review_to_tip_template_excel(self.object.review),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = f'filename="UK-OFFICIAL-SENSITIVE-TIP_{self.object.reference}_TEMPLATE.xlsx"'
         return response
 
 
@@ -293,6 +322,7 @@ class BaseTipMixin(UserRoleCheckMixin):
             Tip.objects.filter(
                 review__assessment__status__in=["submitted"],
                 review__assessment__system__organisation=user_profile.organisation,
+                review__assessment__review_type="independent",
             )
             .exclude(review__review_data__review_finalised__review_finalised_at=None)
             .select_related("review", "review__assessment")

@@ -16,9 +16,9 @@ from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 
 from webcaf.webcaf.models import (
@@ -739,24 +739,24 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Status")
     def status_badge(self, obj):
         if obj.status == "review":
-            return format_html(
-                '<span class="status-pending">{}</span>',
-                "Pending Review",
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "pending"},
             )
         elif obj.status == "approved":
-            return format_html(
-                '<span class="status-approved">{}</span>',
-                obj.get_status_display(),
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "approved"},
             )
         elif obj.status == "rejected":
-            return format_html(
-                '<span class="status-rejected">{}</span>',
-                obj.get_status_display(),
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "rejected"},
             )
         elif obj.status == "completed":
-            return format_html(
-                '<span class="status-completed">{}</span>',
-                obj.get_status_display(),
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "completed"},
             )
         return obj.get_status_display()
 
@@ -820,27 +820,25 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     def pdf_link(self, obj):
         url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
-        return format_html('<a href="{url}" target="_blank">View PDF</a>', url=url)
+        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View PDF"})
 
     pdf_link.short_description = "PDF download"  # type: ignore[attr-defined]
 
     def excel_link(self, obj):
         url = reverse("admin:tip_download", args=[obj.pk, "excel"])
-        return format_html('<a href="{url}" target="_blank">View Excel</a>', url=url)
+        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View Excel"})
 
     excel_link.short_description = "Excel download"  # type: ignore[attr-defined]
 
     def save_model(self, request, obj: Tip, form, change):
-        if "_approve" in request.POST:
-            obj.approve(request.user)
-
-        elif "_reject" in request.POST:
-            obj.reject(request.user)
-
-        elif "_reopen" in request.POST:
-            obj.reopen(request.user)
         obj.last_updated_by = request.user
         obj.last_updated = timezone.now()
+        if "_approve" in request.POST:
+            obj.approve(request.user)
+        elif "_reject" in request.POST:
+            obj.reject(request.user)
+        elif "_reopen" in request.POST:
+            obj.reopen(request.user)
         super().save_model(request, obj, form, change)
 
     class Media:
