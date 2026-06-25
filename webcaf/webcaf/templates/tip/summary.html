@@ -15,16 +15,15 @@
             <h1 class="govuk-heading-l">
                 Create a Targeted Improvement Plan (TIP)
             </h1>
-            <p class="govuk-body"><strong>{% if object.status == 'in_progress' %}In-progress{% else %}
-                Draft{% endif %} TIP</strong></p>
 
-            <p class="govuk-body">You must read and consider the risks for both priority and other recommendations.
-                You must provide an action for every priority recommendation.
-                If you do not plan to add an action, you must give a reason.
-            </p>
             <p class="govuk-body">
-                You do not have to provide actions for the other recommendations.
+                You must read all the risks and recommendations.
+                You must add an action for every priority recommendation. If you do not plan to add an action, you must
+                give a reason.
             </p>
+            <div class="govuk-inset-text">
+                Adding actions for other recommendations is optional.
+            </div>
             <h2 class="govuk-heading-m">1. Record TIP actions</h2>
             <ul class="govuk-task-list">
                 <li class="govuk-task-list__item govuk-task-list__item--with-link">
@@ -32,12 +31,12 @@
                         <a class="govuk-link govuk-task-list__link"
                            href="{% url 'tip:recommendations' pk=object.id recommendation_type='priority' %}"
                            aria-describedby="first-section-1-status">
-                            Read priority recommendations ({{ priority_recommendations_count }})
+                            Priority recommendations ({{ priority_recommendations_count }})
                         </a>
-                        <p class="govuk-body govuk-hint">
-                            Read the recommendations and risks for outcomes that did not meet the
-                            Government CAF profile
-                        </p>
+                        <div id="create-tip-actions-1-hint" class="govuk-task-list__hint">
+                            Read the risks and recommendations for contributing outcomes that did not meet the target
+                            Government CAF profile.
+                        </div>
                     </div>
                     <div class="govuk-task-list__status" id="first-section-1-status">
                         {% if not object.is_priority_recommendations_completed %}
@@ -54,12 +53,12 @@
                         <a class="govuk-link govuk-task-list__link"
                            href="{% url 'tip:recommendations' pk=object.id recommendation_type='other' %}"
                            aria-describedby="first-section-2-status">
-                            Read other recommendations ({{ other_recommendations_count }})
+                            Other recommendations ({{ other_recommendations_count }})
                         </a>
-                        <p class="govuk-body govuk-hint">
-                            Read the recommendations and risks for outcomes that did met the
-                            Government CAF profile
-                        </p>
+                        <div id="create-tip-actions-2-hint" class="govuk-task-list__hint">
+                            Read the risks and recommendations for contributing outcomes that met the target Government
+                            CAF profile.
+                        </div>
                     </div>
                     <div class="govuk-task-list__status" id="first-section-2-status">
                         {% if not object.is_other_recommendations_completed %}
@@ -73,7 +72,7 @@
                 </li>
             </ul>
 
-            <h2 class="govuk-heading-m govuk-!-margin-top-6">2. Review TIP actions</h2>
+            <h2 class="govuk-heading-m govuk-!-margin-top-6">2. Check responses</h2>
             <ul class="govuk-task-list" id="section-3b">
                 <li class="govuk-task-list__item govuk-task-list__item--with-link">
                     <div class="govuk-task-list__name-and-hint">
@@ -81,11 +80,11 @@
                             <a class="govuk-link govuk-task-list__link"
                                href="{% url 'tip:review-answers' pk=object.id %}"
                             >
-                                Check your answers before submission
+                                Review your actions and get a draft TIP
                             </a>
                         {% else %}
                             <span class="govuk-body">
-                                Check your answers before submission
+                                Review your actions and get a draft TIP
                             </span>
                         {% endif %}
                     </div>
@@ -104,26 +103,42 @@
                     </div>
                 </li>
             </ul>
-            <h2 class="govuk-heading-m">3. Submit TIP to GovAssure</h2>
+            <h2 class="govuk-heading-m">3. Submit TIP for approval</h2>
             <ul class="govuk-task-list" id="section-4">
                 <li class="govuk-task-list__item govuk-task-list__item--with-link">
                     <div class="govuk-task-list__name-and-hint">
-                        {% if object.is_answers_confirmed %}
+                        {% if object.is_ready_to_submit %}
                             <a id="task-link-8" class="govuk-link govuk-task-list__link"
-                               href="{% url 'tip:view-report' pk=object.id %}?mode=pdf" target="_blank">
-                                Download your TIP
+                               href="{% url 'tip:submit' pk=object.id %}">
+                                Send your proposed TIP to GovAssure
                             </a>
                         {% else %}
-                            <span class="govuk-body">Download your TIP</span>
+                            <div>
+                                Send your proposed TIP to GovAssure
+                            </div>
                         {% endif %}
                     </div>
                     <div class="govuk-task-list__status">
-                        {% if object.is_answers_confirmed %}
-                            {% if object.is_approved %}
-                                Completed
+                        {% if object.is_ready_to_submit %}
+                            {% if object.is_submitted %}
+                                {% if object.status == 'review' %}
+                                    <strong class="govuk-tag govuk-tag--red">
+                                        Pending approval
+                                    </strong>
+                                {% elif object.status == 'approved' %}
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        Approved
+                                    </strong>
+                                {% elif object.status == 'gov_assure_rejected' %}
+                                    <strong class="govuk-tag govuk-tag--red">
+                                        Rejected
+                                    </strong>
+                                {% else %}
+                                    Cannot start yet
+                                {% endif %}
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--pink">
-                                    Pending approval
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Incomplete
                                 </strong>
                             {% endif %}
                         {% else %}
@@ -131,49 +146,10 @@
                         {% endif %}
                     </div>
                 </li>
-                <li class="govuk-task-list__item govuk-task-list__item--with-link">
-                    <div class="govuk-task-list__name-and-hint">
-                        {% if object.is_ready_to_submit %}
-                            <a id="task-link-8" class="govuk-link govuk-task-list__link"
-                               href="{% url 'tip:submit' pk=object.id %}">
-                                Submit and download your TIP
-                            </a>
-                        {% else %}
-                            <span class="govuk-body">Submit and download your TIP</span>
-                        {% endif %}
-                    </div>
-                    <div class="govuk-task-list__status">
-                        {% if object.is_ready_to_submit %}
-                            {% if object.is_submitted %}
-                                Completed
-                            {% else %}
-                                <strong class="govuk-tag govuk-tag--blue">
-                                    Incomplete
-                                </strong>
-                            {% endif %}
-                        {% else %}
-                            {% if object.status == 'gov_assure_review' %}
-                                <strong class="govuk-tag govuk-tag--blue">
-                                    Pending approval
-                                </strong>
-                            {% elif object.status == 'gov_assure_approved' %}
-                                <strong class="govuk-tag govuk-tag--green">
-                                    Approved
-                                </strong>
-                            {% elif object.status == 'gov_assure_rejected' %}
-                                <strong class="govuk-tag govuk-tag--red">
-                                    Rejected
-                                </strong>
-                            {% else %}
-                                Cannot start yet
-                            {% endif %}
-                        {% endif %}
-                    </div>
-                </li>
             </ul>
 
             <p class="govuk-body govuk-!-margin-top-6">
-                <a href="{% url 'my-account' %}" class="govuk-link">Return to My account</a>
+                <a href="{% url 'tip:list' %}" class="govuk-link">Return to My account</a>
             </p>
 
         </div>

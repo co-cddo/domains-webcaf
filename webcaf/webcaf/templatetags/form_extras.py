@@ -254,11 +254,11 @@ def get_review_tag_for_status(status: str) -> str:
     :param status: A string indicating the current status.
     :return: A string representing the color code for the status.
     """
-    if status in ["to_do", "approved"]:
+    if status in ["to_do"]:
         return "blue"
-    elif status in ["in_progress", "review"]:
+    elif status in ["in_progress"]:
         return "yellow"
-    elif status == "completed":
+    elif status in ["completed", "approved"]:
         return "green"
     else:
         return "red"
@@ -272,9 +272,9 @@ def get_action_name(status: str) -> str:
     """
     if status in ["to_do"]:
         return "Start"
-    elif status in ["in_progress", "approved", "rejected"]:
+    elif status in ["in_progress", "rejected"]:
         return "Continue"
-    elif status in ["completed", "review"]:
+    elif status in ["completed", "review", "approved"]:
         return "View"
     else:
         return "View"
@@ -318,6 +318,7 @@ def get_tip_count(user_profile: UserProfile) -> int:
         Tip.objects.filter(
             review__assessment__status__in=["submitted"],
             review__assessment__system__organisation=user_profile.organisation,
+            review__assessment__review_type="independent",
         )
         .exclude(review__review_data__review_finalised__review_finalised_at=None)
         .count()

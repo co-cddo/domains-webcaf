@@ -70,14 +70,12 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
             "Reviewer recommendation",
             "Recommendation and risk reviewed",
             "Status",
-            "Reason for not actioned",
         ]
     )
     _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50])
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
             if action.action_type == "action_not_planned":
-                action_details = action.action_details
                 ws.append(
                     [
                         action.recommendation_category.capitalize(),
@@ -86,20 +84,71 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
                         recommendation.id + " - " + recommendation.text,
                         action.recommendation_reviewed.capitalize(),
                         "No action planned",
-                        action_details.get("action_not_planned_reason", "-"),
                     ]
                 )
                 _wrap_row_text(ws)
 
 
 def tip_to_excel(tip: Tip, context: dict[str, Any]) -> bytes | None:
+    """
+    Converts the provided `Tip` object into an Excel workbook, including metadata,
+    actioned, and not-actioned data, then returns the workbook as a byte stream.
+    This function is used to export the `Tip` data into a structured file format
+    for external consumption.
+
+    :param tip: The `Tip` object containing the data to be exported to the Excel
+        workbook.
+    :type tip: Tip
+    :param context: A dictionary containing additional context or configuration
+        parameters required for creating the workbook. Specific keys and values
+        depend on the implementation.
+    :type context: dict[str, Any]
+    :return: The generated Excel workbook as a byte stream, or None if the export
+        cannot be completed.
+    :rtype: bytes | None
+    """
     wb = Workbook()
     wb.remove(wb.active)
 
     ws = _add_metadata_tab(wb, tip.review.assessment)
-    ws.append(["Status", "Submitted" if tip.is_submitted else "Draft"])
+    ws.append(["Status", "Submitted" if tip.is_submitted or tip.is_approved else "Draft"])
     _add_actioned_tab(wb, tip, context)
     _add_not_actioned_tab(wb, tip, context)
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return output.getvalue()
+
+
+def review_to_tip_template_excel(review: Review) -> bytes | None:
+    """
+    Convert a review object into a TIP template Excel file.
+
+    This function processes the provided `Review` object and generates an Excel
+    file compliant with the TIP template format. It creates multiple tabs
+    within the workbook, filling them with relevant data from the given review.
+    The generated Excel file is returned as a byte stream. If the review has
+    not been marked as complete, the function will return `None`.
+
+    :param review: Review object containing data to be exported into the
+        TIP template. Must have a complete review to generate the file.
+    :type review: Review
+    :return: Byte stream representation of the generated TIP template Excel file
+        or `None` if the review is incomplete.
+    :rtype: bytes or None
+    """
+    if not review.is_review_complete():
+        return None
+
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    _add_metadata_tab(wb, review.assessment)
+    _add_indicator_tab(wb, review)
+    _add_outcome_summary_tab(wb, review)
+    _add_recommendations_tab(wb, review, "priority")
+    _add_recommendations_tab(wb, review, "normal")
 
     output = BytesIO()
     wb.save(output)
@@ -348,7 +397,61 @@ def _add_outcome_summary_tab(wb: Workbook, review: Review):
                 _wrap_row_text(ws)
 
 
-def _add_recommendations_tab(wb: Workbook, review: Review):
+def _build_contributing_outcome_titles(review: Review) -> dict[str, str]:
+    """
+    Builds a mapping of outcome codes to their display titles ("<code> <title>")
+    for every contributing outcome in the review's assessment.
+
+    :param review: The review whose assessment outcomes are read.
+    :type review: Review
+    :return: Mapping of outcome code to its formatted title.
+    :rtype: dict[str, str]
+    """
+    titles: dict[str, str] = {}
+    for objective in review.assessment.get_all_caf_objectives():
+        for principle in objective.get("principles", {}).values():
+            for outcome in principle.get("outcomes", {}).values():
+                outcome_code = outcome["code"]
+                outcome_title = outcome.get("title", "")
+                titles[outcome_code] = f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
+    return titles
+
+
+def _append_recommendation_rows(
+    ws: Worksheet,
+    review: Review,
+    titles: dict[str, str],
+    recommendation_type: Literal["priority", "normal", "all"],
+    prefix: str,
+    profile_met: str,
+    include_risk: bool = True,
+) -> None:
+    """
+    Appends one row per recommendation for the given recommendation type, wrapping
+    text on each row as it is added.
+
+    :param ws: The worksheet to append rows to.
+    :param review: The review providing the recommendation groups.
+    :param titles: Mapping of outcome code to formatted contributing-outcome title.
+    :param recommendation_type: Which recommendations to fetch ("priority", "normal" or "all").
+    :param prefix: Risk-number prefix (e.g. "RP" or "RO").
+    :param profile_met: Target CAF profile value to record for each row.
+    :param include_risk: Whether to include the risk number and risk title columns.
+    :return: None
+    """
+    for recommendation_group in get_review_recommendations(review, recommendation_type):
+        for recommendation in recommendation_group.recommendations:
+            row = [titles[recommendation.outcome], profile_met]
+            if include_risk:
+                row += [f"{prefix}{recommendation_group.group_index}", recommendation.title]
+            row += [recommendation.id, recommendation.text]
+            ws.append(row)
+            _wrap_row_text(ws)
+
+
+def _add_recommendations_tab(
+    wb: Workbook, review: Review, recommendation_type: Literal["priority", "normal", "all"] = "all"
+):
     """
     Adds a "Risks and recommendations" tab to the given workbook based on the provided review information.
 
@@ -364,67 +467,93 @@ def _add_recommendations_tab(wb: Workbook, review: Review):
 
     :return: None
     """
-    ws = wb.create_sheet(
-        "Risks and recommendations" if review.assessment.review_type != "peer_review" else "Recommendations"
-    )
-    ws.append(
-        [
-            "Contributing outcome",
-            "Target CAF profile",
-        ]
-        + (
+    titles = _build_contributing_outcome_titles(review)
+    is_peer_review = review.assessment.review_type == "peer_review"
+
+    if recommendation_type == "all":
+        ws = wb.create_sheet("Recommendations" if is_peer_review else "Risks and recommendations")
+        ws.append(
+            ["Contributing outcome", "Target CAF profile"]
+            + ([] if is_peer_review else ["Risk number", "Risk"])
+            + ["Recommendation number", "Recommendation"]
+        )
+        _set_header_properties(ws, [40, 20, 20, 70, 20, 70])
+        for rec_type, prefix, profile_met in [("priority", "RP", "Not met"), ("normal", "RO", "Met")]:
+            _append_recommendation_rows(
+                ws,
+                review,
+                titles,
+                cast(Literal["priority", "normal"], rec_type),
+                prefix,
+                profile_met,
+                include_risk=not is_peer_review,
+            )
+    elif recommendation_type == "priority":
+        ws = wb.create_sheet("Priority recommendations")
+        ws.append(
             [
+                "Contributing outcome",
+                "Target CAF profile",
                 "Risk number",
                 "Risk",
+                "Recommendation number",
+                "Recommendation",
+                "Will you add an action? (Yes/no)",
+                "[IF NO] Explain why you will not add an action (Free text - 500 word limit)",
+                "[IF YES] What action will you take? (Free text - 500 word limit)",
+                "Action owner (Individual or team)",
+                "Resources available? (Yes/No, I'm not sure)",
+                "Budget available? (Yes/No, I'm not sure)",
+                "Target completion date (DD-MM-YYYY)",
+                "[IF NO DATE ADDED] Explain why you cannot provide target date (Free text - 500 word limit)",
             ]
-            if review.assessment.review_type != "peer_review"
-            else []
         )
-        + [
-            "Recommendation number",
-            "Recommendation",
-        ]
-    )
-    _set_header_properties(ws, [40, 20, 20, 70, 20, 70])
-
-    contributing_outcome_titles = {}
-    for objective in review.assessment.get_all_caf_objectives():
-        for principle in objective.get("principles", {}).values():
-            for outcome in principle.get("outcomes", {}).values():
-                outcome_code = outcome["code"]
-                outcome_title = outcome.get("title", "")
-                contributing_outcome_titles[outcome_code] = (
-                    f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
-                )
-
-    for recommendation_type, prefix, profile_met in [("priority", "RP", "Not met"), ("normal", "RO", "Met")]:
-        recommendation_groups = get_review_recommendations(
-            review, cast(Literal["priority", "normal", "all"], recommendation_type)
+        _set_header_properties(ws, [40, 20, 20, 70, 20, 70, 20, 70, 70, 50, 20, 20, 20, 70])
+        _append_recommendation_rows(ws, review, titles, "priority", "RP", "Not met")
+        _set_col_as_date_format(ws, "M", "dd-mm-yyyy")
+    elif recommendation_type == "normal":
+        ws = wb.create_sheet("Other recommendations")
+        ws.append(
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "ADDING ACTIONS FOR OTHER RECOMMENDATIONS IS OPTIONAL" "",
+                "",
+                "",
+            ]
         )
-        for recommendation_group in recommendation_groups:
-            for idx, recommendation in enumerate(recommendation_group.recommendations):
-                ws.append(
-                    [
-                        contributing_outcome_titles[recommendation.outcome],
-                        profile_met,
-                    ]
-                    + (
-                        [
-                            f"{prefix}{recommendation_group.group_index}",
-                            recommendation.title,
-                        ]
-                        if review.assessment.review_type != "peer_review"
-                        else []
-                    )
-                    + [
-                        recommendation.id,
-                        recommendation.text,
-                    ]
-                )
-                _wrap_row_text(ws)
+        _set_header_properties(ws, [40, 20, 20, 70, 20, 70, 20, 70, 50, 20, 20, 20])
+        ws.merge_cells("G1:J1")
+        ws["G1"].alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+        )
+        ws.append(
+            [
+                "Contributing outcome",
+                "Target CAF profile",
+                "Risk number",
+                "Risk",
+                "Recommendation number",
+                "Recommendation",
+                "Will you add an action? (Yes/no)",
+                "[IF YES] What action will you take? (Free text - 500 word limit)",
+                "Action owner (Individual or team)",
+                "Resources available? (Yes/No, I'm not sure)",
+                "Budget available? (Yes/No, I'm not sure)",
+                "Target completion date (DD-MM-YYYY)",
+            ]
+        )
+        _set_header_properties(ws, [40, 20, 20, 70, 20, 70, 20, 70, 50, 20, 20, 20], row_num=2)
+        _append_recommendation_rows(ws, review, titles, "normal", "RO", "Met")
+        _set_col_as_date_format(ws, "L", "dd-mm-yyyy")
 
 
-def _set_header_properties(ws, widths, fix=True, bold=True):
+def _set_header_properties(ws, widths, fix=True, bold=True, row_num=1):
     """
     Sets header properties for the given worksheet. This includes setting column
     widths, applying font styles, text wrapping, and freezing panes above a specified row.
@@ -439,7 +568,7 @@ def _set_header_properties(ws, widths, fix=True, bold=True):
     :type bold: bool, optional
     :return: None
     """
-    for cell, width in zip(ws[1], widths):  # row 1
+    for cell, width in zip(ws[row_num], widths):  # row 1
         if bold:
             cell.font = Font(bold=True)
         if fix:
@@ -466,3 +595,22 @@ def _wrap_row_text(ws):
     row_num = ws.max_row
     for col in ws.columns:
         ws.cell(row=row_num, column=col[0].column).alignment = Alignment(wrap_text=True)
+
+
+def _set_col_as_date_format(ws: Worksheet, col: str, date_format="yyyy-mm-dd"):
+    """
+    Sets the date format "yyyy-mm-dd" by default for all cells in the specified column
+    of the given worksheet.
+
+    :param ws: The worksheet in which the column's cell formats will be modified.
+    :type ws: Worksheet
+    :param col: The column identifier (e.g., 'A', 'B', 'C') whose cells
+                should be formatted as dates.
+    :type col: str
+    :param date_format: The date format to be applied to the cells in the specified column.
+                        Defaults to "yyyy-mm-dd".
+    :type date_format: str
+    :return: None
+    """
+    for cell in ws[col]:
+        cell.number_format = date_format

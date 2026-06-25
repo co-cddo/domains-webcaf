@@ -11,7 +11,7 @@ clear-db:
 	docker compose down && docker container prune -f && docker volume rm domains-webcaf_postgres-data
 
 test:
-	docker compose run --rm --service-ports --remove-orphans --entrypoint "python manage.py test -v 2" web
+	docker compose run --rm --service-ports --remove-orphans --entrypoint "poetry run pytest --html=report.html --self-contained-html" web
 	docker compose down
 build:
 	BUILDKIT_PROGRESS=plain docker compose build

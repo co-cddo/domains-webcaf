@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import BooleanField, F, Func, QuerySet, Value
+from django.db.models import BooleanField, EmailField, F, Func, QuerySet, Value
 from django.db.models.functions import Cast
 from django.utils import timezone as django_utils_timezone
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -348,11 +348,11 @@ class UserProfile(models.Model):
             "view stage 4 reviews",
         ],
         "organisation_lead": [
-            "start a new self-assessment",
-            "continue a draft self-assessment",
-            "manage users",
-            "view self-assessments already sent for review",
+            "start or continue a self-assessment",
+            "view self-assessments sent for review",
             "view stage 4 reviews",
+            "start, continue or view a Targeted Improvement Plan (TIP)",
+            "manage users",
         ],
         "organisation_user": [
             "continue a draft self-assessment",
@@ -450,9 +450,6 @@ class Configuration(models.Model):
     def get_banner_display_until(self):
         return self.config_data.get("banner_display_until")
 
-    def get_gov_assure_email(self):
-        return self.config_data.get("gov_assure_email")
-
     def get_submission_due_date(self):
         """
         Convert the get_assessment_period_end in to a datetime object.
@@ -463,7 +460,7 @@ class Configuration(models.Model):
         assessment_period_end = self.get_assessment_period_end()
         # Parse the date string in format "31 March 2026 11:59pm"
         parsed_time = datetime.strptime(assessment_period_end, "%d %B %Y %I:%M%p")
-        parsed_time.replace(tzinfo=ZoneInfo("Europe/London"))
+        parsed_time = parsed_time.replace(tzinfo=ZoneInfo("Europe/London"))
         return parsed_time
 
     def __str__(self):
@@ -1259,6 +1256,11 @@ class Settings(models.Model):
     """
 
     admin_verification_enabled = BooleanField(default=False)
+    gov_assure_email = EmailField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1  # force single row
@@ -1278,7 +1280,7 @@ class Settings(models.Model):
 
 @dataclass
 class RecommendationAction:
-    action_type: Literal["action_planned", "action_not_planned"]
+    action_type: Literal["action_planned", "action_not_planned"] | None
     action_details: dict[str, Any]
     # Actioned time in iso format
     actioned_time: str | None
@@ -1302,6 +1304,10 @@ class RecommendationAction:
     def __repr__(self) -> str:
         return f"RecommendationAction(action_type={self.action_type}, recommendation_category={self.recommendation_category}, recommendation_id={self.recommendation_id})"
 
+    @property
+    def is_reviewed(self) -> bool:
+        return self.recommendation_reviewed is not None and self.recommendation_reviewed == "yes"
+
 
 class TipStatus(models.TextChoices):
     """
@@ -1321,6 +1327,7 @@ class TipStatus(models.TextChoices):
 
     TO_DO = "to_do", "To do"
     IN_PROGRESS = "in_progress", "In-progress"
+    ANSWERS_CONFIRMED = "answers_confirmed", "Answers confirmed"
     REVIEW = "review", "Review"
     APPROVED = "approved", "Approved"
     REJECTED = "rejected", "Rejected"
@@ -1385,6 +1392,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         related_name="tip",
     )
     history = HistoricalRecords()
+    LOGGER = logging.getLogger("Tip")
 
     class Meta:
         ordering = ["-created_on"]
@@ -1416,15 +1424,6 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         # If we have specifically added permissions for this object, then we should check that
         if hasattr(self, "can_edit") and not getattr(self, "can_edit"):
             raise ValidationError("You do not have permission to edit this report.")
-
-        # # If we have recommendation actions, set status to IN_PROGRESS
-        # if self.status == TipStatus.TO_DO and self.tip_data.get("recommendation_actions", {}):
-        #     self.status = TipStatus.IN_PROGRESS
-        #
-        # # Report cannot exist in completed state without finalisation
-        # if self.status in [TipStatus.COMPLETED] and not self.tip_data.get("recommendation_finalise", {}):
-        #     raise ValidationError("Cannot complete a report with incomplete finalisation")
-
         super().save(*args, **kwargs)
 
     @property
@@ -1438,7 +1437,8 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         priority_recommendations = get_review_recommendations(self.review, "priority")
         for group in priority_recommendations:
             for recommendation in group.recommendations:
-                if not self.get_action(recommendation.id):
+                action = self.get_action(recommendation.id)
+                if action is None or action.recommendation_reviewed != "yes":
                     return False
         return True
 
@@ -1450,10 +1450,13 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         """
         from webcaf.webcaf.utils.review import get_review_recommendations
 
-        other_recommendations = get_review_recommendations(self.review, "normal")
+        other_recommendations = list(get_review_recommendations(self.review, "normal"))
         for group in other_recommendations:
             for recommendation in group.recommendations:
-                if not self.get_action(recommendation.id):
+                action = self.get_action(recommendation.id)
+                if action is None:
+                    return False
+                elif action.recommendation_reviewed == "no":
                     return False
         return True
 
@@ -1471,7 +1474,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         Returns True if the tip is editable
         :return:
         """
-        return self.status in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.APPROVED, TipStatus.REJECTED]
+        return self.status in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.REJECTED, TipStatus.ANSWERS_CONFIRMED]
 
     def is_reviewed(self, recommendation_id: str) -> bool:
         """
@@ -1501,7 +1504,8 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         Get all actions for the tip
         :return: Dictionary of recommendation_id: RecommendationAction
         """
-        return self.tip_data.get("recommendation_actions", {})
+        actions_dict = self.tip_data.get("recommendation_actions", {})
+        return {key: RecommendationAction(**data) for key, data in actions_dict.items()}
 
     def get_actions_with_owners(self) -> dict[str, RecommendationAction]:
         """
@@ -1533,11 +1537,20 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         :param action:
         :return:
         """
-        if self._original_status not in [TipStatus.TO_DO, TipStatus.IN_PROGRESS, TipStatus.REJECTED]:
+        if self._original_status not in [
+            TipStatus.TO_DO,
+            TipStatus.IN_PROGRESS,
+            TipStatus.REJECTED,
+            TipStatus.ANSWERS_CONFIRMED,
+        ]:
             raise ValueError(f"Cannot action a recommendation when it is in {self._original_status}")
         recommendations = self.tip_data.get("recommendation_actions", {})
         recommendations[action.recommendation_id] = asdict(action)
         self.tip_data["recommendation_actions"] = recommendations
+        # Reset the confirmation as answers are now changed
+        if self._original_status == TipStatus.ANSWERS_CONFIRMED:
+            self.tip_data.pop("recommendation_confirmation", None)
+            self.LOGGER.info("Resetting recommendation confirmation as answers have changed")
         self.status = TipStatus.IN_PROGRESS
 
     def confirm_answers(self, confirmation: dict[str, Any]):
@@ -1549,7 +1562,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         if self._original_status != TipStatus.IN_PROGRESS:
             raise ValidationError("Only in-progress tips can have answers confirmed")
         self.tip_data["recommendation_confirmation"] = confirmation
-        self.status = TipStatus.REVIEW
+        self.status = TipStatus.ANSWERS_CONFIRMED
 
     @property
     def is_answers_confirmed(self) -> bool:
@@ -1557,6 +1570,8 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         Check if answers for the tip are confirmed
         :return: True if answers are confirmed, False otherwise
         """
+        # We can't rely on checking the status here as the
+        # status is changing at each stage of the process
         return bool(self.tip_data.get("recommendation_confirmation", {}).get("confirmed_by"))
 
     @property
@@ -1569,7 +1584,6 @@ class Tip(ReferenceGeneratorMixin, models.Model):
             self.is_other_recommendations_completed
             and self.is_priority_recommendations_completed
             and self.is_answers_confirmed
-            and self.status == TipStatus.APPROVED
         )
 
     def submit_report(self, confirmed_by: UserProfile):
@@ -1587,8 +1601,8 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         confirmation["confirmed_at"] = django_utils_timezone.now().isoformat()
         confirmation["confirmation_role"] = confirmed_by.role
         self.tip_data["recommendation_finalise"] = confirmation
-        self.status = TipStatus.COMPLETED
-        self.save()
+        self.status = TipStatus.REVIEW
+        self.send_email("submit")
 
     @property
     def submitted_date_time(self):
@@ -1600,7 +1614,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
 
     @property
     def is_submitted(self) -> bool:
-        return self.status == TipStatus.COMPLETED
+        return self.status in [TipStatus.REVIEW, TipStatus.APPROVED, TipStatus.COMPLETED]
 
     @property
     def is_approved(self) -> bool:
@@ -1609,6 +1623,60 @@ class Tip(ReferenceGeneratorMixin, models.Model):
     @property
     def is_rejected(self) -> bool:
         return self.status == TipStatus.REJECTED
+
+    def send_email(self, mode: Literal["submit", "approved", "rejected"]):
+        """
+        Sends an email notification to a predefined group of email addresses (govassure leads)
+        and the internal govassure email address based on the provided mode (approved or rejected).
+
+        :param mode: The mode for the email, which determines the email notification
+                     template to be used.
+                     Acceptable values: "submit", "approved", "rejected".
+        :type mode: Literal["approved", "rejected"]
+        :raises ValueError: Raised if the provided mode is invalid.
+        """
+        if mode == "approved":
+            template_id = settings.NOTIFY_TIP_APPROVED_TEMPLATE_ID
+        elif mode == "rejected":
+            template_id = settings.NOTIFY_TIP_REJECTED_TEMPLATE_ID
+        elif mode == "submit":
+            template_id = settings.NOTIFY_TIP_SUBMITTED_TEMPLATE_ID
+        else:
+            raise ValueError("Invalid mode")
+
+        if template_id:
+            try:
+                email_addresses = list(
+                    UserProfile.objects.filter(
+                        organisation_id=self.review.assessment.system.organisation_id,
+                        role="organisation_lead",
+                    ).values_list("user__email", flat=True)
+                )
+                if email_addresses:
+                    gov_assure_email = Settings.get_instance().gov_assure_email
+                    if gov_assure_email:
+                        email_addresses.append(gov_assure_email)
+                    send_notify_email(
+                        email_addresses=email_addresses,
+                        personalisation_data={
+                            "reference": self.review.reference,  # type: ignore
+                            # The submitted_by is only relevant when the mode is "submit"
+                            "submitted_by": str(self.last_updated_by.email)
+                            if mode == "submit" and self.last_updated_by
+                            else "-",
+                            "submitted_on": django_utils_timezone.now().strftime("%d %B %Y"),
+                            "system_name": self.review.assessment.system.name,
+                            "organisation_name": self.review.assessment.system.organisation.name,
+                            "caf_version": self.review.assessment.framework,
+                            "assessment_period": self.review.assessment.assessment_period,
+                            "mode": mode,
+                        },
+                        template_id=template_id,
+                    )
+            except Exception as ex:  # type: ignore
+                self.LOGGER.exception(mask_email(f"GOV.UK Notify: Failed to send tip email {ex}"))
+        else:
+            self.LOGGER.error(f"Template not available for sending tip email {mode}")
 
     def approve(self, current_user: User):
         """
@@ -1625,6 +1693,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         if self._original_status not in [TipStatus.REVIEW]:
             raise ValueError("Application must be in review status to be approved")
         self.status = TipStatus.APPROVED
+        self.send_email("approved")
 
     def reject(self, current_user: User):
         """
@@ -1647,6 +1716,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
             raise ValueError("Application must be in review status to be rejected")
         self.tip_data.pop("recommendation_confirmation", None)
         self.status = TipStatus.REJECTED
+        self.send_email("rejected")
 
     def reopen(self, current_user: User):
         """

@@ -3,7 +3,12 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}Recommendations - {{ block.super }}{% endblock %}
+{% block title %}
+    {% if recommendation_type == 'priority' %}
+        Review priority recommendations and actions
+    {% else %}
+        Other recommendations
+    {% endif %} - {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -19,25 +24,36 @@
                 {{ recommendation_type|capfirst }} recommendations ({{ total_recommendations }})
             </h1>
             <p class="govuk-body">
-                You must read all the {{ recommendation_type }} recommendations for this system and the risks associated
-                with them.
-                The independent assurance reviewer reported that the contributing outcome failed to meet
-                the {{ caf_profile|capfirst }} Government CAF profile.
+                {% if recommendation_type == 'priority' %}
+                    You must read all the risks and priority recommendations.
+                    Priority recommendations are for contributing outcomes that did not meet the target Government
+                    CAF profile in the Independent Assurance Review.
+                {% else %}
+                    You must review all the risks and recommendations.
+                {% endif %}
             </p>
-            <p class="govuk-heading-m">Provide actions</p>
+            {% if recommendation_type == 'priority' %}
+                <p class="govuk-heading-m">Provide actions</p>
+            {% endif %}
             <div class="govuk-warning-text">
                 <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                 <strong class="govuk-warning-text__text">
                     <span class="govuk-visually-hidden">Warning</span>
                     {% if recommendation_type == 'priority' %}
-                        You must provide an action for every {{ recommendation_type }} recommendation. If you do not
+                        You must provide an action for every priority recommendation. If you do not
                         plan to add an action, you must give a reason.
                     {% else %}
-                        You do not have to provide actions against these recommendations, as the contributing outcomes
-                        met the Government CAF profile
+                        Adding actions for other recommendations is optional, as the contributing outcomes met the
+                        target Government CAF profile
                     {% endif %}
                 </strong>
             </div>
+            {% if recommendation_type != 'priority' %}
+                <p class="govuk-body">If you are not adding any actions, go to 'Mark all recommendations as reviewed' at
+                    the bottom of the
+                    page, then select 'Yes' and ‘Save and continue'.
+                </p>
+            {% endif %}
         </div>
     </div>
 
@@ -47,10 +63,10 @@
                 <div class="app-filter-panel__content">
                     <div class="app-filter-panel__header">
                         <h2 class="govuk-heading-m govuk-!-margin-bottom-1">
-                            Filter recommendations
+                            Filter reconsiderations
                         </h2>
                         <p class="govuk-body govuk-hint app-filter-panel__hint">
-                            Use filters to narrow the recommendations below
+                            Filter recommendations by objective, outcome and status.
                         </p>
                     </div>
                     <form method="get" id="recommendation-filter-form">
@@ -97,10 +113,13 @@
                                         class="govuk-select"
                                         id="status"
                                         name="status">
-                                    <option value="">All</option>
+                                    <option value="">All statuses</option>
                                     <option value="not_reviewed"
                                             {% if request.GET.status == 'not_reviewed' %}selected{% endif %}>Not
-                                        reviewed
+                                        responded
+                                    </option>
+                                    <option value="in_progress"
+                                            {% if request.GET.status == 'in_progress' %}selected{% endif %}>In progress
                                     </option>
                                     <option value="action_planned"
                                             {% if request.GET.status == 'action_planned' %}selected{% endif %}>Action
@@ -144,18 +163,18 @@
         <div class="govuk-grid-column-full">
             <table class="govuk-table govuk-!-font-size-16 compact">
                 <colgroup>
-                    <col class="width_10">
                     <col class="width_5">
-                    <col class="width_20">
-                    <col class="width_45">
+                    <col class="width_5">
+                    <col class="width_35">
+                    <col class="width_35">
                     <col class="width_20">
                 </colgroup>
                 <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header width_10">ID</th>
+                    <th scope="col" class="govuk-table__header width_5">ID</th>
                     <th scope="col" class="govuk-table__header width_5">CO</th>
-                    <th scope="col" class="govuk-table__header width_20">Risk</th>
-                    <th scope="col" class="govuk-table__header width_45">Recommendation</th>
+                    <th scope="col" class="govuk-table__header width_35">Risk</th>
+                    <th scope="col" class="govuk-table__header width_35">Recommendation</th>
                     <th scope="col" class="govuk-table__header width_20">Status</th>
                 </tr>
                 </thead>
@@ -180,25 +199,44 @@
                             {{ recommendation.text }}
                         </td>
                         <td class="govuk-table__cell">
-                            {% with query_string="?objective="|add:objective|add:"&outcome="|add:outcome|add:"&status="|add:status %}
+                            {% with query_string="objective="|add:objective|add:"&outcome="|add:outcome|add:"&status="|add:status %}
                                 {% if not recommendation_action %}
                                     <a class="govuk-link"
-                                       href="
-                                               {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}">Read</a>
+                                       href="{% tip_url object.id recommendation.id recommendation_type query_string %}">
+                                        {% if recommendation_type == 'priority' %}
+                                            Add response
+                                        {% else %}
+                                            Review
+                                        {% endif %}
+                                    </a>
                                 {% else %}
-                                    {% if recommendation_action.action_type == 'action_not_planned' %}
-                                        <strong class="govuk-tag govuk-tag--grey tip-status-tag">No action
-                                            planned</strong>
-                                        <br><br>
-                                        <a href="
-                                                {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}"
-                                           class="govuk-link govuk-link--no-visited-state">Change response</a>
+                                    {% if recommendation_action.recommendation_reviewed == "yes" %}
+                                        {% if recommendation_action.action_type == 'action_not_planned' %}
+                                            <strong class="govuk-tag govuk-tag--grey tip-status-tag">
+                                                No action planned
+                                            </strong>
+                                            <br><br>
+                                            <a href="{% tip_url object.id recommendation.id recommendation_type query_string %}"
+                                               class="govuk-link govuk-link--no-visited-state">Change</a>
+                                        {% else %}
+                                            <strong class="govuk-tag govuk-tag--blue tip-status-tag">
+                                                Action added
+                                            </strong>
+                                            <br><br>
+                                            <a href="{% tip_url object.id recommendation.id recommendation_type query_string %}"
+                                               class="govuk-link govuk-link--no-visited-state">
+                                                Change
+                                            </a>
+                                        {% endif %}
                                     {% else %}
-                                        <strong class="govuk-tag govuk-tag--blue tip-status-tag">Action added</strong>
+                                        <strong class="govuk-tag govuk-tag--yellow tip-status-tag">
+                                            In progress
+                                        </strong>
                                         <br><br>
-                                        <a href="
-                                                {% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}{{ query_string }}"
-                                           class="govuk-link govuk-link--no-visited-state">Change</a>
+                                        <a href="{% tip_url object.id recommendation.id recommendation_type query_string %}"
+                                           class="govuk-link govuk-link--no-visited-state">
+                                            Continue
+                                        </a>
                                     {% endif %}
                                 {% endif %}
                             {% endwith %}
@@ -208,13 +246,15 @@
             </table>
             {% if show_bulk_update %}
                 <div class="govuk-!-margin-top-7">
-                    <h2 class="govuk-heading-m">Mark all recommendations as read</h2>
+                    <h2 class="govuk-heading-m">
+                        Mark all recommendations as reviewed
+                    </h2>
                     <form method="post">
                         {% csrf_token %}
                         <div class="govuk-form-group">
                             <fieldset id="id_confirm_bulk_review" class="govuk-fieldset">
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                                    Have you read all the recommendations?
+                                    Have you reviewed all the recommendations?
                                 </legend>
                                 <div class="govuk-radios--inline {% if form.confirm_bulk_review.errors %}govuk-form-group--error{% endif %}"
                                      data-module="govuk-radios">

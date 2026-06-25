@@ -259,6 +259,12 @@ span.govuk-header__logotype-text {
     min-width: 10% !important;
 }
 
+.width_15 {
+    max-width: 15% !important;
+    width: 15% !important;
+    min-width: 15% !important;
+}
+
 .width_20 {
     max-width: 20% !important;
     width: 20% !important;
@@ -269,6 +275,12 @@ span.govuk-header__logotype-text {
     max-width: 25% !important;
     width: 25% !important;
     min-width: 25% !important;
+}
+
+.width_30 {
+    max-width: 30% !important;
+    width: 30% !important;
+    min-width: 30% !important;
 }
 
 .width_35 {

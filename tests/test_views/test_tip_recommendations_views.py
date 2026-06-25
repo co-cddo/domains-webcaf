@@ -84,54 +84,32 @@ class TestTipRecommendationsView(BaseViewTest):
         # Create Tip
         self.tip = Tip.objects.get(review=self.review, status=TipStatus.TO_DO)
 
-    def _login_with_role(self, role_key: str, org_name: str | None = None) -> tuple[Client, UserProfile]:
-        if org_name is None:
-            org_name = self.organisation_name  # type: ignore[attr-defined]
-
-        client = Client()
-        user = self.org_map[org_name]["users"].get(role_key)
-        if not user:
-            from django.contrib.auth.models import User
-
-            user, _ = User.objects.get_or_create(username=self.email_from_username_and_org(role_key, org_name))
-            org = Organisation.objects.get(name=org_name)
-            UserProfile.objects.get_or_create(user=user, organisation=org, role=role_key)
-
-        client.force_login(user)
-        profile = UserProfile.objects.get(user=user, role=role_key)
-        session = client.session
-        session["current_profile_id"] = profile.id
-        session.save()
-        return client, profile
-
     def test_access_control(self):
         # Allowed roles: cyber_advisor, organisation_lead
         for role in ["cyber_advisor", "organisation_lead"]:
-            client, _ = self._login_with_role(role)
+            client, _ = self._login_with_role(role, self.org)
             url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
             resp = client.get(url)
             self.assertEqual(resp.status_code, 200, f"Role {role} should have access")
 
         # Disallowed roles: assessor, reviewer
         for role in ["assessor", "reviewer"]:
-            client, _ = self._login_with_role(role)
+            client, _ = self._login_with_role(role, self.org)
             url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
             resp = client.get(url)
             self.assertEqual(resp.status_code, 403, f"Role {role} should not have access")
 
         # Different organisation
-        other_org_name = "Large organisation"
-        if other_org_name == self.organisation_name:
-            other_org_name = "Medium organisation"
+        other_org = Organisation.objects.get(name="Medium organisation")
 
-        client, _ = self._login_with_role("cyber_advisor", org_name=other_org_name)
+        client, _ = self._login_with_role("cyber_advisor", other_org)
         url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
         resp = client.get(url)
         # Should be 404 because get_queryset filters by organisation
         self.assertEqual(resp.status_code, 404, "Cyber advisor from other org should not see this tip")
 
     def test_recommendation_types_display(self):
-        client, _ = self._login_with_role("cyber_advisor")
+        client, _ = self._login_with_role("cyber_advisor", self.org)
 
         # Priority recommendations
         url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
@@ -168,7 +146,7 @@ class TestTipRecommendationsView(BaseViewTest):
         self.review.finalise_review(self.cyber_advisor_profile)
         self.review.save()
 
-        client, _ = self._login_with_role("cyber_advisor")
+        client, _ = self._login_with_role("cyber_advisor", self.org)
         url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
 
         # Filter by objective A
@@ -186,7 +164,7 @@ class TestTipRecommendationsView(BaseViewTest):
         self.assertNotIn("A", rec_objectives)
 
     def test_filtering_by_status(self):
-        client, _ = self._login_with_role("cyber_advisor")
+        client, _ = self._login_with_role("cyber_advisor", self.org)
         url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "priority"})
 
         # Initial status: all not reviewed

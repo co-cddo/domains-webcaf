@@ -386,3 +386,62 @@ def transform_system(system_data: dict[str, Any]) -> dict[str, Any]:
         "last_assessed": system_data.get("last_assessed"),
         "legacy_system_id": system_data.get("legacy_system_id"),
     }
+
+
+def transform_definition(definition: dict[str, Any]) -> dict[str, Any]:
+    """
+    Transforms a given complex nested dictionary structure into a reformatted structure.
+
+    This function processes a dictionary containing hierarchical definitions, objectives,
+    principles, outcomes, and their respective attributes and generates a reformatted
+    dictionary. The transformation focuses on restructuring and standardizing the keys
+    and values for further processing or storage.
+
+    :param definition: A dictionary containing the input structure to be transformed. It is
+        expected to include nested dictionaries and arrays representing hierarchical
+        components such as objectives, principles, outcomes, etc.
+    :type definition: dict[str, Any]
+
+    :return: A reformatted dictionary that adheres to the transformed schema, including
+        standardized fields such as "display_name," "app_version," "objectives," and
+        their nested components.
+    :rtype: dict[str, Any]
+    """
+    return {
+        "display_name": definition["display_name"],
+        "caf_version": definition["caf_version"],
+        "app_version": definition["app_version"],
+        "objectives": [
+            {
+                "code": objective["code"],
+                "title": f'{objective["code"]} - {objective["title"]}',
+                "description": objective["description"],
+                "principles": [
+                    {
+                        "code": principle["code"],
+                        "title": f'{principle["code"]}- {principle["title"]}',
+                        "description": principle["description"],
+                        "outcomes": [
+                            {
+                                "code": outcome["code"],
+                                "title": f'{outcome["code"]} - {outcome["title"]}',
+                                "description": outcome["description"],
+                                "indicators": [
+                                    {
+                                        "code": item_key,
+                                        "category": category,
+                                        "description": item["description"],
+                                    }
+                                    for category, items in outcome["indicators"].items()
+                                    for item_key, item in items.items()
+                                ],
+                            }
+                            for _, outcome in principle["outcomes"].items()
+                        ],
+                    }
+                    for _, principle in objective["principles"].items()
+                ],
+            }
+            for _, objective in definition["objectives"].items()
+        ],
+    }

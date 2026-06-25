@@ -16,7 +16,13 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Assessment, Configuration, Review, UserProfile
+from webcaf.webcaf.models import (
+    Assessment,
+    Configuration,
+    Review,
+    Settings,
+    UserProfile,
+)
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
@@ -151,8 +157,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
             if addresses:
                 # Filter out these emails being sent from non-production environments
                 if settings.SEND_ASSESSMENT_COMPLETION_EMAILS:
-                    default_config = Configuration.objects.get_default_config()
-                    gov_assure_email = default_config.get_gov_assure_email()
+                    gov_assure_email = Settings.get_instance().gov_assure_email
                     if gov_assure_email:
                         addresses.append(gov_assure_email)
                     self.send_email(

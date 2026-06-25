@@ -148,9 +148,9 @@ class TestTipDetailView(TipViewsSetupMixin, BaseViewTest):
         # Section heading must be present.
         self.assertIn("1. Record TIP actions", body)
         # Priority link uses the count.
-        self.assertIn("Read priority recommendations (1)", body)
+        self.assertIn("Priority recommendations (1)", body)
         # Other link uses the count.
-        self.assertIn("Read other recommendations (2)", body)
+        self.assertIn("Other recommendations (2)", body)
 
     def test_counts_update_when_review_has_no_recommendations(self):
         # Wipe the assessor response so neither priority nor normal recommendations exist.
@@ -174,8 +174,8 @@ class TestTipDetailView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context["priority_recommendations_count"], 0)
         self.assertEqual(resp.context["other_recommendations_count"], 0)
-        self.assertIn("Read priority recommendations (0)", resp.content.decode())
-        self.assertIn("Read other recommendations (0)", resp.content.decode())
+        self.assertIn("Priority recommendations (0)", resp.content.decode())
+        self.assertIn("Other recommendations (0)", resp.content.decode())
 
     def test_counts_increase_when_more_recommendations_added(self):
         # Add a second priority recommendation in objective B.
@@ -199,8 +199,8 @@ class TestTipDetailView(TipViewsSetupMixin, BaseViewTest):
         # A1.a (1) + B1.a (2) priority items.
         self.assertEqual(resp.context["priority_recommendations_count"], 3)
         self.assertEqual(resp.context["other_recommendations_count"], 2)
-        self.assertIn("Read priority recommendations (3)", resp.content.decode())
-        self.assertIn("Read other recommendations (2)", resp.content.decode())
+        self.assertIn("Priority recommendations (3)", resp.content.decode())
+        self.assertIn("Other recommendations (2)", resp.content.decode())
 
 
 @freeze_time("2050-01-15 10:00:00")
@@ -245,7 +245,7 @@ class TestTipRecommendationsView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.context.get("show_bulk_update"))
         self.assertIn(
-            "Mark all recommendations as read",
+            "Mark all recommendations as reviewed",
             resp.content.decode(),
         )
 
@@ -324,7 +324,7 @@ class TestTipRecommendationsView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(bulk_action.action_type, "action_not_planned")
         self.assertEqual(bulk_action.recommendation_category, "other")
         self.assertEqual(bulk_action.recommendation_reviewed, "yes")
-        self.assertEqual(bulk_action.action_details.get("action_not_planned_reason"), "Updated through bulk review")
+        self.assertEqual(bulk_action.action_details.get("action_not_planned_reason"), "Not provided")
 
         # And no priority recommendations were touched by the bulk action.
         for rec in self._priority_recs:
@@ -365,7 +365,7 @@ class TestTipRecommendationsView(TipViewsSetupMixin, BaseViewTest):
             if rec.objective == "A":
                 self.assertIsNotNone(action, f"A-side recommendation {rec.id} should have been bulk-actioned")
                 self.assertEqual(action.action_type, "action_not_planned")
-                self.assertEqual(action.action_details.get("action_not_planned_reason"), "Updated through bulk review")
+                self.assertEqual(action.action_details.get("action_not_planned_reason"), "Not provided")
             else:
                 self.assertIsNone(action, f"B-side recommendation {rec.id} must not have been touched")
 
@@ -442,7 +442,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
             "target_day_year": "2027",
             "target_date_unavailable_reason": "",
             "action_not_planned_reason": "",
-            "submit_action": "back_to_summary",
+            "submit_action": "validate_and_back_to_summary",
         }
         if overrides:
             payload.update(overrides)
@@ -495,7 +495,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_not_planned",
                 "action_not_planned_reason": "Mitigating control already in place",
-                "submit_action": "back_to_summary",
+                "submit_action": "validate_and_back_to_summary",
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -504,7 +504,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(stored["action_type"], "action_not_planned")
         self.assertEqual(stored["action_details"], {"action_not_planned_reason": "Mitigating control already in place"})
 
-    def test_reviewed_no_clears_any_existing_action(self):
+    def test_reviewed_update_to_not_planned(self):
         # Seed an existing action so we can verify it gets reset.
         self.tip.set_recommendation_action(
             RecommendationAction(
@@ -525,13 +525,16 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
             {
                 "recommendation_id": self.priority_rec.id,
                 "recommendation_category": "priority",
-                "recommendation_reviewed": "no",
-                "submit_action": "back_to_summary",
+                "recommendation_actioned": "action_not_planned",
+                "action_not_planned_reason": "something came up reason",
+                "submit_action": "validate_and_next_recommendation",
             },
         )
         self.assertEqual(resp.status_code, 302)
         self.tip.refresh_from_db()
-        self.assertIsNone(self.tip.get_action(self.priority_rec.id))
+        action = self.tip.get_action(self.priority_rec.id)
+        self.assertIsNotNone(action)
+        self.assertEqual(action.action_details["action_not_planned_reason"], "something came up reason")
 
     def test_existing_action_is_reloaded_when_editing(self):
         # Seed a fully-formed planned action.
@@ -564,7 +567,6 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         form = resp.context["form"]
 
         # Top-level fields restore.
-        self.assertEqual(form["recommendation_reviewed"].value(), "yes")
         self.assertEqual(form["recommendation_actioned"].value(), "action_planned")
         self.assertEqual(form["recommendation_category"].value(), "priority")
         self.assertEqual(form["recommendation_id"].value(), self.priority_rec.id)
@@ -637,7 +639,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_category": "priority",
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_planned",
-                "submit_action": "back_to_summary",
+                "submit_action": "validate_and_back_to_summary",
             },
         )
         self.assertEqual(resp.status_code, 200)
@@ -664,7 +666,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_not_planned",
                 "action_not_planned_reason": "",
-                "submit_action": "back_to_summary",
+                "submit_action": "validate_and_back_to_summary",
             },
         )
         self.assertEqual(resp.status_code, 200)
@@ -717,7 +719,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_not_planned",
                 "action_not_planned_reason": "Low risk",
-                "submit_action": "next_recommendation",
+                "submit_action": "validate_and_next_recommendation",
                 "next_recommendation": second.id,
             },
         )
@@ -741,7 +743,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_not_planned",
                 "action_not_planned_reason": "Not applicable",
-                "submit_action": "back_to_answers",
+                "submit_action": "validate_and_back_to_answers",
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -757,7 +759,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
                 "recommendation_reviewed": "yes",
                 "recommendation_actioned": "action_not_planned",
                 "action_not_planned_reason": "Documented elsewhere",
-                "submit_action": "back_to_summary",
+                "submit_action": "validate_and_back_to_summary",
             },
         )
         self.assertEqual(resp.status_code, 302)

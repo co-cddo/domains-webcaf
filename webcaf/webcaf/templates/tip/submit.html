@@ -3,7 +3,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}Submit TIP - {{ block.super }}{% endblock %}
+{% block title %} Submit and download your TIP - {{ block.super }}{% endblock %}
 {% block content %}
 
     <div class="govuk-grid-row">
@@ -11,15 +11,18 @@
             {% include 'partials/error_message.html' %}
             <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
             <h1 class="govuk-heading-l">
-                Submit and download your TIP
+                Submit your TIP for review
             </h1>
             <p class="govuk-body">
-                Your Targeted Improvement Plan (TIP) is ready to be downloaded and passed to the appropriate role for
+                Your Targeted Improvement Plan (TIP) is ready for submission.
+            </p>
+            <p class="govuk-body">
+                You can go back to check your actions, download the draft TIP to complete final sign-off, or continue to
                 submission.
             </p>
             <div class="govuk-inset-text">
-                You can go back to check your answers, download the TIP to complete final sign-off, or continue to
-                submission.
+                If there are any changes to your TIP needed after you submit it, the GovAssure team will contact you.
+                You will then be able to return to WebCAF to make updates.
             </div>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
@@ -46,31 +49,9 @@
                         {% if object.is_answers_confirmed %}Completed{% else %}Incomplete{% endif %}
                     </dd>
                 </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        GovAssure approval
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {% if object.is_approved %}Completed{% else %}Incomplete{% endif %}
-                    </dd>
-                </div>
             </dl>
             <section class="govuk-accordion__section">
-                <h2 class="govuk-heading-m">Download TIP</h2>
-                <p class="govuk-body">
-                    <a href="{% url 'tip:view-report' pk=object.pk %}?mode=pdf" target="_blank" class="govuk-link">
-                        Download {% if object.status != 'completed' %} Draft {% else %} Completed {% endif %} TIP
-                        (PDF)</a>
-                </p>
-                <p class="govuk-body">
-                    <a href="{% url 'tip:view-report' pk=object.pk %}?mode=excel" target="_blank" class="govuk-link">
-                        Download {% if object.status != 'completed' %} Draft {% else %} Completed {% endif %} TIP
-                        (Excel)</a>
-                </p>
-            </section>
-            <section class="govuk-accordion__section">
-                <h2 class="govuk-heading-m">Confirm before continuing</h2>
-                <p class="govuk-hint">You must confirm this before continuing</p>
+                <h2 class="govuk-heading-m">Confirm to continue</h2>
                 <form method="post">
                     {% csrf_token %}
                     <div class="govuk-checkboxes">
@@ -78,9 +59,9 @@
                              id="id_confirm">
                             <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm" type="checkbox"
                                    value="True" aria-describedby="confirm-checkbox-hint">
-                            <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I can confirm that
-                                all actions in this TIP have been signed off by the relevant managers, teams, or
-                                stakeholders.</label>
+                            <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I confirm that the
+                                contents of this TIP have been signed off by my organisation's GovAssure senior
+                                responsible officer (SRO).</label>
                         </div>
                         <br/>
                         <br/>
@@ -88,10 +69,13 @@
                     <div class="govuk-button-group">
                         <button class='govuk-button govuk-button--primary' {% if not object.can_edit %}
                                 disabled="disabled" aria-disabled="true"  {% endif %} type="submit"
-                                name="confirm_button">Confirm
-                            and continue
+                                name="confirm_button">
+                            Submit your TIP for review
                         </button>
                     </div>
+                    <p class="govuk-body">
+                        <a href="{% url 'tip:review-answers' pk=object.id %}" class="govuk-link">Back to check your answers</a>
+                    </p>
                 </form>
             </section>
         </div>

@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Any
 
 from django import forms
@@ -6,6 +7,19 @@ from django.forms import BooleanField, CharField, ChoiceField, ModelForm
 
 from webcaf.webcaf.forms.factory import WordCountValidator
 from webcaf.webcaf.models import RecommendationAction, Tip
+
+
+class RecommendationActionChoices(StrEnum):
+    """
+    List of possible actions to perform upon
+    the submission of the RecommendationActionForm
+    """
+
+    VALIDATE_AND_BACK_TO_ANSWERS = "validate_and_back_to_answers"
+    VALIDATE_AND_BACK_TO_SUMMARY = "validate_and_back_to_summary"
+    VALIDATE_AND_NEXT_RECOMMENDATION = "validate_and_next_recommendation"
+    SAVE_AND_BACK_TO_SUMMARY = "save_and_back_to_summary"
+    SAVE_AND_NEXT_RECOMMENDATION = "save_and_next_recommendation"
 
 
 class RecommendationActionForm(forms.ModelForm):
@@ -33,9 +47,6 @@ class RecommendationActionForm(forms.ModelForm):
     :ivar recommendation_category: A required field for capturing the category of the
         recommendation.
     :type recommendation_category: CharField
-    :ivar recommendation_reviewed: A required choice field indicating whether the
-        recommendation has been reviewed.
-    :type recommendation_reviewed: ChoiceField
     :ivar recommendation_actioned: An optional choice field to determine whether an
         action will be added for a recommendation.
     :type recommendation_actioned: ChoiceField
@@ -97,19 +108,23 @@ class RecommendationActionForm(forms.ModelForm):
     # The main required field to continue with the form processing
     recommendation_id = CharField(required=True)
     recommendation_category = CharField(required=True)
-    recommendation_reviewed = ChoiceField(
+    submit_action = ChoiceField(
         required=True,
         choices=(
-            ("yes", "Yes"),
-            ("no", "No"),
+            (RecommendationActionChoices.VALIDATE_AND_BACK_TO_ANSWERS, "Back to answers"),
+            (RecommendationActionChoices.VALIDATE_AND_BACK_TO_SUMMARY, "Back to summary"),
+            (RecommendationActionChoices.VALIDATE_AND_NEXT_RECOMMENDATION, "Next recommendation"),
+            # Non-validating options
+            (RecommendationActionChoices.SAVE_AND_BACK_TO_SUMMARY, "Back to summary"),
+            (RecommendationActionChoices.SAVE_AND_NEXT_RECOMMENDATION, "Next recommendation"),
         ),
         widget=forms.RadioSelect,
-        label="Has the recommendation been reviewed",
+        label="Action to perform",
     )
 
     # Path to decide if this is actioned or not
     recommendation_actioned = ChoiceField(
-        required=False,
+        required=True,
         choices=[("action_planned", "Yes"), ("action_not_planned", "No")],
         label="Will you add an action for this recommendation",
     )
@@ -179,28 +194,32 @@ class RecommendationActionForm(forms.ModelForm):
         :return: The saved instance after applying the changes and validating the data.
         :rtype: Tip
         """
-        if not self.is_reviewed():
-            self.instance.reset_recommendation_action(self.cleaned_data["recommendation_id"])
-        else:
-            action = RecommendationAction(
-                recommendation_reviewed="yes",
-                recommendation_category=self.cleaned_data["recommendation_category"],
-                action_type=self.cleaned_data["recommendation_actioned"],
-                recommendation_id=self.cleaned_data["recommendation_id"],
-                action_details=self._build_action_details(),
-                actioned_by=self.cleaned_data["actioned_by"],
-                actioned_time=self.cleaned_data["actioned_time"],
-            )
-            self.instance.set_recommendation_action(action=action)
+        action = RecommendationAction(
+            # We will only set the recommendation_reviewed to yes if the submit_action is one of the validate options
+            recommendation_reviewed="yes"
+            if self.cleaned_data["submit_action"]
+            in {
+                RecommendationActionChoices.VALIDATE_AND_NEXT_RECOMMENDATION,
+                RecommendationActionChoices.VALIDATE_AND_BACK_TO_ANSWERS,
+                RecommendationActionChoices.VALIDATE_AND_BACK_TO_SUMMARY,
+            }
+            else "no",
+            recommendation_category=self.cleaned_data["recommendation_category"],
+            action_type=self.cleaned_data.get("recommendation_actioned"),
+            recommendation_id=self.cleaned_data["recommendation_id"],
+            action_details=self._build_action_details(),
+            actioned_by=self.cleaned_data["actioned_by"],
+            actioned_time=self.cleaned_data.get("actioned_time", ""),
+        )
+        self.instance.set_recommendation_action(action=action)
         return super().save(commit)
 
     def _build_action_details(self) -> dict[str, Any]:
-        if self.cleaned_data["recommendation_actioned"] == "action_planned":
-            return {field: self.cleaned_data[field] for field in self.PLANNED_ACTION_DETAIL_FIELDS}
-        return {"action_not_planned_reason": self.cleaned_data["action_not_planned_reason"]}
-
-    def is_reviewed(self) -> bool:
-        return self.cleaned_data.get("recommendation_reviewed", "no") == "yes"
+        if self.cleaned_data.get("recommendation_actioned", "") in ["action_not_planned"]:
+            # Only populate the action_not_planned_reason if we have chosen action_not_planned
+            # otherwise store all available information from the screen
+            return {"action_not_planned_reason": self.cleaned_data.get("action_not_planned_reason")}
+        return {field: self.cleaned_data.get(field) for field in self.PLANNED_ACTION_DETAIL_FIELDS}
 
     def clean(self) -> dict[str, Any] | None:
         """
@@ -215,18 +234,21 @@ class RecommendationActionForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         if cleaned_data:
-            if self.errors or cleaned_data.get("recommendation_reviewed", "no") == "no":
+            # Basic validation check and skip detailed validation if the form contains errors or the
+            # submit action is SAVE_AND_NEXT_RECOMMENDATION or SAVE_AND_BACK_TO_SUMMARY
+            if self.errors or cleaned_data.get("submit_action") in (
+                RecommendationActionChoices.SAVE_AND_NEXT_RECOMMENDATION,
+                RecommendationActionChoices.SAVE_AND_BACK_TO_SUMMARY,
+            ):
                 return cleaned_data
 
             recommendation_actioned = cleaned_data.get("recommendation_actioned")
-            if not recommendation_actioned:
-                self.add_error("recommendation_actioned", "Select the action you took for this recommendation.")
-                return cleaned_data
-
             if recommendation_actioned == "action_not_planned":
-                self._require(
-                    cleaned_data, "action_not_planned_reason", "Enter a reason why no action will be planned."
-                )
+                if cleaned_data["recommendation_category"] == "priority":
+                    # Only need a reason for priority recommendations
+                    self._require(
+                        cleaned_data, "action_not_planned_reason", "Enter a reason why no action will be planned."
+                    )
             elif recommendation_actioned == "action_planned":
                 self._validate_action_planned(cleaned_data)
 
@@ -241,13 +263,24 @@ class RecommendationActionForm(forms.ModelForm):
             for field, message in self.TARGET_DATE_REQUIRED_FIELDS.items():
                 self._require(cleaned_data, field, message)
         elif is_target_date_provided == "no":
-            self._require(
-                cleaned_data,
-                "target_date_unavailable_reason",
-                "Enter a reason why no target date has been provided.",
-            )
+            # Only need a reason for priority recommendations
+            if cleaned_data["recommendation_category"] == "priority":
+                self._require(
+                    cleaned_data,
+                    "target_date_unavailable_reason",
+                    "Enter a reason why no target date has been provided.",
+                )
 
     def _require(self, cleaned_data: dict[str, Any], field: str, message: str) -> None:
+        """
+        Checks if a specific field exists in the provided dictionary. If the field is
+        missing or has a falsy value, an error message is added for the field.
+
+        :param cleaned_data: The dictionary containing data to validate.
+        :param field: The key in the dictionary to check for a valid value.
+        :param message: The error message to associate with the field if validation fails.
+        :return: None
+        """
         if not cleaned_data.get(field):
             self.add_error(field, message)
 
@@ -345,7 +378,7 @@ class TipBulkReviewForm(ModelForm):
 
         confirm = cleaned_data.get("confirm_bulk_review", "no")
         if confirm == "yes":
-            cleaned_data["bulk_review_reason"] = "Updated through bulk review"
+            cleaned_data["bulk_review_reason"] = "Not provided"
         return cleaned_data
 
     def save(self, commit=True):
@@ -366,7 +399,9 @@ class TipBulkReviewForm(ModelForm):
         if commit:
             reason = self.cleaned_data["bulk_review_reason"]
             for recommendation, _, action in self.cleaned_data["filtered_recommendations_with_group"]:
-                if self.instance.is_reviewed(recommendation.id):
+                # If there is no action set for the recommendation,
+                # then we go ahead and set the action as action_not_planned
+                if self.instance.get_action(recommendation.id):
                     continue
                 self.instance.set_recommendation_action(
                     RecommendationAction(

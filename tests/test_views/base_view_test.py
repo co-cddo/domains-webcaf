@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import Client, TestCase
 
 from webcaf.webcaf.models import Organisation, System, UserProfile
 
@@ -74,3 +74,28 @@ class BaseViewTest(TestCase):
 
         cls.test_user = User.objects.get(username=cls.email_from_username_and_org(cls.user_role, cls.organisation_name))
         cls.test_organisation = Organisation.objects.get(id=cls.test_system.organisation.id)
+
+    def _login_with_role(self, role_key: str, organisation: Organisation) -> tuple[Client, UserProfile]:
+        client = Client()
+        user = self.org_map[organisation.name]["users"].get(role_key)  # type: ignore
+        if not user:
+            # Create the user and profile if this role was not part of base fixture
+            from django.contrib.auth.models import User
+
+            user, _ = User.objects.get_or_create(
+                username=self.email_from_username_and_org(role_key, organisation.name)  # type: ignore
+            )
+            UserProfile.objects.get_or_create(user=user, organisation=organisation, role=role_key)
+
+        client.force_login(user)
+        profile = UserProfile.objects.get(user=user, role=role_key)
+        session = client.session
+        session["current_profile_id"] = profile.id
+        session.save()
+        return client, profile
+
+    def _create_user_with_role(self, role_key: str, organisation: Organisation, username: str) -> User:
+        email = self.email_from_username_and_org(username, organisation.name)
+        user, _ = User.objects.get_or_create(username=email, is_staff=False, email=email)
+        UserProfile.objects.get_or_create(user=user, organisation=organisation, role=role_key)
+        return user

@@ -13,7 +13,7 @@ Feature: User login with a profile
     And Think time 1 seconds
     When the user logs in with username  "<user_name>" and password "<password>"
     Then they should see page title "<page_title>"
-    And page contains text "<page_text>" in banner
+    And page contains text "<page_text>" in header
     Examples:
-      | user_name            | password | page_title                                                      | page_text                                                                                                                                        |
-      | admin@example.gov.uk | password | GovAssure lead - My account - admin - Complete a WebCAF self-assessment - GOV.UK | You cannot start a new self-assessment, until your scoping document is signed off and your system has been added to WebCAF by a cyber adviser. |
+      | user_name            | password | page_title                                                                       | page_text                                                                                                                                      |
+      | admin@example.gov.uk | password | GovAssure lead - My account - admin - Complete a WebCAF self-assessment - GOV.UK |  My GovAssure lead account  |
