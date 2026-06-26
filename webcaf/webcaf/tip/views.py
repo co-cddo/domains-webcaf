@@ -301,7 +301,9 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
         return super().form_invalid(form)
 
     def form_valid(self, form: RecommendationActionForm):
-        self.logger.info(f"Saving recommendation action for tip {self.kwargs['pk']}")
+        self.logger.info(
+            f"Saving recommendation {form.cleaned_data.get('recommendation_id')} action for tip {self.kwargs['pk']}"
+        )
         if self.object.is_answers_confirmed:
             self.logger.info(f"This will reset the answer confirmation for tip {self.kwargs['pk']}")
         return super().form_valid(form)

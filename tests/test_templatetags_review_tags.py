@@ -1,13 +1,13 @@
 from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import User
 from django.forms import BaseFormSet
 from django.forms.boundfield import BoundField
 from django.test import TestCase
 from parameterized import parameterized
 
+from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.caf.routers import CAF32Router
-from webcaf.webcaf.models import Assessment, Organisation, Review
+from webcaf.webcaf.models import Assessment, Review
 from webcaf.webcaf.templatetags.review_tags import (
     PrincipleOutcomeStatus,
     RecommendationGroup,
@@ -146,36 +146,17 @@ class TestGetOutcomeRecommendationCount(TestCase):
         self.assertEqual(result, 0)
 
 
-class TestGetUserRole(TestCase):
+class TestGetUserRole(BaseViewTest):
     def test_returns_role_display_name_when_profile_exists(self):
-        user = Mock(spec=User)
-        organisation = Mock(spec=Organisation)
-
-        profile = Mock()
-        profile.organisation = organisation
-        profile.get_role_display.return_value = "Administrator"
-
-        user.profiles.filter.return_value = [profile]
-
-        result = get_user_role(user, organisation)
-
-        self.assertEqual(result, "Administrator")
-        profile.get_role_display.assert_called_once()
+        result = get_user_role(self.test_user, self.test_organisation, "organisation_user")
+        self.assertEqual(result, "Organisation user")
 
     def test_returns_dash_when_no_profile_exists(self):
-        user = Mock(spec=User)
-        organisation = Mock(spec=Organisation)
-        user.profiles.filter.return_value = []
-
-        result = get_user_role(user, organisation)
-
+        result = get_user_role(self.test_user, self.test_organisation, "organisation_lead")
         self.assertEqual(result, "-")
 
     def test_returns_dash_when_user_is_none(self):
-        organisation = Mock(spec=Organisation)
-
-        result = get_user_role(None, organisation)
-
+        result = get_user_role(None, self.test_organisation, "organisation_user")
         self.assertEqual(result, "-")
 
 

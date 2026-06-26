@@ -440,9 +440,9 @@ class Command(BaseCommand):
                     "caf_version": mapped_data[1],
                 }
                 transformed_data = transform_definition(data)
-                self.stdout.write(f"File uploaded to s3://{bucket_name}/definitions/{key}-webcaf-2.json")
+                self.stdout.write(f"File uploaded to s3://{bucket_name}/caf_definitions/{key}-webcaf-2.json")
                 s3.put_object(
-                    Bucket=bucket_name, Key=f"definitions/{key}-webcaf-2.json", Body=json.dumps(transformed_data)
+                    Bucket=bucket_name, Key=f"caf_definitions/{key}-webcaf-2.json", Body=json.dumps(transformed_data)
                 )
         except Exception as ex:
             logging.getLogger("DefinitionUpload").exception("Failed to upload definitions to S3")
