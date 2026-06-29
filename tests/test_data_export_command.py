@@ -918,7 +918,7 @@ class TestExportDefinitions(TestCase):
         Command().export_definitions("analytics-bucket", s3)
         # Index all calls by S3 key
         calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
-        s3_data_body = calls_by_key["definitions/caf32-webcaf-2.json"]
+        s3_data_body = calls_by_key["caf_definitions/caf32-webcaf-2.json"]
 
         self.assertEqual(s3_data_body["display_name"], "CAF 3.2 GovAssure")
         self.assertEqual(s3_data_body["app_version"], "webcaf-2")

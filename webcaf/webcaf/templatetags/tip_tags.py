@@ -35,7 +35,7 @@ def actioned_and_not_actioned_counts(
             actioned_count += 1
         else:
             not_actioned_count += 1
-    return f"{len(recommendations)} recommendations {actioned_count} action{'s' if actioned_count != 1 else ''} added"
+    return f"{len(recommendations)} recommendations . {actioned_count} action{'s' if actioned_count != 1 else ''} added"
 
 
 @register.simple_tag()

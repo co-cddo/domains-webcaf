@@ -76,7 +76,7 @@
                                     <a href="{% url 'show-report' pk=tip.review.id version=tip.review.current_version_number %}"
                                        class="govuk-link"
                                        target="_blank"
-                                       title="View final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review report{% else %}IAAR{% endif %} report">View
+                                       title="View final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review report{% else %}IARR{% endif %} report">View
                                         final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review
                                             report{% else %}IAAR{% endif %}</a>
                                 {% endif %}

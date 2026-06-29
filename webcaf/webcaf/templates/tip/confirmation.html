@@ -46,7 +46,7 @@
                                 Submitted by
                             </dt>
                             <dd class="govuk-summary-list__value">
-                                {% get_user_role object.last_updated_by object.review.assessment.system.organisation as updated_by_role %}
+                                {% get_user_role object.last_updated_by object.review.assessment.system.organisation 'organisation_lead' as updated_by_role %}
                                 {{ object.last_updated_by.first_name }} {{ object.last_updated_by.last_name }}
                                 ({{ updated_by_role }})
                             </dd>
