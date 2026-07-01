@@ -135,7 +135,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     "reference": assessment.reference,
                     "system_name": assessment.system.name,
                     "organisation_name": assessment.system.organisation.name,
-                    "caf_version": assessment.framework,
+                    "caf_version": assessment.get_framework_display(),
                 },
                 [self.request.user.email],  # type: ignore[list-item,union-attr]
                 settings.NOTIFY_CONFIRMATION_TEMPLATE_ID,

@@ -3,8 +3,10 @@
     {% if original and original.status == 'review' %}
         <input type="submit" value="Approve" name="_approve" class="button-approve">
         <input type="submit" value="Reject" name="_reject" class="button-reject">
-    {% elif original.status == 'approved' %}
+    {% elif original.status == 'approved' and user.is_superuser %}
         <input type="submit" value="Re Open" name="_reopen" class="button-reject">
     {% endif %}
-    {{ block.super }}
+    {% if user.is_superuser %}
+        {{ block.super }}
+    {% endif %}
 {% endblock %}

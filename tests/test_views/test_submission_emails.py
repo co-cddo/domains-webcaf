@@ -119,7 +119,7 @@ class TestSubmissionEmails(BaseViewTest):
         self.assertEqual(personalisation["submitted_by"], self.submitter.email)
         self.assertEqual(personalisation["system_name"], self.test_system.name)
         self.assertEqual(personalisation["organisation_name"], self.test_system.organisation.name)
-        self.assertEqual(personalisation["caf_version"], "caf32")
+        self.assertEqual(personalisation["caf_version"], "Cyber Assessment Framework v3.2")
 
     @patch("webcaf.webcaf.views.sections.send_notify_email")
     def test_ready_email_personalisation(self, mock_send):

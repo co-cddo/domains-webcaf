@@ -1399,6 +1399,10 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         unique_together = [
             "review",
         ]
+        permissions = (
+            ("can_approve_tip", "Can approve tips"),
+            ("can_reject_tip", "Can reject tips"),
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1605,11 +1609,19 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         self.send_email("submit")
 
     @property
-    def submitted_date_time(self):
+    def submitted_date_time(self) -> datetime | None:
         confirmed_at = self.tip_data.get("recommendation_finalise", {}).get("confirmed_at")
         if confirmed_at:
             utc_dt = datetime.fromisoformat(confirmed_at).replace(tzinfo=timezone.utc)
             return utc_dt
+        return None
+
+    @property
+    def submitted_by(self) -> str | None:
+        confirmed_by = self.tip_data.get("recommendation_finalise", {}).get("confirmed_by")
+        if confirmed_by:
+            if confirmed_user := User.objects.filter(id=confirmed_by).first():
+                return str(confirmed_user.email)
         return None
 
     @property
@@ -1660,14 +1672,13 @@ class Tip(ReferenceGeneratorMixin, models.Model):
                         email_addresses=email_addresses,
                         personalisation_data={
                             "reference": self.review.reference,  # type: ignore
-                            # The submitted_by is only relevant when the mode is "submit"
-                            "submitted_by": str(self.last_updated_by.email)
-                            if mode == "submit" and self.last_updated_by
+                            "submitted_by": str(self.submitted_by) if self.submitted_by is not None else "-",
+                            "submitted_on": self.submitted_date_time.strftime("%d %B %Y")
+                            if self.submitted_date_time
                             else "-",
-                            "submitted_on": django_utils_timezone.now().strftime("%d %B %Y"),
                             "system_name": self.review.assessment.system.name,
                             "organisation_name": self.review.assessment.system.organisation.name,
-                            "caf_version": self.review.assessment.framework,
+                            "caf_version": self.review.assessment.get_framework_display(),
                             "assessment_period": self.review.assessment.assessment_period,
                             "mode": mode,
                         },
