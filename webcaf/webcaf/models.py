@@ -9,7 +9,15 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import BooleanField, EmailField, F, Func, QuerySet, Value
+from django.db.models import (
+    BooleanField,
+    EmailField,
+    F,
+    Func,
+    IntegerField,
+    QuerySet,
+    Value,
+)
 from django.db.models.functions import Cast
 from django.utils import timezone as django_utils_timezone
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -1261,6 +1269,12 @@ class Settings(models.Model):
         null=True,
         blank=True,
     )
+
+    #  ============ TIP specific attributes =============
+    # Max words to be used in main text boxes
+    tip_max_words_main = IntegerField(default=1500)
+    # Max words for other text boxes
+    tip_max_words_other = IntegerField(default=1000)
 
     def save(self, *args, **kwargs):
         self.pk = 1  # force single row

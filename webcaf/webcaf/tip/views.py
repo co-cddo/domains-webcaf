@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, UpdateView
 
-from webcaf.webcaf.models import Configuration, Tip, TipStatus
+from webcaf.webcaf.models import Configuration, Settings, Tip, TipStatus
 from webcaf.webcaf.tip.forms import (
     RecommendationActionForm,
     TipBulkReviewForm,
@@ -198,6 +198,26 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
     form_class = RecommendationActionForm
     template_name = "tip/recommendation_action.html"
     model = Tip
+
+    def get_form_kwargs(self):
+        """
+        Retrieve form keyword arguments with additional settings.
+
+        This method extends the base implementation by including additional
+        keyword arguments related to maximum word counts for main and other
+        tips. The values are retrieved from the application's settings.
+
+        :raises: Any errors raised by the superclass `get_form_kwargs`.
+
+        :return: A dictionary containing the form keyword arguments. Additional
+            keys include ``max_words_main`` and ``max_words_other``, representing
+            the maximum word counts for main and other tips respectively.
+        :rtype: dict
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs["max_words_main"] = Settings.get_instance().tip_max_words_main
+        kwargs["max_words_other"] = Settings.get_instance().tip_max_words_other
+        return kwargs
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)

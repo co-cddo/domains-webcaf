@@ -26,6 +26,7 @@ from webcaf.webcaf.models import (
     Organisation,
     RecommendationAction,
     Review,
+    Settings,
     System,
     Tip,
     TipStatus,
@@ -773,3 +774,105 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.context["mode"], "change_answer")
         # Template shows the "Save and return to answers" button in change-answer mode.
         self.assertIn("Save and return to answers", resp.content.decode())
+
+    # ------------------------------------------------------------------
+    # Word count validation driven by the Settings model.
+    #
+    # The view (get_form_kwargs) reads the limits from Settings.get_instance()
+    # and passes them to RecommendationActionForm as max_words_main /
+    # max_words_other, which are attached as WordCountValidators to:
+    #   * action_not_planned_reason      -> tip_max_words_main
+    #   * action_taken_description        -> tip_max_words_main
+    #   * target_date_unavailable_reason  -> tip_max_words_other
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _set_word_limits(main: int, other: int) -> None:
+        settings_obj = Settings.get_instance()
+        settings_obj.tip_max_words_main = main
+        settings_obj.tip_max_words_other = other
+        settings_obj.save()
+
+    def test_action_taken_description_word_limit_from_settings(self):
+        # Limit main text boxes to 3 words.
+        self._set_word_limits(main=3, other=2)
+        client, _ = _login_with_role(self, "organisation_lead")
+
+        # A 4-word description exceeds the configured main limit (well under the 1500 default),
+        # proving the ceiling comes from the Settings model.
+        resp = self._post_planned_action(
+            client,
+            self.priority_rec,
+            overrides={"action_taken_description": "one two three four"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        errors = resp.context["form"].errors
+        self.assertIn("action_taken_description", errors)
+        self.assertIn("at most 3 words", " ".join(errors["action_taken_description"]))
+        # Nothing should have been persisted.
+        self.tip.refresh_from_db()
+        self.assertIsNone(self.tip.get_action(self.priority_rec.id))
+
+    def test_action_taken_description_within_settings_limit_passes(self):
+        # A 3-word description is within the configured main limit and should validate.
+        self._set_word_limits(main=3, other=2)
+        client, _ = _login_with_role(self, "organisation_lead")
+
+        resp = self._post_planned_action(
+            client,
+            self.priority_rec,
+            overrides={"action_taken_description": "one two three"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.tip.refresh_from_db()
+        stored = self.tip.tip_data["recommendation_actions"][self.priority_rec.id]
+        self.assertEqual(stored["action_details"]["action_taken_description"], "one two three")
+
+    def test_target_date_unavailable_reason_word_limit_from_settings(self):
+        # Limit "other" text boxes to 2 words.
+        self._set_word_limits(main=3, other=2)
+        client, _ = _login_with_role(self, "organisation_lead")
+
+        # target_date_provided=no => target_date_unavailable_reason is used. A 3-word reason
+        # exceeds the configured "other" limit of 2.
+        resp = self._post_planned_action(
+            client,
+            self.priority_rec,
+            overrides={
+                "target_date_provided": "no",
+                "target_day_day": "",
+                "target_day_month": "",
+                "target_day_year": "",
+                "target_date_unavailable_reason": "one two three",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        errors = resp.context["form"].errors
+        self.assertIn("target_date_unavailable_reason", errors)
+        self.assertIn("at most 2 words", " ".join(errors["target_date_unavailable_reason"]))
+        self.tip.refresh_from_db()
+        self.assertIsNone(self.tip.get_action(self.priority_rec.id))
+
+    def test_action_not_planned_reason_word_limit_from_settings(self):
+        # Limit main text boxes to 3 words.
+        self._set_word_limits(main=3, other=2)
+        client, _ = _login_with_role(self, "organisation_lead")
+
+        # A 4-word reason exceeds the configured main limit of 3.
+        resp = client.post(
+            self._action_url(self.priority_rec),
+            {
+                "recommendation_id": self.priority_rec.id,
+                "recommendation_category": "priority",
+                "recommendation_reviewed": "yes",
+                "recommendation_actioned": "action_not_planned",
+                "action_not_planned_reason": "one two three four",
+                "submit_action": "validate_and_back_to_summary",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        errors = resp.context["form"].errors
+        self.assertIn("action_not_planned_reason", errors)
+        self.assertIn("at most 3 words", " ".join(errors["action_not_planned_reason"]))
+        self.tip.refresh_from_db()
+        self.assertIsNone(self.tip.get_action(self.priority_rec.id))
