@@ -59,7 +59,7 @@ class RecommendationActionForm(forms.ModelForm):
         approved to deliver the action.
     :type budget_available: ChoiceField
     :ivar action_taken_description: An optional text field for describing the action to
-        be taken, with a limit of 500 words.
+        be taken, with a limit of 1500 words as default.
     :type action_taken_description: CharField
     :ivar target_date_provided: An optional choice field specifying whether a target date
         is provided for the planned action.
@@ -74,10 +74,10 @@ class RecommendationActionForm(forms.ModelForm):
         constrained between 2026 and 2100.
     :type target_day_year: forms.IntegerField
     :ivar target_date_unavailable_reason: An optional text field for providing a reason
-        when no target date is available, with a maximum of 500 words.
+        when no target date is available, with a maximum of 1500 words as default.
     :type target_date_unavailable_reason: CharField
     :ivar action_not_planned_reason: An optional text field specific to scenarios where
-        no action is planned, with a word limit of 500.
+        no action is planned, with a word limit of 1500 as default.
     :type action_not_planned_reason: CharField
     """
 
@@ -143,8 +143,13 @@ class RecommendationActionForm(forms.ModelForm):
     )
     action_taken_description = CharField(
         required=False,
-        validators=[WordCountValidator(500)],
-        widget=forms.Textarea(attrs={"rows": 10, "cols": 40, "max_words": 500}),
+        validators=[],
+        widget=forms.Textarea(
+            attrs={
+                "rows": 10,
+                "cols": 40,
+            }
+        ),
         label="What action will you take",
     )
 
@@ -162,18 +167,47 @@ class RecommendationActionForm(forms.ModelForm):
     target_day_year = forms.IntegerField(required=False, min_value=2026, max_value=2100, label="Estimated target Year")
     target_date_unavailable_reason = CharField(
         required=False,
-        validators=[WordCountValidator(500)],
-        widget=forms.Textarea(attrs={"rows": 10, "cols": 40, "max_words": 500}),
+        validators=[],
+        widget=forms.Textarea(
+            attrs={
+                "rows": 10,
+                "cols": 40,
+            }
+        ),
         label="Reason for target date unavailability",
     )
 
     # If action is not planned, we need this field
     action_not_planned_reason = CharField(
         required=False,
-        validators=[WordCountValidator(500)],
+        validators=[],
         label="Reason for not planning an action",
-        widget=forms.Textarea(attrs={"rows": 10, "cols": 40, "max_words": 500}),
+        widget=forms.Textarea(
+            attrs={
+                "rows": 10,
+                "cols": 40,
+            }
+        ),
     )
+
+    def __init__(self, *args, max_words_main: int = 1500, max_words_other: int = 1000, **kwargs):
+        """
+        Initializes the class and configures word count validation for specific fields.
+
+        :param args: Positional arguments passed to the superclass initializer.
+        :param max_words_main: Maximum word limit for main fields. Default is 1500.
+        :param max_words_other: Maximum word limit for secondary fields. Default is 1000.
+        :param kwargs: Keyword arguments passed to the superclass initializer.
+        """
+        super().__init__(*args, **kwargs)
+        for field_name, max_words in [
+            ("action_not_planned_reason", max_words_main),
+            ("target_date_unavailable_reason", max_words_other),
+            ("action_taken_description", max_words_main),
+        ]:
+            field = self.fields[field_name]
+            field.validators.append(WordCountValidator(max_words))
+            field.widget.attrs["max_words"] = max_words
 
     class Meta:
         model = Tip
@@ -354,8 +388,8 @@ class TipBulkReviewForm(ModelForm):
         label="Explain why you will not add an action",
         help_text="Provide a reason for bulk reviewing these tips.",
         required=False,
-        validators=[MaxLengthValidator(500)],
-        widget=forms.Textarea(attrs={"rows": 10, "cols": 40, "max_words": 500}),
+        validators=[MaxLengthValidator(1500)],
+        widget=forms.Textarea(attrs={"rows": 10, "cols": 40, "max_words": 1500}),
     )
     confirm_bulk_review = ChoiceField(
         required=True,

@@ -35,7 +35,7 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
     _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50, 20, 20, 20, 20, 50])
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
-            if action.action_type == "action_planned":
+            if action and action.action_type == "action_planned":
                 action_details = action.action_details
                 ws.append(
                     [
@@ -75,7 +75,7 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
     _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50])
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
-            if action.action_type == "action_not_planned":
+            if action and action.action_type == "action_not_planned":
                 ws.append(
                     [
                         action.recommendation_category.capitalize(),

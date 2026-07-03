@@ -196,7 +196,7 @@ class FinaliseReview(BaseReviewMixin, UpdateView):
                             "submitted_on": timezone.now().strftime("%d %B %Y"),
                             "system_name": review.assessment.system.name,
                             "organisation_name": review.assessment.system.organisation.name,
-                            "caf_version": review.assessment.framework,
+                            "caf_version": review.assessment.get_framework_display(),
                         },
                         template_id=template_id,
                     )

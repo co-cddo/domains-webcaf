@@ -696,10 +696,12 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "reference",
         "pdf_link",
         "excel_link",
+        "completed_percentage",
     ]
     optional_fields = ["reference"]
     list_display = [
         "status_badge",
+        "completed_percentage",
         "assessment_system_name",
         "assessment_framework",
         "assessment_review_type",
@@ -715,6 +717,26 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         "status",
     ]
     actions: list[str] = []
+
+    def get_form(self, request: HttpRequest, obj: Optional[Model] = None, **kwargs: Any):
+        """
+        Fetches and customizes the form for the specified model instance based on user access rights.
+
+        If the user is not a superuser, the "tip_data" field in the form will be set to readonly.
+
+        :param request: The HTTP request object representing the current request.
+        :type request: HttpRequest
+        :param obj: An optional instance of the model associated with the form.
+        :type obj: Optional[Model]
+        :param kwargs: Arbitrary keyword arguments passed to the underlying `get_form` method.
+        :type kwargs: Any
+        :return: A Django form, potentially customized to restrict certain fields based on user access.
+        :rtype: BaseModelForm
+        """
+        form = super().get_form(request, obj, **kwargs)
+        if not request.user.is_superuser:
+            form.base_fields["tip_data"].widget.attrs["readonly"] = True
+        return form
 
     @admin.display(ordering="assessment_review_type", description="Review type")
     def assessment_review_type(self, obj):
@@ -818,6 +840,17 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             }
         )
 
+    def completed_percentage(self, obj):
+        """
+        Calculates the completion percentage of an object and returns it as a formatted string.
+
+        :param obj: The object containing the `completed_percentage` attribute.
+        :type obj: Any
+        :return: A string representing the formatted completion percentage.
+        :rtype: str
+        """
+        return f"{obj.completed_percentage}%"
+
     def pdf_link(self, obj):
         url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
         return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View PDF"})
@@ -840,6 +873,52 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         elif "_reopen" in request.POST:
             obj.reopen(request.user)
         super().save_model(request, obj, form, change)
+
+    def has_view_permission(self, request, obj=None):
+        """
+        Determine if the user has the permission to view the given object.
+
+        This method checks if the user has the view permissions granted explicitly by
+        the parent class or if the user has specific permissions to approve or reject
+        a tip.
+
+        :param request: The HTTP request object containing information about the
+            current request and the user making the request.
+        :type request: HttpRequest
+        :param obj: The object for which the view permission is being checked.
+            Defaults to None if no object is being queried.
+        :type obj: Any or None
+        :return: A boolean value indicating whether the user has permission to
+            view the object.
+        :rtype: bool
+        """
+        return (
+            super().has_view_permission(request, obj)
+            or request.user.has_perm("webcaf.can_approve_tip")
+            or request.user.has_perm("webcaf.can_reject_tip")
+        )
+
+    def has_change_permission(self, request, obj=None):
+        """
+        Determines whether a user has the required permission to change an object. This
+        method checks if the user has specific permissions ("webcaf.can_approve_tip" or
+        "webcaf.can_reject_tip"). For superusers, additional checks are present to grant
+        permissions based on request method or specific post data.
+
+        :param request: The HttpRequest object representing the current request.
+        :type request: HttpRequest
+        :param obj: The object for which the permission check is performed. Default is None.
+        :type obj: Any
+        :return: A boolean value indicating whether the user has change permissions for the
+            given object.
+        :rtype: bool
+        """
+        # If not superuser, check if user has permission to approve or reject
+        if request.user.has_perm("webcaf.can_approve_tip") or request.user.has_perm("webcaf.can_reject_tip"):
+            if request.method == "GET":
+                return True
+            return request.user.is_superuser or "_approve" in request.POST or "_reject" in request.POST
+        return super().has_change_permission(request, obj)
 
     class Media:
         css = {"all": ("webcaf/admin.css",)}
