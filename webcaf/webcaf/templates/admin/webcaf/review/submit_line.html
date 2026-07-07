@@ -1,0 +1,10 @@
+{% extends "admin/submit_line.html" %}
+{% block submit-row %}
+    {% if user.is_superuser %}
+        {% if original.is_review_finalised %}
+            <input type="submit" value="Un Finalise" name="_reopen" class="button-reject" title="Only admins can reopen reports,
+            This will put the review in to a state that can be reopened in the frontend.">
+        {% endif %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}

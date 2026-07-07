@@ -1,4 +1,5 @@
 {% extends "review-base.html" %}
+{% load tz %}
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
@@ -96,8 +97,10 @@
                         <td class="govuk-table__cell">Version {{ forloop.revcounter }}</td>
                         <td class="govuk-table__cell">
                             {% if revision.instance.completion_info %}
-                                {{ revision.instance.completion_info.review_completed_at|date:"d F Y" }}
-                                at {{ revision.instance.completion_info.review_completed_at|date:"H:i" }}
+                                {% timezone "Europe/London" %}
+                                    {{ revision.instance.completion_info.review_completed_at|date:"d F Y" }}
+                                    at {{ revision.instance.completion_info.review_completed_at|date:"H:i" }}
+                                {% endtimezone %}
                             {% else %}
                                 -
                             {% endif %}
