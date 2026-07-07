@@ -257,7 +257,11 @@
 {% endif %}
 
 <script type="module" defer nonce="{{ request.csp_nonce }}">
-    import { initAll } from '{% static "govuk-frontend-5.11.1.min.js" %}'
+    import {initAll, CharacterCount} from '{% static "govuk-frontend-5.11.1.min.js" %}'
+    {#This is needed to initialise the char count for dynamically added text boxes#}
+    window.init_char_count = function (element) {
+        new CharacterCount(element);
+    }
     window.addEventListener('DOMContentLoaded', () => {
         initAll()
     })
