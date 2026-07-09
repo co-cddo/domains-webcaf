@@ -1099,10 +1099,8 @@ class Review(ReferenceGeneratorMixin, models.Model):
         if self.status != "completed" or self.is_review_finalised():
             raise ValidationError("Invalid state for report reopening.")
 
-        review_completion = _get_or_create_nested_path(self.review_data, "review_completion")
+        self.review_data.pop("review_completion", None)
         self.status = "in_progress"
-        # Remove the review_completed key and its associated values
-        review_completion.clear()
 
     @transaction.atomic
     def finalise_review(self, profile: UserProfile):

@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
 from django.forms import CharField, DateTimeInput, ModelForm
@@ -715,10 +716,8 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "assessment":
-            current_config = Configuration.objects.get_default_config()
             kwargs["queryset"] = Assessment.objects.filter(
                 status="submitted",
-                assessment_period=current_config.get_current_assessment_period(),
             ).order_by("-created_on")
         form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
         return form_field
@@ -726,10 +725,17 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     def save_form(self, request, form, change):
         return super().save_form(request, form, change)
 
-    def save_model(self, request, obj, form, change):
-        if hasattr(obj, "last_updated_by"):
-            obj.last_updated_by = request.user
+    def save_model(self, request, obj: Review, form, change):
+        obj.last_updated_by = request.user
+        if "_reopen" in request.POST:
+            if request.user.is_superuser:
+                obj.rollback_to_in_progress()
+            else:
+                raise PermissionDenied("Only admins can reopen reports")
         super().save_model(request, obj, form, change)
+
+    class Media:
+        css = {"all": ("webcaf/admin.css",)}
 
 
 class TipAdminForm(JsonDataAdminForm):

@@ -4,6 +4,9 @@ Tests for the admin changes in ``webcaf/webcaf/admin.py`` covering:
 * ``TipAdmin`` history restore gating — only a superuser may restore a Tip from
   its history; users holding ``can_approve_tip`` / ``can_reject_tip`` can view a
   Tip but must not be able to restore it, and a restore attempt is refused.
+* ``ReviewAdmin`` "_reopen" handling — posting ``_reopen`` rolls a completed
+  review back to ``in_progress`` and drops the finalise data, and only a
+  superuser is allowed to do so.
 
 These tests exercise the admin classes directly with ``RequestFactory`` (fast,
 deterministic, no reliance on admin templates) and add a couple of end-to-end
@@ -12,9 +15,10 @@ checks against the real history view for the visible "Revert" affordance.
 import freezegun
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Permission, User
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.test import RequestFactory, TestCase
 
-from webcaf.webcaf.admin import TipAdmin
+from webcaf.webcaf.admin import ReviewAdmin, TipAdmin
 from webcaf.webcaf.models import Assessment, Organisation, Review, System, Tip
 
 
@@ -138,3 +142,88 @@ class TipAdminHistoryRestoreTests(TestCase):
         """A superuser is not blocked from a restore/change POST."""
         post = self._request(self.superuser, method="post", data={"_save": "Revert"})
         self.assertTrue(self.admin.has_change_permission(post, self.tip))
+
+
+@freezegun.freeze_time("2025-01-01")
+class ReviewAdminReopenTests(TestCase):
+    """``ReviewAdmin.save_model`` "_reopen" rollback behaviour (admin.py)."""
+
+    assessment: Assessment
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.organisation = Organisation.objects.create(name="Reopen Organisation")
+        cls.system = System.objects.create(name="Reopen System", organisation=cls.organisation)
+        cls.assessment = Assessment.objects.create(
+            system=cls.system,
+            assessment_period="24/25",
+            framework="caf32",
+            caf_profile="baseline",
+            review_type="independent",
+        )
+        cls.superuser = User.objects.create_superuser(
+            username="reopen-admin@test.gov.uk",
+            email="reopen-admin@test.gov.uk",
+            password="pw",  # pragma: allowlist secret
+        )
+        cls.staff = User.objects.create_user(
+            username="reopen-staff@test.gov.uk", email="reopen-staff@test.gov.uk", is_staff=True
+        )
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = ReviewAdmin(Review, AdminSite())
+
+    def _completed_finalised_review(self) -> Review:
+        """Create a review that is completed and finalised.
+
+        Creating with ``status="completed"`` on a fresh instance is allowed —
+        the model's "cannot change after completed" guard only fires on update.
+        """
+        return Review.objects.create(
+            assessment=self.assessment,
+            status="completed",
+            review_data={
+                "review_completion": {"review_completed": "yes", "review_completed_at": "2026-01-01T00:00:00"},
+                "review_finalised": {"review_finalised_by": "Someone"},
+                "assessor_response_data": {"A": {}},
+            },
+        )
+
+    def _post(self, user, data):
+        request = self.factory.post("/admin/webcaf/review/1/change/", data)
+        request.user = user
+        return request
+
+    def test_superuser_reopen_rolls_back_to_in_progress(self):
+        """Posting ``_reopen`` as a superuser reopens the review and drops finalise data."""
+        review = self._completed_finalised_review()
+        request = self._post(self.superuser, {"_reopen": "Reopen"})
+
+        self.admin.save_model(request, review, form=None, change=True)
+
+        review.refresh_from_db()
+        self.assertEqual(review.status, "in_progress")
+        self.assertNotIn("review_finalised", review.review_data)
+        self.assertNotIn("review_completion", review.review_data)
+        # Assessor answers are preserved — only the finalise/completion markers go.
+        self.assertIn("assessor_response_data", review.review_data)
+        self.assertEqual(review.last_updated_by, self.superuser)
+
+    def test_non_superuser_reopen_raises_permission_denied(self):
+        """A non-superuser posting ``_reopen`` is refused and the review is untouched."""
+        review = self._completed_finalised_review()
+        request = self._post(self.staff, {"_reopen": "Reopen"})
+
+        with self.assertRaises(PermissionDenied):
+            self.admin.save_model(request, review, form=None, change=True)
+
+        review.refresh_from_db()
+        self.assertEqual(review.status, "completed")
+        self.assertIn("review_finalised", review.review_data)
+
+    def test_rollback_requires_completed_status(self):
+        """The model guard rejects reopening a review that is not completed."""
+        review = Review.objects.create(assessment=self.assessment, status="in_progress")
+        with self.assertRaises(ValidationError):
+            review.rollback_to_in_progress()
