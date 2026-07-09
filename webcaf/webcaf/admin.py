@@ -790,6 +790,8 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             assessment_review_type=F("review__assessment__review_type"),
             assessment_reference=F("review__assessment__reference"),
             assessment_organisation=F("review__assessment__system__organisation__name"),
+        ).select_related(
+            "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
         )
 
     def get_urls(self):
