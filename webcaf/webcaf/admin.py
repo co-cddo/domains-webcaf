@@ -985,5 +985,24 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             return request.user.is_superuser or "_approve" in request.POST or "_reject" in request.POST
         return super().has_change_permission(request, obj)
 
+    def revert_disabled(self, request, obj=None):
+        """
+        Determines whether a user has permission to view the history of an object.
+
+        This function checks if the user associated with the provided request is a
+        superuser and grants or denies access accordingly.
+
+        :param request: The HTTP request object containing user information.
+        :type request: HttpRequest
+        :param obj: (Optional) The object to check view history permission for. Defaults to None.
+        :type obj: Any
+        :return: True if the user is a superuser, otherwise False.
+        :rtype: bool
+        """
+        return not request.user.is_superuser
+
+    def has_change_history_permission(self, request, obj=None):
+        return self.revert_disabled(request, obj)
+
     class Media:
         css = {"all": ("webcaf/admin.css",)}
