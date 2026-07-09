@@ -256,6 +256,12 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        # Get SQL query logs in development
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": ("WARN" if not DEBUG else "DEBUG"),
+            "propagate": False,
+        },
     },
 }
 
