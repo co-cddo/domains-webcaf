@@ -38,7 +38,21 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
             "Reason for no completion date",
         ]
     )
-    _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50, 20, 20, 20, 20, 50])
+    _set_header_properties(
+        ws,
+        [
+            10,
+            20,
+        ]
+        + (
+            [
+                50,
+            ]
+            if tip.review.assessment.review_type == "independent"
+            else []
+        )
+        + [50, 10, 30, 50, 20, 20, 20, 20, 50],
+    )
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
             if action and action.action_type == "action_planned":
@@ -47,7 +61,15 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
                     [
                         action.recommendation_category.capitalize(),
                         f"{recommendation.outcome} {recommendation.outcome_title}",
-                        f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                    ]
+                    + (
+                        [
+                            f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                        ]
+                        if tip.review.assessment.review_type == "independent"
+                        else []
+                    )
+                    + [
                         recommendation.id + " - " + recommendation.text,
                         action.recommendation_reviewed.capitalize(),
                         "Action planned",
@@ -76,7 +98,15 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
         [
             "Type",
             "Contributing outcome",
-            "Associated risk",
+        ]
+        + (
+            [
+                "Associated risk",
+            ]
+            if tip.review.assessment.review_type == "independent"
+            else []
+        )
+        + [
             "Reviewer recommendation",
             (
                 "Recommendation and risk reviewed"
@@ -86,7 +116,15 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
             "Status",
         ]
     )
-    _set_header_properties(ws, [10, 20, 50, 50, 10, 30, 50])
+    _set_header_properties(
+        ws,
+        [
+            10,
+            20,
+        ]
+        + ([50] if tip.review.assessment.review_type == "independent" else [])
+        + [50, 10, 30, 50],
+    )
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
             if action and action.action_type == "action_not_planned":
@@ -94,7 +132,15 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
                     [
                         action.recommendation_category.capitalize(),
                         f"{recommendation.outcome} {recommendation.outcome_title}",
-                        f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                    ]
+                    + (
+                        [
+                            f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
+                        ]
+                        if tip.review.assessment.review_type == "independent"
+                        else []
+                    )
+                    + [
                         recommendation.id + " - " + recommendation.text,
                         action.recommendation_reviewed.capitalize(),
                         "No action planned",

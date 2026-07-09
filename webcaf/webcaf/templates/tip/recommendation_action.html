@@ -38,17 +38,19 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Associated risk
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if recommendation_type == 'priority' %}PR{% else %}
-                                    RO{% endif %}{{ current_recommendation_group.group_index }}
-                                <br/>
-                                {{ current_recommendation_group.title }}
-                            </dd>
-                        </div>
+                        {% if object.review.assessment.review_type == 'independent' %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Associated risk
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {% if recommendation_type == 'priority' %}PR{% else %}
+                                        RO{% endif %}{{ current_recommendation_group.group_index }}
+                                    <br/>
+                                    {{ current_recommendation_group.title }}
+                                </dd>
+                            </div>
+                        {% endif %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
                                 Reviewer recommendation
@@ -134,10 +136,11 @@
                                         <h2 class="govuk-heading-l">Action details</h2>
                                         <p class="govuk-body">Provide the details for the action or actions you will
                                             take in response to this recommendation.</p>
-                                        <p class="govuk-body">For help completing this section, go to the <a href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-final-assessment-and-targeted-improvement-plan-get-well-plan/"
-                                                                                                             class="govuk-link govuk-link--no-visited-state"
-                                                                                                             rel="noreferrer noopener"
-                                                                                                             target="_blank">GovAssure
+                                        <p class="govuk-body">For help completing this section, go to the <a
+                                                href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-final-assessment-and-targeted-improvement-plan-get-well-plan/"
+                                                class="govuk-link govuk-link--no-visited-state"
+                                                rel="noreferrer noopener"
+                                                target="_blank">GovAssure
                                             stage 5 guidance page (opens in new tab)</a></p>
                                         <div id="id_action_taken_description" class="govuk-!-margin-top-3">
                                             <div class="govuk-form-group {% if form.action_taken_description.errors %}govuk-form-group--error{% endif %}"

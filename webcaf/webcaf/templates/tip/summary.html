@@ -17,7 +17,7 @@
             </h1>
 
             <p class="govuk-body">
-                You must read all the risks and recommendations.
+                You must read all the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %} recommendations.
                 You must add an action for every priority recommendation. If you do not plan to add an action, you must
                 give a reason.
             </p>
@@ -34,7 +34,7 @@
                             Priority recommendations ({{ priority_recommendations_count }})
                         </a>
                         <div id="create-tip-actions-1-hint" class="govuk-task-list__hint">
-                            Read the risks and recommendations for contributing outcomes that did not meet the target
+                            Read the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %} recommendations for contributing outcomes that did not meet the target
                             Government CAF profile.
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                             Other recommendations ({{ other_recommendations_count }})
                         </a>
                         <div id="create-tip-actions-2-hint" class="govuk-task-list__hint">
-                            Read the risks and recommendations for contributing outcomes that met the target Government
+                            Read the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %} recommendations for contributing outcomes that met the target Government
                             CAF profile.
                         </div>
                     </div>
