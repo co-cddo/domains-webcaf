@@ -1079,7 +1079,9 @@ class Review(ReferenceGeneratorMixin, models.Model):
         if review_completion is not None:
             if completed_at := review_completion.get("review_completed_at"):
                 if type(completed_at) is str:
-                    review_completion["review_completed_at"] = datetime.strptime(completed_at, "%Y-%m-%dT%H:%M:%S.%f")
+                    review_completion["review_completed_at"] = django_utils_timezone.make_aware(
+                        datetime.strptime(completed_at, "%Y-%m-%dT%H:%M:%S.%f")
+                    )
         return review_completion
 
     def reopen(self):
