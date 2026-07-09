@@ -4,7 +4,7 @@ import logging
 import zoneinfo
 from datetime import datetime
 from io import BytesIO, StringIO, TextIOWrapper
-from typing import Any, Optional
+from typing import Any, MutableMapping, Optional
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -33,6 +33,77 @@ from webcaf.webcaf.models import (
 )
 from webcaf.webcaf.tip.util import RecommendationService
 from webcaf.webcaf.views.system import SystemForm
+
+
+class PrettyJSONWidget(forms.Textarea):
+    """
+    A custom widget that extends the Django Textarea widget for formatting JSON data.
+
+    This widget ensures that JSON data is presented in a readable, pretty-printed format
+    with an indentation of 4 spaces. It supports JSON input in string format and attempts
+    to parse and reformat it. If parsing fails, the raw value is returned.
+
+    :ivar is_required: Indicates whether the widget is required in forms.
+    :type is_required: bool
+    """
+
+    def format_value(self, value):
+        if value in ("", None):
+            return ""
+        try:
+            if isinstance(value, str):
+                value = json.loads(value)
+            return json.dumps(value, indent=4)
+        except Exception:
+            return value
+
+
+class JsonDataAdminForm(forms.ModelForm):
+    """
+    Base ``ModelForm`` for admin models that expose a single large JSON field.
+
+    Subclasses only need to declare :attr:`json_field` (and the usual ``Meta``
+    naming their model). The base class provides the behaviour shared by all
+    such forms:
+
+    * renders the JSON field with :class:`PrettyJSONWidget` for readable,
+      pretty-printed output;
+    * seeds the form's initial data from the current instance so the stored
+      JSON is shown on load;
+    * parses a submitted JSON string back into a Python object on clean.
+
+    :cvar json_field: Name of the model field holding the JSON payload.
+    :cvar json_readonly: Whether the JSON widget should be rendered read-only.
+        A read-only flag applied elsewhere (e.g. per-request in an admin's
+        ``get_form``) is also honoured.
+    """
+
+    json_field: str = ""
+    json_readonly: bool = False
+    # Get around mypy warning
+    initial: MutableMapping[str, Any]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        field = self.fields[self.json_field]
+        # Honour a read-only flag set either on the class or on the widget by
+        # the admin's ``get_form`` before swapping in the pretty widget.
+        attrs = {"rows": 20, "cols": 60}
+        if self.json_readonly or field.widget.attrs.get("readonly"):
+            attrs["readonly"] = True
+        field.widget = PrettyJSONWidget(attrs=attrs)
+
+        value = getattr(self.instance, self.json_field, None)
+        if value:
+            self.initial[self.json_field] = value
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        if cleaned_data:
+            value = cleaned_data.get(self.json_field)
+            if isinstance(value, str):
+                cleaned_data[self.json_field] = json.loads(value)
+        return cleaned_data if cleaned_data else {}
 
 
 class OptionalFieldsAdminMixin:
@@ -388,9 +459,19 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
         js = ("webcaf/js/admin_system.js",)
 
 
+class AssessmentAdminForm(JsonDataAdminForm):
+    json_field = "assessments_data"
+    json_readonly = True
+
+    class Meta:
+        model = Assessment
+        fields = "__all__"
+
+
 @admin.register(Assessment)
 class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
+    form = AssessmentAdminForm
     search_fields = ["status", "system__name", "reference"]
     list_display = [
         "status",
@@ -537,8 +618,18 @@ class ConfigurationAdmin(admin.ModelAdmin):
     form = CustomConfigForm
 
 
+class ReviewAdminForm(JsonDataAdminForm):
+    json_field = "review_data"
+    json_readonly = True
+
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+
 @admin.register(Review)
 class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    form = ReviewAdminForm
     search_fields = ["assessment_system_name", "assessment_reference", "assessment_organisation"]
     list_display = [
         "assessment_system_name",
@@ -641,42 +732,14 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         super().save_model(request, obj, form, change)
 
 
-class PrettyJSONWidget(forms.Textarea):
-    def format_value(self, value):
-        if value in ("", None):
-            return ""
-        try:
-            if isinstance(value, str):
-                value = json.loads(value)
-            return json.dumps(value, indent=4)
-        except Exception:
-            return value
+class TipAdminForm(JsonDataAdminForm):
+    json_field = "tip_data"
 
+    # Read-only state is decided per-request in ``TipAdmin.get_form``.
 
-class TipAdminForm(forms.ModelForm):
     class Meta:
         model = Tip
         fields = "__all__"
-        widgets = {
-            "tip_data": PrettyJSONWidget(
-                attrs={
-                    "rows": 20,
-                    "cols": 60,
-                    # "style": "font-family: monospace; width: 100%;"
-                }
-            )
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.tip_data:
-            self.initial["tip_data"] = self.instance.tip_data
-
-    def clean_tip_data(self):
-        value = self.cleaned_data["tip_data"]
-        if isinstance(value, str):
-            return json.loads(value)
-        return value
 
 
 @admin.register(Tip)
