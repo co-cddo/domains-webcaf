@@ -323,7 +323,6 @@ class BaseTipMixin(UserRoleCheckMixin):
             Tip.objects.filter(
                 review__assessment__status__in=["submitted"],
                 review__assessment__system__organisation=user_profile.organisation,
-                review__assessment__review_type="independent",
             )
             .exclude(review__review_data__review_finalised__review_finalised_at=None)
             .select_related("review", "review__assessment")
