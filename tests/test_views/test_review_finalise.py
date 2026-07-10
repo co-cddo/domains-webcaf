@@ -141,9 +141,10 @@ class FinaliseReviewTests(BaseViewTest):
 
     def test_email_sending_failure_does_not_raise_error(self):
         """Test that email sending failures do not raise errors."""
-        with patch("webcaf.settings.NOTIFY_REVIEW_FINALISED_TEMPLATE_ID", "test-template-id"), patch(
-            "webcaf.webcaf.views.assessor.review.send_notify_email"
-        ) as mock_send_email:
+        with (
+            patch("webcaf.settings.NOTIFY_REVIEW_FINALISED_TEMPLATE_ID", "test-template-id"),
+            patch("webcaf.webcaf.views.assessor.review.send_notify_email") as mock_send_email,
+        ):
             mock_send_email.side_effect = Exception("Email service unavailable")
             self._create_user_with_role("organisation_lead", self.org, username="lead1")
             review = Review.objects.create(

@@ -1687,9 +1687,9 @@ class Tip(ReferenceGeneratorMixin, models.Model):
                         personalisation_data={
                             "reference": self.review.reference,  # type: ignore
                             "submitted_by": str(self.submitted_by) if self.submitted_by is not None else "-",
-                            "submitted_on": self.submitted_date_time.strftime("%d %B %Y")
-                            if self.submitted_date_time
-                            else "-",
+                            "submitted_on": (
+                                self.submitted_date_time.strftime("%d %B %Y") if self.submitted_date_time else "-"
+                            ),
                             "system_name": self.review.assessment.system.name,
                             "organisation_name": self.review.assessment.system.organisation.name,
                             "caf_version": self.review.assessment.get_framework_display(),

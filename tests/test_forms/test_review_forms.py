@@ -340,7 +340,7 @@ class TestCompanyDetailsForm(TestCase):
             data={
                 "company_name": "Test Company",
                 "lead_assessor_email": "test@example.com",
-                "lead_assessor_name": "Test Assessor"
+                "lead_assessor_name": "Test Assessor",
                 # company_phone is optional
             }
         )

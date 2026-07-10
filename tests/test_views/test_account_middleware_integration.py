@@ -13,6 +13,7 @@ is registered in ``settings.MIDDLEWARE``), covering:
   * End-to-end persistence: the cookie set by the middleware on one request is honoured
     by the view on the next request made through the same client.
 """
+
 import pytest
 from django.test import Client
 from django.urls import reverse

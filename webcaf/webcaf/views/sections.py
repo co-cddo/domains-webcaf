@@ -260,9 +260,11 @@ class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
                 "assessment_ref": assessment.reference,
                 "current_assessment_period": configuration.get_current_assessment_period(),
                 # Format it to this pattern 11:59pm on 31 March 2026
-                "cutoff_date_time": assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
-                if assessment.submission_due_date
-                else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y"),
+                "cutoff_date_time": (
+                    assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
+                    if assessment.submission_due_date
+                    else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y")
+                ),
             }
         return {}
 

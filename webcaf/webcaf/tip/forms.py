@@ -230,14 +230,16 @@ class RecommendationActionForm(forms.ModelForm):
         """
         action = RecommendationAction(
             # We will only set the recommendation_reviewed to yes if the submit_action is one of the validate options
-            recommendation_reviewed="yes"
-            if self.cleaned_data["submit_action"]
-            in {
-                RecommendationActionChoices.VALIDATE_AND_NEXT_RECOMMENDATION,
-                RecommendationActionChoices.VALIDATE_AND_BACK_TO_ANSWERS,
-                RecommendationActionChoices.VALIDATE_AND_BACK_TO_SUMMARY,
-            }
-            else "no",
+            recommendation_reviewed=(
+                "yes"
+                if self.cleaned_data["submit_action"]
+                in {
+                    RecommendationActionChoices.VALIDATE_AND_NEXT_RECOMMENDATION,
+                    RecommendationActionChoices.VALIDATE_AND_BACK_TO_ANSWERS,
+                    RecommendationActionChoices.VALIDATE_AND_BACK_TO_SUMMARY,
+                }
+                else "no"
+            ),
             recommendation_category=self.cleaned_data["recommendation_category"],
             action_type=self.cleaned_data.get("recommendation_actioned"),
             recommendation_id=self.cleaned_data["recommendation_id"],

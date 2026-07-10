@@ -36,11 +36,10 @@ class SessionUtilTests(SimpleTestCase):
         fake_profile = SimpleNamespace(organisation=fake_org)
         fake_assessment = MagicMock()
 
-        with patch.object(
-            SessionUtil, "get_current_user_profile", return_value=fake_profile
-        ) as mock_get_profile, patch(
-            "webcaf.webcaf.models.Assessment.objects.get", return_value=fake_assessment
-        ) as mock_get_assessment:
+        with (
+            patch.object(SessionUtil, "get_current_user_profile", return_value=fake_profile) as mock_get_profile,
+            patch("webcaf.webcaf.models.Assessment.objects.get", return_value=fake_assessment) as mock_get_assessment,
+        ):
             result = SessionUtil.get_current_assessment(request)
 
         self.assertIs(result, fake_assessment)
@@ -56,8 +55,9 @@ class SessionUtilTests(SimpleTestCase):
         fake_org = SimpleNamespace(id=456)
         fake_profile = SimpleNamespace(organisation=fake_org)
 
-        with patch.object(SessionUtil, "get_current_user_profile", return_value=fake_profile), patch(
-            "webcaf.webcaf.models.Assessment.objects.get", side_effect=Exception("not found")
+        with (
+            patch.object(SessionUtil, "get_current_user_profile", return_value=fake_profile),
+            patch("webcaf.webcaf.models.Assessment.objects.get", side_effect=Exception("not found")),
         ):
             with self.assertLogs("SessionUtil", level="WARN") as cm:
                 result = SessionUtil.get_current_assessment(request)
@@ -68,9 +68,10 @@ class SessionUtilTests(SimpleTestCase):
     def test_get_current_assessment_returns_none_when_no_user_profile(self):
         request = SimpleNamespace(session={"draft_assessment": {"assessment_id": 77}})
 
-        with patch.object(SessionUtil, "get_current_user_profile", return_value=None) as mock_get_profile, patch(
-            "webcaf.webcaf.models.Assessment.objects.get"
-        ) as mock_get_assessment:
+        with (
+            patch.object(SessionUtil, "get_current_user_profile", return_value=None) as mock_get_profile,
+            patch("webcaf.webcaf.models.Assessment.objects.get") as mock_get_assessment,
+        ):
             result = SessionUtil.get_current_assessment(request)
 
         self.assertIsNone(result)

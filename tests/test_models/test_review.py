@@ -280,7 +280,7 @@ class ReviewIsObjectiveCompleteTests(BaseViewTest):
                     "recommendations": [],
                     "objective-areas-of-improvement": "Some improvement",
                     "objective-areas-of-good-practice": "Good practice",
-                    "A1.a": {"review_data": {"review_decision": "achieved"}}
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
                     # A1.b is missing
                 }
             }

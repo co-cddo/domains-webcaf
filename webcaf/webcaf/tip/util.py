@@ -2,6 +2,7 @@
 This module contains a mixin class for handling user role management in tip-related views.
 **Important**: This mixin should be used in all tip-related views.
 """
+
 import logging
 from functools import cached_property
 from pathlib import Path

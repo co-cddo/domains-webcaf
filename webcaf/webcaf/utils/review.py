@@ -3,6 +3,7 @@ Recommendation is a named tuple representing a single recommendation with fields
 and outcome (code).
 On the UI, the title field is labelled as 'Risk' and this is the primary identifier for the recommendation.
 """
+
 from typing import Any, Generator, Literal, NamedTuple
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker

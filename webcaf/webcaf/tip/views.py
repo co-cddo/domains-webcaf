@@ -130,9 +130,11 @@ class TipRecommendationsView(BaseTipMixin, UpdateView):
             },
             {
                 "url": None,
-                "text": "Priority recommendation and action"
-                if recommendation_type == "priority"
-                else "Other recommendations",
+                "text": (
+                    "Priority recommendation and action"
+                    if recommendation_type == "priority"
+                    else "Other recommendations"
+                ),
             },
         ]
         data["recommendation_type"] = recommendation_type
@@ -242,9 +244,11 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
                 "url": reverse(
                     "tip:recommendations", kwargs={"pk": self.object.pk, "recommendation_type": recommendation_type}
                 ),
-                "text": "Respond to priority recommendation"
-                if recommendation_type == "priority"
-                else "Review other recommendation",
+                "text": (
+                    "Respond to priority recommendation"
+                    if recommendation_type == "priority"
+                    else "Review other recommendation"
+                ),
             },
             {
                 "url": None,

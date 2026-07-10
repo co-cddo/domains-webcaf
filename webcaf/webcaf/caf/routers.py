@@ -507,9 +507,7 @@ class CAF32ExcelExporter(CAFLoader):
                                 cell.fill = (
                                     fills["pink"]
                                     if key == "not-achieved"
-                                    else fills["yellow"]
-                                    if key == "partially-achieved"
-                                    else fills["green"]
+                                    else fills["yellow"] if key == "partially-achieved" else fills["green"]
                                 )
                             else:
                                 cell = ws.cell(row=row, column=col_idx, value="")

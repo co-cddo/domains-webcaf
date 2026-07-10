@@ -20,9 +20,15 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
         [
             "Type",
             "Contributing outcome",
-            "Associated risk",
+        ]
+        + (["Associated risk"] if tip.review.assessment.review_type == "independent" else [])
+        + [
             "Reviewer recommendation",
-            "Recommendation and risk reviewed",
+            (
+                "Recommendation and risk reviewed"
+                if tip.review.assessment.review_type == "independent"
+                else "Recommendation reviewed"
+            ),
             "Status",
             "Action",
             "Action owner",
@@ -49,12 +55,16 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
                         action_details.get("action_owner", ""),
                         action_details.get("resources_available", ""),
                         action_details.get("budget_available", ""),
-                        f"{action_details.get('target_day_day', '')}/{action_details.get('target_day_month', '')}/{action_details.get('target_day_year', '')}"
-                        if action_details.get("target_date_provided", "no") == "yes"
-                        else "No target date",
-                        action_details.get("target_date_unavailable_reason", "N/A")
-                        if action_details.get("target_date_provided", "yes") == "no"
-                        else "N/A",
+                        (
+                            f"{action_details.get('target_day_day', '')}/{action_details.get('target_day_month', '')}/{action_details.get('target_day_year', '')}"
+                            if action_details.get("target_date_provided", "no") == "yes"
+                            else "No target date"
+                        ),
+                        (
+                            action_details.get("target_date_unavailable_reason", "N/A")
+                            if action_details.get("target_date_provided", "yes") == "no"
+                            else "N/A"
+                        ),
                     ]
                 )
                 _wrap_row_text(ws)
@@ -68,7 +78,11 @@ def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> No
             "Contributing outcome",
             "Associated risk",
             "Reviewer recommendation",
-            "Recommendation and risk reviewed",
+            (
+                "Recommendation and risk reviewed"
+                if tip.review.assessment.review_type == "independent"
+                else "Recommendation reviewed"
+            ),
             "Status",
         ]
     )

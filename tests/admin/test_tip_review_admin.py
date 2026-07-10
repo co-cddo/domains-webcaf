@@ -12,6 +12,7 @@ These tests exercise the admin classes directly with ``RequestFactory`` (fast,
 deterministic, no reliance on admin templates) and add a couple of end-to-end
 checks against the real history view for the visible "Revert" affordance.
 """
+
 import freezegun
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Permission, User

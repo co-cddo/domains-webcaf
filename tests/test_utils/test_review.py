@@ -7,6 +7,7 @@ This module contains tests for the review utility functions including:
 - RecommendationGroup class
 - review_status_to_label utility
 """
+
 import json
 import types
 from pathlib import Path
