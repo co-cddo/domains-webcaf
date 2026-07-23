@@ -393,7 +393,7 @@ class TipReviewAnswersView(BaseTipMixin, UpdateView):
             },
             {
                 "url": None,
-                "text": "Review answers",
+                "text": "Check your responses",
             },
         ]
 
@@ -492,6 +492,13 @@ class TipSubmitView(BaseTipMixin, UpdateView):
         if not tip_object.is_ready_to_submit:
             raise PermissionDenied("TIP is not ready to submit")
         return tip_object
+
+    def get_initial(self):
+        finalised_data = self.object.get_finalised_data()
+        return {
+            "confirm_lgd": finalised_data.get("confirm_by_lgd", False),
+            "confirm": finalised_data.get("confirm", False),
+        }
 
     def form_valid(self, form: TipSubmitForm):
         if not form.cleaned_data["confirm"]:

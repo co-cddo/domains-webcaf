@@ -20,6 +20,9 @@
                 You can go back to check your actions, download the draft TIP to complete final sign-off, or continue to
                 submission.
             </p>
+            <p class="govuk-body">You must submit your TIP by
+                {% if object.review.assessment.review_type == 'independent' %}Monday 31st August{% else %}Wednesday 30th
+                    September{% endif %} 2026.</p>
             <div class="govuk-inset-text">
                 If there are any changes to your TIP needed after you submit it, the GovAssure team will contact you.
                 You will then be able to return to WebCAF to make updates.
@@ -43,7 +46,7 @@
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        Checked your answers
+                        Check your responses
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {% if object.is_answers_confirmed %}Completed{% else %}Incomplete{% endif %}
@@ -52,17 +55,49 @@
             </dl>
             <section class="govuk-accordion__section">
                 <h2 class="govuk-heading-m">Confirm to continue</h2>
+                {% if object.review.assessment.review_type != 'independent' %}
+                    <p class="govuk-body">I confirm that the contents of this TIP has been signed off by all the
+                        relevant approvers.</p>
+                {% endif %}
                 <form method="post">
                     {% csrf_token %}
                     <div class="govuk-checkboxes">
-                        <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
-                             id="id_confirm">
-                            <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm" type="checkbox"
-                                   value="True" aria-describedby="confirm-checkbox-hint">
-                            <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I confirm that the
-                                contents of this TIP have been signed off by my organisation's GovAssure senior
-                                responsible officer (SRO).</label>
-                        </div>
+                        {% if object.review.assessment.review_type == 'independent' %}
+                            <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
+                                 id="id_confirm">
+                                <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm"
+                                       type="checkbox"
+                                        {% if form.confirm.value %} checked {% endif %}
+                                       value="True" aria-describedby="confirm-checkbox-hint">
+                                <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I confirm that
+                                    the contents of this TIP have been signed off by my organisation's GovAssure senior
+                                    responsible officer (SRO).</label>
+                            </div>
+                        {% else %}
+                            <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
+                                 id="id_confirm">
+                                <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm"
+                                       type="checkbox"
+                                        {% if form.confirm.value %} checked {% endif %}
+                                       value="True" aria-describedby="confirm-checkbox-hint">
+                                <label id="confirm-checkbox-hint" class="govuk-label govuk-checkboxes__label"
+                                       for="confirm-checkbox">My organisation's GovAssure senior responsible officer (SRO)
+                                </label>
+                            </div>
+                            <div class="govuk-checkboxes__item {% if form.confirm_lgd.errors %}govuk-form-group--error{% endif %}"
+                                 id="id_confirm_lgd">
+                                <input class="govuk-checkboxes__input" id="confirm-lgd-checkbox" name="confirm_lgd"
+                                       type="checkbox"
+                                        {% if form.confirm_lgd.value %} checked {% endif %}
+                                       value="True" aria-describedby="confirm-lgd-checkbox-hint">
+                                <label id="confirm-lgd-checkbox-hint" class="govuk-label govuk-checkboxes__label"
+                                       for="confirm-lgd-checkbox">Lead Government Department (LGD)
+                                </label>
+                                <div id="confirmSubmit-2-item-hint" class="govuk-hint govuk-checkboxes__hint">
+                                    If your organisation is an ALB, you must also get sign-off from your LGD.
+                                </div>
+                            </div>
+                        {% endif %}
                         <br/>
                         <br/>
                     </div>
@@ -74,7 +109,8 @@
                         </button>
                     </div>
                     <p class="govuk-body">
-                        <a href="{% url 'tip:review-answers' pk=object.id %}" class="govuk-link">Back to check your answers</a>
+                        <a href="{% url 'tip:review-answers' pk=object.id %}" class="govuk-link">Back to check your
+                            answers</a>
                     </p>
                 </form>
             </section>

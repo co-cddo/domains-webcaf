@@ -1604,9 +1604,10 @@ class Tip(ReferenceGeneratorMixin, models.Model):
             and self.is_answers_confirmed
         )
 
-    def submit_report(self, confirmed_by: UserProfile):
+    def submit_report(self, confirmed_by: UserProfile, extra: dict | None = None):
         """
         Submit the finalised report for review
+        :param extra: Extra confirmation information
         :param confirmed_by: The user profile confirming the report
         """
         if not confirmed_by:
@@ -1618,9 +1619,26 @@ class Tip(ReferenceGeneratorMixin, models.Model):
         confirmation["confirmed_by"] = confirmed_by.user.id
         confirmation["confirmed_at"] = django_utils_timezone.now().isoformat()
         confirmation["confirmation_role"] = confirmed_by.role
+        if extra:
+            # Add extra information to confirmation
+            confirmation.update(extra)
         self.tip_data["recommendation_finalise"] = confirmation
         self.status = TipStatus.REVIEW
         self.send_email("submit")
+
+    def get_finalised_data(self) -> dict[str, Any]:
+        """
+        Retrieve the finalised recommendation data from the stored tip information.
+
+        This function extracts and returns the value associated with the
+        "recommendation_finalise" key in `self.tip_data`.
+
+        :returns: A dictionary containing the finalised recommendation data.
+                  If the "recommendation_finalise" key does not exist, returns an
+                  empty dictionary.
+        :rtype: dict[str, Any]
+        """
+        return self.tip_data.get("recommendation_finalise", {})
 
     @property
     def submitted_date_time(self) -> datetime | None:

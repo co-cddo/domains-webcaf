@@ -25,13 +25,14 @@
             </h1>
             <p class="govuk-body">
                 {% if recommendation_type == 'priority' %}
-                    You must read all the{% if object.review.assessment.review_type == 'independent' %} risks and
-                {% endif %} priority recommendations.
+                    You must read all the{% if object.review.assessment.review_type == 'independent' %}
+                    risks and{% endif %} priority recommendations.
                     Priority recommendations are for contributing outcomes that did not meet the target Government
-                    CAF profile in the Independent Assurance Review.
+                    CAF profile in the {% if object.review.assessment.review_type == 'independent' %}Independent
+                    Assurance{% else %}Peer{% endif %} Review.
                 {% else %}
-                    You must review all the{% if object.review.assessment.review_type == 'independent' %} risks and
-                {% endif %} recommendations.
+                    You must review all the{% if object.review.assessment.review_type == 'independent' %}
+                    risks and{% endif %} recommendations.
                 {% endif %}
             </p>
             {% if recommendation_type == 'priority' %}

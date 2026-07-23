@@ -467,11 +467,20 @@ class TipSubmitForm(ModelForm):
     :type confirm: bool
     """
 
-    confirm = BooleanField(required=True, widget=forms.CheckboxInput, label="Confirm before continuing")
+    confirm = BooleanField(required=True, widget=forms.CheckboxInput, label="TIP confirmation")
+    # LGD - Lead government department is only applicable to peer reviews
+    confirm_lgd = BooleanField(required=False, widget=forms.CheckboxInput, label="Lead Government Department (LGD)")
 
     class Meta:
         model = Tip
         fields: list[str] = []
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if obj := kwargs.get("instance"):
+            if obj and obj.review.assessment.review_type == "peer_review":
+                # Change the label for peer review flow
+                self.fields["confirm"].label = "GovAssure senior responsible officer (SRO)"
 
     def save(self, commit=True):
         """
@@ -488,5 +497,12 @@ class TipSubmitForm(ModelForm):
         :rtype: Any
         """
         current_profile = self.cleaned_data.pop("current_profile")
-        self.instance.submit_report(current_profile)
+        extra = {}
+        if self.instance.review.assessment.review_type == "peer_review":
+            # Only peer review has confirm_by_lgd and also it is optional
+            extra["confirm_by_lgd"] = self.cleaned_data.pop("confirm_lgd", False)
+        else:
+            extra["confirm_by_lgd"] = None
+        extra["confirm"] = True
+        self.instance.submit_report(current_profile, extra)
         return super().save(commit)

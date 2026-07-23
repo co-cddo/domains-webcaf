@@ -137,11 +137,15 @@
                                         <p class="govuk-body">Provide the details for the action or actions you will
                                             take in response to this recommendation.</p>
                                         <p class="govuk-body">For help completing this section, go to the <a
-                                                href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-final-assessment-and-targeted-improvement-plan-get-well-plan/"
-                                                class="govuk-link govuk-link--no-visited-state"
-                                                rel="noreferrer noopener"
-                                                target="_blank">GovAssure
-                                            stage 5 guidance page (opens in new tab)</a></p>
+                                                {% if object.review.assessment.review_type == 'peer_review' %}
+                                                    href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-create-a-targeted-improvement-plan-tip-peer-review-report"
+                                                {% else %}
+                                                    href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-final-assessment-and-targeted-improvement-plan-get-well-plan"
+                                                {% endif %}
+                                                    class="govuk-link govuk-link--no-visited-state"
+                                                    rel="noreferrer noopener" target="_blank">GovAssure stage 5 guidance
+                                            page (opens in new tab)</a></p>
+
                                         <div id="id_action_taken_description" class="govuk-!-margin-top-3">
                                             <div class="govuk-form-group {% if form.action_taken_description.errors %}govuk-form-group--error{% endif %}"
                                                  data-module="govuk-character-count"
