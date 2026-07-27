@@ -11,18 +11,19 @@
             </h1>
             <p class="govuk-body">
                 View and manage your Targeted Improvement Plans (TIPs).
-                You can open each system's final Independent Assurance Review Report (IARR).
+                You can open each system's final assessment report.
             </p>
 
             <table class="govuk-table" data-module="sortable-table">
                 <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header" aria-sort="ascending">
+                    <th scope="col" class="govuk-table__header width_30" aria-sort="ascending">
                         System and self-assessment reference
                     </th>
-                    <th scope="col" class="govuk-table__header">Final report date</th>
-                    <th scope="col" class="govuk-table__header">TIP status</th>
-                    <th scope="col" class="govuk-table__header">Tasks</th>
+                    <th scope="col" class="govuk-table__header width_20">Review type</th>
+                    <th scope="col" class="govuk-table__header width_15">Final report date</th>
+                    <th scope="col" class="govuk-table__header width_15">TIP status</th>
+                    <th scope="col" class="govuk-table__header width_20">Tasks</th>
                 </tr>
                 </thead>
                 <tbody class="govuk-table__body">
@@ -33,6 +34,7 @@
                             <br/>
                             {{ tip.review.assessment.reference }}
                         </td>
+                        <td class="govuk-table__cell">{{ tip.review.assessment.get_review_type_display|title }}</td>
                         <td class="govuk-table__cell">{{ tip.review.finalised_date|date:"d M Y" }}</td>
                         <td class="govuk-table__cell">
                             <strong class="govuk-tag govuk-tag--{{ tag_ }}">
@@ -78,7 +80,7 @@
                                        target="_blank"
                                        title="View final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review report{% else %}IARR{% endif %} report">View
                                         final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review
-                                            report{% else %}IAAR{% endif %}</a>
+                                            Report{% else %}IAAR{% endif %}</a>
                                 {% endif %}
                             {% endif %}
                         </td>

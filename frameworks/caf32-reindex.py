@@ -55,9 +55,9 @@ def process_yaml(yaml_data: dict[str, Any]) -> dict[str, Any]:
                 if "code" not in section or "indicators" not in section:
                     continue
                 section_code = section["code"]
-                result["objectives"][obj_key]["principles"][prin_key]["sections"][sec_key][
-                    "indicators"
-                ] = process_indicators(section["indicators"], section_code)
+                result["objectives"][obj_key]["principles"][prin_key]["sections"][sec_key]["indicators"] = (
+                    process_indicators(section["indicators"], section_code)
+                )
     return result
 
 

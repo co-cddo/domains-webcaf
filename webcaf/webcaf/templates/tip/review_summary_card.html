@@ -41,15 +41,17 @@
                                 {{ recommendation.outcome }} {{ recommendation.outcome_title }}
                             </dd>
                         </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Associated risk
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                <strong>{% if recommendation_type == 'priority' %}RP{% else %}
-                                    RO{% endif %}{{ group.group_index }}</strong> — {{ group.title }}
-                            </dd>
-                        </div>
+                        {% if object.review.assessment.review_type == 'independent' %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Associated risk
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    <strong>{% if recommendation_type == 'priority' %}RP{% else %}
+                                        RO{% endif %}{{ group.group_index }}</strong> — {{ group.title }}
+                                </dd>
+                            </div>
+                        {% endif %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
                                 Reviewer recommendation

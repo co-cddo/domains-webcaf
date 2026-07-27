@@ -17,12 +17,42 @@
             </h1>
 
             <p class="govuk-body">
-                You must read all the risks and recommendations.
-                You must add an action for every priority recommendation. If you do not plan to add an action, you must
-                give a reason.
+                You must read all the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %}
+                recommendations. You must add an action for every priority recommendation. If you do not plan to add an
+                action, you must give a reason.
             </p>
             <div class="govuk-inset-text">
                 Adding actions for other recommendations is optional.
+            </div>
+
+            <p class="govuk-body">
+                As you complete your TIP, As you complete your TIP, you should refer to:
+            </p>
+            <ul class="govuk-list govuk-list--bullet govuk-!-margin-left-4 govuk-!-margin-top-0">
+                <li class="govuk-list__item">the <a
+                        {% if object.review.assessment.review_type == 'peer_review' %}
+                            href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-create-a-targeted-improvement-plan-tip-peer-review-report"
+                        {% else %}
+                            href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-5-final-assessment-and-targeted-improvement-plan-get-well-plan"
+                        {% endif %}
+                            class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank">stage
+                    5 guidance (opens in new tab)</a></li>
+                <li>the Cyber Assessment Framework (CAF) - for assessments carried out in 2025 to 2026, WebCAF is
+                    based
+                    on <a href="https://www.ncsc.gov.uk/files/Cyber%20Assessment%20Framework%20V3.2.pdf"
+                          class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank">version
+                        3.2 (opens in new tab)</a>
+                </li>
+            </ul>
+
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    You must submit your TIP for review by
+                    {% if object.review.assessment.review_type == 'independent' %}Monday 31st August{% else %}Wednesday
+                        30th September{% endif %} 2026.
+                </strong>
             </div>
             <h2 class="govuk-heading-m">1. Record TIP actions</h2>
             <ul class="govuk-task-list">
@@ -34,7 +64,8 @@
                             Priority recommendations ({{ priority_recommendations_count }})
                         </a>
                         <div id="create-tip-actions-1-hint" class="govuk-task-list__hint">
-                            Read the risks and recommendations for contributing outcomes that did not meet the target
+                            Read the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %}
+                            recommendations for contributing outcomes that did not meet the target
                             Government CAF profile.
                         </div>
                     </div>
@@ -56,7 +87,8 @@
                             Other recommendations ({{ other_recommendations_count }})
                         </a>
                         <div id="create-tip-actions-2-hint" class="govuk-task-list__hint">
-                            Read the risks and recommendations for contributing outcomes that met the target Government
+                            Read the{% if object.review.assessment.review_type == 'independent' %} risks and{% endif %}
+                            recommendations for contributing outcomes that met the target Government
                             CAF profile.
                         </div>
                     </div>

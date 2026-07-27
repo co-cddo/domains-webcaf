@@ -130,9 +130,11 @@ class TipRecommendationsView(BaseTipMixin, UpdateView):
             },
             {
                 "url": None,
-                "text": "Priority recommendation and action"
-                if recommendation_type == "priority"
-                else "Other recommendations",
+                "text": (
+                    "Priority recommendation and action"
+                    if recommendation_type == "priority"
+                    else "Other recommendations"
+                ),
             },
         ]
         data["recommendation_type"] = recommendation_type
@@ -242,9 +244,11 @@ class TipRecommendationActionView(BaseTipMixin, UpdateView):
                 "url": reverse(
                     "tip:recommendations", kwargs={"pk": self.object.pk, "recommendation_type": recommendation_type}
                 ),
-                "text": "Respond to priority recommendation"
-                if recommendation_type == "priority"
-                else "Review other recommendation",
+                "text": (
+                    "Respond to priority recommendation"
+                    if recommendation_type == "priority"
+                    else "Review other recommendation"
+                ),
             },
             {
                 "url": None,
@@ -389,7 +393,7 @@ class TipReviewAnswersView(BaseTipMixin, UpdateView):
             },
             {
                 "url": None,
-                "text": "Review answers",
+                "text": "Check your responses",
             },
         ]
 
@@ -488,6 +492,13 @@ class TipSubmitView(BaseTipMixin, UpdateView):
         if not tip_object.is_ready_to_submit:
             raise PermissionDenied("TIP is not ready to submit")
         return tip_object
+
+    def get_initial(self):
+        finalised_data = self.object.get_finalised_data()
+        return {
+            "confirm_lgd": finalised_data.get("confirm_by_lgd", False),
+            "confirm": finalised_data.get("confirm", False),
+        }
 
     def form_valid(self, form: TipSubmitForm):
         if not form.cleaned_data["confirm"]:

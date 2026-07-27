@@ -12,6 +12,7 @@ These cover:
     range of action paths (planned / not-planned / not-reviewed) and reloads previously
     saved data when the page is revisited.
 """
+
 from datetime import datetime
 
 from django.contrib.auth.models import User

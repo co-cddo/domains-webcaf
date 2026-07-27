@@ -189,14 +189,16 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             fields["review_decision"] = ChoiceField(
                 label="review decision",
                 help_text="Overall independent review outcome",
-                choices=[
-                    ("achieved", "Achieved"),
-                    ("partially-achieved", "Partially achieved"),
-                    ("not-achieved", "Not achieved"),
-                ]
-                # Check if the outcome is partially achieved, if so, only allow achieved and not achieved
-                if outcome["indicators"].get("partially-achieved")
-                else [("achieved", "Achieved"), ("not-achieved", "Not achieved")],
+                choices=(
+                    [
+                        ("achieved", "Achieved"),
+                        ("partially-achieved", "Partially achieved"),
+                        ("not-achieved", "Not achieved"),
+                    ]
+                    # Check if the outcome is partially achieved, if so, only allow achieved and not achieved
+                    if outcome["indicators"].get("partially-achieved")
+                    else [("achieved", "Achieved"), ("not-achieved", "Not achieved")]
+                ),
             )
             max_word_count = 1500 if self.object.assessment.review_type != "peer_review" else 500
             fields["review_comment"] = CharField(
@@ -849,9 +851,9 @@ class AddCompanyDetailsView(AddReviewCommentsView):
         data["breadcrumbs"] = data["breadcrumbs"] + [
             {
                 "url": None,
-                "text": "Company details"
-                if self.object.assessment.review_type != "peer_review"
-                else "Organisation details",
+                "text": (
+                    "Company details" if self.object.assessment.review_type != "peer_review" else "Organisation details"
+                ),
             }
         ]
         return data

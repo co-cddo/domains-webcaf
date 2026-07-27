@@ -21,7 +21,7 @@ def get_recommendation_action(recommendation: Recommendation, tip_object: Tip) -
 
 @register.simple_tag()
 def actioned_and_not_actioned_counts(
-    recommendations: list[tuple[Recommendation, RecommendationGroup, RecommendationAction]]
+    recommendations: list[tuple[Recommendation, RecommendationGroup, RecommendationAction]],
 ) -> str:
     """
     Calculate the counts of actioned and not actioned recommendations for a tip.

@@ -4,6 +4,7 @@ Reflow YAML plain scalars without using block indicators ('>' or '|').
 Usage: reflow_yaml_plain.py <infile> [width]
 Writes output to <infile>.reflowed by default.
 """
+
 import sys
 from collections.abc import Mapping, Sequence
 

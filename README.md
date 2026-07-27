@@ -50,26 +50,66 @@ This `can_edit` attribute is then available to templates and forms to decide whe
 The mixin also sets `login_url` to the OIDC route and leverages `UserRoleCheckMixin` to enforce authentication and role checks across review-related views.
 
 
+# Tip permissions
+
+
+The Tip (Targeted Improvement Plan) pages use a common mixin to manage who can view and edit content. The logic lives in `webcaf/webcaf/tip/util.py` in the `BaseTipMixin`, which extends `UserRoleCheckMixin`.
+
+- Allowed roles for tip-related views are returned by `BaseTipMixin.get_allowed_roles()`:
+  - `cyber_advisor`
+  - `organisation_lead`
+  - `organisation_user`
+
+- Read-only roles are returned by `BaseTipMixin.get_read_only_roles()`. By default this is:
+  - `cyber_advisor`
+
+- The edit permission flag is set on the object returned by the view’s `get_object()` implementation inside `BaseTipMixin`. Specifically:
+
+  - When an object is fetched, the current user’s `UserProfile.role` is checked.
+  - The mixin sets `obj.can_edit = current_profile and current_profile.role not in self.get_read_only_roles()`.
+  - Additionally, once a tip has been submitted (`tip.is_submitted`), `can_edit` is forced to `False`, so submitted tips are read-only for everyone.
+
+- Which tips a user can see is scoped by `BaseTipMixin.get_tip_for_user()` (used by `get_queryset()`): only tips belonging to the user’s own organisation whose underlying review has been finalised (the assessment is `submitted` and `review_finalised` is set) are returned.
+
+- Approving and rejecting a tip is separate from editing and is restricted to Django staff users. The `Tip` model defines the custom permissions `can_approve_tip` and `can_reject_tip` (see `Tip.Meta.permissions`), and `Tip.approve()` / `Tip.reject()` both require `current_user.is_staff`.
+
+This `can_edit` attribute is then available to templates and forms to decide whether to render edit controls or enforce read-only behaviour. As with reviews, the mixin also sets `login_url` to the OIDC route and leverages `UserRoleCheckMixin` to enforce authentication and role checks across tip-related views.
+
+
 ## Running
 
 ```
 docker compose up
 ```
 
-This brings up Postgres, runs an init container to apply migrations and collect static files, then brings up the app.
+This brings up the full stack defined in `docker-compose.yml`:
 
-The current flow is a single pass through the CAF v3.2. It starts at `localhost:8010/`
+- `postgres` — the PostgreSQL database (also exposed on the host at port `54321`).
+- `oauth` — a local [DEX](https://dexidp.io/) identity provider used for SSO (`SSO_MODE=dex`).
+- `init` — a one-shot container that runs `local-init.sh` (`makemigrations`, `collectstatic`, then `migrate`) and then exits.
+- `web` — the application, served by Gunicorn with `--reload`, started once `init` has completed successfully and Postgres is healthy.
+
+The app is available at `localhost:8010/` and supports the CAF v3.2 and v4.0 frameworks (v3.2 is the default).
+
+Alternatively, use the Make targets, which wrap the same compose files:
+
+``` shell
+make up-devserver   # run the app with Django's auto-reloading runserver instead of Gunicorn
+make up_dex         # bring up only the DEX (oauth) container
+make shell          # open a bash shell in the running web container
+make clear-db       # tear everything down and drop the Postgres volume
+```
 
 
 
 ## Developing
 
-Make sure the python version you use is the same as in the [Dockerfile](Dockerfile)
+Make sure the python version you use is the same as in the [Dockerfile](Dockerfile) (Python 3.12).
 
-Create a file called `.env` containing the following line:
+The database credentials are defined in `docker-compose.yml`: the Postgres container uses the user/password/database `webcaf`/`webcaf`/`webcaf` and is exposed on the host at port `54321`. To develop against it, first start Postgres (for example `docker compose up postgres`), then create a file called `.env` containing:
 
 ```
-DATABASE_URL=postgres://localhost/webcaf
+DATABASE_URL=postgresql://webcaf:webcaf@localhost:54321/webcaf #pragma: allowlist secret
 ```
 
 Then run in a terminal
@@ -85,6 +125,16 @@ and to run the local server:
 
 ``` shell
 poetry run dotenv run ./manage.py runserver
+```
+
+### Running tests
+
+The unit tests and BDD feature tests run inside containers via the Make targets:
+
+``` shell
+make test     # run the pytest suite (writes an HTML report to reports/)
+make behave   # build and run the behave feature tests
+make build    # (re)build the images
 ```
 
 ### Privacy and Logging Best Practices

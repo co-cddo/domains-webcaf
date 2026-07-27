@@ -4,6 +4,7 @@ Tests for SortedOrganisationFilter in admin.py
 This module contains tests for the SortedOrganisationFilter class which is used
 to filter and sort querysets by Organisation in Django admin.
 """
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase

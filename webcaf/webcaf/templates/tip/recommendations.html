@@ -25,11 +25,14 @@
             </h1>
             <p class="govuk-body">
                 {% if recommendation_type == 'priority' %}
-                    You must read all the risks and priority recommendations.
+                    You must read all the{% if object.review.assessment.review_type == 'independent' %}
+                    risks and{% endif %} priority recommendations.
                     Priority recommendations are for contributing outcomes that did not meet the target Government
-                    CAF profile in the Independent Assurance Review.
+                    CAF profile in the {% if object.review.assessment.review_type == 'independent' %}Independent
+                    Assurance{% else %}Peer{% endif %} Review.
                 {% else %}
-                    You must review all the risks and recommendations.
+                    You must review all the{% if object.review.assessment.review_type == 'independent' %}
+                    risks and{% endif %} recommendations.
                 {% endif %}
             </p>
             {% if recommendation_type == 'priority' %}
@@ -165,15 +168,25 @@
                 <colgroup>
                     <col class="width_5">
                     <col class="width_5">
-                    <col class="width_35">
-                    <col class="width_35">
-                    <col class="width_20">
+                    {% if object.review.assessment.review_type == 'independent' %}
+                        <col class="width_35">
+                    {% endif %}
+                    {% if object.review.assessment.review_type == 'independent' %}
+                        <col class="width_35">
+                        <col class="width_20">
+                    {% else %}
+                        <col class="width_50">
+                        <col class="width_20">
+                    {% endif %}
+
                 </colgroup>
                 <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th scope="col" class="govuk-table__header width_5">ID</th>
                     <th scope="col" class="govuk-table__header width_5">CO</th>
-                    <th scope="col" class="govuk-table__header width_35">Risk</th>
+                    {% if object.review.assessment.review_type == 'independent' %}
+                        <th scope="col" class="govuk-table__header width_35">Risk</th>
+                    {% endif %}
                     <th scope="col" class="govuk-table__header width_35">Recommendation</th>
                     <th scope="col" class="govuk-table__header width_20">Status</th>
                 </tr>
@@ -186,7 +199,8 @@
                         <td class="govuk-table__cell">
                             {{ recommendation.outcome }}
                         </td>
-                        <td class="govuk-table__cell">
+                        {% if object.review.assessment.review_type == 'independent' %}
+                            <td class="govuk-table__cell">
                                 <span class="govuk-!-font-weight-bold">
                                 {% if recommendation_type == 'priority' %}
                                     RP{{ recommendation_group.group_index }}:
@@ -194,7 +208,8 @@
                                     RO{{ recommendation_group.group_index }}:
                                 {% endif %}
                                 </span>{{ recommendation.title }}
-                        </td>
+                            </td>
+                        {% endif %}
                         <td class="govuk-table__cell">
                             {{ recommendation.text }}
                         </td>
