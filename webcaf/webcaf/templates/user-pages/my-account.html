@@ -38,12 +38,20 @@
                 </form>
             {% endif %}
             {% if can_start_assessment %}
-                <form action="{% url 'create-draft-assessment' %}" method="GET">
-                    {% csrf_token %}
-                    <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                        Start a self-assessment
-                    </button>
-                </form>
+                <div class="govuk-button-group">
+                    <form action="{% url 'create-draft-assessment' %}" method="GET">
+                        {% csrf_token %}
+                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                            Start a self-assessment
+                        </button>
+                    </form>
+                    <form action="{% url 'export-assessment-template' %}" method="GET">
+                        {% csrf_token %}
+                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                            Export Excel template
+                        </button>
+                    </form>
+                </div>
             {% endif %}
             {% if can_view_assessments %}
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-2">

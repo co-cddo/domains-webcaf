@@ -8,6 +8,7 @@ from .assesment import (
     EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
+    ExportAssessmentTemplateView,
 )
 from .general import Index, logout_view  # noqa
 from .organisation import (
@@ -28,6 +29,7 @@ __all__ = [
     "CreateAssessmentView",
     "CreateAssessmentReviewTypeView",
     "EditAssessmentReviewTypeView",
+    "ExportAssessmentTemplateView",
     # General views
     "logout_view",
     # Account views

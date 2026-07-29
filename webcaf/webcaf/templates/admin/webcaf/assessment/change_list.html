@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+    <li>
+        <a href="import-excel/" class="addlink">Import Excel</a>
+    </li>
+    <li>
+        <a href="export-excel-template/" class="addlink">Export Excel template</a>
+    </li>
+    {{ block.super }}
+{% endblock %}
