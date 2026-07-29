@@ -1,0 +1,135 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'webcaf/import_excel_preview.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+        <h2>Preview parsed answers</h2>
+        <p>{{ answered_count }} of {{ row_count }} fields answered</p>
+        {% if unfulfilled_count %}
+            <p class="errornote">{{ unfulfilled_count }} required field{{ unfulfilled_count|pluralize }} left blank (highlighted in red below). You can still save.</p>
+        {% endif %}
+
+        <div class="preview-scroll">
+            <div class="preview-row preview-head">
+                <div class="preview-cell">JSON key</div>
+                <div class="preview-cell">Question</div>
+                <div class="preview-cell">Answer</div>
+            </div>
+            {% for key, question, answer, unfulfilled in preview_rows %}
+                <div class="preview-row{% if unfulfilled %} unfulfilled{% endif %}">
+                    <div class="preview-cell">{{ key }}</div>
+                    <div class="preview-cell">{{ question }}</div>
+                    <div class="preview-cell">{{ answer }}</div>
+                </div>
+            {% empty %}
+                <div class="preview-row"><div class="preview-cell">No values were parsed from this file.</div></div>
+            {% endfor %}
+        </div>
+
+        <details class="preview-json-details">
+            <summary>Show parsed JSON</summary>
+            <pre class="preview-json">{{ assessment_json_pretty }}</pre>
+        </details>
+
+        <h2>Assessment details</h2>
+        <p>Choose where this import belongs. Saving creates a new assessment in the database.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="upload">
+            <textarea name="assessment_json" hidden>{{ assessment_json }}</textarea>
+
+            <div class="import-meta">
+                <div class="form-row">
+                    <label for="id_import_organisation">Organisation</label>
+                    <select id="id_import_organisation" name="organisation" required>
+                        <option value="">---------</option>
+                        {% for organisation in organisations %}
+                            <option value="{{ organisation.id }}">{{ organisation.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="id_import_system">System</label>
+                    <select id="id_import_system" name="system" required disabled>
+                        <option value="">---------</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="id_import_status">Status</label>
+                    <select id="id_import_status" name="status" required>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="id_import_caf_profile">CAF profile</label>
+                    <select id="id_import_caf_profile" name="caf_profile" required>
+                        {% for value, label in profile_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="id_import_review_type">Review type</label>
+                    <select id="id_import_review_type" name="review_type" required>
+                        {% for value, label in review_type_choices %}
+                            <option value="{{ value }}"{% if value == "not_decided" %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Upload date</span>
+                    <span class="meta-fixed">{{ upload_date }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">CAF version</span>
+                    <span class="meta-fixed">{{ caf_version_display }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Assessment period</span>
+                    <span class="meta-fixed">{{ assessment_period }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Submission due date</span>
+                    <span class="meta-fixed">{{ submission_due_date }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Assessment ID</span>
+                    <span class="meta-fixed">Assigned when saved</span>
+                </div>
+            </div>
+
+            <button type="submit" class="button default">Save assessment</button>
+            <a href="." class="button cancel-link preview-cancel">Cancel</a>
+        </form>
+
+        {{ systems_map|json_script:"systems-map" }}
+        <script nonce="{{ request.csp_nonce }}">
+            (function () {
+                const systemsMap = JSON.parse(document.getElementById("systems-map").textContent);
+                const orgSelect = document.getElementById("id_import_organisation");
+                const systemSelect = document.getElementById("id_import_system");
+
+                function updateSystems() {
+                    const systems = systemsMap[orgSelect.value] || [];
+                    systemSelect.innerHTML = "";
+                    systemSelect.add(new Option("---------", ""));
+                    systems.forEach(function (system) {
+                        systemSelect.add(new Option(system.name, system.id));
+                    });
+                    systemSelect.disabled = !orgSelect.value;
+                }
+
+                orgSelect.addEventListener("change", updateSystems);
+                updateSystems();
+            })();
+        </script>
+    </div>
+{% endblock %}

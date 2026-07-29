@@ -14,6 +14,9 @@ class FrameworkRouter(ABC):
     success_url for the next page in the route.
     """
 
+    # The parsed framework definition, as loaded from the source YAML.
+    framework: dict[str, Any]
+
     @abstractmethod
     def get_sections(self) -> list[dict]:
         pass

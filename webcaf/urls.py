@@ -40,6 +40,7 @@ from webcaf.webcaf.views import (
     EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
+    ExportAssessmentTemplateView,
     Index,
     MyOrganisationView,
     OrganisationContactView,
@@ -135,6 +136,7 @@ urlpatterns = [
     path("oidc/", include("mozilla_django_oidc.urls")),
     #     Assessment paths
     path("create-draft-assessment/", CreateAssessmentView.as_view(), name="create-draft-assessment"),
+    path("export-assessment-template/", ExportAssessmentTemplateView.as_view(), name="export-assessment-template"),
     path(
         "create-draft-assessment/profile", CreateAssessmentProfileView.as_view(), name="create-draft-assessment-profile"
     ),
