@@ -14,22 +14,36 @@ MIN_WIDTH = 20
 PADDING = 2
 
 
-def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
-    ws = wb.create_sheet("Actioned recommendations")
+def _add_recommendations_and_actions(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
+    """
+    Adds a "Recommendations and actions" sheet to the provided workbook.
+
+    This function extracts priority and other recommendations from the context,
+    processes their associated actions, and populates a new worksheet with
+    details such as recommendation type, outcome, associated risk (if independent
+    review), status, and action details (owner, resources, target date).
+
+    :param wb: The workbook object to which the new sheet will be added.
+    :type wb: Workbook
+    :param tip: The Tip object providing the review context.
+    :type tip: Tip
+    :param context: A dictionary containing recommendation and action data.
+    :type context: dict[str, Any]
+    :return: None
+    """
+    ws = wb.create_sheet("Recommendations and actions")
+    is_independent = tip.review.assessment.review_type == "independent"
     ws.append(
         [
             "Type",
             "Contributing outcome",
         ]
-        + (["Associated risk"] if tip.review.assessment.review_type == "independent" else [])
+        + (["Associated risk"] if is_independent else [])
         + [
             "Reviewer recommendation",
-            (
-                "Recommendation and risk reviewed"
-                if tip.review.assessment.review_type == "independent"
-                else "Recommendation reviewed"
-            ),
+            ("Recommendation and risk reviewed" if is_independent else "Recommendation reviewed"),
             "Status",
+            "Reason no action planned",
             "Action",
             "Action owner",
             "Resource available",
@@ -48,105 +62,72 @@ def _add_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
             [
                 50,
             ]
-            if tip.review.assessment.review_type == "independent"
+            if is_independent
             else []
         )
-        + [50, 10, 30, 50, 20, 20, 20, 20, 50],
+        + [50, 10, 50, 30, 50, 20, 20, 20, 20, 50],
     )
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
-            if action and action.action_type == "action_planned":
-                action_details = action.action_details
-                ws.append(
+            if not action or action.action_type not in ["action_planned", "action_not_planned"]:
+                continue
+
+            action_details = action.action_details
+            row = [
+                action.recommendation_category.capitalize(),
+                f"{recommendation.outcome} {recommendation.outcome_title}",
+            ]
+            if is_independent:
+                prefix = "RP" if action.recommendation_category == "priority" else "RO"
+                row.append(f"{prefix}{group.group_index} — {group.title}")
+
+            row.extend(
+                [
+                    recommendation.id + " - " + recommendation.text,
+                    action.recommendation_reviewed.capitalize(),
+                ]
+            )
+
+            if action.action_type == "action_planned":
+                target_date = (
+                    f"{action_details.get('target_day_day', '')}/{action_details.get('target_day_month', '')}/{action_details.get('target_day_year', '')}"
+                    if action_details.get("target_date_provided", "no") == "yes"
+                    else "No target date"
+                )
+                reason_no_date = (
+                    action_details.get("target_date_unavailable_reason", "N/A")
+                    if action_details.get("target_date_provided", "yes") == "no"
+                    else "N/A"
+                )
+
+                row.extend(
                     [
-                        action.recommendation_category.capitalize(),
-                        f"{recommendation.outcome} {recommendation.outcome_title}",
-                    ]
-                    + (
-                        [
-                            f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
-                        ]
-                        if tip.review.assessment.review_type == "independent"
-                        else []
-                    )
-                    + [
-                        recommendation.id + " - " + recommendation.text,
-                        action.recommendation_reviewed.capitalize(),
                         "Action planned",
+                        "N/A",
                         action_details.get("action_taken_description", ""),
                         action_details.get("action_owner", ""),
                         action_details.get("resources_available", ""),
                         action_details.get("budget_available", ""),
-                        (
-                            f"{action_details.get('target_day_day', '')}/{action_details.get('target_day_month', '')}/{action_details.get('target_day_year', '')}"
-                            if action_details.get("target_date_provided", "no") == "yes"
-                            else "No target date"
-                        ),
-                        (
-                            action_details.get("target_date_unavailable_reason", "N/A")
-                            if action_details.get("target_date_provided", "yes") == "no"
-                            else "N/A"
-                        ),
+                        target_date,
+                        reason_no_date,
                     ]
                 )
-                _wrap_row_text(ws)
-
-
-def _add_not_actioned_tab(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
-    ws = wb.create_sheet("Not actioned recommendations")
-    ws.append(
-        [
-            "Type",
-            "Contributing outcome",
-        ]
-        + (
-            [
-                "Associated risk",
-            ]
-            if tip.review.assessment.review_type == "independent"
-            else []
-        )
-        + [
-            "Reviewer recommendation",
-            (
-                "Recommendation and risk reviewed"
-                if tip.review.assessment.review_type == "independent"
-                else "Recommendation reviewed"
-            ),
-            "Status",
-        ]
-    )
-    _set_header_properties(
-        ws,
-        [
-            10,
-            20,
-        ]
-        + ([50] if tip.review.assessment.review_type == "independent" else [])
-        + [50, 10, 30, 50],
-    )
-    for recommendation_type in ["priority_recommendations", "other_recommendations"]:
-        for recommendation, group, action in context.get(recommendation_type, []):
-            if action and action.action_type == "action_not_planned":
-                ws.append(
+            else:  # action_not_planned
+                row.extend(
                     [
-                        action.recommendation_category.capitalize(),
-                        f"{recommendation.outcome} {recommendation.outcome_title}",
-                    ]
-                    + (
-                        [
-                            f"{'RP' if action.recommendation_category == 'priority' else 'RO'}{group.group_index} — {group.title}",
-                        ]
-                        if tip.review.assessment.review_type == "independent"
-                        else []
-                    )
-                    + [
-                        recommendation.id + " - " + recommendation.text,
-                        action.recommendation_reviewed.capitalize(),
                         "No action planned",
+                        action_details.get("action_not_planned_reason", ""),
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        "N/A",
                     ]
                 )
-                _wrap_row_text(ws)
+
+            ws.append(row)
+            _wrap_row_text(ws)
 
 
 def tip_to_excel(tip: Tip, context: dict[str, Any]) -> bytes | None:
@@ -172,8 +153,7 @@ def tip_to_excel(tip: Tip, context: dict[str, Any]) -> bytes | None:
 
     ws = _add_metadata_tab(wb, tip.review.assessment)
     ws.append(["Status", "Submitted" if tip.is_submitted or tip.is_approved else "Draft"])
-    _add_actioned_tab(wb, tip, context)
-    _add_not_actioned_tab(wb, tip, context)
+    _add_recommendations_and_actions(wb, tip, context)
 
     output = BytesIO()
     wb.save(output)
