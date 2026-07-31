@@ -1,7 +1,7 @@
 import logging
 import uuid
 from collections import defaultdict
-from typing import Any, Optional, Tuple, Type
+from typing import Any, Optional, Sequence, Tuple, Type
 
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -417,7 +417,7 @@ create_form_view_logger = logging.getLogger("create_form_view")
 
 def create_form_view(
     success_url_name: str,
-    template_name: str = "section.html",
+    template_name: str | Sequence[str] = "section.html",
     form_class: Optional[type[forms.Form]] = None,
     class_prefix: str = "View",
     stage: Optional[str] = None,
@@ -434,8 +434,7 @@ def create_form_view(
     class_id = class_id or uuid.uuid4().hex
     class_name = f"{class_prefix}_{class_id}"
 
-    class_attrs = {
-        "template_name": template_name,
+    class_attrs: dict[str, Any] = {
         "success_url": reverse_lazy(success_url_name),
         "extra_context": extra_context,
         "logger": logging.getLogger(class_name),
@@ -444,6 +443,15 @@ def create_form_view(
     class_attrs["form_class"] = form_class if form_class else ContinueForm
     class_attrs["class_id"] = class_id
     class_attrs["stage"] = stage
+
+    if isinstance(template_name, Sequence) and not isinstance(template_name, str):
+
+        def _get_template_names(self) -> list[str]:
+            return list(template_name)
+
+        class_attrs["get_template_names"] = _get_template_names
+    else:
+        class_attrs["template_name"] = template_name
 
     # Implement the custom view that handles the form submissions if defined in the
     # view registry.
