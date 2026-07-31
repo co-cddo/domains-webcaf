@@ -65,7 +65,7 @@ def _add_recommendations_and_actions(wb: Workbook, tip: Tip, context: dict[str, 
             if is_independent
             else []
         )
-        + [50, 10, 50, 30, 50, 20, 20, 20, 20, 50],
+        + [50, 15, 10, 50, 50, 20, 20, 20, 20, 50],
     )
     for recommendation_type in ["priority_recommendations", "other_recommendations"]:
         for recommendation, group, action in context.get(recommendation_type, []):
