@@ -5,7 +5,7 @@
 {% block title %}Areas of good practice {{ block.super }}{% endblock %}
 {% block content %}
     {% get_review_completed_percentage object as percentage %}
-    {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+    {% include "partials/progress_indicator.html" with percentage=percentage %}
     <div class="govuk-grid-row">
 
         <div class="govuk-grid-column-three-quarters">

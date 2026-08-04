@@ -6,26 +6,8 @@
     {% current_user_can_start_assessment current_profile as can_start_assessment %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% if can_start_assessment %}
-                <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            Important
-                        </h2>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-
-                        <p class="govuk-notification-banner__heading">
-                            You cannot start a new self-assessment, until your scoping document is signed off
-                            and your system has been added to WebCAF by a cyber adviser.
-                        </p>
-
-                    </div>
-                </div>
-            {% endif %}
-            <h1 class="govuk-heading-l" title="user email {{ current_profile.user.email }}">
-                My account
+            <h1 class="govuk-heading-l" title="user email {{ current_profile.get_role_display }}">
+                My {{ current_profile.get_role_display }} account
             </h1>
             <div><p class="govuk-hint">On this page you can:
             </p>
@@ -108,7 +90,7 @@
             {% current_user_can_view_review current_profile as can_view_reviews %}
             {% if can_view_reviews %}
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
-                    View a stage 4 review
+                    Stage 4 reviews
                 </h2>
                 {% get_review_count current_profile as review_count %}
                 {% if review_count %}
@@ -122,6 +104,24 @@
                     </p>
                 {% else %}
                     <p class="govuk-body">You do not have any stage 4 reviews</p>
+                {% endif %}
+            {% endif %}
+            {% current_user_can_view_tips current_profile as can_view_tips %}
+            {% if can_view_tips %}
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
+                    Stage 5 Targeted Improvement Plan (TIP)
+                </h2>
+                {% get_tip_count current_profile as tip_count %}
+                {% if tip_count %}
+                    <p class="govuk-body"
+                       title="View {{ tip_count }} TIP{{ tip_count  | pluralize }}">
+                        <a href="{% url 'tip:list' %}"
+                           class="govuk-link govuk-link--no-visited-state">
+                            View and manage your {{ tip_count }} TIP{{tip_count|pluralize}}
+                        </a>
+                    </p>
+                {% else %}
+                    <p class="govuk-body">You do not have any stage 5 TIPs</p>
                 {% endif %}
             {% endif %}
         </div>

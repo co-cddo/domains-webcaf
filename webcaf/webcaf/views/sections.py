@@ -16,7 +16,13 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Assessment, Configuration, Review, UserProfile
+from webcaf.webcaf.models import (
+    Assessment,
+    Configuration,
+    Review,
+    Settings,
+    UserProfile,
+)
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
@@ -129,7 +135,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
                     "reference": assessment.reference,
                     "system_name": assessment.system.name,
                     "organisation_name": assessment.system.organisation.name,
-                    "caf_version": assessment.framework,
+                    "caf_version": assessment.get_framework_display(),
                 },
                 [self.request.user.email],  # type: ignore[list-item,union-attr]
                 settings.NOTIFY_CONFIRMATION_TEMPLATE_ID,
@@ -151,8 +157,7 @@ class SectionConfirmationView(UserRoleCheckMixin, FormView):
             if addresses:
                 # Filter out these emails being sent from non-production environments
                 if settings.SEND_ASSESSMENT_COMPLETION_EMAILS:
-                    default_config = Configuration.objects.get_default_config()
-                    gov_assure_email = default_config.get_gov_assure_email()
+                    gov_assure_email = Settings.get_instance().gov_assure_email
                     if gov_assure_email:
                         addresses.append(gov_assure_email)
                     self.send_email(
@@ -255,9 +260,11 @@ class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
                 "assessment_ref": assessment.reference,
                 "current_assessment_period": configuration.get_current_assessment_period(),
                 # Format it to this pattern 11:59pm on 31 March 2026
-                "cutoff_date_time": assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
-                if assessment.submission_due_date
-                else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y"),
+                "cutoff_date_time": (
+                    assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
+                    if assessment.submission_due_date
+                    else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y")
+                ),
             }
         return {}
 

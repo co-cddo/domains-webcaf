@@ -255,16 +255,16 @@
     <script nonce="{{ request.csp_nonce }}" src='{% static "js.cookie.min.js" %}'></script>
     <script nonce="{{ request.csp_nonce }}" src='{% static "cookies.js" %}'></script>
 {% endif %}
-<script type="module" nonce="{{ request.csp_nonce }}">
-    import {initAll, CharacterCount} from '{% static "govuk-frontend-5.11.1.min.js" %}'
 
-    initAll()
+<script type="module" defer nonce="{{ request.csp_nonce }}">
+    import {initAll, CharacterCount} from '{% static "govuk-frontend-5.11.1.min.js" %}'
+    {#This is needed to initialise the char count for dynamically added text boxes#}
     window.init_char_count = function (element) {
         new CharacterCount(element);
     }
-    window.init_all = function () {
+    window.addEventListener('DOMContentLoaded', () => {
         initAll()
-    }
+    })
 </script>
 </body>
 </html>

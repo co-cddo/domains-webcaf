@@ -1,0 +1,92 @@
+{% extends "tip-base.html" %}
+{% load tz %}
+{% load review_tags %}
+{% load static %}
+{% load csp %}
+{% load form_extras %}
+
+{% block title %}Completion Confirmation - {{ user.first_name }} {% endblock %}
+{% block content %}
+    {% get_assessment request as assessment %}
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="govuk-panel govuk-panel--confirmation">
+                        <h1 class="govuk-panel__title">
+                            TIP under review
+                        </h1>
+                        <div class="govuk-panel__body">
+                            Reference number<br><strong id="reference_number">{{ object.reference }}</strong>
+                        </div>
+                    </div>
+                    <p class="govuk-body">Thank you for your submission. We have sent you a confirmation email.</p>
+                    <h2 class="govuk-heading-m">
+                        Submission details
+                    </h2>
+                    <dl class="govuk-summary-list govuk-!-margin-top-4">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                System
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ object.review.assessment.system.name }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Date submitted
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ object.submitted_date_time|timezone:"Europe/London"|date:"d M Y H:i" }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Submitted by
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% get_user_role object.last_updated_by object.review.assessment.system.organisation 'organisation_lead' as updated_by_role %}
+                                {{ object.last_updated_by.first_name }} {{ object.last_updated_by.last_name }}
+                                ({{ updated_by_role }})
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Organisation
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ object.review.assessment.system.organisation.name }}
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <h2 class="govuk-heading-m">What happens next</h2>
+                    <p class="govuk-body">
+                        You have now successfully sent your TIP to the GovAssure team.
+                    </p>
+                    <div class="govuk-inset-text">
+                        The GovAssure team will review your TIP and contact you about next steps.
+                    </div>
+                    <h2 class="govuk-heading-m">View or download your TIP</h2>
+                    <p class="govuk-body">
+                        You can view the TIP you submitted in HTML format or download as a PDF or XLS file.
+                    </p>
+                    <div class="govuk-button-group govuk-!-margin-top-6">
+                        <a href="{% url 'tip:view-report' pk=object.pk %}"
+                           class="govuk-button govuk-!-font-size-16" role="button">View TIP (HTML)</a>
+                        <a href="{% url 'tip:view-report' pk=object.pk %}?mode=pdf" target="_blank"
+                           class="govuk-button govuk-!-font-size-16 govuk-button--secondary" role="button">Download
+                            TIP (PDF)</a>
+                        <a href="{% url 'tip:view-report' pk=object.pk %}?mode=excel" target="_blank"
+                           class="govuk-button govuk-!-font-size-16 govuk-button--secondary" role="button">Download
+                            TIP (XLS)</a>
+                    </div>
+                    <p class="govuk-body govuk-!-margin-top-6">
+                        <a href="{% url 'tip:list' %}" class="govuk-link">Back to My account</a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}

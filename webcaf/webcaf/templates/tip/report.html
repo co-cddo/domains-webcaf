@@ -1,0 +1,198 @@
+{% extends "tip-base.html" %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}{% if not object.is_approved %}Draft{% endif %} Targeted Improvement Plan -
+    {{ block.super }}{% endblock %}
+{% block content %}
+
+    <header class="govuk-!-padding-top-6 govuk-!-padding-bottom-6 report-header" id="report-header">
+        <div>
+            <span class="govuk-caption-xl">
+              {{ object.review.assessment.system.name }}
+            </span>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-3">
+                {% if not object.is_approved %}Draft{% endif %} Targeted Improvement Plan (TIP)
+            </h1>
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                <strong>
+                    {% if not object.is_approved %}Draft{% endif %} TIP report
+                </strong>
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                Reference: {{ object.review.assessment.reference }}
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                Updated: {{ object.last_updated| date:"j F Y" }}
+            </p>
+        </div>
+    </header>
+    <section aria-label="Notice" class="govuk-notification-banner govuk-!-margin-bottom-8" role="region"
+             id="notification-banner">
+        <div class="govuk-notification-banner__content">
+            <p class="govuk-notification-banner__heading">
+                This content is UK OFFICIAL-SENSITIVE.
+            </p>
+        </div>
+    </section>
+    {#    {% get_objectives object_version as objectives %}#}
+    <div class="govuk-grid-row" id="report-body">
+        <div class="govuk-grid-column-one-quarter-from-desktop contents-list-container" id="contents-list-container">
+            <nav class="govuk-!-margin-bottom-4" aria-label="Contents">
+                <h2 class="govuk-heading-s">Contents</h2>
+                <ul class="govuk-list">
+                    <li>
+                        <a class="govuk-link" href="#overview">Overview</a>
+                    </li>
+                    <li>
+                        <a class="govuk-link" href="#tip-metadata">About the report</a>
+                    </li>
+                    <li>
+                        <a class="govuk-link" href="#user-confirmations">Confirmation summary</a>
+                    </li>
+                    <li>
+                        <a class="govuk-link" href="#priority-recommendations">Priority recommendations</a>
+                    </li>
+                    <li>
+                        <a class="govuk-link" href="#other-recommendations">Other recommendations</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="govuk-grid-column-three-quarters-from-desktop">
+
+            <h2 id="overview" class="govuk-heading-l page-break-before">Overview</h2>
+            <p class="govuk-body">
+                Your Targeted Improvement Plan (TIP) sets out the actions your organisation has committed to take to
+                strengthen its cyber resilience in response to its GovAssure stage 4 review.
+                <br><br>
+                It focuses on areas that need improvement to meet the target Government Cyber Assessment Framework (CAF)
+                profile.
+                <br><br>
+                It lists your priority recommendations and other recommendations, with information you've added for each
+                recommendation, including:
+            </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>description of actions you've committed to</li>
+                <li>action owners</li>
+                <li>whether resources are available</li>
+                <li>whether budget has been approved</li>
+                <li>estimated target completion date</li>
+            </ul>
+            <section class="app-section" id="tip-metadata">
+                <h2 class="govuk-heading-l">
+                    About the report
+                </h2>
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">TIP reference</dt>
+                        <dd class="govuk-summary-list__value">{{ object.reference }}</dd>
+                    </div>
+
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">System name</dt>
+                        <dd class="govuk-summary-list__value">{{ object.review.assessment.system.name }}</dd>
+                    </div>
+
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Linked report reference</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if not pdf_printing %}
+                                <a href="{% url 'show-report' pk=tip.review.id version=tip.review.current_version_number %}"
+                                   class="govuk-link"
+                                   target="_blank"
+                                   aria-label="Linked report reference"
+                                   title="Linked report reference">{{ object.review.assessment.reference }}</a>
+                            {% else %}
+                                {{ object.review.assessment.reference }}
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Final report date</dt>
+                        <dd class="govuk-summary-list__value">{{ object.review.finalised_date|date:"d M Y" }}</dd>
+                    </div>
+                </dl>
+            </section>
+            <section class="app-section" id="user-confirmations">
+                <h2 class="govuk-heading-l">Confirmation summary</h2>
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Priority recommendations reviewed</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if  object.is_priority_recommendations_completed %}
+                                Confirmed
+                            {% else %}
+                                No
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Other recommendations reviewed</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if  object.is_other_recommendations_completed %}
+                                Confirmed
+                            {% else %}
+                                No
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Actions checked</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if  object.is_answers_confirmed %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Submission status</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if object.is_approved %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Approved
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--red">
+                                    {% if object.is_submitted %}
+                                        Under review
+                                    {% else %}
+                                        Draft
+                                    {% endif %}
+                                </strong>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Submission date</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if object.submitted_date_time %}
+                                {{ object.submitted_date_time|date:"d M Y" }}
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section id="priority-recommendations">
+                <h2 class="govuk-heading-l page-break-before">Priority recommendations</h2>
+                <p class="govuk-body statement-para">
+                    Priority recommendations cover contributing outcomes that did not meet the target government CAF
+                    profile. Each priority recommendation either has an action planned or a reason why no action is
+                    planned.
+                </p>
+                {% include 'tip/review_summary_card.html' with recommendations=priority_recommendations recommendation_type='priority' show_edit=False %}
+            </section>
+            <section id="other-recommendations">
+                <h2 class="govuk-heading-l page-break-before">Other recommendations</h2>
+                <p class="govuk-body statement-para">
+                    Other recommendations cover contributing outcomes that met the target Government CAF profile.
+                    Actions are optional for other recommendations.
+                </p>
+                {% include 'tip/review_summary_card.html' with recommendations=other_recommendations recommendation_type='other' show_edit=False %}
+            </section>
+        </div>
+    </div>
+{% endblock %}

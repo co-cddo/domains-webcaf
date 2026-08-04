@@ -19,6 +19,16 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
+from webcaf.webcaf.tip.views import (
+    TipDetailView,
+    TipIndexView,
+    TipRecommendationActionView,
+    TipRecommendationsView,
+    TipReportView,
+    TipReviewAnswersView,
+    TipSubmissionConfirmationView,
+    TipSubmitView,
+)
 from webcaf.webcaf.views import (
     AccountView,
     ChangeActiveProfileView,
@@ -85,6 +95,32 @@ from webcaf.webcaf.views.user_profiles import (
     RemoveUserProfileView,
     UserProfilesView,
     UserProfileView,
+)
+
+tip_paths = (
+    [  # Tip paths
+        path("list/", TipIndexView.as_view(), name="list"),
+        path("<int:pk>/", TipDetailView.as_view(), name="edit"),
+        path("<int:pk>/review-answers", TipReviewAnswersView.as_view(), name="review-answers"),
+        path("<int:pk>/view-report", TipReportView.as_view(), name="view-report"),
+        path("<int:pk>/confirmation", TipSubmissionConfirmationView.as_view(), name="confirmation"),
+        path(
+            "<int:pk>/submit",
+            TipSubmitView.as_view(),
+            name="submit",
+        ),
+        path(
+            "<int:pk>/recommendations/<str:recommendation_type>/",
+            TipRecommendationsView.as_view(),
+            name="recommendations",
+        ),
+        path(
+            "<int:pk>/recommendation/<str:recommendation_type>/<str:recommendation_id>/",
+            TipRecommendationActionView.as_view(),
+            name="recommendation-action",
+        ),
+    ],
+    "tip",
 )
 
 urlpatterns = [
@@ -265,4 +301,5 @@ urlpatterns = [
         DownloadExcelReport.as_view(),
         name="download-excel-report",
     ),
+    path("tip/", include(tip_paths)),
 ]

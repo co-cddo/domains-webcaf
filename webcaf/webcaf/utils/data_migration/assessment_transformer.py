@@ -148,7 +148,7 @@ def _process_indicators_by_type(
 
 
 def _parse_old_assessment_data(
-    old_assessment_data: list[dict[str, Any]]
+    old_assessment_data: list[dict[str, Any]],
 ) -> tuple[dict[str, list], dict[str, list], dict[str, list], dict[str, list]]:
     """Parse old assessment data into group comments, outcomes, and supplementary questions."""
     group_comments = defaultdict(list)

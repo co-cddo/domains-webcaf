@@ -90,6 +90,7 @@ MIDDLEWARE = [
     "webcaf.middleware.AssessmentNotSelectedHandlerMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webcaf.auth.LoginRequiredMiddleware",
+    "webcaf.middleware.LastOrganisationCookieMiddleware",
     "webcaf.middleware.DisableCacheMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
@@ -102,6 +103,7 @@ TEMPLATES = [
         "DIRS": [os.path.join(BASE_DIR, "webcaf", "templates"), os.path.join(BASE_DIR, "webcaf", "templates", "caf")],
         "APP_DIRS": True,
         "OPTIONS": {
+            "debug": DEBUG,
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
@@ -254,6 +256,12 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": True,
         },
+        # Get SQL query logs in development
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": ("WARN" if not DEBUG else "DEBUG"),
+            "propagate": False,
+        },
     },
 }
 
@@ -299,6 +307,11 @@ else:
 # System will not send a confirmation email if this is not set
 NOTIFY_CONFIRMATION_TEMPLATE_ID = env.str("NOTIFY_CONFIRMATION_TEMPLATE_ID", "")
 NOTIFY_ASSESSMENT_READY_TEMPLATE_ID = env.str("NOTIFY_ASSESSOR_EMAIL_TEMPLATE_ID", "")
+# Email
+NOTIFY_REVIEW_FINALISED_TEMPLATE_ID = env.str("NOTIFY_REVIEW_FINALISED_TEMPLATE_ID", "")
+NOTIFY_TIP_APPROVED_TEMPLATE_ID = env.str("NOTIFY_TIP_APPROVED_TEMPLATE_ID", "")
+NOTIFY_TIP_REJECTED_TEMPLATE_ID = env.str("NOTIFY_TIP_REJECTED_TEMPLATE_ID", "")
+NOTIFY_TIP_SUBMITTED_TEMPLATE_ID = env.str("NOTIFY_TIP_SUBMITTED_TEMPLATE_ID", "")
 
 OIDC_RP_SCOPES = env.str("OIDC_RP_SCOPES", "openid email profile")
 OIDC_RP_SIGN_ALGO = env.str("OIDC_RP_SIGN_ALGO", "RS256")

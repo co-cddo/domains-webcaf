@@ -1,21 +1,25 @@
 import csv
+import json
 import logging
 import zoneinfo
 from datetime import datetime
 from io import BytesIO, StringIO, TextIOWrapper
-from typing import Any, Optional
+from typing import Any, MutableMapping, Optional
 from zoneinfo import ZoneInfo
 
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
-from django.forms import CharField, DateTimeInput, EmailField, ModelForm
+from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import path
+from django.template.loader import render_to_string
+from django.urls import path, reverse
+from django.utils import timezone
 from simple_history.admin import SimpleHistoryAdmin
 
 from webcaf.webcaf.models import (
@@ -25,9 +29,82 @@ from webcaf.webcaf.models import (
     Review,
     Settings,
     System,
+    Tip,
     UserProfile,
 )
+from webcaf.webcaf.tip.util import RecommendationService
 from webcaf.webcaf.views.system import SystemForm
+
+
+class PrettyJSONWidget(forms.Textarea):
+    """
+    A custom widget that extends the Django Textarea widget for formatting JSON data.
+
+    This widget ensures that JSON data is presented in a readable, pretty-printed format
+    with an indentation of 4 spaces. It supports JSON input in string format and attempts
+    to parse and reformat it. If parsing fails, the raw value is returned.
+
+    :ivar is_required: Indicates whether the widget is required in forms.
+    :type is_required: bool
+    """
+
+    def format_value(self, value):
+        if value in ("", None):
+            return ""
+        try:
+            if isinstance(value, str):
+                value = json.loads(value)
+            return json.dumps(value, indent=4)
+        except Exception:
+            return value
+
+
+class JsonDataAdminForm(forms.ModelForm):
+    """
+    Base ``ModelForm`` for admin models that expose a single large JSON field.
+
+    Subclasses only need to declare :attr:`json_field` (and the usual ``Meta``
+    naming their model). The base class provides the behaviour shared by all
+    such forms:
+
+    * renders the JSON field with :class:`PrettyJSONWidget` for readable,
+      pretty-printed output;
+    * seeds the form's initial data from the current instance so the stored
+      JSON is shown on load;
+    * parses a submitted JSON string back into a Python object on clean.
+
+    :cvar json_field: Name of the model field holding the JSON payload.
+    :cvar json_readonly: Whether the JSON widget should be rendered read-only.
+        A read-only flag applied elsewhere (e.g. per-request in an admin's
+        ``get_form``) is also honoured.
+    """
+
+    json_field: str = ""
+    json_readonly: bool = False
+    # Get around mypy warning
+    initial: MutableMapping[str, Any]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        field = self.fields[self.json_field]
+        # Honour a read-only flag set either on the class or on the widget by
+        # the admin's ``get_form`` before swapping in the pretty widget.
+        attrs = {"rows": 20, "cols": 60}
+        if self.json_readonly or field.widget.attrs.get("readonly"):
+            attrs["readonly"] = True
+        field.widget = PrettyJSONWidget(attrs=attrs)
+
+        value = getattr(self.instance, self.json_field, None)
+        if value:
+            self.initial[self.json_field] = value
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        if cleaned_data:
+            value = cleaned_data.get(self.json_field)
+            if isinstance(value, str):
+                cleaned_data[self.json_field] = json.loads(value)
+        return cleaned_data if cleaned_data else {}
 
 
 class OptionalFieldsAdminMixin:
@@ -87,7 +164,10 @@ class SettingsAdminForm(forms.ModelForm):
     class Meta:
         model = Settings
         fields = "__all__"
-        labels = {"admin_verification_enabled": "Enable admin 2f verification"}
+        labels = {
+            "admin_verification_enabled": "Enable admin 2f verification",
+            "gov_assure_email": "GovAssure email address",
+        }
 
 
 @admin.register(Settings)
@@ -380,9 +460,19 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
         js = ("webcaf/js/admin_system.js",)
 
 
+class AssessmentAdminForm(JsonDataAdminForm):
+    json_field = "assessments_data"
+    json_readonly = True
+
+    class Meta:
+        model = Assessment
+        fields = "__all__"
+
+
 @admin.register(Assessment)
 class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
+    form = AssessmentAdminForm
     search_fields = ["status", "system__name", "reference"]
     list_display = [
         "status",
@@ -465,8 +555,6 @@ class CustomConfigForm(ModelForm):
         required=True,
     )
 
-    gov_assure_email = EmailField(label="GovAssure contact email", help_text="Used for email CC", required=False)
-
     class Meta:
         model = Configuration
         fields = [
@@ -475,7 +563,6 @@ class CustomConfigForm(ModelForm):
             "assessment_period_end",
             "banner_display_until",
             "default_framework",
-            "gov_assure_email",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -501,7 +588,6 @@ class CustomConfigForm(ModelForm):
         if self.instance.get_banner_display_until():
             self.fields["banner_display_until"].initial = set_local_tz(self.instance.get_banner_display_until())
         self.fields["default_framework"].initial = self.instance.get_default_framework()
-        self.fields["gov_assure_email"].initial = self.instance.get_gov_assure_email()
 
     def save(self, commit=True):
         if not self.instance.config_data:
@@ -525,7 +611,6 @@ class CustomConfigForm(ModelForm):
         self.instance.config_data["assessment_period_end"] = to_local(self.cleaned_data["assessment_period_end"])
         self.instance.config_data["banner_display_until"] = to_local(self.cleaned_data["banner_display_until"])
         self.instance.config_data["default_framework"] = self.cleaned_data["default_framework"]
-        self.instance.config_data["gov_assure_email"] = self.cleaned_data["gov_assure_email"]
         return super().save(commit=commit)
 
 
@@ -534,8 +619,18 @@ class ConfigurationAdmin(admin.ModelAdmin):
     form = CustomConfigForm
 
 
+class ReviewAdminForm(JsonDataAdminForm):
+    json_field = "review_data"
+    json_readonly = True
+
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+
 @admin.register(Review)
 class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    form = ReviewAdminForm
     search_fields = ["assessment_system_name", "assessment_reference", "assessment_organisation"]
     list_display = [
         "assessment_system_name",
@@ -621,10 +716,8 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "assessment":
-            current_config = Configuration.objects.get_default_config()
             kwargs["queryset"] = Assessment.objects.filter(
                 status="submitted",
-                assessment_period=current_config.get_current_assessment_period(),
             ).order_by("-created_on")
         form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
         return form_field
@@ -632,7 +725,290 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     def save_form(self, request, form, change):
         return super().save_form(request, form, change)
 
-    def save_model(self, request, obj, form, change):
-        if hasattr(obj, "last_updated_by"):
-            obj.last_updated_by = request.user
+    def save_model(self, request, obj: Review, form, change):
+        obj.last_updated_by = request.user
+        if "_reopen" in request.POST:
+            if request.user.is_superuser:
+                obj.rollback_to_in_progress()
+            else:
+                raise PermissionDenied("Only admins can reopen reports")
         super().save_model(request, obj, form, change)
+
+    class Media:
+        css = {"all": ("webcaf/admin.css",)}
+
+
+class TipAdminForm(JsonDataAdminForm):
+    json_field = "tip_data"
+
+    # Read-only state is decided per-request in ``TipAdmin.get_form``.
+
+    class Meta:
+        model = Tip
+        fields = "__all__"
+
+
+@admin.register(Tip)
+class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+    form = TipAdminForm
+    exclude = ("status",)
+    search_fields = [
+        "assessment_system_name",
+        "assessment_reference",
+        "assessment_organisation",
+    ]
+    readonly_fields = [
+        "status_badge",
+        "created_on",
+        "last_updated",
+        "last_updated_by",
+        "reference",
+        "pdf_link",
+        "excel_link",
+        "completed_percentage",
+    ]
+    optional_fields = ["reference"]
+    list_display = [
+        "status_badge",
+        "completed_percentage",
+        "assessment_system_name",
+        "assessment_framework",
+        "assessment_review_type",
+        "assessment_reference",
+        "assessment_organisation",
+        "pdf_link",
+        "excel_link",
+    ]
+    list_filter = [
+        "review__assessment__system__name",
+        SortedOrganisationFilter,
+        "review__assessment__review_type",
+        "status",
+    ]
+    actions: list[str] = []
+
+    def get_form(self, request: HttpRequest, obj: Optional[Model] = None, **kwargs: Any):
+        """
+        Fetches and customizes the form for the specified model instance based on user access rights.
+
+        If the user is not a superuser, the "tip_data" field in the form will be set to readonly.
+
+        :param request: The HTTP request object representing the current request.
+        :type request: HttpRequest
+        :param obj: An optional instance of the model associated with the form.
+        :type obj: Optional[Model]
+        :param kwargs: Arbitrary keyword arguments passed to the underlying `get_form` method.
+        :type kwargs: Any
+        :return: A Django form, potentially customized to restrict certain fields based on user access.
+        :rtype: BaseModelForm
+        """
+        form = super().get_form(request, obj, **kwargs)
+        if not request.user.is_superuser:
+            form.base_fields["tip_data"].widget.attrs["readonly"] = True
+        return form
+
+    @admin.display(ordering="assessment_review_type", description="Review type")
+    def assessment_review_type(self, obj):
+        return obj.assessment_review_type
+
+    @admin.display(ordering="assessment_system_name", description="System")
+    def assessment_system_name(self, obj):
+        return obj.assessment_system_name
+
+    @admin.display(ordering="assessment_reference", description="Assessment Ref")
+    def assessment_reference(self, obj):
+        return obj.assessment_reference
+
+    @admin.display(ordering="assessment_framework", description="Framework")
+    def assessment_framework(self, obj):
+        return obj.assessment_framework
+
+    @admin.display(ordering="assessment_organisation", description="Organisation")
+    def assessment_organisation(self, obj):
+        return obj.assessment_organisation
+
+    @admin.display(description="Status")
+    def status_badge(self, obj):
+        if obj.status == "review":
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "pending"},
+            )
+        elif obj.status == "approved":
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "approved"},
+            )
+        elif obj.status == "rejected":
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "rejected"},
+            )
+        elif obj.status == "completed":
+            return render_to_string(
+                "admin/webcaf/tip/partials/review_tag.html",
+                {"status": obj.get_status_display(), "status_class": "completed"},
+            )
+        return obj.get_status_display()
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            assessment_system_name=F("review__assessment__system__name"),
+            assessment_framework=F("review__assessment__framework"),
+            assessment_review_type=F("review__assessment__review_type"),
+            assessment_reference=F("review__assessment__reference"),
+            assessment_organisation=F("review__assessment__system__organisation__name"),
+        ).select_related(
+            "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+
+        custom_urls = [
+            path(
+                "<int:tip_id>/download/<str:mode>/",
+                self.admin_site.admin_view(self.download_view),
+                name="tip_download",
+            ),
+        ]
+        return custom_urls + urls
+
+    def download_view(self, request: HttpRequest, tip_id: int, mode: str):
+        """
+        Generates and returns a PDF response based on the provided template and recommendations.
+
+        This view fetches a tip object corresponding to the given ID, initializes a
+        RecommendationService with required data, and renders a PDF using a specified
+        template. Recommendations are categorized as "priority" and "other" and passed
+        to the template for rendering.
+
+        :param mode:
+        :param request: The HTTP request instance.
+        :type request: HttpRequest
+        :param tip_id: The ID of the tip object to be fetched and used.
+        :type tip_id: int
+        :return: An HTTP response containing the rendered PDF.
+        :rtype: HttpResponse
+        """
+        tip = Tip.objects.get(pk=tip_id)
+        service = RecommendationService(tip, request)
+        if mode == "pdf":
+            return service.render_pdf(
+                "tip/report.html",
+                {
+                    "object": tip,
+                    "priority_recommendations": service.filter_recommendations("priority"),
+                    "other_recommendations": service.filter_recommendations("other"),
+                },
+            )
+        return service.render_excel(
+            {
+                "object": tip,
+                "priority_recommendations": service.filter_recommendations("priority"),
+                "other_recommendations": service.filter_recommendations("other"),
+            }
+        )
+
+    def completed_percentage(self, obj):
+        """
+        Calculates the completion percentage of an object and returns it as a formatted string.
+
+        :param obj: The object containing the `completed_percentage` attribute.
+        :type obj: Any
+        :return: A string representing the formatted completion percentage.
+        :rtype: str
+        """
+        return f"{obj.completed_percentage}%"
+
+    def pdf_link(self, obj):
+        url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
+        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View PDF"})
+
+    pdf_link.short_description = "PDF download"  # type: ignore[attr-defined]
+
+    def excel_link(self, obj):
+        url = reverse("admin:tip_download", args=[obj.pk, "excel"])
+        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View Excel"})
+
+    excel_link.short_description = "Excel download"  # type: ignore[attr-defined]
+
+    def save_model(self, request, obj: Tip, form, change):
+        obj.last_updated_by = request.user
+        obj.last_updated = timezone.now()
+        if "_approve" in request.POST:
+            obj.approve(request.user)
+        elif "_reject" in request.POST:
+            obj.reject(request.user)
+        elif "_reopen" in request.POST:
+            obj.reopen(request.user)
+        super().save_model(request, obj, form, change)
+
+    def has_view_permission(self, request, obj=None):
+        """
+        Determine if the user has the permission to view the given object.
+
+        This method checks if the user has the view permissions granted explicitly by
+        the parent class or if the user has specific permissions to approve or reject
+        a tip.
+
+        :param request: The HTTP request object containing information about the
+            current request and the user making the request.
+        :type request: HttpRequest
+        :param obj: The object for which the view permission is being checked.
+            Defaults to None if no object is being queried.
+        :type obj: Any or None
+        :return: A boolean value indicating whether the user has permission to
+            view the object.
+        :rtype: bool
+        """
+        return (
+            super().has_view_permission(request, obj)
+            or request.user.has_perm("webcaf.can_approve_tip")
+            or request.user.has_perm("webcaf.can_reject_tip")
+        )
+
+    def has_change_permission(self, request, obj=None):
+        """
+        Determines whether a user has the required permission to change an object. This
+        method checks if the user has specific permissions ("webcaf.can_approve_tip" or
+        "webcaf.can_reject_tip"). For superusers, additional checks are present to grant
+        permissions based on request method or specific post data.
+
+        :param request: The HttpRequest object representing the current request.
+        :type request: HttpRequest
+        :param obj: The object for which the permission check is performed. Default is None.
+        :type obj: Any
+        :return: A boolean value indicating whether the user has change permissions for the
+            given object.
+        :rtype: bool
+        """
+        # If not superuser, check if user has permission to approve or reject
+        if request.user.has_perm("webcaf.can_approve_tip") or request.user.has_perm("webcaf.can_reject_tip"):
+            if request.method == "GET":
+                return True
+            return request.user.is_superuser or "_approve" in request.POST or "_reject" in request.POST
+        return super().has_change_permission(request, obj)
+
+    def revert_disabled(self, request, obj=None):
+        """
+        Determines whether a user has permission to view the history of an object.
+
+        This function checks if the user associated with the provided request is a
+        superuser and grants or denies access accordingly.
+
+        :param request: The HTTP request object containing user information.
+        :type request: HttpRequest
+        :param obj: (Optional) The object to check view history permission for. Defaults to None.
+        :type obj: Any
+        :return: True if the user is a superuser, otherwise False.
+        :rtype: bool
+        """
+        return not request.user.is_superuser
+
+    def has_change_history_permission(self, request, obj=None):
+        return self.revert_disabled(request, obj)
+
+    class Media:
+        css = {"all": ("webcaf/admin.css",)}

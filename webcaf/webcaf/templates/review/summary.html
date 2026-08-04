@@ -30,7 +30,7 @@
         {% endif %}
         <div class="govuk-grid-column-full">
             {% get_review_completed_percentage object as percentage %}
-            {% include "partials/review_progress_indicator.html" with percentage=percentage %}
+            {% include "partials/progress_indicator.html" with percentage=percentage %}
         </div>
 
         <div class="govuk-grid-column-three-quarters">

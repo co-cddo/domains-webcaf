@@ -1,0 +1,178 @@
+{% load form_extras %}
+{% for recommendation, group, action in recommendations %}
+    {% if action %}
+        <div class="govuk-summary-card {% if forloop.counter != 1 %} page-break-before {% endif %}">
+            {% if show_edit %}
+                <div class="govuk-summary-card__title-wrapper">
+                    <h3 class="govuk-summary-card__title">
+                        {{ recommendation.id }} — {{ recommendation.outcome }} {{ recommendation.outcome_title }}
+                    </h3>
+                    <ul class="govuk-summary-card__actions">
+                        <li class="govuk-summary-card__action">
+                            <a class="govuk-link"
+                               href="{% url 'tip:recommendation-action' pk=object.id recommendation_id=recommendation.id recommendation_type=recommendation_type %}?mode=change_answer">
+                                Change<span class="govuk-visually-hidden"> recommendation {{ recommendation.id }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="govuk-summary-card__content">
+                <p class="govuk-body-s govuk-!-margin-bottom-3">
+                    {% if  min_mode %}
+                        {{ recommendation_type|capfirst }} recommendation
+                    {% endif %}
+                </p>
+                <dl class="govuk-summary-list">
+                    {% if not min_mode %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Type
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ recommendation_type|capfirst }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Outcome
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ recommendation.outcome }} {{ recommendation.outcome_title }}
+                            </dd>
+                        </div>
+                        {% if object.review.assessment.review_type == 'independent' %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Associated risk
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    <strong>{% if recommendation_type == 'priority' %}RP{% else %}
+                                        RO{% endif %}{{ group.group_index }}</strong> — {{ group.title }}
+                                </dd>
+                            </div>
+                        {% endif %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Reviewer recommendation
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% format_with_breaks recommendation.text as parts %}
+                                {% for p in parts %}
+                                    <p class="govuk-body statement-para">
+                                        {% if forloop.first %}<strong>{{ recommendation.id }}</strong>
+                                            - {% endif %}{{ p }}
+                                    </p>
+                                {% endfor %}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Status
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if action.action_type == 'action_not_planned' %}
+                                    <strong class="govuk-tag govuk-tag--grey tip-status-tag">No action planned</strong>
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--blue tip-status-tag">Action added</strong>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    {% else %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Reviewer recommendation
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% format_with_breaks recommendation.text as parts %}
+                                {% for p in parts %}
+                                    <p class="govuk-body statement-para">
+                                        {% if forloop.first %}<strong>{{ recommendation.id }}</strong>
+                                            - {% endif %}{{ p }}
+                                    </p>
+                                {% endfor %}
+                            </dd>
+                        </div>
+                    {% endif %}
+                    {% if action.action_type == 'action_not_planned' %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                No action planned
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% format_with_breaks action.action_details.action_not_planned_reason as parts %}
+                                {% for p in parts %}
+                                    <p class="govuk-body statement-para">
+                                        {{ p }}
+                                    </p>
+                                {% endfor %}
+                            </dd>
+                        </div>
+                    {% else %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Action
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% format_with_breaks action.action_details.action_taken_description as parts %}
+                                {% for p in parts %}
+                                    <p class="govuk-body statement-para">
+                                        {{ p }}
+                                    </p>
+                                {% endfor %}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Action owner
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ action.action_details.action_owner }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Resource available
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ action.action_details.resources_available|capfirst }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Budget approved
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ action.action_details.budget_available|capfirst }}
+                            </dd>
+                        </div>
+                        {% if action.action_details.target_date_provided == 'yes' %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Estimated target completion date
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ action.action_details.target_day_day }}/{{ action.action_details.target_day_month }}/{{ action.action_details.target_day_year }}
+                                </dd>
+                            </div>
+                        {% else %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Reason no target date given
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {% format_with_breaks action.action_details.target_date_unavailable_reason as parts %}
+                                    {% for p in parts %}
+                                        <p class="govuk-body statement-para">
+                                            {{ p }}
+                                        </p>
+                                    {% endfor %}
+                                </dd>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

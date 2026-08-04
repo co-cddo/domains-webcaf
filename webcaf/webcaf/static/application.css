@@ -259,6 +259,12 @@ span.govuk-header__logotype-text {
     min-width: 10% !important;
 }
 
+.width_15 {
+    max-width: 15% !important;
+    width: 15% !important;
+    min-width: 15% !important;
+}
+
 .width_20 {
     max-width: 20% !important;
     width: 20% !important;
@@ -269,6 +275,12 @@ span.govuk-header__logotype-text {
     max-width: 25% !important;
     width: 25% !important;
     min-width: 25% !important;
+}
+
+.width_30 {
+    max-width: 30% !important;
+    width: 30% !important;
+    min-width: 30% !important;
 }
 
 .width_35 {
@@ -314,4 +326,44 @@ main {
 
 .status-stack__label {
     margin: 0 0 4px 0;
+}
+
+/*
+    Custom styles to complement the MOJ (Ministry of Justice) Design System
+    filter component.
+    Our application is only using the filter component from the MOJ component
+    list and we only want the relevant styles imported.
+    https://design-patterns.service.justice.gov.uk/components/filter/
+*/
+
+/* ==========================================
+   App filter panel
+========================================== */
+
+.app-filter-panel {
+    border: 1px solid #b1b4b6;
+    border-left: 5px solid #1d70b8;
+    background-color: #ffffff;
+    margin-bottom: 30px;
+}
+
+.app-filter-panel__header {
+    padding: 15px;
+    padding-left: 0;
+    background-color: #ffffff;
+}
+
+.app-filter-panel__content {
+    padding: 15px;
+}
+
+.app-filter-panel__hint {
+    margin-bottom: 0;
+}
+
+.app-filter-panel__actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }

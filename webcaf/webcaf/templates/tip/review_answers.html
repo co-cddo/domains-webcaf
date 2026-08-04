@@ -1,0 +1,98 @@
+{% extends "tip-base.html" %}
+{% load tip_tags %}
+{% load review_tags %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Check your responses - {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include "partials/progress_indicator.html" with percentage=object.completed_percentage progress_type="TIP" tag_line=tag_line %}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'partials/error_message.html' %}
+            <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
+            <h1 class="govuk-heading-l">
+                Check your responses
+            </h1>
+            <p class="govuk-body">Review the information you have provided for this TIP before continuing.</p>
+            <h2 class="govuk-heading-m">
+                Priority recommendations
+            </h2>
+            <p class="govuk-body-s govuk-!-margin-bottom-5">
+                {% actioned_and_not_actioned_counts recommendations=priority_recommendations %}
+            </p>
+            {% include 'tip/review_summary_card.html' with recommendations=priority_recommendations recommendation_type='priority' show_edit=True min_mode=True %}
+
+            <h2 class="govuk-heading-l">
+                Other recommendations
+            </h2>
+            <p class="govuk-body-s govuk-!-margin-bottom-5">
+                {% actioned_and_not_actioned_counts recommendations=other_recommendations %}
+            </p>
+            {% include 'tip/review_summary_card.html' with recommendations=other_recommendations recommendation_type='other' show_edit=True min_mode=True %}
+            <h2 class="govuk-heading-l">Download your draft TIP</h2>
+            {% if object.review.assessment.review_type == 'independent' %}
+                <div class="govuk-body">
+                    Your draft Targeted Improvement Plan (TIP) is ready to be downloaded and passed to the relevant
+                    managers, teams or stakeholders for final sign-off.
+                </div>
+            {% else %}
+                <div class="govuk-body">
+                    Your draft Targeted Improvement Plan (TIP) is ready to be downloaded and passed to the relevant
+                    managers,
+                    teams and stakeholders for final sign-off.
+                </div>
+                <p class="govuk-body">Your TIP must be signed off by your organisation's GovAssure senior responsible
+                    officer (SRO).
+                    If your organisation is an arm's length body (ALB), it must also be signed off by your Lead
+                    Government Department (LGD).
+                </p>
+            {% endif %}
+            <p class="govuk-body">
+                <a href="{% url 'tip:view-report' pk=object.id %}?mode=pdf"
+                   class="govuk-link govuk-link--no-visited-state"
+                   download="UK-OFFICIAL-SENSITIVE-TIP_{{ object.reference }}.pdf">Download draft TIP (PDF)</a><br>
+                <a href="{% url 'tip:view-report' pk=object.id %}?mode=excel"
+                   class="govuk-link govuk-link--no-visited-state"
+                   download="UK-OFFICIAL-SENSITIVE-TIP_{{ object.reference }}.xlsx">Download draft TIP Excel data
+                    (XLSX)</a>
+            </p>
+            <h3 class="govuk-heading-m">Mark this step as complete</h3>
+            <div class="govuk-inset-text">
+                This will not submit your TIP.
+            </div>
+            <p class="govuk-body">When you mark this step as complete, you'll return to the task list.
+                You can then move to the final step where you'll submit your TIP.
+            </p>
+            <form method="post" novalidate="">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.submit_action.errors %}govuk-form-group--error{% endif %}">
+                    <fieldset class="govuk-fieldset ">
+                        <input class="govuk-visually-hidden" id="confirmAnswers" name="submit_action"
+                               type="hidden" value="yes">
+                    </fieldset>
+                </div>
+                {% if object.is_rejected %}
+                    <div class="govuk-warning-text">
+                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                        <strong class="govuk-warning-text__text">
+                            <span class="govuk-visually-hidden">Warning</span>
+                            Update one or more actions to continue.
+                        </strong>
+                    </div>
+                {% endif %}
+                <button type="submit" class="govuk-button" data-module="govuk-button" {% if not object.can_edit %}
+                        disabled="disabled" aria-disabled="true"  {% endif %}>
+                    Mark as complete
+                </button>
+            </form>
+            <p class="govuk-body">
+                <a href="{% url 'tip:edit' pk=object.id %}" class="govuk-link">Return to task list</a>
+            </p>
+        </div>
+    </div>
+
+{% endblock %}

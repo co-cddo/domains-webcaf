@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import Assessment, Review
@@ -279,7 +280,7 @@ class ReviewIsObjectiveCompleteTests(BaseViewTest):
                     "recommendations": [],
                     "objective-areas-of-improvement": "Some improvement",
                     "objective-areas-of-good-practice": "Good practice",
-                    "A1.a": {"review_data": {"review_decision": "achieved"}}
+                    "A1.a": {"review_data": {"review_decision": "achieved"}},
                     # A1.b is missing
                 }
             }
@@ -956,7 +957,7 @@ class ReviewCompletionInfoTests(BaseViewTest):
         """Test that completion_info handles datetime objects that are already parsed."""
         from datetime import datetime
 
-        dt = datetime(2024, 12, 1, 10, 30, 45)
+        dt = timezone.make_aware(datetime(2024, 12, 1, 10, 30, 45))
         review = Review.objects.create(
             assessment=self.assessment,
             status="completed",

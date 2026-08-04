@@ -1,5 +1,6 @@
 @media print {
     /*Elements to hide when printing*/
+    .govuk-breadcrumbs,
     .govuk-phase-banner,
     .no_print,
     form input,
@@ -169,4 +170,13 @@
     .print_bold {
         font-weight: bold;
     }
+    .govuk-summary-list__row {
+        padding-bottom: 1rem !important;
+        border-bottom: none !important;
+    }
+    /*body *{*/
+    /*    font-family: GDS Transport, arial, sans-serif;*/
+    /*}*/
+
+
 }

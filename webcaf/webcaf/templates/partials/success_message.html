@@ -1,0 +1,24 @@
+{% load form_extras %}
+{% if messages %}
+    <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+         aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+            <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                Success
+            </h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+            {% for message in messages %}
+                {% if forloop.first and message|startswith:"title:" %}
+                    <h3 class="govuk-notification-banner__heading">
+                        {{ message|remove_prefix:"title:" }}
+                    </h3>
+                {% else %}
+                    <p class="govuk-body">
+                        {{ message }}
+                    </p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

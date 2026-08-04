@@ -28,6 +28,11 @@ def current_user_can_view_review(user_profile: UserProfile) -> bool:
 
 
 @register.simple_tag()
+def current_user_can_view_tips(user_profile: UserProfile) -> bool:
+    return PermissionUtil.current_user_can_view_tips(user_profile)
+
+
+@register.simple_tag()
 def current_user_can_view_systems(user_profile: UserProfile) -> bool:
     """
     Determines if the current user has permission to view systems.

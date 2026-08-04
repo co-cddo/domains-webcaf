@@ -6,16 +6,18 @@ from typing import Any, Tuple, cast
 
 import boto3
 from django.core.management.base import BaseCommand
-from django.db.models import Min
+from django.db.models import Max, Min
 
 from webcaf import settings
+from webcaf.webcaf import frameworks
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, Organisation, Review
+from webcaf.webcaf.models import Assessment, Organisation, Review, Tip
 from webcaf.webcaf.templatetags.form_extras import (
     generate_assessment_progress_indicators,
 )
 from webcaf.webcaf.utils.data_analysis import (
     transform_assessment,
+    transform_definition,
     transform_organisation,
     transform_review,
     transform_system,
@@ -122,9 +124,11 @@ class Command(BaseCommand):
                 .values("assessment_id")
                 .annotate(first_in_progress=Min("history_date"))
             }
+            self.export_definitions(bucket_name, s3)
             self.export_organisation_and_systems(bucket_name, s3)
             self.export_assessments(bucket_name, s3, submitted_dates, in_progress_dates)
             self.export_reviews(bucket_name, s3, submitted_dates, in_progress_dates)
+            self.export_tips(bucket_name, s3)
             self.stdout.write(self.style.SUCCESS("Successfully uploaded to S3"))
         else:
             self.stdout.write(self.style.WARNING("S3 bucket name is not configured. Skipping export to S3."))
@@ -297,3 +301,149 @@ class Command(BaseCommand):
                         )
                     ),
                 )
+
+    def export_tips(self, bucket_name: str, s3):
+        """
+        Export TIP data to an S3 bucket in JSON format.
+
+        This function retrieves TIPs and their associated data, formats them into
+        JSON, and uploads the files to the specified S3 bucket. The function handles
+        various TIP details, including related actions, review and assessment
+        identifiers, and various historical status dates.
+
+        :param bucket_name: The name of the target S3 bucket.
+        :type bucket_name: str
+        :param s3: The boto3 S3 client used for uploading objects.
+        :return: None
+        :rtype: None
+        :raises Exception: If the upload to S3 fails at any point.
+        """
+        self.stdout.write("Exporting TIPs")
+        tips = Tip.objects.select_related(
+            "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
+        ).all()
+        submitted_dates = {
+            entry["id"]: entry["first_review"]
+            for entry in Tip.history.filter(status="review").values("id").annotate(first_review=Min("history_date"))
+        }
+        completed_dates = {
+            entry["id"]: entry["first_approved"]
+            for entry in Tip.history.filter(status="approved").values("id").annotate(first_approved=Max("history_date"))
+        }
+        # Single query: earliest datetime a tip for "in_progress"
+        in_progress_dates = {
+            entry["id"]: entry["first_in_progress"]
+            for entry in Tip.history.filter(status="in_progress")
+            .values("id")
+            .annotate(first_in_progress=Min("history_date"))
+        }
+
+        rejected_dates = {
+            entry["id"]: entry["last_rejected"]
+            for entry in Tip.history.filter(status="rejected").values("id").annotate(last_rejected=Max("history_date"))
+        }
+
+        def format_target_date(recommendation_details: dict[str, Any]) -> dict[str, Any]:
+            """
+            Formats the target date in the `recommendation_details` dictionary by consolidating
+            separate day, month, and year fields into a single "target_day" string.
+
+            The method retrieves and removes the "target_day_day", "target_day_month",
+            and "target_day_year" keys from the `recommendation_details` dictionary.
+            If all three are present, it concatenates them into a formatted string and
+            updates the dictionary. Otherwise, it returns an unmodified dictionary
+            without the "target_day".
+
+            :param recommendation_details: Dictionary containing detailed information,
+                including separate fields for the target day ("target_day_day"),
+                month ("target_day_month"), and year ("target_day_year"). These fields
+                must exist in the dictionary for the target date consolidation to occur.
+            :type recommendation_details: dict[str, Any]
+            :return: Updated dictionary with the "target_day" field added if day, month,
+                and year were successfully consolidated, or the unmodified dictionary otherwise.
+            :rtype: dict[str, Any]
+            """
+            target_date_provided = recommendation_details.get("target_date_provided") == "yes"
+            if target_date_provided:
+                day = recommendation_details.pop("target_day_day")
+                month = recommendation_details.pop("target_day_month")
+                year = recommendation_details.pop("target_day_year")
+                return recommendation_details | (
+                    {"target_day": f"{year}-{int(month):02d}-{int(day):02d}"} if day and month and year else {}
+                )
+            return recommendation_details
+
+        try:
+            for tip in tips:
+                self.stdout.write(f"File uploaded to s3://{bucket_name}/tips/{tip.reference}.json")
+                s3.put_object(
+                    Bucket=bucket_name,
+                    Key=f"tips/{tip.reference}.json",
+                    Body=json.dumps(
+                        {
+                            "assessment_id": tip.review.assessment_id,
+                            "review_id": tip.review.id,
+                            "app_version": "webcaf-2",
+                            "tip_id": tip.id,
+                            "actioned_recommendations": [
+                                {
+                                    "recommendation_id": rec_id,
+                                    "recommendation_category": action.recommendation_category,
+                                }
+                                | format_target_date(action.action_details)
+                                for rec_id, action in tip.get_all_actions().items()
+                                if action.action_type == "action_planned"
+                            ],
+                            "not_actioned_recommendations": [
+                                {
+                                    "recommendation_id": rec_id,
+                                    "recommendation_category": action.recommendation_category,
+                                }
+                                | action.action_details
+                                for rec_id, action in tip.get_all_actions().items()
+                                if action.action_type == "action_not_planned"
+                            ],
+                            "submitted_date": str(submitted_dates.get(tip.id, "")),
+                            "completed_date": str(completed_dates.get(tip.id, "")),
+                            "in_progress_date": str(in_progress_dates.get(tip.id, "")),
+                            "last_rejected_date": str(rejected_dates.get(tip.id, "")),
+                        }
+                    ),
+                )
+        except Exception as ex:
+            logging.getLogger("TipUpload").exception("Failed to upload tips to S3")
+            self.stderr.write(self.style.ERROR(f"Failed to upload tips to S3: {ex}"))
+
+    def export_definitions(self, bucket_name: str, s3):
+        """
+        Exports framework definitions to the specified S3 bucket.
+
+        This method iterates through a collection of framework routers, transforms their
+        definition data, and uploads them to a specified Amazon S3 bucket. The S3 objects
+        are stored under the "definitions" folder with a structured naming convention
+        that includes the framework router key and application version.
+
+        :param bucket_name: The name of the S3 bucket where definitions will be uploaded.
+        :type bucket_name: str
+        :param s3: The S3 client instance used to perform S3 operations. Must have a
+            `put_object` method for uploading objects to S3.
+        :type s3: Any
+        :return: None
+        """
+        try:
+            caf_mappings = {"caf32": ("CAF 3.2 GovAssure", "3.2"), "caf40": ("CAF 4.0 GovAssure", "4.0")}
+            for key, router in frameworks.routers.items():
+                mapped_data = caf_mappings[key]
+                data = router.framework | {  # type: ignore[attr-defined]
+                    "display_name": mapped_data[0],
+                    "app_version": "webcaf-2",
+                    "caf_version": mapped_data[1],
+                }
+                transformed_data = transform_definition(data)
+                self.stdout.write(f"File uploaded to s3://{bucket_name}/caf_definitions/{key}-webcaf-2.json")
+                s3.put_object(
+                    Bucket=bucket_name, Key=f"caf_definitions/{key}-webcaf-2.json", Body=json.dumps(transformed_data)
+                )
+        except Exception as ex:
+            logging.getLogger("DefinitionUpload").exception("Failed to upload definitions to S3")
+            self.stderr.write(self.style.ERROR(f"Failed to upload definitions to S3: {ex}"))

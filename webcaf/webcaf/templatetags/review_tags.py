@@ -41,7 +41,7 @@ def get_outcome_recommendation_count(review: Review, objective_id: str, outcome_
 
 
 @register.simple_tag()
-def get_user_role(user: User, organisation: Organisation) -> str:
+def get_user_role(user: User, organisation: Organisation, role_to_check: str) -> str:
     """
     Retrieve the display name of the user's role within a specific organisation.
 
@@ -49,17 +49,21 @@ def get_user_role(user: User, organisation: Organisation) -> str:
     organisation. If a profile matches the organisation, it fetches the display
     name of the role assigned to that user within the organisation.
 
+    If the current user does not have a profile in the specified organisation, it returns "-".
+
     :param user: The user whose role is to be retrieved.
     :type user: User
     :param organisation: The organization for which the user's role should be determined.
     :type organisation: Organisation
+    :param role_to_check: The role to check for within the organisation.
+    :type role_to_check: str
     :return: The display name of the user's role within the specified organisation.
     :rtype: str
     """
     if user:
-        for profile in user.profiles.filter(organisation=organisation):
-            if profile.organisation == organisation:
-                return profile.get_role_display()
+        profile = user.profiles.filter(organisation=organisation, role__in=role_to_check.split(",")).first()
+        if profile and profile.organisation == organisation:
+            return profile.get_role_display()
     return "-"
 
 
@@ -280,7 +284,7 @@ def get_principle_profile_status(review: Review, objective_code: str, principle_
 
 @register.simple_tag()
 def get_recommendations(
-    review: Review, mode: Literal["priority", "normal", "all"]
+    review: Review, mode: Literal["priority", "other", "all"]
 ) -> Generator[RecommendationGroup, Any, None]:
     """
     Fetches and returns a generator that produces recommendation groups based on the
@@ -300,7 +304,9 @@ def get_recommendations(
         recommendations based on the criteria specified by the mode and review inputs.
     :rtype: Generator[RecommendationGroup, Any, None]
     """
-    return get_review_recommendations(review, mode)
+    # Have to map from other -> normal if we are using the term other to represent
+    # the normal recommendations
+    return get_review_recommendations(review, mode if mode != "other" else "normal")
 
 
 ReviewComment = NamedTuple("ReviewComment", [("section", str), ("index", int), ("comment", str)])

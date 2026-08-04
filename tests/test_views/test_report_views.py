@@ -5,6 +5,7 @@ This module contains tests for the review view classes, specifically:
 - ShowReportView.get_template_names() - template selection based on review type
 - DownloadReport - PDF generation with correct template selection
 """
+
 import json
 from pathlib import Path
 

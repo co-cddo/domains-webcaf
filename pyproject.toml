@@ -33,23 +33,21 @@ dependencies = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^4.2.0"
-isort = "^5.13.2"
-flake8 = "^7.0.0"
-black = "^24.3.0"
+pre-commit = "^4.6.0"
 ipdb = "^0.13.13"
 web-pdb = "^1.6.2"
 types-markdown = "^3.6.0.20240316"
 parameterized = "^0.9.0"
-mypy = "^1.15.0"
 django-stubs = { extras = ["compatible-mypy"], version = "^5.1.3" }
 playwright = "^1.55.0"
-pytest = "^8.4.1"
 pytest-playwright = "^0.7.0"
 behave = "^1.2.6"
 ruamel-yaml = "^0.18.15"
 behave-html-formatter = "^0.9.10"
 freezegun = "^1.5.5"
+pytest = "^9.1.1"
+pytest-django = "^4.12.0"
+pytest-html = "^4.2.0"
 
 [tool.isort]
 profile = "black"
@@ -57,6 +55,7 @@ profile = "black"
 [tool.black]
 # https://gds-way.cloudapps.digital/manuals/programming-languages/python/python.html#maximum-line-length-of-120-characters
 line-length = 120
+target-version = ["py312"]
 
 [tool.mypy]
 ignore_missing_imports = true

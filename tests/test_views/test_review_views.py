@@ -82,29 +82,9 @@ class TestReviewIndexVisibility(BaseViewTest):
             assessment=self.assessment_foreign,
         )
 
-    def _login_with_role(self, role_key: str) -> tuple[Client, UserProfile]:
-        client = Client()
-
-        user = self.org_map[self.organisation_name]["users"].get(role_key)  # type: ignore
-        if not user:
-            # Create the user and profile if this role was not part of base fixture
-            from django.contrib.auth.models import User
-
-            user, _ = User.objects.get_or_create(
-                username=self.email_from_username_and_org(role_key, self.organisation_name)  # type: ignore
-            )
-            UserProfile.objects.get_or_create(user=user, organisation=self.org, role=role_key)
-
-        client.force_login(user)
-        profile = UserProfile.objects.get(user=user, role=role_key)
-        session = client.session
-        session["current_profile_id"] = profile.id
-        session.save()
-        return client, profile
-
     def test_admin_roles_see_only_current_org_and_period(self):
         for role in ("cyber_advisor", "organisation_lead"):
-            client, _ = self._login_with_role(role)
+            client, _ = self._login_with_role(role, self.org)
             resp = client.get(reverse("review-list"))
             self.assertEqual(resp.status_code, 200)
             reviews = list(resp.context["reviews"])  # provided by ReviewIndexView
@@ -142,7 +122,7 @@ class TestReviewIndexVisibility(BaseViewTest):
         )
 
         # Check for assessor role
-        client_a, _ = self._login_with_role("assessor")
+        client_a, _ = self._login_with_role("assessor", self.org)
         resp = client_a.get(reverse("review-list"))
         self.assertEqual(resp.status_code, 200)
         reviews = list(resp.context["reviews"])  # filtered by membership
@@ -150,7 +130,7 @@ class TestReviewIndexVisibility(BaseViewTest):
         self.assertNotIn(hidden_review, reviews)
 
         # Check for reviewer role
-        client_r, _ = self._login_with_role("reviewer")
+        client_r, _ = self._login_with_role("reviewer", self.org)
         resp = client_r.get(reverse("review-list"))
         self.assertEqual(resp.status_code, 200)
         reviews = list(resp.context["reviews"])  # filtered by membership

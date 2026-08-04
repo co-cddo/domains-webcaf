@@ -9,10 +9,14 @@ from django.forms import ChoiceField, ModelForm
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, UpdateView
 from weasyprint import default_url_fetcher
 
-from webcaf.webcaf.models import Configuration, Review, System
+from webcaf import settings
+from webcaf.webcaf.models import Configuration, Review, Settings, System, UserProfile
+from webcaf.webcaf.notification import send_notify_email
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.session import SessionUtil
 from webcaf.webcaf.utils.to_spreadsheet import review_to_excel
 from webcaf.webcaf.views.assessor.util import BaseReviewMixin
@@ -153,7 +157,53 @@ class FinaliseReview(BaseReviewMixin, UpdateView):
             self.request,
             f"Final report updated. Version {self.object.current_version_number} is now the final report.",
         )
-        return super().form_valid(form)
+        self.send_emails(form.instance)
+        response = super().form_valid(form)
+        return response
+
+    def send_emails(self, review: Review):
+        """
+        Sends notification emails to organisation leads when a review is finalised.
+
+        This method sends an email notification to all users with the role "organisation_lead"
+        associated with the submitted review's organisation. It uses the GOV.UK Notify service
+        to dispatch the email. The email includes information such as the review's reference,
+        version, submitter's email, submission date, system name, organisation name, and
+        framework version.
+
+        :param review: The review object containing details about the submitted review.
+        :type review: Review
+        :return: None
+        """
+        if template_id := settings.NOTIFY_REVIEW_FINALISED_TEMPLATE_ID:
+            try:
+                email_addresses = list(
+                    UserProfile.objects.filter(
+                        organisation_id=review.assessment.system.organisation_id,
+                        role="organisation_lead",
+                    ).values_list("user__email", flat=True)
+                )
+                if email_addresses:
+                    gov_assure_email = Settings.get_instance().gov_assure_email
+                    if gov_assure_email:
+                        email_addresses.append(gov_assure_email)
+                    send_notify_email(
+                        email_addresses=email_addresses,
+                        personalisation_data={
+                            "reference": review.reference,  # type: ignore
+                            "version": str(review.current_version_number) if review.current_version_number else "-",
+                            "submitted_by": self.request.user.email if not self.request.user.is_anonymous else "-",
+                            "submitted_on": timezone.now().strftime("%d %B %Y"),
+                            "system_name": review.assessment.system.name,
+                            "organisation_name": review.assessment.system.organisation.name,
+                            "caf_version": review.assessment.get_framework_display(),
+                        },
+                        template_id=template_id,
+                    )
+            except Exception as ex:  # type: ignore
+                self.logger.exception(mask_email(f"GOV.UK Notify: Failed to send tip email {ex}"))
+        else:
+            self.logger.info("GOV.UK Notify: No template ID provided for review ready email")
 
     def get_success_url(self):
         return reverse("review-history", kwargs={"pk": self.object.id})

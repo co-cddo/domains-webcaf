@@ -9,7 +9,14 @@ from django.forms import Form
 from django.utils import timezone
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
-from webcaf.webcaf.models import Assessment, Configuration, Review, System, UserProfile
+from webcaf.webcaf.models import (
+    Assessment,
+    Configuration,
+    Review,
+    System,
+    Tip,
+    UserProfile,
+)
 from webcaf.webcaf.utils.review import review_status_to_label
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -247,14 +254,30 @@ def get_review_tag_for_status(status: str) -> str:
     :param status: A string indicating the current status.
     :return: A string representing the color code for the status.
     """
-    if status == "to_do":
+    if status in ["to_do"]:
         return "blue"
-    elif status == "in_progress":
+    elif status in ["in_progress"]:
         return "yellow"
-    elif status == "completed":
+    elif status in ["completed", "approved"]:
         return "green"
     else:
         return "red"
+
+
+@register.simple_tag()
+def get_action_name(status: str) -> str:
+    """Function to retrieve the action name based on the given status.
+    :param status: A string indicating the current status.
+    :return: A string representing the action name for the status.
+    """
+    if status in ["to_do"]:
+        return "Start"
+    elif status in ["in_progress", "rejected"]:
+        return "Continue"
+    elif status in ["completed", "review", "approved"]:
+        return "View"
+    else:
+        return "View"
 
 
 @register.simple_tag()
@@ -275,6 +298,30 @@ def get_review_count(user_profile: UserProfile) -> int:
         assessment__status__in=["submitted"],
         assessment__system__organisation=user_profile.organisation,
     ).count()
+
+
+@register.simple_tag()
+def get_tip_count(user_profile: UserProfile) -> int:
+    """
+    Retrieve the total count of tips associated with a user's organization that meet specific criteria.
+
+    This function calculates the number of tips linked to reviews falling under assessments that are
+    submitted and belong to the organization of the provided user profile. Additionally, it excludes
+    reviews that have not been finalized based on the presence of relevant finalization data.
+
+    :param user_profile: The user profile used to determine the organization context for filtering reviews.
+    :type user_profile: UserProfile
+    :return: The count of tips meeting the specified criteria.
+    :rtype: int
+    """
+    return (
+        Tip.objects.filter(
+            review__assessment__status__in=["submitted"],
+            review__assessment__system__organisation=user_profile.organisation,
+        )
+        .exclude(review__review_data__review_finalised__review_finalised_at=None)
+        .count()
+    )
 
 
 @register.simple_tag()
@@ -493,3 +540,33 @@ def should_display_cutoff():
         london_now = timezone.now().astimezone(ZoneInfo("Europe/London"))
         return london_now <= cutoff_time
     return False
+
+
+@register.filter
+def startswith(value, prefix):
+    """
+    Check if a value starts with a given prefix
+    :param value: The value to check
+    :param prefix: The prefix to check for
+    :return: True if the value starts with the prefix, False otherwise
+    """
+    if value is None:
+        return False
+    return str(value).startswith(prefix)
+
+
+@register.filter
+def remove_prefix(value, prefix):
+    """
+    Remove a prefix from a value if it exists
+    :param value: The value to remove the prefix from
+    :param prefix: The prefix to remove
+    :return: The value with the prefix removed, or the original value if the prefix does not exist
+    """
+    if value is None:
+        return value
+
+    value = str(value)
+    if value.startswith(prefix):
+        return value[len(prefix) :]
+    return value
