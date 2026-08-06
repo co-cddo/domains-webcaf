@@ -1,28 +1,28 @@
 import os
 import unittest
 
+import yaml
 from openpyxl.worksheet.worksheet import Worksheet
 
-from webcaf.webcaf.caf.routers import CAF32ExcelExporter
-
-
-class CAF32ExcelExporterWithFixture(CAF32ExcelExporter):
-    def get_framework_path(self) -> str:
-        return os.path.join(os.path.dirname(__file__), "../frameworks", "cyber-assessment-framework-v3.2.yaml")
+from webcaf.webcaf.utils.excel_exporter import build_assessment_template_workbook
 
 
 class TestCAF32ExcelExporter(unittest.TestCase):
     def setUp(self):
-        self.exporter = CAF32ExcelExporterWithFixture()
-        self.wb = self.exporter.execute()
+        framework_path = os.path.join(
+            os.path.dirname(__file__), "../frameworks", "cyber-assessment-framework-v3.2.yaml"
+        )
+        with open(framework_path, "r") as file:
+            self.framework = yaml.safe_load(file)
+        self.wb = build_assessment_template_workbook(self.framework)
         # Uncomment to save the workbook for manual inspection
         # current_dir = os.path.dirname(os.path.abspath(__file__))
         # new_file_path = os.path.join(current_dir, "test.xlsx")
         # self.wb.save(new_file_path)
 
-    def test_elements_loaded_and_workbook_created(self):
-        self.assertIsInstance(self.exporter.elements, list)
-        self.assertGreater(len(self.exporter.elements), 0)
+    def test_framework_loaded_and_workbook_created(self):
+        self.assertIsInstance(self.framework["objectives"], dict)
+        self.assertGreater(len(self.framework["objectives"]), 0)
         self.assertIsNotNone(self.wb)
 
     def test_sheet_count_and_titles(self):

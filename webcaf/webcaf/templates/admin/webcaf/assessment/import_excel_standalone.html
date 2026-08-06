@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <div class="module">
+        <h2>Import CAF Excel file</h2>
+        <p>Upload a completed CAF Excel template</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="preview">
+            <input type="file" name="excel_file" accept=".xlsx" required>
+            <button type="submit" class="button">Preview</button>
+        </form>
+    </div>
+{% endblock %}

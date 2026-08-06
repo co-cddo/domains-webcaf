@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load govuk_frontend_django %}
+{% block title %}Import CAF Excel file - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "partials/error_message.html" %}
+            <h1 class="govuk-heading-l">
+                Import a CAF Excel file
+            </h1>
+            <p class="govuk-body">
+                Upload a completed CAF Excel template.
+            </p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="govuk-form-group {% if form.errors.excel_file %}govuk-form-group--error{% endif %}">
+                    <label class="govuk-label govuk-label--m" for="{{ form.excel_file.id_for_label }}">
+                        {{ form.excel_file.label }}
+                    </label>
+                    {% if form.errors.excel_file %}
+                        <p class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.excel_file.0 }}
+                        </p>
+                    {% endif %}
+                    {{ form.excel_file }}
+                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button">
+                    Import
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
