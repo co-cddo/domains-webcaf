@@ -61,7 +61,7 @@
                 {% csrf_token %}
                 <div class="govuk-form-group">
                     <div class="govuk-radios {% if form.confirm_outcome.errors %}govuk-form-group--error{% endif %}"
-                         data-module="govuk-radios" data-govuk-radios-init="">
+                         data-module="govuk-radios">
                         {% for choice in form.fields.confirm_outcome.choices %}
                             <div class="govuk-radios__item "
                                  id="id_confirm_outcome">

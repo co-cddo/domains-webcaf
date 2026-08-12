@@ -4,6 +4,22 @@
     <h2 class="govuk-heading-m">
         Principle:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
     </h2>
+    <details class="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              Read the principle wording
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            {{ principal.description }}
+            <a href="https://www.ncsc.gov.uk/collection/cyber-assessment-framework/caf-objective-{% caf_slug objective_data.code objective_data.title %}/principle-{% caf_slug principal.code principal.title %}"
+               class="govuk-link" target="_blank">Read more about this principle (opens in new tab)</a>
+        </div>
+    </details>
+    {% if forloop.first %}
+        <p class="govuk-body">Please provide your answers for each principle. You can review the status of
+            individual outcomes below each principle and change your answers if you need to.</p>
+    {% endif %}
     <dl class="govuk-summary-list">
         {% for outcome in principal.outcomes.values %}
             {% get_outcome_details assessment outcome.code as outcome_details %}

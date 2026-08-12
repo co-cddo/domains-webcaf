@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from django import template
 from django.forms import Form
 from django.utils import timezone
+from slugify import slugify
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
 from webcaf.webcaf.models import (
@@ -570,3 +571,15 @@ def remove_prefix(value, prefix):
     if value.startswith(prefix):
         return value[len(prefix) :]
     return value
+
+
+@register.simple_tag
+def caf_slug(code: str, title: str) -> str:
+    """
+    Generate a slug for a CAF objective or principle
+    :param code: The code of the objective or principle
+    :param title: The title of the objective or principle
+    :return: The slug for the objective or principle
+    """
+    slug = slugify(f"{code} {title}")
+    return slug

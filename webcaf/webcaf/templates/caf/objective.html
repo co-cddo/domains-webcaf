@@ -19,8 +19,7 @@
             <h1 class="govuk-heading-l">
                 Objective&nbsp;{{ objective_data.code }}&nbsp;-&nbsp;{{ title }}
             </h1>
-            <p class="govuk-body">Please provide your answers for each principle. You can review the status of
-                individual outcomes below each principle and change your answers if you need to.</p>
+            <p class="govuk-hint">{{ objective_data.description }}</p>
             {% include "partials/principal_summary-list.html" with objective_data=objective_data %}
             {% is_final_objective objective_data.code assessment as final_objective %}
             {% if not final_objective %}
@@ -33,8 +32,7 @@
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                 Do you want to go to the next objective?
                             </legend>
-                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"
-                                 data-govuk-radios-init="">
+                            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input" id="objective-nav-1" name="action"
                                            type="radio" value="confirm" checked>

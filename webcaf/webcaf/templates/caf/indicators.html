@@ -17,6 +17,16 @@
     <h1 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h1>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <details class="govuk-details">
+                <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              Read the outcome wording
+            </span>
+                </summary>
+                <div class="govuk-details__text">
+                    {{ outcome.description }}
+                </div>
+            </details>
             <p class="govuk-body">You must read each indicator of good practice (IGP). Select the statements that apply
                 to your systems. If you have alternative controls and exemptions you must still select the statements
                 and add your comments to explain this.</p>
@@ -26,8 +36,9 @@
                     <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                     <strong class="govuk-warning-text__text">
                         <span class="govuk-visually-hidden">Warning</span>
-                        Some achieved and partially-achieved statements are identical.
-                        Please make sure that your selections for these statements do not conflict.
+                        Some "Achieved" and "Partially achieved" statements are identical. Your selection
+                        for these statements under "Achieved" will be automatically applied under
+                        "Partially achieved".
                     </strong>
                 </div>
             {% endif %}
@@ -47,7 +58,7 @@
                                 statement
                             </p>
                         {% endif %}
-                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                        <div class="govuk-checkboxes">
                             {% for item in form|filter_fields:"achieved" %}
                                 {% include "caf/partials/statement_fieldset.html" with section_type="achieved" field_name_prefix="achieved" %}
                             {% endfor %}
@@ -69,7 +80,7 @@
                                     statement
                                 </p>
                             {% endif %}
-                            <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                                 {% for item in form|filter_fields:"partially-achieved" %}
                                     {% include "caf/partials/statement_fieldset.html" with section_type="partially-achieved" field_name_prefix="partially-achieved" %}
                                 {% endfor %}
@@ -91,7 +102,7 @@
                                 statement
                             </p>
                         {% endif %}
-                        <div class="govuk-checkboxes" data-module="govuk-checkboxes" data-govuk-checkboxes-init="">
+                        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             {% for item in form|filter_fields:"not-achieved" %}
                                 {% include "caf/partials/statement_fieldset.html" with section_type="not-achieved" field_name_prefix="not-achieved" %}
                             {% endfor %}
@@ -100,8 +111,7 @@
                 </div>
                 <div class="govuk-button-group">
                     {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
-                    <button type="submit" class="govuk-button" data-module="govuk-button"
-                            data-govuk-button-init="">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
                         {% if not can_edit_assessments %}Continue{% else %}Save and continue{% endif %}
                     </button>
                     <a class="govuk-link" href="{% url back_url %}">Back to {{ objective_name }} </a>
@@ -109,10 +119,93 @@
             </form>
         </div>
     </div>
+    <script nonce="{{ request.csp_nonce }}">
+        function syncMatchingPartiallyAchieved(checkbox) {
+            // Don't handle partially-achieved checkboxes that are auto-checked
+            // as it is handled by achieved checkbox logic
+            if (checkbox.id.includes("partially-achieved") && checkbox.dataset.auto_checked !== "true") {
+                return;
+            }
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            if (!label) {
+                return;
+            }
+            const strong = label.querySelector("strong[data-ref]");
+            if (!strong) {
+                return;
+            }
+
+            //Generate matching uid
+            const matchingUid = strong.dataset.ref
+                .replace(/^identical-to-/, "")
+                .replace("-statement", "");
+
+            const matchingCheckbox = document.querySelector(
+                `input[type="checkbox"][data-uid="${CSS.escape(matchingUid)}"]`
+            );
+
+            //Matching checkbox has to be a partially-achieved checkbox
+            if (!matchingCheckbox || !matchingCheckbox.id.includes("partially-achieved")) {
+                return;
+            }
+
+            if (checkbox.checked) {
+                // Achieved is checked, so partially-achieved is implied
+                matchingCheckbox.checked = true;
+            } else {
+                // Achieved has been unchecked, so partially-achieved
+                // becomes independently selectable again.
+                matchingCheckbox.checked = false;
+            }
+        }
+
+
+        // Prevent clicking a partially-achieved checkbox that was
+        // automatically selected by its achieved checkbox.
+        document.addEventListener("click", function (event) {
+            const checkbox = event.target;
+            if (
+                checkbox.matches('input[type="checkbox"]') &&
+                checkbox.dataset.auto_checked === "true"
+            ) {
+                event.preventDefault();
+            }
+        });
+
+
+        // When the user changes a checkbox
+        document.addEventListener("change", function (event) {
+            const checkbox = event.target;
+            if (!checkbox.matches('input[type="checkbox"]')) {
+                return;
+            }
+            syncMatchingPartiallyAchieved(checkbox);
+        });
+
+
+        // Apply the relationship to existing data when the page loads
+        document.addEventListener("DOMContentLoaded", function () {
+            document
+                .querySelectorAll('input[type="checkbox"]:not([id*="partially-achieved"])')
+                .forEach(function (checkbox) {
+                    syncMatchingPartiallyAchieved(checkbox);
+                });
+        });
+
+        {#Prevent the click of text are of the auto clicked items#}
+        document.addEventListener("keydown", function (event) {
+            if (
+                event.target.matches("textarea") &&
+                event.target.closest(".govuk-checkboxes__item")
+                    ?.querySelector('input[data-auto_checked]')
+            ) {
+                event.preventDefault();
+            }
+        });
+    </script>
 {% endblock %}
 
 {% block bottomjs %}
-
 {% endblock %}
 
 {% block extra_stylesheets %}
