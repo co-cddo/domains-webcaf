@@ -3,17 +3,18 @@
 import os
 import re
 from pathlib import Path
+from typing import Any
 
 import yaml
 from pypdf import PdfReader
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PDF_NAME = "cyber-assessment-framework-v3.2.pdf"
+PDF_NAME = "NCSC-Cyber-Assessment-Framework-4.0.pdf"
 PDF_PATH = Path(SCRIPT_DIR, PDF_NAME)
 
 section_heading_pattern = re.compile(r"\b([A-Z]\d\.[a-z]) ([A-Za-z,/() -]+)")
 principle_heading_pattern = re.compile(r"\bPrinciple ([A-Z]\d) ([A-Za-z,/ ]+)\b")
-objective_heading_pattern = re.compile(r"CAF - Objective ([A-Z]) - ([A-Za-z ]+)\b")
+objective_heading_pattern = re.compile(r"CAF - Objective ([A-Z]) . ([A-Za-z ]+)\b")
 
 
 def extract_section_paragraph(text: str, heading_match: re.Match, all_matches: list) -> str:
@@ -85,62 +86,161 @@ def extract_objective_paragraph(text: str, heading_match: re.Match) -> str:
     return re.sub(r"\s+", " ", following_text).strip()
 
 
-def extract_table(text: str, heading_match: re.Match, all_matches: list) -> list[str]:
+def extract_table(text: str, heading_match: re.Match, all_matches: list):
     """
-    This does the best it can to extract the statements from an IGP table. The text
-    returned by the PDF parser is not in table format and the ordering of the statements
-    is not consistent, so it just adds them to a single list for subsequent manual
-    sorting.
+    Extract statements from a CAF table.
 
-    It does not handle statements containing certain combinations of parentheses
-    and commas well, losing some text. This also has to be fixed manually.
+    Returns:
+    {
+        "not_achieved": [...],
+        "partially_achieved": [...],
+        "achieved": [...]
+    }
     """
+
     start = heading_match.end()
 
     next_heading_pos = len(text)
     current_pos = heading_match.start()
 
     for match in all_matches:
-        if match.start() > current_pos and match.start() < next_heading_pos:
+        if current_pos < match.start() < next_heading_pos:
             next_heading_pos = match.start()
 
     for principle_match in principle_heading_pattern.finditer(text):
-        if principle_match.start() > current_pos and principle_match.start() < next_heading_pos:
+        if current_pos < principle_match.start() < next_heading_pos:
             next_heading_pos = principle_match.start()
 
     section_text = text[start:next_heading_pos]
 
-    not_achieved_pos = section_text.find("Not Achieved")
-    if not_achieved_pos == -1:
-        return []
+    not_pos = section_text.find("Not Achieved")
+    if not_pos == -1:
+        return None
 
-    table_text = section_text[not_achieved_pos:]
-    cell_pattern = re.compile(
-        r"[A-Z][^.]*?(?:\([^)]*?\))*?(?:e\.g\.,[^)]*?\))*?\.\s*(?=\n|$)", re.MULTILINE | re.DOTALL
-    )
-    cells = cell_pattern.findall(table_text)
+    table_text = section_text[not_pos:]
 
-    table_items = []
-    unwanted_substrings = [
+    # Remove table headers
+    for phrase_to_delete in (
         "Not Achieved",
         "Partially Achieved",
         "Achieved",
-        "At least one of the following statements is true",
-        "All the following statements are true",
-        "Any of the following statements are true",
+        "At least one of the following.+statements.+is.+true",
+        "All the following statements.+are.+true",
+        "All the following statements.+are.+true",
+    ):
+        table_text = re.sub(phrase_to_delete, "", table_text, flags=re.IGNORECASE | re.DOTALL)
+
+    table_text = table_text.strip()
+
+    # --------------------------------------------------------
+    # Split into columns.
+    #
+    # Assumes columns are separated by an empty paragraph
+    # (i.e. two consecutive newlines).
+    # --------------------------------------------------------
+    parts = [
+        r"\n\s+\n",
+        r"(?=Senior management have.+visibility.+of)",
+        r"(?=Your organisational process.+ensures.+that.+security.+risks)",
+        r"(?=Your organisational process.+ensures.+that.+security.+risks)",
+        r"(?=You perform threat.+analysis)",
+        r"(?=You perform detailed.+threat.+analysis)",
+        r"(?=You validate that.+the.+security.+measures.+are.+effective)",
+        r"(?=All assets relevant.+to.+the.+secure.+operation)",
+        r"(?=You understand the.+general.+risks.+suppliers)",
+        r"(?=You have a.+deep.+understanding.+of.+your.+supply.+chain)",
+        r"(?=Your Your software supplier.+leverages+secure)",
+        r"(?=Your software supplier\(s\).+leverages.+an.+established.+secure.+software.+development.+framework)",
+        r"(?=Your policies,.+processes.+and.+procedures.+document)",
+        r"(?=You fully document.+your.+security.+governance.+risk.+management.+approach)",
+        r"(?=Most of your.+policies,.+processes.+and.+procedures)",
+        r"(?=All your policies,.+processes.+and.+procedures.+are)",
+        r"(?=Your process of.+initial.+identity.+verification.+reasonable.+level.+of.+confidence)",
+        r"(?=Your process of.+initial.+identity.+verification.+high.+level.+of.+confidence)",
+        r"(?=Only corporately owned.+and.+managed.+devices.+can.+access)",
+        r"(?=All privileged operations.+performed.+from.+highly.+trusted.+devices)",
+        r"(?=All privileged user.+access.+requires.+strong.+authentication)",
+        r"(?=Privileged user access.+dedicated.+separate.+accounts)",
+        r"(?=You follow a.+robust.+procedure.+to.+verify.+each.+user.+minimum.+required.+access.+rights)",
+        r"(?=You follow a.+robust.+procedure.+to.+verify.+each.+user.+regularly.+audited)",
+        r"(?=You have identified.+and.+catalogued.+all.+the.+data.+important)",
+        r"(?=You have identified.+and.+catalogued.+all.+the.+data.+important)",
+        r"(?=You have identified.+and.+protected.+all.+the.+data.+links)",
+        r"(?=You have identified.+and.+protected.+all.+the.+data.+links)",
+        r"(?=All copies of.+data.+important.+to.+the.+operation)",
+        r"(?=All copies of.+data.+important.+to.+the.+operation)",
+        r"(?=You know which.+mobile.+devices.+hold.+data.+important)",
+        r"(?=Mobile devices that.+hold.+data.+are.+catalogued)",
+        r"(?=Data important to.+the.+operations.+of.+network.+and.+information.+systems.+removed)",
+        r"(?=You catalogue and.+track.+all.+devices.+that.+contain.+data.+important)",
+        r"(?=You employ appropriate.+expertise.+to.+design.+network.+and.+information.+systems)",
+        r"(?=You employ appropriate.+expertise.+to.+design.+network.+and.+information.+systems)",
+        r"(?=You have identified.+and.+documented.+the.+assets.+that.+need.+to.+be.+carefully.+configured)",
+        r"(?=You have identified,.+documented.+and.+actively.+manage)",
+        r"(?=Your systems and.+devices.+supporting.+the.+operation.+only.+administered)",
+        r"(?=Your systems and.+devices.+supporting.+the.+operation.+highly.+trusted.+devices)",
+        r"(?=You maintain a.+current.+understanding.+of.+the.+exposure)",
+        r"(?=You maintain a.+current.+understanding.+of.+the.+exposure)",
+        r"(?=You know all.+network.+and.+information.+systems.+necessary.+to.+restore)",
+        r"(?=You have business.+continuity.+and.+disaster.+recovery.+plans.+tested)",
+        r"(?=Network and information.+systems.+supporting.+the.+operation.+logically.+separated)",
+        r"(?=Network and information.+systems.+supporting.+the.+operation.+segregated)",
+        r"(?=You have appropriately.+secured.+backups)",
+        r"(?=Your comprehensive,.+automatic.+and.+tested.+backups)",
+        r"(?=Your executive management.+understand.+and.+widely.+communicate)",
+        r"(?=Your executive management.+clearly.+and.+effectively.+communicates)",
+        r"(?=You have defined.+appropriate.+cyber.+security.+training)",
+        r"(?=All people in.+your.+organisation.+follow.+appropriate.+cyber.+security.+training.+paths)",
+        r"(?=Data relating to.+the.+security.+and.+operation.+of.+some.+areas)",
+        r"(?=Monitoring is based.+on.+a.+thorough.+understanding)",
+        r"(?=Only authorised users.+and.+systems.+can.+access.+log.+data)",
+        r"(?=Appropriate access to.+log.+data.+is.+limited)",
+        r"(?=You easily detect.+the.+presence.+of.+Indicators.+of.+Compromise)",
+        r"(?=You easily detect.+the.+presence.+of.+Indicators.+of.+Compromise.+abnormalities)",
+        r"(?=You investigate and.+triage.+alerts.+from.+some.+security.+tools)",
+        r"(?=You investigate and.+triage.+alerts.+from.+all.+security.+tools)",
+        r"(?=Monitoring and detection.+personnel.+have.+some.+investigative.+skills)",
+        r"(?=You have monitoring.+and.+detection.+personnel.+who.+are.+responsible)",
+        r"(?=You know how.+effective.+your.+threat.+intelligence.+is)",
+        r"(?=You track the.+effectiveness.+of.+your.+threat.+intelligence)",
+        r"(?=You have identified.+the.+resources.+required.+to.+perform.+threat.+hunting)",
+        r"(?=You understand the.+resources.+required.+to.+perform.+threat.+hunting)",
+        r"(?=Your incident response.+plan.+covers.+network.+and.+information.+systems)",
+        r"(?=Your incident response.+plan.+is.+based.+on.+a.+clear.+understanding)",
+        r"(?=You understand the.+resources.+that.+will.+likely.+be.+needed)",
+        r"(?=Exercise scenarios are.+based.+on.+incidents.+experienced)",
+        r"(?=Post incident analysis.+is.+conducted.+routinely)",
+        r"(?=You have a.+documented.+incident.+review.+process.+policy)",
     ]
+    columns = [c.strip() for c in re.split("|".join(parts), table_text, flags=re.DOTALL | re.MULTILINE) if c.strip()]
 
-    for cell in cells:
-        cell = cell.replace("\n", " ")
-        cell = re.sub(r"\s+", " ", cell)
-        for substring in unwanted_substrings:
-            cell = cell.replace(substring, "")
-        cell = cell.strip()
-        # cell = cell.rstrip(".")
-        if cell:
-            table_items.append(cell)
+    def split_statements(column_text):
+        return [
+            c.strip().replace("\n", "")
+            for c in re.split(r"\n(?=[A-Z][a-z]+ )", column_text, re.MULTILINE | re.DOTALL)
+            if c.strip()
+        ]
 
-    return table_items
+    result: dict[str, list[Any]] = {
+        "not_achieved": [],
+        "partially_achieved": [],
+        "achieved": [],
+    }
+
+    if len(columns) == 2:
+        result["not_achieved"] = split_statements(columns[0])
+        result["achieved"] = split_statements(columns[1])
+
+    elif len(columns) == 3:
+        result["not_achieved"] = split_statements(columns[0])
+        result["partially_achieved"] = split_statements(columns[1])
+        result["achieved"] = split_statements(columns[2])
+
+    else:
+        # Fallback if the split didn't work
+        result["not_achieved"] = split_statements(table_text)
+
+    return result
 
 
 def extract_text(reader: PdfReader):
@@ -181,36 +281,60 @@ def create_yaml_structure(objectives: list, sections: list, principle_headings: 
     assessment_rules = {1: ["achieved", "all"], 2: ["partially-achieved", "all"], 3: ["not-achieved", "any"]}
 
     principles_dict = {}
-    principle_index = 1
+    principle_index: int | None = 1
     for code, title, paragraph in principle_headings:
         principles_dict[principle_index] = {
             "code": code,
             "title": title,
-            "principle_description": paragraph,
-            "sections": {},
+            "description": paragraph,
+            "outcomes": {},
         }
-        principle_index += 1
+        if principle_index:
+            principle_index += 1
 
     section_index = 1
-    # Create a global indicator counter to maintain continuous indexing
-    indicator_index = 1
     for section_code, section_title, section_paragraph, table_items in sections:
+        indicator_index = 1
         principle_code = section_code[:2]
         principle_index = next(
-            (index for index, principle in principles_dict.items() if principle["code"] == principle_code), None  # type: ignore
+            (index for index, principle in principles_dict.items() if principle["code"] == principle_code),
+            None,
+            # type: ignore
         )
         if principle_index is not None:
             not_achieved_dict = {}
-            # Use the global indicator counter instead of resetting for each section
-            for statement in table_items:
-                not_achieved_dict[indicator_index] = statement
+            partially_achieved_dict = {}
+            achieved_dict = {}
+            for indicator_idx, statement in enumerate(table_items.get("not_achieved", []), start=1):
+                not_achieved_dict[f"{section_code}.{indicator_index}"] = {
+                    "description": statement,
+                    "ncsc-index": f"{section_code}.NA.{indicator_idx}",
+                }
                 indicator_index += 1
 
-            principles_dict[principle_index]["sections"][section_index] = {
+            for indicator_idx, statement in enumerate(table_items.get("partially_achieved", []), start=1):
+                partially_achieved_dict[f"{section_code}.{indicator_index}"] = {
+                    "description": statement,
+                    "ncsc-index": f"{section_code}.PA.{indicator_idx}",
+                }
+                indicator_index += 1
+
+            for indicator_idx, statement in enumerate(table_items.get("achieved", []), start=1):
+                achieved_dict[f"{section_code}.{indicator_index}"] = {
+                    "description": statement,
+                    "ncsc-index": f"{section_code}.A.{indicator_idx}",
+                }
+                indicator_index += 1
+
+            principles_dict[principle_index]["outcomes"][section_code] = {
                 "code": section_code,
                 "title": section_title,
                 "description": section_paragraph,
-                "indicators": {"not-achieved": not_achieved_dict, "partially-achieved": {}, "achieved": {}},
+                "indicators": {
+                    "partially-achieved": partially_achieved_dict,
+                    "not-achieved": not_achieved_dict,
+                    "achieved": achieved_dict,
+                },
                 "assessment-rules": "*standard",
             }
             section_index += 1
@@ -218,26 +342,23 @@ def create_yaml_structure(objectives: list, sections: list, principle_headings: 
     objectives_dict = {}
     objective_index = 1
     for code, title, paragraph in objectives:
-        objectives_dict[objective_index] = {
+        objectives_dict[code] = {
             "code": code,
             "title": title,
-            "objective_description": paragraph,
+            "description": paragraph,
             "principles": {},
         }
         objective_index += 1
 
     for principle_index, principle_data in principles_dict.items():
         objective_code = principle_data["code"][0]
-        objective_index = next(
-            (index for index, objective in objectives_dict.items() if objective["code"] == objective_code), None  # type: ignore
-        )
         if objective_index is not None:
-            objectives_dict[objective_index]["principles"][principle_index] = principle_data
+            objectives_dict[objective_code]["principles"][principle_data["code"]] = principle_data
 
     return {"assessment-rules: &standard-rules": assessment_rules, "objectives": objectives_dict}
 
 
-def save_to_yaml(data: dict, filename: str = "cyber-assessment-framework-v3.2.yaml"):
+def save_to_yaml(data: dict, filename: str = "cyber-assessment-framework-v4.0.1.yaml"):
     with open(filename, "w", encoding="utf-8") as f:
         yaml.dump(
             data,

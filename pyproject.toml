@@ -30,6 +30,7 @@ dependencies = [
     "charset-normalizer (>=3.4.5,<4.0.0)",
     "boto3 (>=1.42.73,<2.0.0)",
     "boto3-stubs (>=1.42.73,<2.0.0)",
+    "python-slugify (>=8.0.4,<9.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
