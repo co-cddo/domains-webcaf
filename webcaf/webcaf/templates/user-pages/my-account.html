@@ -45,12 +45,6 @@
                             Start a self-assessment
                         </button>
                     </form>
-                    <form action="{% url 'export-assessment-template' %}" method="GET">
-                        {% csrf_token %}
-                        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                            Export Excel template
-                        </button>
-                    </form>
                 </div>
             {% endif %}
             {% if can_view_assessments %}
@@ -126,7 +120,7 @@
                        title="View {{ tip_count }} TIP{{ tip_count  | pluralize }}">
                         <a href="{% url 'tip:list' %}"
                            class="govuk-link govuk-link--no-visited-state">
-                            View and manage your {{ tip_count }} TIP{{tip_count|pluralize}}
+                            View and manage your {{ tip_count }} TIP{{ tip_count|pluralize }}
                         </a>
                     </p>
                 {% else %}
