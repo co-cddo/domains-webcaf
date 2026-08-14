@@ -367,3 +367,21 @@ main {
     gap: 15px;
     flex-wrap: wrap;
 }
+
+/*Make checkboxes with data.auto_checked look like readonly*/
+.govuk-checkboxes__item:has(input[type="checkbox"][data-auto_checked]) {
+    color: #6f777b;
+}
+
+.govuk-checkboxes__item:has(input[type="checkbox"][data-auto_checked]) .govuk-label {
+    color: #6f777b;
+    cursor: not-allowed;
+}
+
+.govuk-checkboxes__item:has(input[data-auto_checked]) :is(textarea, label) {
+    background-color: #f3f2f1;
+    color: #6f777b;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+

@@ -24,7 +24,7 @@ FrameworkValue = str | dict | int | None
 
 FormViewClass = type[FormView]
 
-CAF32Element = dict[str, Any]
+CAFElement = dict[str, Any]
 
 
 class CAFLoader(FrameworkRouter):
@@ -46,10 +46,13 @@ class CAFLoader(FrameworkRouter):
     :type elements: list
     """
 
-    def __init__(self) -> None:
-        self.framework: CAF32Element = {}
-        self.elements: list[CAF32Element] = []
+    def __init__(self, exit_url: str = "index") -> None:
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.framework: CAFElement = {}
+        self.elements: list[CAFElement] = []
+        self.exit_url = exit_url
         self._read()
+        super().__init__()
 
     @abstractmethod
     def get_framework_path(self) -> str:
@@ -70,7 +73,7 @@ class CAFLoader(FrameworkRouter):
             self.framework = yaml.safe_load(file)
             self.elements = list(self._traverse_framework())
 
-    def _traverse_framework(self) -> Generator[CAF32Element, None, None]:
+    def _traverse_framework(self) -> Generator[CAFElement, None, None]:
         """
         Traverse the framework structure and yield those elements requiring their own
         page in a single sequence.
@@ -122,40 +125,14 @@ class CAFLoader(FrameworkRouter):
     def get_section(self, objective_id: str) -> Optional[dict]:
         return next((x for x in self.get_sections() if x["code"] == objective_id), None)
 
-
-class CAF32Router(CAFLoader):
-    """
-    Manages routing and view creation for CAF v3.2 assessments.
-
-    The `CAF32Router` class is responsible for configuring routes, generating URLs, and creating
-    corresponding view classes for the CAF (Cyber Assessment Framework) v3.2. It supports integration
-    with Django's URL patterns and ensures breadcrumbs and context are created for views. This class
-    inherits from `CAFLoader`.
-
-    :ivar exit_url: The URL to redirect to after the assessment sequence completes.
-    :type exit_url: str
-    """
-
-    logger = logging.getLogger("CAF32Router")
-
     @staticmethod
-    def _build_breadcrumbs(element: CAF32Element) -> list[dict[str, str]]:
+    def _build_breadcrumbs(element: CAFElement) -> list[dict[str, str]]:
         breadcrumbs: list = []
         # We can only build the root breadcrumb here as the rest of it is dependent on the current assessment
         breadcrumbs.insert(0, {"url": reverse_lazy("my-account"), "text": "My account"})
         return breadcrumbs
 
-    def __init__(self, exit_url: str = "index") -> None:
-        self.exit_url = exit_url
-        super().__init__()
-
-    def get_framework_path(self) -> str:
-        return os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
-
-    def get_framework_id(self) -> str:
-        return "caf32"
-
-    def _get_success_url(self, element: CAF32Element) -> str:
+    def _get_success_url(self, element: CAFElement) -> str:
         """
         Determine the success URL for a form.
         If there's a next URL in the sequence, use that, otherwise use the exit URL.
@@ -166,7 +143,7 @@ class CAF32Router(CAFLoader):
         else:
             return self.exit_url
 
-    def _create_view_and_url(self, element: CAF32Element, form_class=None) -> None:
+    def _create_view_and_url(self, element: CAFElement, form_class=None) -> None:
         """
         Takes an element from the CAF, the url for the next page in the route and a form class
         to create a view class and add a path for the view to Django's urlpatterns.
@@ -175,10 +152,13 @@ class CAF32Router(CAFLoader):
         extra_context = {
             "title": element.get("title"),
             "description": element.get("description"),
-            "breadcrumbs": CAF32Router._build_breadcrumbs(element),
+            "breadcrumbs": self._build_breadcrumbs(element),
         }
         if element["type"] in ["objective", "principle"]:
-            template_name = f"caf/{element['type']}.html"
+            template_name = [
+                f"{self.get_framework_id()}/{element['type']}.html",
+                f"caf/{element['type']}.html",
+            ]
             class_prefix = f"{self.get_framework_id().capitalize()}{element['type'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
@@ -194,7 +174,10 @@ class CAF32Router(CAFLoader):
             )
             urls.urlpatterns.append(url_to_add)
         else:
-            template_name = f"caf/{element['stage']}.html"
+            template_name = [
+                f"{self.get_framework_id()}/{element['stage']}.html",
+                f"caf/{element['stage']}.html",
+            ]
             class_prefix = f"{self.get_framework_id().capitalize()}Outcome{element['stage'].capitalize()}View"
             element["view_class"] = create_form_view(
                 success_url_name=self._get_success_url(element),
@@ -238,6 +221,26 @@ class CAF32Router(CAFLoader):
             elif element["type"] == "outcome":
                 self._process_outcome(element)
 
+
+class CAF32Router(CAFLoader):
+    """
+    Manages routing and view creation for CAF v3.2 assessments.
+
+    The `CAF32Router` class is responsible for configuring routes, generating URLs, and creating
+    corresponding view classes for the CAF (Cyber Assessment Framework) v3.2. It supports integration
+    with Django's URL patterns and ensures breadcrumbs and context are created for views. This class
+    inherits from `CAFLoader`.
+
+    :ivar exit_url: The URL to redirect to after the assessment sequence completes.
+    :type exit_url: str
+    """
+
+    def get_framework_path(self) -> str:
+        return os.path.join(settings.BASE_DIR, "..", "frameworks", "cyber-assessment-framework-v3.2.yaml")
+
+    def get_framework_id(self) -> str:
+        return "caf32"
+
     # Keeping this interface so we can separate generating the order of the elements
     # from creating the Django urls
     def execute(self) -> None:
@@ -254,8 +257,4 @@ class CAF40Router(CAFLoader):
         return "caf40"
 
     def execute(self) -> None:
-        """
-        Not implemented yet
-        :return:
-        """
-        return None
+        self._create_route()

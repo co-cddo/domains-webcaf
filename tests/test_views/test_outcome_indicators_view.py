@@ -253,20 +253,21 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         response = self.client.get(reverse("caf32_indicators_A2.a"))
         response_content = response.content.decode("utf-8")
         self.assertInHTML(
-            """<strong class="govuk-tag--grey govuk-!-font-size-16">
-                                identical to partially-achieved statement 1</strong>""",
+            """<strong class="govuk-tag--grey govuk-!-font-size-16" data-ref="identical-to-partially-achieved-statement-1">
+                identical to partially-achieved statement 1</strong>""",
             response_content,
         )
         self.assertInHTML(
-            """<strong class="govuk-tag--grey govuk-!-font-size-16">
-                                identical to achieved statement 1</strong>""",
+            """<strong class="govuk-tag--grey govuk-!-font-size-16" data-ref="identical-to-achieved-statement-1">
+                identical to achieved statement 1</strong>""",
             response_content,
         )
         self.assertInHTML(
             """<strong class="govuk-warning-text__text">
                         <span class="govuk-visually-hidden">Warning</span>
-                        Some achieved and partially-achieved statements are identical.
-                        Please make sure that your selections for these statements do not conflict.
+                        Some "Achieved" and "Partially achieved" statements are identical. Your selection
+                        for these statements under "Achieved" will be automatically applied under
+                        "Partially achieved".
                     </strong>""",
             response_content,
         )
