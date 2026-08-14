@@ -7,6 +7,7 @@ from webcaf.webcaf.utils.excel_exporter import build_assessment_template_workboo
 from webcaf.webcaf.utils.excel_importer import (
     JSON_MAP_SHEET_NAME,
     ExcelImportError,
+    assessment_json_to_review_data,
     excel_to_assessment_json,
     excel_to_assessment_json_with_raw,
 )
@@ -86,14 +87,14 @@ class TestCAF32ExcelImporter(unittest.TestCase):
         return output
 
     COMPLETE_ANSWERS = {
-        "/A1.a/indicators/achieved_A1.a.1": "agreed",
-        "/A1.a/indicators/achieved_A1.a.2": "not_true_no_justification",
-        "/A1.a/indicators/partially-achieved_A1.a.3": "not_true_have_justification",
-        "/A1.a/indicators/not-achieved_A1.a.4": "true_have_justification",
+        "/A1.a/indicators/achieved_A1.a.1": "Yes",
+        "/A1.a/indicators/achieved_A1.a.2": "No",
+        "/A1.a/indicators/partially-achieved_A1.a.3": "No",
+        "/A1.a/indicators/not-achieved_A1.a.4": "Yes",
         "/A1.a/confirmation/outcome_status": "Partially achieved",
         "/A1.a/confirmation/confirm_outcome_confirm_comment": "Evidence for A1.a",
-        "/A1.b/indicators/achieved_A1.b.1": "agreed",
-        "/A1.b/indicators/not-achieved_A1.b.2": "not_true_no_justification",
+        "/A1.b/indicators/achieved_A1.b.1": "Yes",
+        "/A1.b/indicators/not-achieved_A1.b.2": "No",
         "/A1.b/confirmation/outcome_status": "Achieved",
     }
 
@@ -187,6 +188,101 @@ class TestCAF32ExcelImporter(unittest.TestCase):
     def test_map_sheet_is_hidden_in_exported_template(self):
         wb = load_workbook(self._workbook_file({}))
         self.assertEqual(wb[JSON_MAP_SHEET_NAME].sheet_state, "veryHidden")
+
+
+class TestAssessmentJsonToReviewData(unittest.TestCase):
+    STAMP = {
+        "stamped_by": "Le Bob",
+        "stamped_by_role": "reviewer",
+        "stamped_by_email": "le.bob@example.com",
+        "stamped_at": "2026-08-14T10:00:00.000000",
+    }
+
+    def _build(self, assessment_data):
+        return assessment_json_to_review_data(
+            assessment_data, FRAMEWORK, "Cyber Assessment Framework v3.2", **self.STAMP
+        )
+
+    def test_completion_and_finalised_blocks_are_stamped(self):
+        review_data = self._build({})
+        self.assertEqual(
+            review_data["review_completion"],
+            {
+                "review_completed": "yes",
+                "review_completed_at": "2026-08-14T10:00:00.000000",
+                "review_completed_by": "Le Bob",
+                "review_completed_by_role": "reviewer",
+                "review_completed_by_email": "le.bob@example.com",
+            },
+        )
+        self.assertEqual(
+            review_data["review_finalised"],
+            {
+                "review_finalised_at": "2026-08-14T10:00:00.000000",
+                "review_finalised_by": "Le Bob",
+                "review_finalised_by_role": "reviewer",
+                "review_finalised_by_email": "le.bob@example.com",
+            },
+        )
+
+    def test_answers_from_workbook_are_filled_in(self):
+        assessment_data = {
+            "A1.a": {
+                "indicators": {"achieved_A1.a.1": True, "achieved_A1.a.2": False},
+                "confirmation": {
+                    "outcome_status": "Partially achieved",
+                    "confirm_outcome_confirm_comment": "Justification",
+                    "confirm_outcome": "confirm",
+                },
+            }
+        }
+        outcome = self._build(assessment_data)["assessor_response_data"]["A"]["A1.a"]
+        self.assertEqual(outcome["indicators"]["achieved_A1.a.1"], "yes")
+        self.assertEqual(outcome["indicators"]["achieved_A1.a.2"], "no")
+        self.assertEqual(
+            outcome["review_data"],
+            {"review_comment": "Justification", "review_decision": "partially-achieved"},
+        )
+
+    def test_missing_values_get_empty_keys(self):
+        response = self._build({})["assessor_response_data"]
+
+        outcome = response["A"]["A1.b"]
+        self.assertEqual(
+            outcome["indicators"],
+            {
+                "achieved_A1.b.1": "",
+                "achieved_A1.b.1_comment": "",
+                "not-achieved_A1.b.2": "",
+                "not-achieved_A1.b.2_comment": "",
+            },
+        )
+        self.assertEqual(outcome["review_data"], {"review_comment": "", "review_decision": ""})
+        self.assertEqual(outcome["recommendations"], [])
+
+        self.assertEqual(response["A"]["recommendations"], [])
+        self.assertEqual(response["A"]["objective-areas-of-improvement"], "")
+        self.assertEqual(response["A"]["objective-areas-of-good-practice"], "")
+
+        self.assertEqual(response["system_and_scope"]["completed"], "")
+        self.assertIn("review_details", response["system_and_scope"]["completed_data"])
+        self.assertIn("system_details", response["system_and_scope"]["completed_data"])
+        self.assertEqual(response["additional_information"]["iar_period"], {"start_date": "", "end_date": ""})
+        self.assertEqual(
+            response["additional_information"]["company_details"],
+            {"company_name": "", "lead_assessor_name": "", "lead_assessor_email": ""},
+        )
+
+    def test_round_trip_from_workbook(self):
+        importer_test = TestCAF32ExcelImporter()
+        excel_file = importer_test._workbook_file(TestCAF32ExcelImporter.COMPLETE_ANSWERS)
+        assessment_data, _raw = excel_to_assessment_json_with_raw(excel_file)
+        response = self._build(assessment_data)["assessor_response_data"]
+
+        self.assertEqual(response["A"]["A1.a"]["review_data"]["review_decision"], "partially-achieved")
+        self.assertEqual(response["A"]["A1.b"]["review_data"]["review_decision"], "achieved")
+        self.assertEqual(response["A"]["A1.a"]["indicators"]["achieved_A1.a.1"], "yes")
+        self.assertEqual(response["A"]["A1.a"]["indicators"]["not-achieved_A1.a.4"], "yes")
 
 
 if __name__ == "__main__":

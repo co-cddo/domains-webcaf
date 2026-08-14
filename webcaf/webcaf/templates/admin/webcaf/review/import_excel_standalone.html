@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'webcaf/import_excel_preview.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+        <h2>Import CAF Excel file</h2>
+        <p>Upload a completed CAF Excel template to create a review</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="preview">
+            <div class="form-row">
+                <label for="id_import_assessment">Assessment</label>
+                <select id="id_import_assessment" name="assessment" required>
+                    <option value="">---------</option>
+                    {% for assessment in assessments %}
+                        <option value="{{ assessment.id }}">{{ assessment.reference }} - {{ assessment.system.name }} ({{ assessment.system.organisation.name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="id_import_excel_file">Excel file</label>
+                <input id="id_import_excel_file" type="file" name="excel_file" accept=".xlsx" required>
+            </div>
+            <button type="submit" class="button">Preview</button>
+        </form>
+    </div>
+{% endblock %}

@@ -35,6 +35,8 @@ from webcaf.webcaf.models import (
 from webcaf.webcaf.tip.util import RecommendationService
 from webcaf.webcaf.utils.excel_importer import (
     ExcelImportError,
+    assessment_json_to_review_data,
+    excel_framework_id,
     excel_to_assessment_json_with_raw,
 )
 from webcaf.webcaf.views.system import SystemForm
@@ -473,6 +475,46 @@ class AssessmentAdminForm(JsonDataAdminForm):
         fields = "__all__"
 
 
+def _build_preview_rows(raw_rows, framework_id):
+    """Turning JSON into the HTML table"""
+    lookup = _question_lookup(framework_id)
+    rows: list[tuple[str, str, Any, bool]] = []
+    for json_path, _value_type, required, raw_value in raw_rows:
+        parts = [part for part in json_path.split("/") if part]
+        outcome_code = parts[0] if parts else ""
+        leaf = parts[-1] if parts else ""
+        json_key = ".".join(parts)
+        unfulfilled = bool(required) and raw_value in (None, "")
+        answer = "Not answered" if unfulfilled else raw_value
+        rows.append((json_key, lookup.get((outcome_code, leaf), ""), answer, unfulfilled))
+    return rows
+
+
+def _question_lookup(framework_id):
+    """Find out what question that JSON key relates to"""
+    from webcaf.webcaf.frameworks import routers
+
+    framework = routers[framework_id].framework
+    lookup: dict[tuple[str, Optional[str]], str] = {}
+    for objective in framework.get("objectives", {}).values():
+        for principle in objective.get("principles", {}).values():
+            for outcome in principle.get("outcomes", {}).values():
+                code = outcome.get("code", "")
+                title = outcome.get("title", "")
+                for group_key, items in outcome.get("indicators", {}).items():
+                    if not isinstance(items, dict):
+                        continue
+                    for item_code, item_data in items.items():
+                        if isinstance(item_data, dict):
+                            lookup[(code, f"{group_key}_{item_code}")] = item_data.get("description", "")
+                lookup[(code, "outcome_status")] = f"{code} {title}: contributing outcome achievement"
+                lookup[(code, "confirm_outcome_confirm_comment")] = (
+                    f"{code} {title}: comments justifying the achievement"
+                )
+                lookup[(code, "confirm_outcome")] = f"{code} {title}: outcome confirmation"
+    return lookup
+
+
 @admin.register(Assessment)
 class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
@@ -578,7 +620,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
             systems_map.setdefault(str(system.organisation_id), []).append({"id": system.id, "name": system.name})
 
         framework_id = configuration.get_default_framework()
-        preview_rows = self._build_preview_rows(raw_rows, framework_id)
+        preview_rows = _build_preview_rows(raw_rows, framework_id)
         unfulfilled_count = sum(1 for row in preview_rows if row[3])
         answered_count = sum(1 for _jp, _vt, _req, value in raw_rows if value not in (None, ""))
         opts = self.model._meta
@@ -677,45 +719,6 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
             messages.SUCCESS,
         )
         return redirect("..")
-
-    def _build_preview_rows(self, raw_rows, framework_id):
-        """Turning JSON into the HTML table"""
-        lookup = self._question_lookup(framework_id)
-        rows: list[tuple[str, str, Any, bool]] = []
-        for json_path, _value_type, required, raw_value in raw_rows:
-            parts = [part for part in json_path.split("/") if part]
-            outcome_code = parts[0] if parts else ""
-            leaf = parts[-1] if parts else ""
-            json_key = ".".join(parts)
-            unfulfilled = bool(required) and raw_value in (None, "")
-            answer = "Not answered" if unfulfilled else raw_value
-            rows.append((json_key, lookup.get((outcome_code, leaf), ""), answer, unfulfilled))
-        return rows
-
-    @staticmethod
-    def _question_lookup(framework_id):
-        """Find out what question that JSON key relates to"""
-        from webcaf.webcaf.frameworks import routers
-
-        framework = routers[framework_id].framework
-        lookup: dict[tuple[str, Optional[str]], str] = {}
-        for objective in framework.get("objectives", {}).values():
-            for principle in objective.get("principles", {}).values():
-                for outcome in principle.get("outcomes", {}).values():
-                    code = outcome.get("code", "")
-                    title = outcome.get("title", "")
-                    for group_key, items in outcome.get("indicators", {}).items():
-                        if not isinstance(items, dict):
-                            continue
-                        for item_code, item_data in items.items():
-                            if isinstance(item_data, dict):
-                                lookup[(code, f"{group_key}_{item_code}")] = item_data.get("description", "")
-                    lookup[(code, "outcome_status")] = f"{code} {title}: contributing outcome achievement"
-                    lookup[(code, "confirm_outcome_confirm_comment")] = (
-                        f"{code} {title}: comments justifying the achievement"
-                    )
-                    lookup[(code, "confirm_outcome")] = f"{code} {title}: outcome confirmation"
-        return lookup
 
     def export_excel_template(self, request):
         """
@@ -864,6 +867,7 @@ class ReviewAdminForm(JsonDataAdminForm):
 @admin.register(Review)
 class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     form = ReviewAdminForm
+    logger = logging.getLogger("ReviewAdmin")
     search_fields = ["assessment_system_name", "assessment_reference", "assessment_organisation"]
     list_display = [
         "assessment_system_name",
@@ -897,6 +901,190 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             assessment_reference=F("assessment__reference"),
             assessment_organisation=F("assessment__system__organisation__name"),
         )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "import-excel/",
+                self.admin_site.admin_view(self.import_excel_standalone),
+                name="review_import_excel_standalone",
+            ),
+        ]
+        return custom_urls + urls
+
+    def import_excel_standalone(self, request):
+        """
+        Import a CAF Excel file as a review.
+        """
+        if request.method == "POST":
+            if request.POST.get("action") == "upload":
+                return self._create_review_from_import(request)
+            return self._preview_excel_import(request)
+
+        opts = self.model._meta
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": opts,
+            "app_label": opts.app_label,
+            "title": "Import CAF Excel file",
+            "assessments": Assessment.objects.filter(status="submitted", reviews__isnull=True)
+            .select_related("system", "system__organisation")
+            .order_by("-created_on"),
+        }
+        return render(request, "admin/webcaf/review/import_excel_standalone.html", context)
+
+    def _preview_excel_import(self, request):
+        excel_file = request.FILES.get("excel_file")
+        if not excel_file:
+            self.message_user(request, "Choose an Excel file to upload.", messages.ERROR)
+            return redirect(".")
+
+        configuration = Configuration.objects.get_default_config()
+        if not configuration:
+            self.message_user(
+                request,
+                "No active assessment period configuration was found. Create one before importing.",
+                messages.ERROR,
+            )
+            return redirect(".")
+
+        try:
+            assessment_json, raw_rows = excel_to_assessment_json_with_raw(excel_file)
+        except ExcelImportError as ex:
+            self.message_user(request, str(ex), messages.ERROR)
+            return redirect(".")
+        except Exception as ex:
+            self.logger.exception("Failed to import review Excel file")
+            self.message_user(request, f"Failed to import Excel file: {ex}", messages.ERROR)
+            return redirect(".")
+
+        from webcaf.webcaf.frameworks import routers
+
+        excel_file.seek(0)
+        framework_id = excel_framework_id(excel_file)
+        if framework_id not in routers:
+            self.message_user(
+                request,
+                "The uploaded file was not generated from a supported CAF template.",
+                messages.ERROR,
+            )
+            return redirect(".")
+
+        try:
+            assessment = Assessment.objects.get(
+                id=request.POST.get("assessment"), status="submitted", reviews__isnull=True
+            )
+        except (Assessment.DoesNotExist, ValueError, TypeError):
+            self.message_user(request, "Choose a valid submitted assessment.", messages.ERROR)
+            return redirect(".")
+
+        if assessment.framework != framework_id:
+            self.message_user(
+                request,
+                f"The uploaded file was generated for {dict(Assessment.FRAMEWORK_CHOICES)[framework_id]} "
+                f"but the assessment uses {assessment.get_framework_display()}.",
+                messages.ERROR,
+            )
+            return redirect(".")
+
+        profile = UserProfile.objects.filter(user=request.user).first()
+        stamped_by = f"{request.user.first_name} {request.user.last_name}"
+        stamped_by_role = profile.role if profile else ""
+        stamped_by_email = request.user.email
+        stamped_at = datetime.now().isoformat()
+        review_json = assessment_json_to_review_data(
+            assessment_json,
+            routers[framework_id].framework,
+            dict(Assessment.FRAMEWORK_CHOICES)[framework_id],
+            stamped_by,
+            stamped_by_role,
+            stamped_by_email,
+            stamped_at,
+        )
+
+        scope_data = review_json["assessor_response_data"]["system_and_scope"]["completed_data"]
+        scope_data["review_details"].update(
+            {
+                "review_type": assessment.get_review_type_display(),
+                "government_caf_profile": assessment.get_caf_profile_display(),
+                "self_assessment_reference_number": assessment.reference,
+            }
+        )
+        scope_data["system_details"]["system_name"] = assessment.system.name
+
+        preview_rows = _build_preview_rows(raw_rows, framework_id)
+        unfulfilled_count = sum(1 for row in preview_rows if row[3])
+        answered_count = sum(1 for _jp, _vt, _req, value in raw_rows if value not in (None, ""))
+        opts = self.model._meta
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": opts,
+            "app_label": opts.app_label,
+            "title": "Preview CAF Excel review import",
+            "preview_rows": preview_rows,
+            "row_count": len(preview_rows),
+            "answered_count": answered_count,
+            "unfulfilled_count": unfulfilled_count,
+            "review_json": json.dumps(review_json),
+            "review_json_pretty": json.dumps(review_json, indent=2),
+            "stamped_by": stamped_by,
+            "stamped_by_role": stamped_by_role,
+            "stamped_by_email": stamped_by_email,
+            "stamped_at": stamped_at,
+            "assessment": assessment,
+            "status_choices": Review.STATUS_CHOICES,
+            "upload_date": timezone.now().date(),
+            "caf_version_display": dict(Assessment.FRAMEWORK_CHOICES)[framework_id],
+        }
+        return render(request, "admin/webcaf/review/import_excel_preview.html", context)
+
+    def _create_review_from_import(self, request):
+        """
+        Validate the metadata chosen on the preview page and create the Review in the database.
+        """
+        try:
+            review_json = json.loads(request.POST.get("review_json", ""))
+        except (TypeError, ValueError):
+            self.message_user(
+                request, "Could not read the previewed data. Please upload the file again.", messages.ERROR
+            )
+            return redirect(".")
+
+        status = request.POST.get("status")
+        if status not in dict(Review.STATUS_CHOICES):
+            self.message_user(request, "Choose a valid status for the imported review.", messages.ERROR)
+            return redirect(".")
+
+        try:
+            assessment = Assessment.objects.get(id=request.POST.get("assessment"), status="submitted")
+        except (Assessment.DoesNotExist, ValueError, TypeError):
+            self.message_user(request, "Choose a valid submitted assessment.", messages.ERROR)
+            return redirect(".")
+
+        existing = assessment.reviews.first()
+        if existing:
+            self.message_user(
+                request,
+                f"A review already exists for assessment {assessment.reference} "
+                f"(reference {existing.reference}, ID {existing.id}). Nothing was imported.",
+                messages.ERROR,
+            )
+            return redirect(".")
+
+        review = Review.objects.create(
+            assessment=assessment,
+            status=status,
+            review_data=review_json,
+            last_updated_by=request.user,
+        )
+        self.message_user(
+            request,
+            f"Added review {review.reference} (ID {review.id}) for assessment "
+            f"{assessment.reference} ({assessment.system.name}).",
+            messages.SUCCESS,
+        )
+        return redirect("..")
 
     @admin.display(ordering="assessment_review_type", description="Review type")
     def assessment_review_type(self, obj):
