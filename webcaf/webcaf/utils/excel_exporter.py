@@ -11,7 +11,10 @@ import logging
 from typing import Any, Optional
 
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.cell import Cell
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Protection, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from webcaf.webcaf.utils.excel_importer import JSON_MAP_HEADERS, JSON_MAP_SHEET_NAME
@@ -253,6 +256,21 @@ def _write_top_header(ws) -> int:
     return row
 
 
+def generate_duplicate_map(indicators):
+    achieved = {v["description"]: {"key": k} for k, v in indicators.get("achieved", {}).items()}
+    partially_achieved = {v["description"]: {"key": k} for k, v in indicators.get("partially-achieved", {}).items()}
+    duplicates_present = False
+    for k, v in achieved.items():
+        if k in partially_achieved:
+            partially_achieved[k]["duplicate"] = True
+            partially_achieved[k]["duplicate_key"] = v["key"]
+            achieved[k]["duplicate"] = True
+            achieved[k]["duplicate_key"] = partially_achieved[k]["key"]
+            duplicates_present = True
+
+    return duplicates_present, achieved, partially_achieved
+
+
 def _write_indicator_rows(
     ws,
     indicators: dict[str, Any],
@@ -266,15 +284,28 @@ def _write_indicator_rows(
     """Write the indicator statement/answer grid for an outcome; return the next free row."""
     max_len = max((len(v) for v in indicators.values() if isinstance(v, dict)), default=0)
 
+    duplicates_present, achieved, partially_achieved = generate_duplicate_map(indicators)
+    # This is needed to lookup the cell values in duplicate value lookup
+    partially_achieved_answer_cells: dict[str, Cell] = {}
+    achieved_answer_cells: dict[str, Cell] = {}
     for idx in range(max_len):
         col_idx = 3
         for key in ("achieved", "partially-achieved", "not-achieved"):
             values = indicators.get(key, {})
-            item_code = None
+            item_code: str | None = None
+            description_: str | None = None
+            duplicate_added: bool = False
             if idx < len(values):
                 item_code, item_data = list(values.items())[idx]
-                desc = f"{item_code} - {item_data['description']}"
-                cell = ws.cell(row=row, column=col_idx, value=desc)
+                description_ = item_data["description"]
+                desc = f"{item_code} - {description_}"
+                rich_text = CellRichText(TextBlock(InlineFont(b=False), desc))
+                if duplicates_present:
+                    duplicate_added = _add_duplicate_statement(
+                        achieved, description_, key, partially_achieved, rich_text
+                    )
+
+                cell = ws.cell(row=row, column=col_idx, value=rich_text)
                 cell.alignment = Alignment(wrap_text=True)
                 cell.border = border
                 # Fill per column type
@@ -293,6 +324,18 @@ def _write_indicator_rows(
             ans_cell = ws.cell(row=row, column=col_idx)
             ans_cell.border = border
             validators[key].add(ws[ans_cell.coordinate])
+            # RichTextbox stores the data in an array of text parts
+            if duplicates_present and key == "partially-achieved" and len(cell.value) == 2:
+                ans_cell.protection = Protection(locked=True)
+                if description_:
+                    partially_achieved_answer_cells[description_] = ans_cell
+            else:
+                ans_cell.protection = Protection(locked=False)
+            if duplicate_added and description_:
+                if key == "achieved":
+                    achieved_answer_cells[description_] = ans_cell
+                else:
+                    partially_achieved_answer_cells[description_] = ans_cell
             if item_code:
                 _append_json_map(
                     json_map_rows,
@@ -306,9 +349,31 @@ def _write_indicator_rows(
         # Evidence cell at the end
         ev_cell = ws.cell(row=row, column=col_idx, value="")
         ev_cell.border = border
+        ev_cell.protection = Protection(locked=False)
         row += 1
-
+    for key, partially_achieved_answer_cell in partially_achieved_answer_cells.items():
+        source_cell = achieved_answer_cells[key]
+        partially_achieved_answer_cell.value = f'=IF({source_cell.coordinate}="","-",{source_cell.coordinate})'
+    ws.protection.enable()
     return row
+
+
+def _add_duplicate_statement(
+    achieved: dict[Any, dict[str, Any]],
+    description_,
+    key: str,
+    partially_achieved: dict[Any, dict[str, Any]],
+    rich_text: CellRichText,
+):
+    if key == "achieved" and description_ in partially_achieved:
+        duplicate_text = f" (duplicate of partially achieved " f"{achieved[description_]['duplicate_key']})"
+        rich_text.append(TextBlock(InlineFont(b=True), duplicate_text))
+        return True
+    elif key == "partially-achieved" and description_ in achieved:
+        duplicate_text = f" (duplicate of achieved " f"{partially_achieved[description_]['duplicate_key']})"
+        rich_text.append(TextBlock(InlineFont(b=True), duplicate_text))
+        return True
+    return False
 
 
 def _thin_border() -> Border:

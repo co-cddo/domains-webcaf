@@ -2,6 +2,7 @@ import os
 import unittest
 
 import yaml
+from openpyxl.cell.rich_text import CellRichText
 from openpyxl.worksheet.worksheet import Worksheet
 
 from webcaf.webcaf.utils.excel_exporter import build_assessment_template_workbook
@@ -89,7 +90,8 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         scan_row = header_row + 1
         for r in range(scan_row, scan_row + 100):
             c_vals = [ws.cell(row=r, column=c).value for c in (3, 5, 7)]
-            if any(isinstance(v, str) and v.strip() for v in c_vals):
+            # Cells are RichText elements for the indicator values
+            if any((isinstance(v, CellRichText) and str(v[0])) for v in c_vals):
                 indicator_row = r
                 break
         self.assertIsNotNone(indicator_row, "Could not locate a non-empty indicator row after headers")
@@ -112,7 +114,8 @@ class TestCAF32ExcelExporter(unittest.TestCase):
                 color_val = fill.fgColor.rgb or fill.fgColor.index
             self.assertIsNotNone(color_val, f"Could not read cell fill color at row {indicator_row}, col {col}")
             self.assertTrue(
-                str(color_val).upper().endswith(expected), f"Expected fill {expected} at column {col}, got {color_val}"
+                str(color_val).upper().endswith(expected),
+                f"Expected fill {expected} {cell} at column {col}, got {color_val}",
             )
 
     def _find_first_outcome_row(self, ws: Worksheet, text_to_match: str = "A1.a") -> int | None:
