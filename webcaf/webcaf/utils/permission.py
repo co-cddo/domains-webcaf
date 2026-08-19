@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -219,3 +219,22 @@ class UserRoleCheckMixin(LoginRequiredMixin):
         List of roles that are allowed to access the view.
         :return:
         """
+
+
+class AssessmentProfileCheckMixin(UserRoleCheckMixin, ABC):
+    """
+    Mixin to check if the user has the required profile to access the view.
+    Expected to be used wit any views related to assessments.
+    """
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        current_profile = SessionUtil.get_current_user_profile(self.request)
+        queryset = queryset.filter(system__organisation=current_profile.organisation)
+        return super().get_object(queryset)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        current_profile = SessionUtil.get_current_user_profile(self.request)
+        return queryset.filter(system__organisation=current_profile.organisation)
