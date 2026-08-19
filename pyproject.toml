@@ -47,7 +47,7 @@ ruamel-yaml = "^0.18.15"
 behave-html-formatter = "^0.9.10"
 freezegun = "^1.5.5"
 pytest = "^9.1.1"
-pytest-django = "^4.12.0"
+pytest-django = "^4.14.0"
 pytest-html = "^4.2.0"
 
 [tool.isort]
