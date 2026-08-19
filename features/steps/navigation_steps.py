@@ -10,6 +10,7 @@ from typing import Any, Literal, Optional
 
 from behave import step, then
 from behave.runner import Context
+from openpyxl import load_workbook
 from playwright.sync_api import expect
 from pypdf import PdfReader
 
@@ -470,6 +471,42 @@ def download_by_clicking_button(context: Context, button_text: str):
     print(f"Downloaded PDF to {parent_path}")
 
 
+@step('download "{file_type}" assessment by clicking link "{link_text}"')
+def download_assessment_by_clicking_link(context: Context, file_type: str, link_text: str):
+    page = context.page
+    parent_path = Path(__file__).parent.parent.parent / "artifacts"
+    # download the PDF in a tab. It is not possible to directly access the content with playwright
+    with page.expect_popup() as popup_info:
+        button = page.get_by_role("link", name=link_text)
+        button.first.wait_for(state="visible")
+        button.first.click()
+        if file_type == "pdf":
+            popup = popup_info.value
+            popup.wait_for_load_state("networkidle")
+            # Download the PDF directly and save it to the artefacts folder
+            # This is necessary as the PDF is not available in the browser directly (it is inlined)
+            excel_url = context.config.userdata["base_url"] + button.first.get_attribute("href")
+            print("Using pdf url: ", excel_url)
+            response = page.request.get(excel_url)
+            pdf_bytes = response.body()
+            os.makedirs(parent_path / "pdfs", exist_ok=True)
+            file_path = Path(parent_path / f"pdfs/{uuid.uuid4()}.pdf")
+            file_path.write_bytes(pdf_bytes)
+            popup.close()
+            context.pdf_file_path = file_path
+            print(f"Downloaded PDF to {parent_path}")
+        else:
+            excel_url = context.config.userdata["base_url"] + button.first.get_attribute("href")
+            print("Using pdf url: ", excel_url)
+            response = page.request.get(excel_url)
+            pdf_bytes = response.body()
+            os.makedirs(parent_path / "excel", exist_ok=True)
+            file_path = Path(parent_path / f"excel/{uuid.uuid4()}.xlsx")
+            file_path.write_bytes(pdf_bytes)
+            context.excel_file_path = file_path
+            print(f"Downloaded excel to {parent_path}")
+
+
 @step("confirm current assessment information is on the downloaded pdf")
 def check_pdf_contains_text(context: Context):
     pdf_file_path = context.pdf_file_path
@@ -483,6 +520,22 @@ def check_pdf_contains_text(context: Context):
         current_assessment_id = context.current_assessment_id
         current_assessment = get_model(Assessment, id=current_assessment_id)
         assert current_assessment.reference in text, "Expecting {current_assessment.reference} in PDF"
+
+
+@step("confirm current assessment information is on the downloaded excel")
+def check_excel_contains_text(context: Context):
+    excel_file_path = context.excel_file_path
+    from webcaf.webcaf.models import Assessment, Organisation, System
+
+    with open(excel_file_path, "rb") as f:
+        wb = load_workbook(f)
+        ws = wb.worksheets[0]
+        current_assessment_id = context.current_assessment_id
+        current_assessment = get_model(Assessment, id=current_assessment_id)
+        current_system = get_model(System, id=current_assessment.system_id)
+        current_organisation = get_model(Organisation, id=current_system.organisation_id)
+        assert current_organisation.name in ws.cell(1, 2).value, f"Expecting {current_organisation.name} in Excel"
+        assert current_system.name in ws.cell(2, 2).value, f"Expecting {current_system.name} in Excel"
 
 
 @step('cookies have been "{cookie_choice}"')

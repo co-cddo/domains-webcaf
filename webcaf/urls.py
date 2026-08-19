@@ -77,6 +77,7 @@ from webcaf.webcaf.views.assessor.review_assessment import (
 )
 from webcaf.webcaf.views.general import logout_view
 from webcaf.webcaf.views.sections import (
+    DownloadAssessment,
     DownloadSubmittedAssessmentPdf,
     SectionConfirmationView,
     ShowSubmissionConfirmationView,
@@ -174,6 +175,11 @@ urlpatterns = [
         "download-submitted-assessment/<int:assessment_id>",
         DownloadSubmittedAssessmentPdf.as_view(),
         name="download-submitted-assessment",
+    ),
+    path(
+        "download-assessment/<int:pk>/",
+        DownloadAssessment.as_view(),
+        name="download-assessment",
     ),
     path(
         "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
