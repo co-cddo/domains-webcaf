@@ -14,7 +14,11 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 
-from webcaf.webcaf.utils.excel_importer import JSON_MAP_HEADERS, JSON_MAP_SHEET_NAME
+from webcaf.webcaf.utils.excel_importer import (
+    JSON_MAP_HEADERS,
+    JSON_MAP_SHEET_NAME,
+    META_SHEET_NAME,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +35,10 @@ def create_assessment_template_workbook(framework_id: str) -> Workbook:
     # populated once the Django app registry is ready.
     from webcaf.webcaf.frameworks import routers
 
-    return build_assessment_template_workbook(routers[framework_id].framework)
+    return build_assessment_template_workbook(routers[framework_id].framework, framework_id)
 
 
-def build_assessment_template_workbook(framework: dict[str, Any]) -> Workbook:
+def build_assessment_template_workbook(framework: dict[str, Any], framework_id: str | None = None) -> Workbook:
     """Build and return the Excel template workbook for the given framework data."""
     wb = Workbook()
     wb.remove(wb.active)  # remove default sheet
@@ -171,6 +175,11 @@ def build_assessment_template_workbook(framework: dict[str, Any]) -> Workbook:
     for map_row in json_map_rows:
         map_ws.append(map_row)
     map_ws.sheet_state = "veryHidden"
+
+    if framework_id:
+        meta_ws = wb.create_sheet(title=META_SHEET_NAME)
+        meta_ws.append(["framework_id", framework_id])
+        meta_ws.sheet_state = "veryHidden"
 
     return wb
 
@@ -327,15 +336,8 @@ def _fills() -> dict[str, PatternFill]:
 
 
 def _validators() -> dict[str, DataValidation]:
-    # Common choice list used across achievement columns
-    formula = '"agreed,not_true_have_justification,not_true_no_justification"'
-    not_achieved_formula = '"true_have_justification,agreed,not_true_no_justification"'
     return {
-        key: DataValidation(
-            type="list",
-            formula1=formula if key in ["partially-achieved", "achieved"] else not_achieved_formula,
-            allow_blank=False,
-        )
+        key: DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
         for key in ("not-achieved", "partially-achieved", "achieved")
     }
 

@@ -14,6 +14,13 @@ from openpyxl import load_workbook
 
 JSON_MAP_SHEET_NAME = "__webcaf_json_map"
 JSON_MAP_HEADERS = ["visible_sheet", "visible_cell", "json_path", "value_type", "required"]
+META_SHEET_NAME = "__webcaf_meta"
+
+OUTCOME_STATUS_TO_REVIEW_DECISION = {
+    "Achieved": "achieved",
+    "Partially achieved": "partially-achieved",
+    "Not achieved": "not-achieved",
+}
 
 
 class ExcelImportError(Exception):
@@ -49,6 +56,157 @@ def excel_to_assessment_json_with_raw(excel_file) -> tuple[dict[str, Any], list[
     """
     data, raw_rows, _missing_required = _parse_excel(excel_file)
     return data, raw_rows
+
+
+def excel_framework_id(excel_file) -> Any:
+    """
+    Read the framework id the template was generated for.
+    """
+    wb = load_workbook(excel_file, data_only=True)
+    if META_SHEET_NAME not in wb.sheetnames:
+        return None
+    for key, value in wb[META_SHEET_NAME].iter_rows(max_col=2, values_only=True):
+        if key == "framework_id":
+            return value
+    return None
+
+
+def excel_to_review_json(excel_file, framework: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
+    """
+    Convert an uploaded workbook into review answers, grouped by objective and outcome.
+    """
+    assessment_data = excel_to_assessment_json(excel_file)
+
+    outcome_to_objective = {
+        outcome_code: objective["code"]
+        for objective in framework.get("objectives", {}).values()
+        for principle in objective.get("principles", {}).values()
+        for outcome_code in principle.get("outcomes", {})
+    }
+
+    review_json: dict[str, dict[str, dict[str, Any]]] = {}
+    errors: list[str] = []
+    for outcome_code, outcome_data in assessment_data.items():
+        objective_code = outcome_to_objective.get(outcome_code)
+        if objective_code is None:
+            errors.append(f"Outcome {outcome_code} is not part of the assessment's framework")
+            continue
+
+        outcome_answers: dict[str, Any] = {
+            indicator_id: "yes" if agreed else "no"
+            for indicator_id, agreed in outcome_data.get("indicators", {}).items()
+        }
+        confirmation = outcome_data.get("confirmation", {})
+        outcome_answers["review_decision"] = OUTCOME_STATUS_TO_REVIEW_DECISION[confirmation["outcome_status"]]
+        outcome_answers["review_comment"] = confirmation.get("confirm_outcome_confirm_comment", "")
+        review_json.setdefault(objective_code, {})[outcome_code] = outcome_answers
+
+    if errors:
+        raise ExcelImportError("; ".join(errors))
+    return review_json
+
+
+def assessment_json_to_review_data(
+    assessment_data: dict[str, Any],
+    framework: dict[str, Any],
+    caf_version: str,
+    stamped_by: str,
+    stamped_by_role: str,
+    stamped_by_email: str,
+    stamped_at: str,
+) -> dict[str, Any]:
+    """
+    Build the full review_data structure from parsed workbook data.
+    Keys the workbook does not provide are created with empty values.
+    """
+    assessor_response_data: dict[str, Any] = {}
+    for objective in framework.get("objectives", {}).values():
+        objective_entry: dict[str, Any] = {}
+        for principle in objective.get("principles", {}).values():
+            for outcome_code, outcome in principle.get("outcomes", {}).items():
+                outcome_data = assessment_data.get(outcome_code, {})
+                answers = outcome_data.get("indicators", {})
+
+                indicators: dict[str, Any] = {}
+                for level, items in outcome.get("indicators", {}).items():
+                    if not isinstance(items, dict):
+                        continue
+                    for item_code in items:
+                        key = f"{level}_{item_code}"
+                        answered = answers.get(key)
+                        indicators[key] = "" if answered is None else ("yes" if answered else "no")
+                        indicators[f"{key}_comment"] = ""
+
+                confirmation = outcome_data.get("confirmation", {})
+                objective_entry[outcome_code] = {
+                    "indicators": indicators,
+                    "review_data": {
+                        "review_comment": confirmation.get("confirm_outcome_confirm_comment", ""),
+                        "review_decision": OUTCOME_STATUS_TO_REVIEW_DECISION.get(
+                            confirmation.get("outcome_status"), ""
+                        ),
+                    },
+                    "recommendations": [],
+                }
+        objective_entry["recommendations"] = []
+        objective_entry["objective-areas-of-improvement"] = ""
+        objective_entry["objective-areas-of-good-practice"] = ""
+        assessor_response_data[objective["code"]] = objective_entry
+
+    # The empty values below are populated from the selected assessment
+    # later in the import process.
+    assessor_response_data["system_and_scope"] = {
+        "completed": "",
+        "completed_data": {
+            "review_details": {
+                "caf_version": caf_version,
+                "review_type": "",
+                "government_caf_profile": "",
+                "self_assessment_reference_number": "",
+            },
+            "system_details": {
+                "system_name": "",
+                "system_ownership": "",
+                "corporate_services": "",
+                "system_description": "",
+                "hosting_and_connectivity": "",
+                "other_corporate_services": "",
+                "previous_govassure_self_assessments": "",
+            },
+        },
+    }
+    assessor_response_data["additional_information"] = {
+        "iar_period": {
+            "start_date": "",
+            "end_date": "",
+        },
+        "review_method": "",
+        "quality_of_evidence": "",
+        "company_details": {
+            "company_name": "",
+            "lead_assessor_name": "",
+            "lead_assessor_email": "",
+        },
+        "areas_for_improvement": "",
+        "areas_of_good_practice": "",
+    }
+
+    return {
+        "review_finalised": {
+            "review_finalised_at": stamped_at,
+            "review_finalised_by": stamped_by,
+            "review_finalised_by_role": stamped_by_role,
+            "review_finalised_by_email": stamped_by_email,
+        },
+        "review_completion": {
+            "review_completed": "yes",
+            "review_completed_at": stamped_at,
+            "review_completed_by": stamped_by,
+            "review_completed_by_role": stamped_by_role,
+            "review_completed_by_email": stamped_by_email,
+        },
+        "assessor_response_data": assessor_response_data,
+    }
 
 
 def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool, Any]], list[str]]:
@@ -132,10 +290,12 @@ def _transform_value(value: Any, value_type: str) -> Any:
     if value_type == "indicator_answer":
         if _is_blank(value):
             return False
-        if value in {"agreed", "true_have_justification"}:
-            return True
-        if value in {"not_true_have_justification", "not_true_no_justification"}:
-            return False
+        if isinstance(value, str):
+            normalised = value.strip().lower()
+            if normalised == "yes":
+                return True
+            if normalised == "no":
+                return False
         raise ExcelImportError(f"invalid indicator answer {value!r}")
 
     if value_type == "outcome_status":

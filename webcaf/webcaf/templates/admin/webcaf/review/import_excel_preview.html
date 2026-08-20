@@ -1,0 +1,107 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'webcaf/import_excel_preview.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+        <h2>Preview parsed answers</h2>
+        <p>{{ answered_count }} of {{ row_count }} fields answered</p>
+        {% if unfulfilled_count %}
+            <p class="errornote">{{ unfulfilled_count }} required field{{ unfulfilled_count|pluralize }} left blank (highlighted in red below). You can still save.</p>
+        {% endif %}
+
+        <div class="preview-scroll">
+            <div class="preview-row preview-head">
+                <div class="preview-cell">JSON key</div>
+                <div class="preview-cell">Question</div>
+                <div class="preview-cell">Answer</div>
+            </div>
+            {% for key, question, answer, unfulfilled in preview_rows %}
+                <div class="preview-row{% if unfulfilled %} unfulfilled{% endif %}">
+                    <div class="preview-cell">{{ key }}</div>
+                    <div class="preview-cell">{{ question }}</div>
+                    <div class="preview-cell">{{ answer }}</div>
+                </div>
+            {% empty %}
+                <div class="preview-row"><div class="preview-cell">No values were parsed from this file.</div></div>
+            {% endfor %}
+        </div>
+
+        <details class="preview-json-details">
+            <summary>Show parsed JSON</summary>
+            <pre class="preview-json">{{ review_json_pretty }}</pre>
+        </details>
+
+        <h2>Review details</h2>
+        <p>Choose which assessment this review belongs to. Saving creates a new review in the database.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="upload">
+            <input type="hidden" name="assessment" value="{{ assessment.id }}">
+            <textarea name="review_json" hidden>{{ review_json }}</textarea>
+
+            <div class="import-meta">
+                <div class="form-row">
+                    <label for="id_import_status">Status</label>
+                    <select id="id_import_status" name="status" required>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}"{% if value == "in_progress" %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Assessment</span>
+                    <span class="meta-fixed">{{ assessment.reference }} - {{ assessment.system.name }} ({{ assessment.system.organisation.name }})</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Review type</span>
+                    <span class="meta-fixed">{{ assessment.get_review_type_display }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">CAF profile</span>
+                    <span class="meta-fixed">{{ assessment.get_caf_profile_display }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Upload date</span>
+                    <span class="meta-fixed">{{ upload_date }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Completed/finalised by</span>
+                    <span class="meta-fixed">{{ stamped_by }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Role</span>
+                    <span class="meta-fixed">{{ stamped_by_role|default:"-" }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Email</span>
+                    <span class="meta-fixed">{{ stamped_by_email }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Completed/finalised at</span>
+                    <span class="meta-fixed">{{ stamped_at }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">CAF version</span>
+                    <span class="meta-fixed">{{ caf_version_display }}</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Created on</span>
+                    <span class="meta-fixed">Assigned when saved</span>
+                </div>
+                <div class="form-row">
+                    <span class="meta-label">Reference</span>
+                    <span class="meta-fixed">Assigned when saved</span>
+                </div>
+            </div>
+
+            <button type="submit" class="button default">Save review</button>
+            <a href="." class="button cancel-link preview-cancel">Cancel</a>
+        </form>
+    </div>
+{% endblock %}
