@@ -1,7 +1,9 @@
+import json
 import logging
 import typing
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Literal
 from zoneinfo import ZoneInfo
 
@@ -21,6 +23,7 @@ from django.db.models import (
 from django.db.models.functions import Cast
 from django.utils import timezone as django_utils_timezone
 from django_otp.plugins.otp_email.models import EmailDevice
+from jsonschema import Draft202012Validator
 from multiselectfield import MultiSelectField
 from simple_history.models import HistoricalRecords
 
@@ -333,6 +336,15 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
 
     def __str__(self):
         return f"reference={self.reference if self.reference else '-'}, status={self.status} org={self.system.organisation.name}"
+
+    def save(self, *args, **kwargs):
+        with open(Path(__file__).parent / "utils" / "schemas" / "assessment_schema.json", "r") as f:
+            schema = json.load(f)
+            validator = Draft202012Validator(schema)
+            errors = sorted(validator.iter_errors(self.assessments_data), key=lambda e: list(e.path))
+        if errors:
+            raise ValidationError(errors)
+        super().save(*args, **kwargs)
 
 
 class UserProfile(models.Model):

@@ -72,7 +72,7 @@ class TestCAF32ExcelImporter(unittest.TestCase):
     def _cell_map(wb: Workbook) -> dict:
         map_ws = wb[JSON_MAP_SHEET_NAME]
         return {
-            json_path: (visible_sheet, visible_cell)
+            f"{json_path}": (visible_sheet, visible_cell)
             for visible_sheet, visible_cell, json_path, _value_type, _required in map_ws.iter_rows(
                 min_row=2, values_only=True
             )

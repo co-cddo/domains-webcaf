@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IGP Outcome Schema",
+  "type": "object",
+  "patternProperties": {
+    "^[A-Z]\\d+\\.[a-z]$": {
+      "type": "object",
+      "required": [
+        "indicators"
+      ],
+      "properties": {
+        "indicators": {
+          "type": "object",
+          "patternProperties": {
+            ".*comment$": {
+              "type": "string"
+            },
+            "^(achieved|not-achieved|partially-achieved)[A-Za-z0-9._]+(?<!_comment)$": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "confirmation": {
+          "type": "object",
+          "properties": {
+            "outcome_status": {
+              "type": "string",
+              "enum": [
+                "Achieved",
+                "Not achieved",
+                "Partially achieved"
+              ]
+            },
+            "confirm_outcome": {
+              "type": "string"
+            },
+            "outcome_status_message": {
+              "type": "string"
+            },
+            "confirm_outcome_confirm_comment": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "outcome_status",
+            "confirm_outcome",
+            "outcome_status_message",
+            "confirm_outcome_confirm_comment"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

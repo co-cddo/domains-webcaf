@@ -1,0 +1,615 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.gov.uk/schemas/review-data.schema.json",
+  "title": "Review Data",
+  "description": "Common schema for peer review and IARR review data.",
+  "type": "object",
+
+  "required": [
+    "review_finalised",
+    "review_completion",
+    "assessor_response_data"
+  ],
+
+  "properties": {
+    "review_finalised": {
+      "$ref": "#/$defs/reviewFinalised"
+    },
+    "review_completion": {
+      "$ref": "#/$defs/reviewCompletion"
+    },
+    "assessor_response_data": {
+      "$ref": "#/$defs/assessorResponseData"
+    }
+  },
+
+  "additionalProperties": false,
+
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "assessor_response_data": {
+            "properties": {
+              "A": {
+                "required": [
+                  "objective-areas-of-improvement"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "$ref": "#/$defs/objectiveVariant"
+      },
+      "else": {
+        "$ref": "#/$defs/standardVariant"
+      }
+    }
+  ],
+
+  "$defs": {
+
+    "reviewFinalised": {
+      "type": "object",
+      "required": [
+        "review_finalised_at",
+        "review_finalised_by",
+        "review_finalised_by_role",
+        "review_finalised_by_email"
+      ],
+      "properties": {
+        "review_finalised_at": {
+          "type": "string"
+        },
+        "review_finalised_by": {
+          "type": "string"
+        },
+        "review_finalised_by_role": {
+          "type": "string"
+        },
+        "review_finalised_by_email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "reviewCompletion": {
+      "type": "object",
+      "required": [
+        "review_completed",
+        "review_completed_at",
+        "review_completed_by",
+        "review_completed_by_role",
+        "review_completed_by_email"
+      ],
+      "properties": {
+        "review_completed": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no"
+          ]
+        },
+        "review_completed_at": {
+          "type": "string"
+        },
+        "review_completed_by": {
+          "type": "string"
+        },
+        "review_completed_by_role": {
+          "type": "string"
+        },
+        "review_completed_by_email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "assessorResponseData": {
+      "type": "object",
+      "required": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "system_and_scope",
+        "additional_information"
+      ],
+      "properties": {
+        "A": {
+          "$ref": "#/$defs/objectiveSection"
+        },
+        "B": {
+          "$ref": "#/$defs/objectiveSection"
+        },
+        "C": {
+          "$ref": "#/$defs/objectiveSection"
+        },
+        "D": {
+          "$ref": "#/$defs/objectiveSection"
+        },
+        "system_and_scope": {
+          "$ref": "#/$defs/systemAndScope"
+        },
+        "additional_information": {
+          "$ref": "#/$defs/additionalInformation"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "objectiveSection": {
+      "type": "object",
+
+      "patternProperties": {
+        "^[A-D][0-9]+\\.[a-z]$": {
+          "$ref": "#/$defs/criterion"
+        }
+      },
+
+      "properties": {
+        "recommendations": {
+          "$ref": "#/$defs/recommendations"
+        },
+        "objective-areas-of-improvement": {
+          "type": "string"
+        },
+        "objective-areas-of-good-practice": {
+          "type": "string"
+        }
+      },
+
+      "oneOf": [
+        {
+          "required": [
+            "objective-areas-of-improvement",
+            "objective-areas-of-good-practice"
+          ]
+        },
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "objective-areas-of-improvement"
+                ]
+              },
+              {
+                "required": [
+                  "objective-areas-of-good-practice"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+
+      "additionalProperties": false
+    },
+
+    "criterion": {
+      "type": "object",
+
+      "required": [
+        "indicators",
+        "review_data"
+      ],
+
+      "properties": {
+        "indicators": {
+          "$ref": "#/$defs/indicators"
+        },
+        "review_data": {
+          "$ref": "#/$defs/reviewData"
+        },
+        "recommendations": {
+          "$ref": "#/$defs/recommendations"
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "indicators": {
+      "type": "object",
+
+      "patternProperties": {
+        "^(?:achieved|not-achieved|partially-achieved)_[A-D][0-9]+\\.[a-z]\\.[0-9]+$": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no"
+          ]
+        },
+
+        "^(?:achieved|not-achieved|partially-achieved)_[A-D][0-9]+\\.[a-z]\\.[0-9]+_comment$": {
+          "type": "string"
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "reviewData": {
+      "type": "object",
+
+      "required": [
+        "review_comment",
+        "review_decision"
+      ],
+
+      "properties": {
+        "review_comment": {
+          "type": "string"
+        },
+
+        "review_decision": {
+          "type": "string",
+          "enum": [
+            "achieved",
+            "partially-achieved",
+            "not-achieved"
+          ]
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "recommendation": {
+      "type": "object",
+
+      "required": [
+        "text",
+        "title"
+      ],
+
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "recommendations": {
+      "type": "array",
+
+      "items": {
+        "$ref": "#/$defs/recommendation"
+      }
+    },
+
+    "systemAndScope": {
+      "type": "object",
+
+      "required": [
+        "completed",
+        "completed_data"
+      ],
+
+      "properties": {
+        "completed": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no"
+          ]
+        },
+
+        "completed_data": {
+          "type": "object",
+
+          "required": [
+            "review_details",
+            "system_details"
+          ],
+
+          "properties": {
+            "review_details": {
+              "type": "object",
+
+              "required": [
+                "caf_version",
+                "review_type",
+                "government_caf_profile",
+                "self_assessment_reference_number"
+              ],
+
+              "properties": {
+                "caf_version": {
+                  "type": "string"
+                },
+                "review_type": {
+                  "type": "string"
+                },
+                "government_caf_profile": {
+                  "type": "string"
+                },
+                "self_assessment_reference_number": {
+                  "type": "string"
+                }
+              },
+
+              "additionalProperties": false
+            },
+
+            "system_details": {
+              "type": "object",
+
+              "required": [
+                "system_name",
+                "system_ownership",
+                "corporate_services",
+                "system_description",
+                "hosting_and_connectivity",
+                "other_corporate_services",
+                "previous_govassure_self_assessments"
+              ],
+
+              "properties": {
+                "system_name": {
+                  "type": "string"
+                },
+                "system_ownership": {
+                  "type": "string"
+                },
+                "corporate_services": {
+                  "type": "string"
+                },
+                "system_description": {
+                  "type": "string"
+                },
+                "hosting_and_connectivity": {
+                  "type": "string"
+                },
+                "other_corporate_services": {
+                  "type": "string"
+                },
+                "previous_govassure_self_assessments": {
+                  "type": "string"
+                }
+              },
+
+              "additionalProperties": false
+            }
+          },
+
+          "additionalProperties": false
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "additionalInformation": {
+      "type": "object",
+
+      "required": [
+        "iar_period"
+      ],
+
+      "properties": {
+        "iar_period": {
+          "type": "object",
+
+          "required": [
+            "end_date",
+            "start_date"
+          ],
+
+          "properties": {
+            "end_date": {
+              "type": "string"
+            },
+            "start_date": {
+              "type": "string"
+            }
+          },
+
+          "additionalProperties": false
+        },
+
+        "review-method": {
+          "type": "string"
+        },
+
+        "review_method": {
+          "type": "string"
+        },
+
+        "company_details": {
+          "type": "object",
+
+          "properties": {
+            "company_name": {
+              "type": "string"
+            },
+            "company_email": {
+              "type": "string",
+              "format": "email"
+            },
+            "lead_assessor_name": {
+              "type": "string"
+            },
+            "lead_assessor_email": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+
+          "additionalProperties": false
+        },
+
+        "areas_for_improvement": {
+          "type": "string"
+        },
+
+        "areas_of_good_practice": {
+          "type": "string"
+        }
+      },
+
+      "additionalProperties": false
+    },
+
+    "standardVariant": {
+      "type": "object",
+
+      "properties": {
+        "assessor_response_data": {
+          "properties": {
+            "A": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "objective-areas-of-improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "objective-areas-of-good-practice"
+                    ]
+                  }
+                ]
+              }
+            },
+            "B": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "objective-areas-of-improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "objective-areas-of-good-practice"
+                    ]
+                  }
+                ]
+              }
+            },
+            "C": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "objective-areas-of-improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "objective-areas-of-good-practice"
+                    ]
+                  }
+                ]
+              }
+            },
+            "D": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "objective-areas-of-improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "objective-areas-of-good-practice"
+                    ]
+                  }
+                ]
+              }
+            },
+
+            "additional_information": {
+              "required": [
+                "areas_for_improvement",
+                "areas_of_good_practice"
+              ],
+
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "objective-areas-of-improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "objective-areas-of-good-practice"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "objectiveVariant": {
+      "type": "object",
+
+      "properties": {
+        "assessor_response_data": {
+          "properties": {
+            "A": {
+              "required": [
+                "objective-areas-of-improvement",
+                "objective-areas-of-good-practice"
+              ]
+            },
+            "B": {
+              "required": [
+                "objective-areas-of-improvement",
+                "objective-areas-of-good-practice"
+              ]
+            },
+            "C": {
+              "required": [
+                "objective-areas-of-improvement",
+                "objective-areas-of-good-practice"
+              ]
+            },
+            "D": {
+              "required": [
+                "objective-areas-of-improvement",
+                "objective-areas-of-good-practice"
+              ]
+            },
+
+            "additional_information": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "areas_for_improvement"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "areas_of_good_practice"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

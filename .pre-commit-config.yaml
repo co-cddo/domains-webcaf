@@ -64,3 +64,4 @@ repos:
           - 'sentry-sdk[django]'
           - weasyprint
           - django-otp
+          - jsonschema
