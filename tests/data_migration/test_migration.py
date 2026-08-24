@@ -120,6 +120,37 @@ def _make_definition_structure() -> Dict[str, Any]:
                         }
                     },
                 },
+                "C": {
+                    "code": "C",
+                    "title": "Storage management",
+                    "description": "Storage management",
+                    "principles": {
+                        "C1": {
+                            "code": "C1",
+                            "title": "Storage classification",
+                            "description": "Classify storage",
+                            "outcomes": {
+                                "C1.a": {
+                                    "code": "C1.a",
+                                    "title": "Classification outcome",
+                                    "description": "Storage properly classified",
+                                    "indicators": {
+                                        "achieved": {
+                                            "C1.a.1": {
+                                                "description": "Classification policy exists",
+                                                "ncsc-index": "C1.a.1",
+                                            }
+                                        },
+                                        "partially-achieved": {},
+                                        "not-achieved": {},
+                                    },
+                                    "external_links": {},
+                                }
+                            },
+                            "external_links": {},
+                        }
+                    },
+                },
             },
         }
     }
@@ -238,6 +269,30 @@ def _make_complete_assessment_data() -> List[Dict[str, Any]]:
             "achievement": None,
             "assessor_achievement": None,
             "org_comment": "Policy document created",
+            "assessor_comment": None,
+        },
+        # Outcome C1.a — NA (Not assessed)
+        {
+            "hashed_assessment_id": _HASH_ASSESSMENT_ID,
+            "key": "C1.a",
+            "group_key": "G_C1.a",
+            "answer": None,
+            "assessor_answer": None,
+            "achievement": "NA",
+            "assessor_achievement": None,
+            "org_comment": "Classification scheme established",
+            "assessor_comment": None,
+        },
+        # Indicator for C1.a — not assessed
+        {
+            "hashed_assessment_id": _HASH_ASSESSMENT_ID,
+            "key": "C1.a.1",
+            "group_key": "G_C1.a_1",
+            "answer": None,
+            "assessor_answer": None,
+            "achievement": "NA",
+            "assessor_achievement": None,
+            "org_comment": "Not assessed",
             "assessor_comment": None,
         },
     ]
@@ -1112,6 +1167,8 @@ class TestAssessmentOutputStructure(TransformTestBase):
         """outcome_status in the transformed output is derived from the ACH achievement code."""
         a1a = next(o for o in self.transformed["outcomes"] if o["outcome_id"] == "A1.a")
         self.assertEqual(a1a["outcome_status"], "Achieved")
+        c1a = next(o for o in self.transformed["outcomes"] if o["outcome_id"] == "C1.a")
+        self.assertEqual(c1a["outcome_status"], "Not assessed")
 
     def test_indicators_carry_values_and_comments(self):
         """

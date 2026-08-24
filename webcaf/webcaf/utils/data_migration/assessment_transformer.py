@@ -85,6 +85,7 @@ def _process_outcome(
         "N_ACH": "Not achieved",
         "PAC": "Partially achieved",
         "NAC": "Not achieved",
+        "NA": "Not assessed",
     }
     indicator_entries = [e for t, e in outcome_data if t == "indicator"]
     outcome_entry = next((e for t, e in outcome_data if t == "outcome"), None)
