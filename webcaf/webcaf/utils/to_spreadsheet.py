@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from io import BytesIO
 from typing import Any, Literal, cast
 
@@ -12,6 +13,31 @@ from webcaf.webcaf.utils.review import get_review_recommendations
 
 MIN_WIDTH = 20
 PADDING = 2
+
+INDICATOR_LEVEL_DISPLAYS = {
+    "achieved": "Achieved",
+    "partially-achieved": "Partially achieved",
+    "not-achieved": "Not achieved",
+}
+
+
+def create_assessment_workbook(assessment: Assessment) -> Workbook:
+    """
+    Creates an Excel workbook for a given assessment. The workbook will consist of multiple structured
+    tabs representing different aspects of the assessment, such as metadata, indicators, and outcome
+    summary.
+
+    :param assessment: The assessment object that contains the data to populate the workbook.
+    :type assessment: Assessment
+    :return: A workbook object configured with the details extracted from the assessment.
+    :rtype: Workbook
+    """
+    wb = Workbook()
+    wb.remove(wb.active)
+    _add_metadata_tab(wb, assessment, "Self-assessment details")
+    _add_indicator_tab(wb, assessment)
+    _add_outcome_summary_tab(wb, assessment)
+    return wb
 
 
 def _add_recommendations_and_actions(wb: Workbook, tip: Tip, context: dict[str, Any]) -> None:
@@ -151,10 +177,9 @@ def tip_to_excel(tip: Tip, context: dict[str, Any]) -> bytes | None:
     wb = Workbook()
     wb.remove(wb.active)
 
-    ws = _add_metadata_tab(wb, tip.review.assessment)
+    ws = _add_metadata_tab(wb, tip.review.assessment, "Review details")
     ws.append(["Status", "Submitted" if tip.is_submitted or tip.is_approved else "Draft"])
     _add_recommendations_and_actions(wb, tip, context)
-
     output = BytesIO()
     wb.save(output)
     output.seek(0)
@@ -184,9 +209,9 @@ def review_to_tip_template_excel(review: Review) -> bytes | None:
     wb = Workbook()
     wb.remove(wb.active)
 
-    _add_metadata_tab(wb, review.assessment)
-    _add_indicator_tab(wb, review)
-    _add_outcome_summary_tab(wb, review)
+    _add_metadata_tab(wb, review.assessment, "Review details")
+    _add_indicator_tab(wb, review.assessment, True)
+    _add_outcome_summary_tab(wb, review.assessment, True)
     _add_recommendations_tab(wb, review, "priority")
     _add_recommendations_tab(wb, review, "normal")
 
@@ -217,9 +242,9 @@ def review_to_excel(review: Review) -> bytes | None:
     wb = Workbook()
     wb.remove(wb.active)
 
-    _add_metadata_tab(wb, review.assessment)
-    _add_indicator_tab(wb, review)
-    _add_outcome_summary_tab(wb, review)
+    _add_metadata_tab(wb, review.assessment, "Review details")
+    _add_indicator_tab(wb, review.assessment, True)
+    _add_outcome_summary_tab(wb, review.assessment, True)
     _add_recommendations_tab(wb, review)
 
     output = BytesIO()
@@ -228,7 +253,7 @@ def review_to_excel(review: Review) -> bytes | None:
     return output.getvalue()
 
 
-def _add_metadata_tab(wb: Workbook, assessment: Assessment) -> Worksheet:
+def _add_metadata_tab(wb: Workbook, assessment: Assessment, title: str) -> Worksheet:
     """
     Adds a metadata tab to the given Excel workbook. This function creates a new sheet titled
     "Review details" and appends various metadata about the assessment, such as organization
@@ -242,10 +267,14 @@ def _add_metadata_tab(wb: Workbook, assessment: Assessment) -> Worksheet:
         An object containing assessment information, including organizational data,
         review type, framework, and CAF profile details.
     :type assessment: Assessment
+    :param title:
+        The title of the worksheet to be created.
+    :type title: str
     :return:
         Worksheet
     """
-    ws = wb.create_sheet("Review details")
+
+    ws = wb.create_sheet(title)
 
     review_type_label = dict(Assessment.REVIEW_TYPE_CHOICES).get(assessment.review_type, assessment.review_type)
     framework_label = dict(Assessment.FRAMEWORK_CHOICES).get(assessment.framework, assessment.framework)
@@ -261,180 +290,184 @@ def _add_metadata_tab(wb: Workbook, assessment: Assessment) -> Worksheet:
     return ws
 
 
-def _add_indicator_tab(wb: Workbook, review: Review):
+def _iter_outcomes(assessment: Assessment) -> Iterator[tuple[str, dict[str, Any], str]]:
+    """
+    Walks the CAF structure of the assessment and yields one entry per contributing
+    outcome, flattening the objective / principle / outcome hierarchy.
+
+    :param assessment: The assessment whose CAF structure is walked.
+    :type assessment: Assessment
+    :return: Iterator of (objective code, outcome, formatted contributing-outcome title).
+    :rtype: Iterator[tuple[str, dict[str, Any], str]]
+    """
+    for objective in assessment.get_all_caf_objectives():
+        objective_code = objective["code"]
+        for principle in objective.get("principles", {}).values():
+            for outcome in principle.get("outcomes", {}).values():
+                outcome_code = outcome["code"]
+                outcome_title = outcome.get("title", "")
+                title = f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
+                yield objective_code, outcome, title
+
+
+def _get_assessor_response(assessment: Assessment) -> dict[str, Any]:
+    """
+    Returns the assessor response of the assessment's review, keyed by objective code,
+    or an empty mapping when the assessment has not been reviewed.
+
+    :param assessment: The assessment whose review is read.
+    :type assessment: Assessment
+    :return: The assessor response data.
+    :rtype: dict[str, Any]
+    """
+    # Fetch the first review (1 to 1 relationship)
+    review = assessment.reviews.first()
+    return review.get_assessor_response() if review else {}
+
+
+def _add_indicator_tab(wb: Workbook, assessment: Assessment, include_review: bool = False) -> Worksheet:
     """
     Adds a new worksheet named "IGPs" to the provided workbook and populates it
-    with indicator data. The data is drawn from the assessment and review objects,
-    structuring it to include contributing outcomes, indicator details,
-    self-assessment values, and review results.
+    with indicator data. The data is drawn from the assessment and, when supplied,
+    the review object, structuring it to include contributing outcomes, indicator
+    details, self-assessment values and review results.
 
     This function organizes and writes information about objectives, principles,
     outcomes, and indicators based on their hierarchical structure. It reflects
     the self-assessment values and corresponding reviewer evaluations into a
     tabular format.
 
+    When ``review`` is None the review columns are omitted altogether, producing a
+    self-assessment-only tab. Peer reviews omit the "Review comments" column.
+
     :param wb: An instance of `Workbook` where the "IGPs" worksheet will be added.
-    :param review: An instance of `Review` that encapsulates review data used
-                   for generating the indicator tab.
-    :return: None
+    :param assessment: The `Assessment` providing the CAF structure and self-assessment answers.
+    :param review: An optional `Review` that encapsulates review data used
+                   for generating the review columns.
+    :return: The created worksheet.
     """
     ws = wb.create_sheet("IGPs")
-    assessment: Assessment = review.assessment
-    ws.append(
-        [
-            "Contributing outcome",
-            "IGP",
-            "IGP wording",
-            "Self-assessment",
-            "Self-assessment comments",
-            "Review",
-        ]
-        + (
-            [
-                "Review comments",
-            ]
-            if assessment.review_type != "peer_review"
-            else []
-        )
-    )
-    _set_header_properties(ws, [50, 30, 50, 20, 50, 10, 50])
+    include_review_comments = include_review and assessment.review_type != "peer_review"
 
-    review_data = review.get_assessor_response()
+    headers = [
+        "Contributing outcome",
+        "IGP",
+        "IGP wording",
+        "Self-assessment",
+        "Self-assessment comments",
+    ]
+    widths = [50, 30, 50, 20, 50]
+    if include_review:
+        headers.append("Review")
+        widths.append(10)
+    if include_review_comments:
+        headers.append("Review comments")
+        widths.append(50)
 
-    for objective in assessment.get_all_caf_objectives():
-        objective_code = objective["code"]
+    ws.append(headers)
+    _set_header_properties(ws, widths)
 
-        for principle in objective.get("principles", {}).values():
-            for outcome in principle.get("outcomes", {}).values():
-                outcome_code = outcome["code"]
-                outcome_title = outcome.get("title", "")
-                contributing_outcome = f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
+    review_data = _get_assessor_response(assessment) if include_review else {}
 
-                assessment_section = assessment.get_section_by_outcome_id(outcome_code)
-                if not assessment_section:
-                    continue
+    for objective_code, outcome, contributing_outcome in _iter_outcomes(assessment):
+        outcome_code = outcome["code"]
+        # Use empty dict if section not found
+        assessment_section = assessment.get_section_by_outcome_id(outcome_code) or {}
 
-                assessment_indicators = assessment_section.get("indicators", {})
+        assessment_indicators = assessment_section.get("indicators", {})
+        review_indicators = review_data.get(objective_code, {}).get(outcome_code, {}).get("indicators", {})
 
-                review_outcome = review_data.get(objective_code, {}).get(outcome_code, {})
-                review_indicators = review_outcome.get("indicators", {})
+        for level, level_display in INDICATOR_LEVEL_DISPLAYS.items():
+            level_indicators = outcome.get("indicators", {}).get(level, {})
 
-                for level in ["achieved", "partially-achieved", "not-achieved"]:
-                    level_indicators = outcome.get("indicators", {}).get(level, {})
-                    statement_number = 1
+            for statement_number, (indicator_id, indicator_data) in enumerate(level_indicators.items(), 1):
+                prefixed_id = f"{level}_{indicator_id}"
+                indicator_answer = assessment_indicators.get(prefixed_id, None)
+                row = [
+                    contributing_outcome,
+                    f"{outcome_code} {level_display} statement {statement_number}",
+                    indicator_data.get("description", ""),
+                    ("Y" if indicator_answer else "N") if indicator_answer is not None else "",
+                    assessment_indicators.get(f"{prefixed_id}_comment", ""),
+                ]
+                if include_review:
+                    row.append("Y" if review_indicators.get(prefixed_id, "") == "yes" else "N")
+                if include_review_comments:
+                    row.append(review_indicators.get(f"{prefixed_id}_comment", ""))
 
-                    if level == "achieved":
-                        level_display = "Achieved"
-                    elif level == "partially-achieved":
-                        level_display = "Partially achieved"
-                    else:
-                        level_display = "Not achieved"
-
-                    for indicator_id, indicator_data in level_indicators.items():
-                        indicator_label = f"{outcome_code} {level_display} statement {statement_number}"
-                        indicator_text = indicator_data.get("description", "")
-
-                        prefixed_id = f"{level}_{indicator_id}"
-                        statement_number += 1
-
-                        self_assessment_value = assessment_indicators.get(prefixed_id, False)
-                        self_assessment_comment = assessment_indicators.get(f"{prefixed_id}_comment", "")
-
-                        review_value = review_indicators.get(prefixed_id, "")
-                        review_comment = review_indicators.get(f"{prefixed_id}_comment", "")
-
-                        self_assessment_display = "Y" if self_assessment_value else "N"
-                        review_display = "Y" if review_value == "yes" else "N"
-
-                        ws.append(
-                            [
-                                contributing_outcome,
-                                indicator_label,
-                                indicator_text,
-                                self_assessment_display,
-                                self_assessment_comment,
-                                review_display,
-                            ]
-                            + ([review_comment] if assessment.review_type != "peer_review" else [])
-                        )
-                        _wrap_row_text(ws)
+                ws.append(row)
+                _wrap_row_text(ws)
+    return ws
 
 
-def _add_outcome_summary_tab(wb: Workbook, review: Review):
+def _add_outcome_summary_tab(wb: Workbook, assessment: Assessment, include_review: bool = False) -> Worksheet:
     """
     Adds a new sheet titled "Contributing outcomes" to the given workbook and populates
-    it with extracted and processed data from the provided review instance. This function
+    it with extracted and processed data from the provided assessment. This function
     is used to summarize contributing outcome data based on assessment and review details.
+
+    When ``include_review`` is False the review status column is omitted and the outcome
+    description is included instead, producing a self-assessment-only summary.
 
     :param wb: The workbook object where the new sheet will be added.
     :type wb: Workbook
-    :param review: The review object containing assessment data, assessor responses, and
-        related information required to generate the contributing outcomes data.
-    :type review: Review
-    :return: None
+    :param assessment: The assessment providing the CAF structure and self-assessment statuses.
+    :type assessment: Assessment
+    :param include_review: Whether to include the reviewer's decision for each outcome.
+    :type include_review: bool
+    :return: The created worksheet.
+    :rtype: Worksheet
     """
     ws = wb.create_sheet("Contributing outcomes")
 
-    ws.append(
-        [
-            "Contributing outcome",
-            "Target CAF profile requirement",
-            "Self-assessment status",
-            "Review status",
-            "Target CAF profile",
+    headers = ["Contributing outcome", "Target CAF profile requirement", "Self-assessment status"]
+    widths = [50, 30, 30]
+    if include_review:
+        headers += ["Review status", "Target CAF profile"]
+        widths += [30, 30]
+    else:
+        # Contributing outcome summary can be long
+        headers += ["Target CAF profile", "Contributing outcome summary"]
+        widths += [30, 70]
+
+    ws.append(headers)
+    _set_header_properties(ws, widths)
+
+    review_data = _get_assessor_response(assessment) if include_review else {}
+
+    for objective_code, outcome, contributing_outcome in _iter_outcomes(assessment):
+        outcome_code = outcome["code"]
+        assessment_section = assessment.get_section_by_outcome_id(outcome_code) or {}
+        self_assessment_status = assessment_section.get("confirmation", {}).get("outcome_status", "")
+
+        review_decision = (
+            review_data.get(objective_code, {}).get(outcome_code, {}).get("review_data", {}).get("review_decision", "")
+        )
+        review_status = INDICATOR_LEVEL_DISPLAYS.get(review_decision, "")
+
+        # Profile met is calculated based on the review status if include_review is True, otherwise it uses self_assessment_status
+        met_status = IndicatorStatusChecker.indicator_min_profile_requirement_met(
+            assessment,
+            outcome_code.rsplit(".", 1)[0],
+            outcome_code,
+            review_status if include_review else self_assessment_status,
+        )
+        profile_met = "Met" if met_status == "Yes" else met_status
+
+        row = [
+            contributing_outcome,
+            outcome.get("min_profile_requirement", {}).get(assessment.caf_profile, ""),
+            self_assessment_status,
         ]
-    )
-    _set_header_properties(ws, [50, 30, 30, 30, 30])
+        row += (
+            [review_status, profile_met]
+            if include_review
+            else [profile_met, assessment_section.get("confirmation", {}).get("confirm_outcome_confirm_comment", "-")]
+        )
 
-    assessment: Assessment = review.assessment
-    review_data = review.get_assessor_response()
-
-    for objective in assessment.get_all_caf_objectives():
-        objective_code = objective["code"]
-
-        for principle in objective.get("principles", {}).values():
-            for outcome in principle.get("outcomes", {}).values():
-                outcome_code = outcome["code"]
-                outcome_title = outcome.get("title", "")
-                contributing_outcome = f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
-
-                assessment_section = assessment.get_section_by_outcome_id(outcome_code)
-                self_assessment_status = ""
-                if assessment_section:
-                    confirmation = assessment_section.get("confirmation", {})
-                    self_assessment_status = confirmation.get("outcome_status", "")
-
-                review_outcome = review_data.get(objective_code, {}).get(outcome_code, {})
-                review_decision = review_outcome.get("review_data", {}).get("review_decision", "")
-
-                if review_decision == "achieved":
-                    review_status = "Achieved"
-                elif review_decision == "partially-achieved":
-                    review_status = "Partially achieved"
-                elif review_decision == "not-achieved":
-                    review_status = "Not achieved"
-                else:
-                    review_status = ""
-
-                min_profile_requirement = outcome.get("min_profile_requirement", {})
-                target_requirement = min_profile_requirement.get(assessment.caf_profile, "")
-
-                principle_id = outcome_code.rsplit(".", 1)[0]
-                status_to_check = review_status if review_status else self_assessment_status
-                met_status = IndicatorStatusChecker.indicator_min_profile_requirement_met(
-                    assessment, principle_id, outcome_code, status_to_check
-                )
-
-                ws.append(
-                    [
-                        contributing_outcome,
-                        target_requirement,
-                        self_assessment_status,
-                        review_status,
-                        "Met" if met_status and met_status == "Yes" else met_status,
-                    ]
-                )
-                _wrap_row_text(ws)
+        ws.append(row)
+        _wrap_row_text(ws)
+    return ws
 
 
 def _build_contributing_outcome_titles(review: Review) -> dict[str, str]:
@@ -447,14 +480,7 @@ def _build_contributing_outcome_titles(review: Review) -> dict[str, str]:
     :return: Mapping of outcome code to its formatted title.
     :rtype: dict[str, str]
     """
-    titles: dict[str, str] = {}
-    for objective in review.assessment.get_all_caf_objectives():
-        for principle in objective.get("principles", {}).values():
-            for outcome in principle.get("outcomes", {}).values():
-                outcome_code = outcome["code"]
-                outcome_title = outcome.get("title", "")
-                titles[outcome_code] = f"{outcome_code} {outcome_title}" if outcome_title else outcome_code
-    return titles
+    return {outcome["code"]: title for _, outcome, title in _iter_outcomes(review.assessment)}
 
 
 def _append_recommendation_rows(

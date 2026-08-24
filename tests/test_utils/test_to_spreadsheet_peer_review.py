@@ -9,7 +9,6 @@ specifically testing the peer_review specific logic changes:
 - Conditional "Risk" and "Recommendation number" columns based on review type
 """
 
-import json
 from io import BytesIO
 from pathlib import Path
 
@@ -29,23 +28,13 @@ class TestReviewToExcelPeerReview(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up test data with both independent and peer review assessments."""
-        from django.contrib.auth.models import User
+        from tests.test_utils import helpers
 
-        from webcaf.webcaf.models import Organisation, System, UserProfile
+        cls.org, systems, cls.user = helpers.create_org_systems_and_user(num_systems=3)
+        cls.system, cls.system_2, cls.system_3 = systems
 
-        cls.org = Organisation.objects.create(name="Test Organisation")
-        cls.system = System.objects.create(name="Test System", organisation=cls.org)
-        cls.system_2 = System.objects.create(name="Test System 2", organisation=cls.org)
-        cls.system_3 = System.objects.create(name="Test System 3", organisation=cls.org)
-
-        cls.user = User.objects.create_user(username="test@test.gov.uk", email="test@test.gov.uk")
-        UserProfile.objects.create(user=cls.user, organisation=cls.org, role="cyber_advisor")
-
-        with open(FIXTURE_PATH, "r") as f:
-            base_assessment = json.load(f)
-
-        with open(REVIEW_FIXTURE_PATH, "r") as f:
-            base_review = json.load(f)
+        base_assessment = helpers.load_fixture_json("completed_assessment_base.json")
+        base_review = helpers.load_fixture_json("completed_review.json")
 
         # Create independent review assessment
         cls.independent_assessment = Assessment.objects.create(
@@ -277,22 +266,13 @@ class TestReviewToExcelOtherReviewTypes(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up test data with different review types."""
-        from django.contrib.auth.models import User
+        from tests.test_utils import helpers
 
-        from webcaf.webcaf.models import Organisation, System, UserProfile
+        cls.org, systems, cls.user = helpers.create_org_systems_and_user(num_systems=2)
+        cls.system, cls.system_2 = systems
 
-        cls.org = Organisation.objects.create(name="Test Organisation")
-        cls.system = System.objects.create(name="Test System", organisation=cls.org)
-        cls.system_2 = System.objects.create(name="Test System 2", organisation=cls.org)
-
-        cls.user = User.objects.create_user(username="test@test.gov.uk", email="test@test.gov.uk")
-        UserProfile.objects.create(user=cls.user, organisation=cls.org, role="cyber_advisor")
-
-        with open(FIXTURE_PATH, "r") as f:
-            base_assessment = json.load(f)
-
-        with open(REVIEW_FIXTURE_PATH, "r") as f:
-            base_review = json.load(f)
+        base_assessment = helpers.load_fixture_json("completed_assessment_base.json")
+        base_review = helpers.load_fixture_json("completed_review.json")
 
         # Create assessments with different review types
         cls.review_types = ["independent", "peer_review"]
@@ -363,20 +343,13 @@ class TestReviewToExcelDataIntegrity(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up test data."""
-        from django.contrib.auth.models import User
+        from tests.test_utils import helpers
 
-        from webcaf.webcaf.models import Organisation, System, UserProfile
+        cls.org, systems, cls.user = helpers.create_org_systems_and_user(num_systems=1)
+        cls.system = systems[0]
 
-        cls.org = Organisation.objects.create(name="Test Organisation")
-        cls.system = System.objects.create(name="Test System", organisation=cls.org)
-        cls.user = User.objects.create_user(username="test@test.gov.uk", email="test@test.gov.uk")
-        UserProfile.objects.create(user=cls.user, organisation=cls.org, role="cyber_advisor")
-
-        with open(FIXTURE_PATH, "r") as f:
-            base_assessment = json.load(f)
-
-        with open(REVIEW_FIXTURE_PATH, "r") as f:
-            base_review = json.load(f)
+        base_assessment = helpers.load_fixture_json("completed_assessment_base.json")
+        base_review = helpers.load_fixture_json("completed_review.json")
 
         cls.assessment = Assessment.objects.create(
             system=cls.system,

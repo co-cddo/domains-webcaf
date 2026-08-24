@@ -20,7 +20,7 @@ def transform_review_v1_to_v2(
     """
     review: dict[str, Any] = {}
     version_key = assessment_meta.get("assessment_version_id", "unknown")
-    status_map = {"ACH": "achieved", "PAC": "partially-achieved", "NAC": "not-achieved"}
+    status_map = {"ACH": "achieved", "PAC": "partially-achieved", "NAC": "not-achieved", "NA": "not-assessed"}
 
     # Parse old assessment data
     group_comments, group_assessor_comments, outcomes, supplementary_questions = _parse_old_assessment_data(

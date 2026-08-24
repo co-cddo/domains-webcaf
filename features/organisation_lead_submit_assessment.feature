@@ -37,8 +37,11 @@ Feature: Organisation lead can submit assessment
     And click link with text "View self-assessments sent for review"
       #There will only be one assessment to view
     And click link with text "View"
-    Then download file by clicking button "Download as PDF"
+    Then download "pdf" assessment by clicking link "Download as PDF"
     Then confirm current assessment information is on the downloaded pdf
+    Then download "excel" assessment by clicking link "Download data as XLSX"
+    Then confirm current assessment information is on the downloaded excel
+
 
   Scenario: Organisation lead cannot start a new assessment for an already submitted system
     Given Think time 1 seconds

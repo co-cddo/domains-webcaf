@@ -186,9 +186,11 @@ def profile_met_callback(
     current_assessment: dict[str, Any], meta_data: dict[str, Any], outcome_code: str, status: str | None
 ) -> Tuple[str, str] | None:
     minimum_profile_requirements_data = min_profile_requirements()
-    achievement_level_mapping = {"ACH": 3, "PAC": 2, "NAC": 1}
-    status_to_display = {"PAC": "Partially achieved", "NAC": "Not achieved", "ACH": "Achieved"}
-    display_to_status = {"Partially achieved": "PAC", "Not achieved": "NAC", "Achieved": "ACH"}
+    # NA (Not Assessed) has the same effect as Achieved
+    # This was stated in webcaf-1 design
+    achievement_level_mapping = {"ACH": 3, "NA": 3, "PAC": 2, "NAC": 1}
+    status_to_display = {"PAC": "Partially achieved", "NAC": "Not achieved", "ACH": "Achieved", "NA": "Not assessed"}
+    display_to_status = {"Partially achieved": "PAC", "Not achieved": "NAC", "Achieved": "ACH", "Not assessed": "NA"}
     minimum_requirement = minimum_profile_requirements_data.get(outcome_code, {}).get(
         meta_data.get("system_profile", "-non-existant-")
     )

@@ -19,6 +19,7 @@ _REVIEW_DECISION_LABELS: dict[str, str] = {
     "achieved": "Achieved",
     "not-achieved": "Not achieved",
     "partially-achieved": "Partially achieved",
+    "not-assessed": "Not assessed",
     "N/A": "N/A",
 }
 

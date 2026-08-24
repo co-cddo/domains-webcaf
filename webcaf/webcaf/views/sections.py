@@ -2,6 +2,7 @@ import logging
 import zoneinfo
 from collections import namedtuple
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -9,11 +10,12 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.forms import Form
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
+from django.views.generic.detail import DetailView
 from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import (
@@ -25,8 +27,12 @@ from webcaf.webcaf.models import (
 )
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
-from webcaf.webcaf.utils.permission import UserRoleCheckMixin
+from webcaf.webcaf.utils.permission import (
+    AssessmentProfileCheckMixin,
+    UserRoleCheckMixin,
+)
 from webcaf.webcaf.utils.session import SessionUtil
+from webcaf.webcaf.utils.to_spreadsheet import create_assessment_workbook
 
 
 class SectionConfirmationView(UserRoleCheckMixin, FormView):
@@ -392,6 +398,40 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         assessment_ = context["assessment"]
         response["Content-Disposition"] = f'inline; filename="UK-OFFICIAL-SENSITIVE-{assessment_.reference}.pdf"'
         return response
+
+
+class DownloadAssessment(AssessmentProfileCheckMixin, DetailView):
+    """
+    Handles the download of an assessment in Excel format.
+
+    This class provides functionality to generate and serve an Excel file containing
+    the details of an assessment. The file is downloaded with a specific naming convention
+    and content type, ensuring it conforms to expected standards.
+
+    :ivar model: The model associated with the view.
+    :type model: Type[Assessment]
+    """
+
+    model = Assessment
+
+    def get_allowed_roles(self) -> list[str]:
+        return [
+            "organisation_lead",
+            "organisation_user" "cyber_advisor",
+        ]
+
+    def get(self, request, *args, **kwargs):
+        the_instance = self.get_object()
+        workbook = create_assessment_workbook(the_instance)
+        output = BytesIO()
+        workbook.save(output)
+        output.seek(0)
+        return FileResponse(
+            output,
+            as_attachment=True,
+            filename=f"UK-OFFICIAL-SENSITIVE-Assessment_{the_instance.reference}.xlsx",
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
 
 
 # Type for history records of assessments
