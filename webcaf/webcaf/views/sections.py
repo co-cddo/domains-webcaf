@@ -417,7 +417,8 @@ class DownloadAssessment(AssessmentProfileCheckMixin, DetailView):
     def get_allowed_roles(self) -> list[str]:
         return [
             "organisation_lead",
-            "organisation_user" "cyber_advisor",
+            "organisation_user",
+            "cyber_advisor",
         ]
 
     def get(self, request, *args, **kwargs):
