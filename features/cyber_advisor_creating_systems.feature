@@ -14,26 +14,26 @@ Feature: Cyber advisor can maintain systems
 
   Scenario: Cyber advisor can see option to create systems
     Given Think time 1 seconds
-    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
     And link with text "Manage users"
     When click link with text "View systems"
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 1"
     And link with text "System 2"
     And link with text "System 3"
 
   Scenario: Cyber advisor can crete new System
     Given Think time 1 seconds
-    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
     And link with text "Manage users"
     When click link with text "View systems"
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 1"
     And link with text "System 2"
     And link with text "System 3"
@@ -49,20 +49,20 @@ Feature: Cyber advisor can maintain systems
     Then they should see a summary card with header "Ministry of Agriculture" keys "System name,System description,Previous GovAssure self-assessments, System ownership,Hosting and connectivity,Corporate services" and values "My system,It provides core infrastructure essential for other critical systems to function,'Yes, in 2024/25', Another government organisation,Hybrid,Email and communication"
     And click button with text "Save and continue"
 #    User should see the new system in the system details page
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "My system"
     And System "does" exist with name "My system" for organisation "Ministry of Agriculture"
 
 
   Scenario: Cyber advisor can update a System
     Given Think time 1 seconds
-    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
     And link with text "Manage users"
     When click link with text "View systems"
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 1"
     And link with text "System 2"
     And link with text "System 3"
@@ -77,18 +77,18 @@ Feature: Cyber advisor can maintain systems
     Then they should see a summary card with header "Ministry of Agriculture" keys "System name,System description,Previous GovAssure self-assessments, System ownership,Hosting and connectivity,Corporate services" and values "System 3,It provides core infrastructure essential for other critical systems to function,'Yes, in 2024/25', Another government organisation,Hybrid,Email and communication"
     And click button with text "Save and continue"
 #    User should see the new system in the system details page
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And System "does" exist with name "System 3" for organisation "Ministry of Agriculture"
 
   Scenario: Cyber advisor can crete new System, review summary card and change
     Given Think time 1 seconds
-    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
     And link with text "Manage users"
     When click link with text "View systems"
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 1"
     And link with text "System 2"
     And link with text "System 3"
@@ -109,19 +109,19 @@ Feature: Cyber advisor can maintain systems
     Then they should see a summary card with header "Ministry of Agriculture" keys "System name,System description,Previous GovAssure self-assessments, System ownership,Hosting and connectivity,Corporate services" and values "My system,It provides core infrastructure essential for other critical systems to function,'Yes, in 2024/25', Another government organisation,Cloud hosted,Email and communication"
     And click button with text "Save and continue"
 #    User should see the new system in the system details page
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "My system"
     And System "does" exist with name "My system" for organisation "Ministry of Agriculture"
 
   Scenario: Cyber advisor can update and then change a System
     Given Think time 1 seconds
-    Then they should see page title "Cyber advisor - My account - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Cyber advisor - My account - Complete a WebCAF self-assessment - GOV.UK"
     And current organisation is set to "Ministry of Agriculture"
     And a button with text "Add a new system"
     And link with text "View systems"
     And link with text "Manage users"
     When click link with text "View systems"
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 1"
     And link with text "System 2"
     And link with text "System 3"
@@ -141,6 +141,6 @@ Feature: Cyber advisor can maintain systems
     Then they should see a summary card with header "Ministry of Agriculture" keys "System name,System description,Previous GovAssure self-assessments, System ownership,Hosting and connectivity,Corporate services" and values "System 3,It provides core infrastructure essential for other critical systems to function,'Yes, in 2024/25', Another government organisation,Cloud hosted,Email and communication"
     And click button with text "Save and continue"
 #    User should see the new system in the system details page
-    Then they should see page title "Manage Systems - cyber_advisor - Complete a WebCAF self-assessment - GOV.UK"
+    Then they should see page title "Manage Systems - Complete a WebCAF self-assessment - GOV.UK"
     And link with text "System 3"
     And System "does" exist with name "System 3" for organisation "Ministry of Agriculture"

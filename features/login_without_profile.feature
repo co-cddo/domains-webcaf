@@ -14,4 +14,4 @@ Feature: User login without a profile
     And page contains text "<page_text>" in banner
     Examples:
       | user_name            | password | page_title                                                      | page_text                                                                              |
-      | alice@example.gov.uk | password | My account - alice - Complete a WebCAF self-assessment - GOV.UK | You do not have a profile set up. Please create one by contacting your GovAssure lead. |
+      | alice@example.gov.uk | password | You do not have a profile set up - Complete a WebCAF self-assessment - GOV.UK | You do not have a profile set up. Please create one by contacting your GovAssure lead. |

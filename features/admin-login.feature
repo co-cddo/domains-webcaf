@@ -29,5 +29,5 @@ Feature: Admin user login
     And enter text "admin2" for id "id_username"
     And enter text "admin5" for id "id_password"
     And click button with text "Log in"
-    Then they should see page title "Forbidden"
+    Then they should see page title "Too many login attempts"
     And page has heading "Too many login attempts"
