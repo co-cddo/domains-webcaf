@@ -47,4 +47,11 @@ COPY gunicorn_conf.py /app/gunicorn_conf.py
 
 USER webcaf
 
-EXPOSE 8020
+EXPOSE 8010
+
+# Set the main executable
+ENTRYPOINT ["/usr/local/bin/gunicorn"]
+
+# Provide the default configuration and application module as arguments
+CMD ["--config", "/app/gunicorn_conf.py", "webcaf.wsgi:application"]
+

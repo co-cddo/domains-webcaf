@@ -1,0 +1,65 @@
+name: Build & Publish Docker to ECR (Sandbox)
+
+#Run this workflow when a feature branch is merged into main. Image is deployed to staging environment.
+on:
+  push:
+    branches:
+      - main
+      - feature/CS-368-ci-pipeline
+
+permissions:
+  id-token: write   # required for AWS OIDC
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
+      # Figure out the image name based on the tag
+      - name: Derive image name
+        id: image_name
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          BASE_IMAGE="webcaf-sandbox"
+
+          echo "Image name is : $BASE_IMAGE"
+          echo "IMAGE_NAME=$BASE_IMAGE" >> $GITHUB_OUTPUT
+      - name: Debug GitHub Context
+        run: |
+          echo "Repository=${{ github.repository }}"
+          echo "Ref=${{ github.ref }}"
+          echo "RefName=${{ github.ref_name }}"
+          echo "Workflow=${{ github.workflow }}"
+
+      - name: Configure AWS credentials (Sandbox)
+        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
+        with:
+          role-to-assume: "arn:aws:iam::114823617241:role/caf_sbx_github" #"arn:aws:iam::${{ secrets.SANDBOX_ACCOUNT_ID }}:role/caf_sbx_github"
+          aws-region: eu-west-2
+
+      - name: Ensure release tag is from main
+        run: |
+          if [ "${GITHUB_EVENT_BASE_REF}" != "refs/heads/main" ]; then
+            echo "❌ Release tags must be created from main branch only."
+            echo "This tag (${GITHUB_REF_NAME}) came from ${GITHUB_EVENT_BASE_REF}"
+            #exit 0
+          fi
+      - name: Log in to Amazon ECR
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
+      - name: Build, Tag, and Push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          IMAGE_NAME: ${{ steps.image_name.outputs.IMAGE_NAME }}
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}   # short commit SHA as the tag
+          echo "Pushing image: $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+          docker buildx build --platform linux/amd64 \
+          -t $ECR_REGISTRY/caf/$IMAGE_NAME:$IMAGE_TAG \
+          -t $ECR_REGISTRY/caf/$IMAGE_NAME:latest  \
+          . --push;
