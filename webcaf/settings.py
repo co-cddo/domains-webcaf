@@ -388,3 +388,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Only send emails for staging and prod environments
 SEND_ASSESSMENT_COMPLETION_EMAILS = ENVIRONMENT in ["staging", "prod"]
+
+# CAF Router Version
+WEBCAF_VERSION = "caf40"

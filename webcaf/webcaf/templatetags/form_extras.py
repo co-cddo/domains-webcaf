@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from django import template
 from django.forms import Form
 from django.utils import timezone
+from django.conf import settings
 from slugify import slugify
 
 from webcaf.webcaf.caf.util import IndicatorStatusChecker
@@ -378,7 +379,7 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
     from webcaf.webcaf.frameworks import routers
 
     progress_dict: dict[str, Any] = {}
-    router = routers["caf32"]
+    router = routers[settings.WEBCAF_VERSION]
     sections = router.get_sections()
 
     if principle_question:

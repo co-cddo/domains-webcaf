@@ -10,6 +10,7 @@ from django.http import FileResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView, View
+from django.conf import settings
 
 from webcaf.webcaf.models import Assessment, Configuration, System, UserProfile
 from webcaf.webcaf.utils.excel_exporter import create_assessment_template_workbook
@@ -363,7 +364,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         data["draft_assessment"] = self.request.session.get("draft_assessment", {})
 
         # Hard code the router class version for now
-        router = routers["caf32"]
+        router = routers[settings.WEBCAF_VERSION]
         data["objectives"] = router.get_sections()
         data["review_form"] = AssessmentReviewTypeForm
 
