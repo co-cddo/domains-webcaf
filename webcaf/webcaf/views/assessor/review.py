@@ -11,7 +11,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, UpdateView
-from weasyprint import default_url_fetcher
 
 from webcaf import settings
 from webcaf.webcaf.models import Configuration, Review, Settings, System, UserProfile
@@ -644,7 +643,7 @@ class DownloadReport(ShowReportView):
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings
-        from weasyprint import HTML
+        from weasyprint import HTML, default_url_fetcher
 
         # Disable style warnings from weasyprint
         logging.getLogger("weasyprint").setLevel(logging.ERROR)

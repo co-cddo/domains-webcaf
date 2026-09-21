@@ -16,7 +16,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from django.views.generic.detail import DetailView
-from weasyprint import default_url_fetcher
 
 from webcaf.webcaf.models import (
     Assessment,
@@ -374,7 +373,7 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings
-        from weasyprint import HTML
+        from weasyprint import HTML, default_url_fetcher
 
         # Disable style warnings from weasyprint
         logging.getLogger("weasyprint").setLevel(logging.ERROR)
