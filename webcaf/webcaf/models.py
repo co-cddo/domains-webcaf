@@ -1800,3 +1800,34 @@ class Tip(ReferenceGeneratorMixin, models.Model):
 
     def __str__(self):
         return f"Tip ref {self.reference} for system {self.review.assessment.system.name}"
+
+
+class UserAssociation(models.Model):
+    """
+    Establishes a bidirectional association between backend and frontend users.
+
+    Allows the fronted user to be associated with the backend user.
+    This is intended for any cyber advisor users who has a back end account and
+    can perform and admin actions in the back end.
+    them.
+
+    :ivar backend_user: The backend user associated with the frontend user.
+    :ivar frontend_user: The frontend user associated with the backend user.
+    """
+
+    backend_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="frontend_association",
+    )
+    frontend_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="backend_association",
+    )
+
+    class Meta:
+        unique_together = ("backend_user", "frontend_user")
+
+    def __str__(self):
+        return f"{self.backend_user} → {self.frontend_user}"
