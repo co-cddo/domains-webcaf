@@ -44,7 +44,7 @@ jobs:
           if [ "${GITHUB_EVENT_BASE_REF}" != "refs/heads/main" ]; then
             echo "❌ Release tags must be created from main branch only."
             echo "This tag (${GITHUB_REF_NAME}) came from ${GITHUB_EVENT_BASE_REF}"
-            #xit 0
+            exit 1
           fi
       - name: Log in to Amazon ECR
         id: login_ecr
