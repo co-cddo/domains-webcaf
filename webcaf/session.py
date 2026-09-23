@@ -69,8 +69,8 @@ class CafSessionTimeoutMiddleware:
                     # Special case: If the user times out on the root path,
                     # likely from a closed tab, just flush the session
                     # without redirecting.
-                    if request.path == "/":
-                        logger.info("User %s timed out on root path. Flushing session.", user_id)
+                    if request.path == "/" or request.path.startswith("/public/"):
+                        logger.info("User %s timed out on root or public path. Flushing session.", user_id)
                         request.session.flush()
                         # Continue processing the request (now as an anonymous user)
                         response = self.get_response(request)

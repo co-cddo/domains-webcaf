@@ -1,7 +1,9 @@
 from django.contrib import auth
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 
 
+@never_cache
 def session_expired(request):
     """
     Logs out the user if they are authenticated,
