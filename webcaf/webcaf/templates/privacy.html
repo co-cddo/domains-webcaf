@@ -1,22 +1,38 @@
 {% extends "base.html" %}
-
+{% block title %}
+    WebCAF privacy notice {{ block.super }}
+{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">
-                Privacy notice
-                <br><span class="govuk-body govuk-!-font-size-16  ">Last updated on 27 September 2025.</span>
+                WebCAF privacy notice
+                <br><span class="govuk-body govuk-!-font-size-16  ">Last updated on 26 September 2026.</span>
             </h1>
-            <h2 class="govuk-heading-m">
-                Changes to this notice
-            </h2>
             <p class="govuk-body">
-                We may change this privacy notice. In that case the 'last updated' date at the top of this page will also change. Any changes to this privacy notice will apply to you and your data immediately. If these changes affect how your personal data is processed, the Cabinet Office will take reasonable steps to make sure you know.
+                WebCAF is an online service used by organisations going through GovAssure. To make the service secure
+                and available, we need to collect, process and store some personal data.
             </p>
-            <h2 class="govuk-heading-m">
+            <ul class="govuk-list govuk-list--bullet">
+                <li><a href="#what-data-we-collect" class="govuk-link">What data we collect</a></li>
+                <li><a href="#our-legal-basis-for-processing-your-data" class="govuk-link">Our legal basis for
+                    processing your data</a>
+                </li>
+                <li><a href="#who-we-share-your-data-with" class="govuk-link">Who we share your data with</a></li>
+                <li><a href="#where-your-data-is-processed-and-stored" class="govuk-link">Where your data is processed
+                    and stored</a></li>
+                <li><a href="#how-long-we-store-your-data" class="govuk-link">How long we store your data</a></li>
+                <li><a href="#how-we-protect-your-data-and-keep-it-secure" class="govuk-link">How we protect your data
+                    and keep it
+                    secure</a></li>
+                <li><a href="#data-subject-rights" class="govuk-link">Data subject rights</a></li>
+                <li><a href="#questions-and-complaints" class="govuk-link">Questions and complaints</a></li>
+                <li><a href="#changes-to-this-notice" class="govuk-link">Changes to this notice</a></li>
+            </ul>
+            <h2 class="govuk-heading-m" id="what-data-we-collect">
                 What data we collect
             </h2>
-            <p class="govuk-body">The personal data we collect may include:</p>
+            <p class="govuk-body">The personal data we collect includes:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>your name</li>
                 <li>the organisation you work for</li>
@@ -25,95 +41,122 @@
                 <li>your browser and connection details</li>
             </ul>
 
-            <h2 class="govuk-heading-m">
-                Why we collect this data
+            <h2 class="govuk-heading-m" id="our-legal-basis-for-processing-your-data">
+                Our legal basis for processing your data
+            </h2>
+            <h3 class="govuk-heading-s">
+                Legitimate interests (UK GDPR Article (6)(1)(f))
+            </h3>
+            <p class="govuk-body">
+                When we process your personal data for security monitoring and reporting purposes, the legal basis we
+                rely on is that the processing is necessary for the Department for Science, Innovation and Technology’s
+                (DSIT) legitimate interests. These interests are to:
+            </p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>provide access to the service</li>
+                <li>track the changes that people make to information within the service</li>
+                <li>monitor for potential security issues or incidents</li>
+            </ul>
+            <h2 class="govuk-heading-m" id="who-we-share-your-data-with">
+                Who we share your data with
             </h2>
             <p class="govuk-body">
-                Personal data is required to provide access to the service and track the changes that people make to information within the service, and to monitor for potential security issues or incidents.
+                Your personal data may be shared with security teams in your organisation in relation to security
+                incidents, for example, if malicious behaviour is detected.
             </p>
-
-            <h2 class="govuk-heading-m">
-                Recipients
+            <p class="govuk-body">
+                We may also share some data for reporting purposes, for example, which organisations currently use
+                WebCAF. Personal data will only be shared internally within DSIT.
+            </p>
+            <h2 class="govuk-heading-m" id="where-your-data-is-processed-and-stored">
+                Where your data is processed and stored
             </h2>
             <p class="govuk-body">
-                Your personal data may be shared with security teams in your organisation in relation to security incidents, for instance if malicious behaviour is detected.
+                All processing is based in the UK on DSIT-managed cloud infrastructure using Amazon Web Services (AWS).
             </p>
-
-            <h2 class="govuk-heading-m">
-                Retention
+            <h2 class="govuk-heading-m" id="how-long-we-store-your-data">
+                How long we store your data
             </h2>
             <p class="govuk-body">
-                Your personal data (email and name) is retained so long as you are an active user of the system, and for at least two years for security purposes. IP addresses, browser and connection details are retained for two years for security purposes.
+                Your personal data is retained so long as you are an active user of this service and for two years for
+                security purposes. IP addresses, browser and connection details are retained for one year for security
+                purposes
+            </p>
+            <p class="govuk-body">
+                Logs are retained for at least 90 days to support deprecation monitoring and incident review.
             </p>
 
-            <h2 class="govuk-heading-m">
+            <h2 class="govuk-heading-m" id="how-we-protect-your-data-and-keep-it-secure">How we protect your data and
+                keep it secure </h2>
+            <p class="govuk-body">
+                We are committed to doing all that we can to keep your information secure. This is why we store and
+                process only the information required for WebCAF to work, to track changes made in the service, and for
+                security monitoring and reporting purposes.
+            </p>
+            <p class="govuk-body">
+                Log data is accessible only to the team operating the service and is not shared with third parties.
+            </p>
+            <p class="govuk-body">
+                All data is encrypted both at rest and in transit.
+            </p>
+
+            <h2 class="govuk-heading-m" id="data-subject-rights">
                 Data subject rights
             </h2>
             <p class="govuk-body">You have the right to:</p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>request information about how your personal data are processed, and to request a copy of that personal data.</li>
-                <li>request that any incomplete personal data are completed, including by means of a supplementary statement.</li>
-                <li>request that your personal data are erased if there is no longer a justification for them to be processed.</li>
-                <li>request, in certain circumstances (for example, where accuracy is contested), that the processing of your personal data is restricted</li>
-                <li>object to the processing of your personal data where it is processed for direct marketing purposes.</li>
-                <li>object to the processing of your personal data.</li>
-                <li>withdraw consent to the processing of your personal data at any time.</li>
-                <li>request a copy of any personal data you have provided, and for this to be provided in a structured, commonly used and machine-readable format.</li>
+                <li>request information about how your personal data is processed, and to request a copy of that
+                    personal data
+                </li>
+                <li>request that any incomplete personal data is completed, including by means of a supplementary
+                    statement
+                </li>
+                <li>request that your personal data is erased if there is no longer a justification for it to be
+                    processed
+                </li>
+                <li>request, in certain circumstances (for example, where accuracy is contested), that the processing of
+                    your personal data is restricted
+                </li>
+                <li>object to the processing of your personal data where it is processed for direct marketing purposes
+                </li>
+                <li>object to the processing of your personal data</li>
+                <li>withdraw consent to the processing of your personal data at any time</li>
+                <li>request a copy of any personal data you have provided, and for this to be provided in a structured,
+                    commonly-used and machine-readable format
+                </li>
             </ul>
 
-            <h2 class="govuk-heading-m">
-                International transfers
-            </h2>
-
-            <p class="govuk-body">
-                All processing is based in the UK.
-            </p>
-
-            <h2 class="govuk-heading-m">
-                Cookies
-            </h2>
-
-            <p class="govuk-body">Please visit our  <a class="govuk-link" href="/cookies/">cookies page</a> for more information.</p>
-
-            <h2 class="govuk-heading-m">
+            <h2 class="govuk-heading-m" id="questions-and-complaints">
                 Questions and complaints
             </h2>
-
             <p class="govuk-body">The contact details for our Data Protection Officer are:</p>
-
             <div class="govuk-inset-text">
-                <h2 class="govuk-heading-m">Contact an officer</h2>
                 <h3 class="govuk-heading-s">Email</h3>
                 <ul class="govuk-list">
-                    <li><a class="govuk-link" href="#">dpo@cabinetoffice.gov.uk </a></li>
+                    <li><a class="govuk-link" href="mailto:dataprotection@dsit.gov.uk">dataprotection@dsit.gov.uk</a>
+                    </li>
                 </ul>
 
                 <h3 class="govuk-heading-s">Address</h3>
                 <p class="govuk-body">
-                    Data Protection Officer<br>
-                    Cabinet Office, Room 405<br>
-                    70 Whitehall<br>
-                    London<br>
-                    SW1A 2AS
+                    DSIT Data Protection Officer<br/>
+                    Department for Science, Innovation and Technology<br/>
+                    22-26 Whitehall<br/>
+                    London<br/>
+                    SW1A 2EG
                 </p>
             </div>
 
-            <p class="govuk-body">You may also make a complaint to the Information Commissioner, who is an independent regulator set up to uphold information rights.</p>
-
-
-
+            <p class="govuk-body">You may also <a class="govuk-link"
+                                                  target="_blank"
+                                                  href="https://ico.org.uk/make-a-complaint/personal-information-complaint/">make
+                a complaint to the Information Commissioner (opens in new tab)</a>, who is an independent
+                regulator set up to uphold information rights.</p>
             <div class="govuk-inset-text">
-                <h2 class="govuk-heading-m">Contact a commissioner</h2>
                 <h3 class="govuk-heading-s">Phone</h3>
                 <ul class="govuk-list">
-                    <li>Phone: 0303 123 1113</li>
+                    <li>0303 123 1113</li>
                 </ul>
-
-                <h3 class="govuk-heading-s">Email</h3>
-                <ul class="govuk-list">
-                    <li><a class="govuk-link" href="#">casework@ico.org.uk </a></li>
-                </ul>
-
                 <h3 class="govuk-heading-s">Address</h3>
                 <p class="govuk-body">
                     Information Commissioner’s Office<br>
@@ -123,6 +166,18 @@
                     SK9 5AF
                 </p>
             </div>
+
+            <h2 class="govuk-heading-m" id="changes-to-this-notice">
+                Changes to this notice
+            </h2>
+            <p class="govuk-body">
+                We may change this privacy notice. In that case the ‘last updated’ date at the top of this page will
+                also change. Any changes to this privacy notice will apply to you and your data immediately.
+            </p>
+            <p class="govuk-body">
+                If these changes affect how your personal data is processed, DSIT will take reasonable steps to let you
+                know.
+            </p>
         </div>
     </div>
 {% endblock %}
