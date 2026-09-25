@@ -3,7 +3,7 @@
 {% load static %}
 {% load csp %}
 {% load form_extras %}
-{% block title %}View completed assessment - {{ user.first_name }} {% endblock %}
+{% block title %}View completed assessment  {{ block.super }}{% endblock %}
 
 {% block content %}
     <div class="govuk-grid-row">

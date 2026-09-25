@@ -4,7 +4,7 @@
 {% load csp %}
 {% load form_extras %}
 
-{% block title %}Completion Confirmation - {{ user.first_name }} {% endblock %}
+{% block title %}Completion Confirmation  {{ block.super }}{% endblock %}
 {% block content %}
     {% get_assessment request as assessment %}
     <div class="govuk-width-container">
