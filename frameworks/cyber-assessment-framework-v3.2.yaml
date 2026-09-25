@@ -474,7 +474,10 @@ objectives:
           A3.a:
             code: A3.a
             title: Asset Management
-            description: ''
+            description: Everything required to deliver, maintain or support network and
+              information systems necessary for the operation of essential functions is
+              determined and understood. This includes data, people and systems, as well
+              as any supporting infrastructure (such as power or cooling).
             indicators:
               partially-achieved: { }
               not-achieved:
@@ -541,7 +544,10 @@ objectives:
           A4.a:
             code: A4.a
             title: Supply Chain
-            description: ''
+            description: The organisation understands and manages security risks to network
+              and information systems supporting the operation of essential functions that
+              arise as a result of dependencies on external suppliers. This includes ensuring
+              that appropriate measures are employed where third party services are used.
             indicators:
               not-achieved:
                 A4.a.1:
@@ -550,7 +556,7 @@ objectives:
                   ncsc-index: A4.a.NA.1
                 A4.a.2:
                   description: Elements of the supply chain for essential function(s)
-                    are subcontracted and you little or no visibility of the sub-contractors.
+                    are subcontracted and you have little or no visibility of the sub-contractors.
                   ncsc-index: A4.a.NA.2
                 A4.a.3:
                   description: You have no understanding of which contracts are relevant

@@ -634,6 +634,9 @@ def _question_lookup(framework_id: str):
                     for item_code, item_data in items.items():
                         if isinstance(item_data, dict):
                             lookup[(code, f"{group_key}_{item_code}")] = item_data.get("description", "")
+                            lookup[(code, f"{group_key}_{item_code}_comment")] = (
+                                f"{item_data.get('description', '')} (alternative controls/exemptions)"
+                            )
                 lookup[(code, "outcome_status")] = f"{code} {title}: contributing outcome achievement"
                 lookup[(code, "confirm_outcome_confirm_comment")] = (
                     f"{code} {title}: comments justifying the achievement"
@@ -859,6 +862,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleH
         Export the template
         """
         from webcaf.webcaf.utils.excel_exporter import (
+            assessment_template_filename,
             create_assessment_template_workbook,
         )
 
@@ -871,7 +875,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleH
             output.getvalue(),
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-        response["Content-Disposition"] = f'attachment; filename="{framework_id}-assessment-template.xlsx"'
+        response["Content-Disposition"] = f'attachment; filename="{assessment_template_filename(framework_id)}"'
         return response
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
