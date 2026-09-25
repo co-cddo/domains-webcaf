@@ -9,10 +9,12 @@ from zoneinfo import ZoneInfo
 
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
+from django.db.models.functions import Lower
 from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
@@ -30,6 +32,7 @@ from webcaf.webcaf.models import (
     Settings,
     System,
     Tip,
+    UserAssociation,
     UserProfile,
 )
 from webcaf.webcaf.tip.util import RecommendationService
@@ -40,6 +43,42 @@ from webcaf.webcaf.utils.excel_importer import (
     excel_to_assessment_json_with_raw,
 )
 from webcaf.webcaf.views.system import SystemForm
+
+# The user groups who have access to all organisations
+ADMIN_GROUPS = {"admin", "data analyst admin"}
+
+
+def get_organisations(request: HttpRequest):
+    """
+    Retrieve a list of organisations based on the roles and permissions associated
+    with the requesting user.
+
+    Admin users and users belonging to the "admin" group can access all organisations.
+    Users in the "cyber advisor" role can access organisations tied to their User
+    Association. If no valid User Association exists for a "cyber advisor", a
+    warning message is added to the request, and an empty list is returned.
+
+    :param request: The HTTP request object containing user authentication and
+        session details.
+    :type request: HttpRequest
+    :return: A queryset of organisation IDs if permissions allow, otherwise an
+        empty list is returned.
+    :rtype: QuerySet or list
+    """
+    # Admin users can see all organisations
+    current_user = request.user
+    user_groups = list(current_user.groups.annotate(lower_name=Lower("name")).values_list("lower_name", flat=True))
+    if current_user.is_superuser or ADMIN_GROUPS.intersection(user_groups):
+        return Organisation.objects.values("id")
+
+    if "cyber advisor" in user_groups:
+        frontend_user = UserAssociation.objects.filter(backend_user=current_user).values("frontend_user")  # type: ignore[misc]
+        if frontend_user.exists():
+            return UserProfile.objects.filter(user__in=frontend_user, role="cyber_advisor").values("organisation__id")  # type: ignore[misc]
+        messages.warning(
+            request, "Warning: You do not have a User association created. Please ask admin to create one."
+        )
+    return Organisation.objects.none()
 
 
 class PrettyJSONWidget(forms.Textarea):
@@ -53,6 +92,8 @@ class PrettyJSONWidget(forms.Textarea):
     :ivar is_required: Indicates whether the widget is required in forms.
     :type is_required: bool
     """
+
+    read_only = True
 
     def format_value(self, value):
         if value in ("", None):
@@ -92,16 +133,21 @@ class JsonDataAdminForm(forms.ModelForm):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        # User friendly label from the key
+        self.fields[self.json_field] = forms.CharField(
+            label=self.json_field.replace("_", " ").title(),
+            required=False,
+        )
         field = self.fields[self.json_field]
         # Honour a read-only flag set either on the class or on the widget by
         # the admin's ``get_form`` before swapping in the pretty widget.
-        attrs = {"rows": 20, "cols": 60}
+        attrs = {"rows": 20, "cols": 120}
         if self.json_readonly or field.widget.attrs.get("readonly"):
             attrs["readonly"] = True
         field.widget = PrettyJSONWidget(attrs=attrs)
 
         value = getattr(self.instance, self.json_field, None)
-        if value:
+        if value is not None:
             self.initial[self.json_field] = value
 
     def clean(self) -> dict[str, Any]:
@@ -109,8 +155,40 @@ class JsonDataAdminForm(forms.ModelForm):
         if cleaned_data:
             value = cleaned_data.get(self.json_field)
             if isinstance(value, str):
-                cleaned_data[self.json_field] = json.loads(value)
+                try:
+                    cleaned_data[self.json_field] = json.loads(value)
+                except json.JSONDecodeError:
+                    raise ValidationError(
+                        f"Data in the {self.json_field.replace('_', ' ').title()} field is not valid JSON"
+                    )
         return cleaned_data if cleaned_data else {}
+
+
+class JsonDataEnableEditMixin:
+    """
+    Utility mixin to enable editing of JSON data in the admin form.
+    This enables the JSON data field to be editable if the current user has admin privileges.
+    """
+
+    def get_form(self, request, obj=None, **kwargs):
+        form_class = super().get_form(request, obj, **kwargs)  # type: ignore
+        is_admin = request.user.is_superuser or request.user.groups.filter(name__iexact="admin").exists()
+
+        class RequestForm(form_class):  # type: ignore
+            """
+            Utility form class to enable editing of JSON data in the admin form.
+            We enable it at request level, based on current user's admin privileges.
+            """
+
+            def __init__(self, *args, **form_kwargs):
+                # Allow admin backoffice users to edit the json
+                if is_admin:
+                    self.json_readonly = False
+                else:
+                    self.json_readonly = True
+                super().__init__(*args, **form_kwargs)
+
+        return RequestForm
 
 
 class OptionalFieldsAdminMixin:
@@ -174,6 +252,43 @@ class SettingsAdminForm(forms.ModelForm):
             "admin_verification_enabled": "Enable admin 2f verification",
             "gov_assure_email": "GovAssure email address",
         }
+
+
+class ScopedUserAdmin(BaseUserAdmin):
+    """
+    Provides a customized admin interface for managing users with scope-based
+    access control.
+
+    The class overrides the default behavior to restrict the queryset based on
+    the requester's group membership and permissions.
+
+    :ivar model: The model class associated with this admin.
+    :type model: Type[Model]
+    :ivar ordering: Default ordering for the queryset used in the admin.
+    :type ordering: List[str] or Tuple[str, ...]
+    :ivar list_display: Fields to display in the admin change list.
+    :type list_display: List[str] or Tuple[str, ...]
+    :ivar list_filter: Filters available in the admin interface.
+    :type list_filter: List[str] or Tuple[str, ...]
+    """
+
+    def get_queryset(self, request: HttpRequest):
+        queryset = super().get_queryset(request)
+        user_groups = list(request.user.groups.annotate(lower_name=Lower("name")).values_list("lower_name", flat=True))
+        if request.user.is_superuser or ADMIN_GROUPS.intersection(user_groups):
+            return queryset
+        if "cyber advisor" in user_groups:
+            return queryset.filter(
+                id__in=UserProfile.objects.filter(
+                    organisation_id__in=get_organisations(request),
+                ).values("user_id")
+            )
+        return User.objects.none()
+
+
+# Register the new filtered access admin
+admin.site.unregister(User)
+admin.site.register(User, ScopedUserAdmin)
 
 
 @admin.register(Settings)
@@ -404,6 +519,10 @@ class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: 
             organisation = Organisation.objects.filter(Q(name=row["Organisation"])).first()
         return organisation
 
+    def get_queryset(self, request: HttpRequest):
+        queryset = super().get_queryset(request)
+        return queryset.filter(id__in=get_organisations(request))
+
 
 class AdminSystemForm(SystemForm):
     """
@@ -420,8 +539,10 @@ class AdminSystemForm(SystemForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["corporate_services_other"].required = False
-        self.fields["description"].required = False
+        if "corporate_services_other" in self.fields:
+            self.fields["corporate_services_other"].required = False
+        if "description" in self.fields:
+            self.fields["description"].required = False
         # Do not need the action field. It is only used in the user screen confirmation
         self.fields["action"].required = False
         self.fields["action"].widget = forms.HiddenInput(
@@ -456,7 +577,7 @@ class SystemAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
         qs = super().get_queryset(request)
         return qs.annotate(
             organisation_name=F("organisation__name"),
-        )
+        ).filter(organisation_id__in=get_organisations(request))
 
     @admin.display(ordering="organisation_name", description="Organisation")
     def organisation_name(self, obj):
@@ -475,7 +596,7 @@ class AssessmentAdminForm(JsonDataAdminForm):
         fields = "__all__"
 
 
-def _build_preview_rows(raw_rows, framework_id):
+def _build_preview_rows(raw_rows: list[tuple[str, str, Any, bool]], framework_id: str):
     """Turning JSON into the HTML table"""
     lookup = _question_lookup(framework_id)
     rows: list[tuple[str, str, Any, bool]] = []
@@ -490,7 +611,7 @@ def _build_preview_rows(raw_rows, framework_id):
     return rows
 
 
-def _question_lookup(framework_id):
+def _question_lookup(framework_id: str):
     """Find out what question that JSON key relates to"""
     from webcaf.webcaf.frameworks import routers
 
@@ -516,7 +637,7 @@ def _question_lookup(framework_id):
 
 
 @admin.register(Assessment)
-class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
+class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleHistoryAdmin):  # type: ignore
     model = Assessment
     form = AssessmentAdminForm
     logger = logging.getLogger("AssessmentAdmin")
@@ -538,9 +659,16 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(
-            system_name=F("system__name"),
-            system_organisation=F("system__organisation__name"),
+        return (
+            qs.annotate(
+                system_name=F("system__name"),
+                system_organisation=F("system__organisation__name"),
+            )
+            .select_related("system__organisation")
+            .filter(
+                system__organisation__isnull=False,
+                system__organisation__id__in=get_organisations(request),
+            )
         )
 
     def get_urls(self):
@@ -590,7 +718,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ig
         }
         return render(request, "admin/webcaf/assessment/import_excel_standalone.html", context)
 
-    def _preview_excel_import(self, request):
+    def _preview_excel_import(self, request: HttpRequest):
         excel_file = request.FILES.get("excel_file")
         if not excel_file:
             self.message_user(request, "Choose an Excel file to upload.", messages.ERROR)
@@ -865,7 +993,7 @@ class ReviewAdminForm(JsonDataAdminForm):
 
 
 @admin.register(Review)
-class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
+class ReviewAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleHistoryAdmin):
     form = ReviewAdminForm
     logger = logging.getLogger("ReviewAdmin")
     search_fields = ["assessment_system_name", "assessment_reference", "assessment_organisation"]
@@ -894,12 +1022,19 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(
-            assessment_system_name=F("assessment__system__name"),
-            assessment_framework=F("assessment__framework"),
-            assessment_review_type=F("assessment__review_type"),
-            assessment_reference=F("assessment__reference"),
-            assessment_organisation=F("assessment__system__organisation__name"),
+        return (
+            qs.annotate(
+                assessment_system_name=F("assessment__system__name"),
+                assessment_framework=F("assessment__framework"),
+                assessment_review_type=F("assessment__review_type"),
+                assessment_reference=F("assessment__reference"),
+                assessment_organisation=F("assessment__system__organisation__name"),
+            )
+            .select_related("assessment")
+            .filter(
+                assessment__system__organisation__isnull=False,
+                assessment__system__organisation__id__in=get_organisations(request),
+            )
         )
 
     def get_urls(self):
@@ -1123,15 +1258,16 @@ class ReviewAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
             `assessment` field.
         """
         form = super().get_form(request, obj, **kwargs)
+        if "assessment" in form.base_fields:
+            # i.e if assessment field can be changed
+            fk_field = form.base_fields["assessment"]
+            qs = fk_field.queryset
 
-        fk_field = form.base_fields["assessment"]
-        qs = fk_field.queryset
-
-        # Any unassigned assessments
-        fk_field.queryset = qs.filter(reviews__isnull=True)
-        if obj:  # change view
-            # filter queryset: unassigned OR assigned to current obj
-            fk_field.queryset |= qs.filter(reviews__in=[obj.id])
+            # Any unassigned assessments
+            fk_field.queryset = qs.filter(reviews__isnull=True)
+            if obj:  # change view
+                # filter queryset: unassigned OR assigned to current obj
+                fk_field.queryset |= qs.filter(reviews__in=[obj.id])
 
         return form
 
@@ -1274,14 +1410,20 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(
-            assessment_system_name=F("review__assessment__system__name"),
-            assessment_framework=F("review__assessment__framework"),
-            assessment_review_type=F("review__assessment__review_type"),
-            assessment_reference=F("review__assessment__reference"),
-            assessment_organisation=F("review__assessment__system__organisation__name"),
-        ).select_related(
-            "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
+        return (
+            qs.annotate(
+                assessment_system_name=F("review__assessment__system__name"),
+                assessment_framework=F("review__assessment__framework"),
+                assessment_review_type=F("review__assessment__review_type"),
+                assessment_reference=F("review__assessment__reference"),
+                assessment_organisation=F("review__assessment__system__organisation__name"),
+            )
+            .select_related(
+                "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
+            )
+            .filter(
+                review__assessment__system__organisation__id__in=get_organisations(request),
+            )
         )
 
     def get_urls(self):
@@ -1433,3 +1575,23 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
 
     class Media:
         css = {"all": ("webcaf/admin.css",)}
+
+
+@admin.register(UserAssociation)
+class UserAssociationAdmin(admin.ModelAdmin):
+    list_display = ("backend_user", "frontend_user")
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "frontend_user":
+            kwargs["queryset"] = User.objects.filter(
+                id__in=UserProfile.objects.filter(role="cyber_advisor").values_list("user_id", flat=True),
+                is_active=True,
+                is_staff=False,
+            )
+        if db_field.name == "backend_user":
+            kwargs["queryset"] = User.objects.filter(
+                is_active=True,
+                is_staff=True,
+                is_superuser=False,
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
