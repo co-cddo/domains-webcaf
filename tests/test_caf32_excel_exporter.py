@@ -2,9 +2,16 @@ import os
 import unittest
 
 import yaml
-from openpyxl.worksheet.worksheet import Worksheet
 
-from webcaf.webcaf.utils.excel_exporter import build_assessment_template_workbook
+from webcaf.webcaf.utils.excel_exporter import (
+    GUIDANCE_SHEET_NAME,
+    build_assessment_template_workbook,
+)
+from webcaf.webcaf.utils.excel_importer import (
+    JSON_MAP_HEADERS,
+    JSON_MAP_SHEET_NAME,
+    META_SHEET_NAME,
+)
 
 
 class TestCAF32ExcelExporter(unittest.TestCase):
@@ -14,115 +21,124 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         )
         with open(framework_path, "r") as file:
             self.framework = yaml.safe_load(file)
-        self.wb = build_assessment_template_workbook(self.framework)
+        self.wb = build_assessment_template_workbook(self.framework, "caf32")
         # Uncomment to save the workbook for manual inspection
         # current_dir = os.path.dirname(os.path.abspath(__file__))
         # new_file_path = os.path.join(current_dir, "test.xlsx")
         # self.wb.save(new_file_path)
 
-    def test_framework_loaded_and_workbook_created(self):
-        self.assertIsInstance(self.framework["objectives"], dict)
-        self.assertGreater(len(self.framework["objectives"]), 0)
-        self.assertIsNotNone(self.wb)
+    def _json_map(self) -> dict:
+        map_ws = self.wb[JSON_MAP_SHEET_NAME]
+        return {row[2]: row for row in map_ws.iter_rows(min_row=2, values_only=True)}
 
-    def test_sheet_count_and_titles(self):
-        # Expect one sheet per objective in the dummy fixture (A and B)
-        sheet_titles = [ws.title for ws in self.wb.worksheets]
-        # Titles use the format used by exporter: "CAF - Objective {code}" or similar
-        self.assertTrue(any(title.endswith("Objective A") or title.endswith("Objective - A") for title in sheet_titles))
-        self.assertTrue(any(title.endswith("Objective B") or title.endswith("Objective - B") for title in sheet_titles))
-
-    def test_top_header_contents_on_first_sheet(self):
-        ws = self.wb.worksheets[0]
-        # Title merged across C..I at row 1 with the expected text
-        self.assertEqual(ws.cell(row=1, column=3).value, "PLEASE ENTER CLASSIFICATION (OFFICIAL IF BLANK)")
-        # Resource Links header exists
-        resource_links_row = None
-        for r in range(1, 15):
-            if ws.cell(row=r, column=3).value == "Resource Links":
-                resource_links_row = r
-                break
-        self.assertIsNotNone(resource_links_row)
-        # Specific link texts exist in subsequent rows
-        texts = [ws.cell(row=resource_links_row + i, column=3).value for i in range(1, 4)]
-        self.assertIn("Five Lens Mapping Model", texts)
-        self.assertIn("Stage 3 Self-Assessment Guidance", texts)
-        self.assertIn("WebCAF", texts)
-
-    def test_outcome_sections_and_validations_present(self):
-        ws = self.wb.worksheets[0]
-        # Find the first outcome header row by searching for a known pattern "A1.a -" or similar
-        found_outcome_row = self._find_first_outcome_row(ws)
-        self.assertIsNotNone(found_outcome_row, "Outcome header not found")
-        # Column headers should be 3 rows below outcome header (one row for header, one for description)
-        header_row = found_outcome_row + 3
-        expected_headers = [
-            "Achieved",
-            "Answer",
-            "Partially Achieved",
-            "Answer",
-            "Not Achieved",
-            "Answer",
-            "Please summarize your evidence",
-        ]
-        actual_headers = [ws.cell(row=header_row, column=c).value for c in range(3, 10)]
-        self.assertEqual(actual_headers, expected_headers)
-        # Below headers there should be at least one indicator row with validation cells at D, F, H
-        indicator_row = header_row + 1
-        # The validation objects are registered on the worksheet; we can assert dataValidations exists
-        self.assertTrue(hasattr(ws, "data_validations"))
-        # Ensure the answer cells exist (they might be empty strings but should be addressable)
-        for col in (4, 6, 8):
-            self.assertIsNotNone(ws.cell(row=indicator_row, column=col))
-
-    def test_indicator_fill_colours(self):
-        # Validate fill colors for the first indicator line across achieved/partially/not columns
-        ws = self.wb.worksheets[0]
-        # Locate the first header row as in previous test
-        found_outcome_row = self._find_first_outcome_row(ws, "A2.a")
-        self.assertIsNotNone(
-            found_outcome_row,
+    def test_sheet_names_and_visibility(self):
+        self.assertEqual(
+            self.wb.sheetnames,
+            [
+                GUIDANCE_SHEET_NAME,
+                "Objective A",
+                "Objective B",
+                "Objective C",
+                "Objective D",
+                JSON_MAP_SHEET_NAME,
+                META_SHEET_NAME,
+            ],
         )
-        header_row = found_outcome_row + 3
-        # Find the first indicator row that actually has any indicator text in C/E/G
-        indicator_row = None
-        scan_row = header_row + 1
-        for r in range(scan_row, scan_row + 100):
-            c_vals = [ws.cell(row=r, column=c).value for c in (3, 5, 7)]
-            if any(isinstance(v, str) and v.strip() for v in c_vals):
-                indicator_row = r
-                break
-        self.assertIsNotNone(indicator_row, "Could not locate a non-empty indicator row after headers")
+        self.assertEqual(self.wb[JSON_MAP_SHEET_NAME].sheet_state, "veryHidden")
+        self.assertEqual(self.wb[META_SHEET_NAME].sheet_state, "veryHidden")
+        self.assertEqual(self.wb[META_SHEET_NAME]["B1"].value, "caf32")
 
-        # Columns C, E, G should have colored fills for achieved/partially/not respectively
-        fills = {
-            3: "C6E2B3",  # green
-            5: "FFFACD",  # yellow
-            7: "FFB6C1",  # pink
-        }
-        for col, expected in fills.items():
-            cell = ws.cell(row=indicator_row, column=col)
-            fill = cell.fill
-            self.assertIsNotNone(fill)
-            # openpyxl may store color as ARGB or RGB or by index; normalize and compare suffix
-            color_val = None
-            if getattr(fill, "start_color", None) is not None:
-                color_val = fill.start_color.rgb or fill.start_color.index
-            if not color_val and getattr(fill, "fgColor", None) is not None:
-                color_val = fill.fgColor.rgb or fill.fgColor.index
-            self.assertIsNotNone(color_val, f"Could not read cell fill color at row {indicator_row}, col {col}")
-            self.assertTrue(
-                str(color_val).upper().endswith(expected), f"Expected fill {expected} at column {col}, got {color_val}"
-            )
+    def test_guidance_sheet(self):
+        ws = self.wb[GUIDANCE_SHEET_NAME]
+        self.assertEqual(ws["A1"].value, "OFFICIAL SENSITIVE WHEN COMPLETED")
+        self.assertEqual(ws["A3"].value, "GovAssure self-assessment and evidence collation template - CAF version 3.2")
+        self.assertEqual(ws["A8"].value, "NCSC CAF version 3.2:")
+        self.assertEqual(ws["B9"].hyperlink.target, "https://webcaf.service.security.gov.uk/")
+        self.assertEqual(ws["B15"].hyperlink.target, "mailto:cybergovassure@cabinetoffice.gov.uk")
 
-    def _find_first_outcome_row(self, ws: Worksheet, text_to_match: str = "A1.a") -> int | None:
-        found_outcome_row = None
-        for r in range(1, 200):
-            v = ws.cell(row=r, column=3).value
-            if isinstance(v, str) and (" - " in v) and (text_to_match in v):
-                found_outcome_row = r
-                break
-        return found_outcome_row
+    def test_objective_sheet_headers(self):
+        ws = self.wb["Objective A"]
+        self.assertEqual(
+            [ws.cell(row=1, column=col).value for col in range(1, 9)],
+            [
+                "Principle",
+                "Contributing outcome",
+                "IGP type",
+                "IGP",
+                "IGP wording",
+                "Answer",
+                "If applicable, explain alternative controls/exemptions:",
+                "Contributing outcome summary (max 1,500 words)\n"
+                "The CAF contributing outcome wording is displayed for reference",
+            ],
+        )
+        self.assertEqual(ws.freeze_panes, "C2")
+
+    def test_one_row_per_igp_ordered_by_level(self):
+        ws = self.wb["Objective A"]
+        rows = [row[:5] for row in ws.iter_rows(min_row=2, max_row=9, values_only=True)]
+        a1a = self.framework["objectives"]["A"]["principles"]["A1"]["outcomes"]["A1.a"]["indicators"]
+        self.assertEqual(
+            rows[0],
+            (
+                "A1 Governance",
+                "A1.a - Board Direction",
+                "Achieved",
+                "Achieved statement 1",
+                a1a["achieved"]["A1.a.5"]["description"],
+            ),
+        )
+        self.assertEqual(rows[4][2:4], ("Not achieved", "Not achieved statement 1"))
+        self.assertEqual(rows[4][4], a1a["not-achieved"]["A1.a.1"]["description"])
+
+        total_igps = sum(
+            len(items or {})
+            for objective in self.framework["objectives"].values()
+            for principle in objective["principles"].values()
+            for outcome in principle["outcomes"].values()
+            for items in outcome["indicators"].values()
+        )
+        igp_rows = sum(self.wb[f"Objective {code}"].max_row - 1 for code in self.framework["objectives"])
+        self.assertEqual(igp_rows, total_igps)
+
+    def test_summary_cell_spans_outcome_rows(self):
+        ws = self.wb["Objective A"]
+        self.assertIn("H2:H9", [str(merged) for merged in ws.merged_cells.ranges])
+        self.assertEqual(
+            ws["H2"].value,
+            "You have effective organisational security management led at board level and articulated "
+            "clearly in corresponding policies.",
+        )
+
+    def test_outcomes_alternate_background(self):
+        ws = self.wb["Objective A"]
+        self.assertTrue(ws["A2"].fill.fgColor.rgb.endswith("DAEEF3"))
+        self.assertTrue(ws["A10"].fill.fgColor.rgb.endswith("FFFFFF"))
+        self.assertTrue(ws["A16"].fill.fgColor.rgb.endswith("DAEEF3"))
+
+    def test_answer_validation(self):
+        ws = self.wb["Objective A"]
+        validations = [(str(dv.sqref), dv.formula1) for dv in ws.data_validations.dataValidation]
+        self.assertEqual(validations, [(f"F2:F{ws.max_row}", '"Yes,No"')])
+
+    def test_json_map(self):
+        json_map = self._json_map()
+        self.assertEqual(
+            [cell.value for cell in self.wb[JSON_MAP_SHEET_NAME][1]],
+            JSON_MAP_HEADERS,
+        )
+        self.assertEqual(
+            json_map["/A1.a/indicators/achieved_A1.a.5"],
+            ("Objective A", "F2", "/A1.a/indicators/achieved_A1.a.5", "indicator_answer", False, None),
+        )
+        self.assertEqual(
+            json_map["/A1.a/indicators/not-achieved_A1.a.1_comment"],
+            ("Objective A", "G6", "/A1.a/indicators/not-achieved_A1.a.1_comment", "text", False, None),
+        )
+        summary = json_map["/A1.a/confirmation/confirm_outcome_confirm_comment"]
+        self.assertEqual(summary[:5], ("Objective A", "H2", summary[2], "text", False))
+        self.assertEqual(summary[5], self.wb["Objective A"]["H2"].value)
+        self.assertFalse(any(path.endswith("/outcome_status") for path in json_map))
 
 
 if __name__ == "__main__":
