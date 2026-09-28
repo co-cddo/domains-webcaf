@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: black
         exclude: webcaf/static|seed/
-        language_version: python3.12
+        language_version: python3.14
 
   # Linting
   - repo: https://github.com/PyCQA/flake8
