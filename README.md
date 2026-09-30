@@ -1,4 +1,4 @@
-# WebCAF Prototype
+# WebCAF
 
 Application to enable users to self-assess against the NCSC Cyber Assessment Framework, designed to
 enable future versions or different assessments to be represented with minimal code additions.
@@ -74,6 +74,32 @@ The Tip (Targeted Improvement Plan) pages use a common mixin to manage who can v
 - Approving and rejecting a tip is separate from editing and is restricted to Django staff users. The `Tip` model defines the custom permissions `can_approve_tip` and `can_reject_tip` (see `Tip.Meta.permissions`), and `Tip.approve()` / `Tip.reject()` both require `current_user.is_staff`.
 
 This `can_edit` attribute is then available to templates and forms to decide whether to render edit controls or enforce read-only behaviour. As with reviews, the mixin also sets `login_url` to the OIDC route and leverages `UserRoleCheckMixin` to enforce authentication and role checks across tip-related views.
+
+
+# Admin permissions and user groups
+
+The application defines 4 user groups (automatically initialized in migrations):
+
+- `admin` - has full access the data in the system
+- `data analyst admin` - not implemented yet
+- `data analyst` - not implemented yet
+- `cyber advisor` - read access to all relevant entities + approve/reject Tip
+
+### User Association and Scoped Entity Visibility
+
+Django Admin provides a **User Association** screen (`UserAssociation` model) allowing administrators to associate any backend user with one or more frontend users who have the `cyber_advisor` role.
+
+- **Organisation-scoped access:** When a backend user belongs to the `cyber advisor` group, their visibility in the admin interface (`OrganisationAdmin`, `SystemAdmin`, `AssessmentAdmin`, `ReviewAdmin`, `TipAdmin`, and `ScopedUserAdmin`) is automatically scoped down:
+  - The user only sees entities (Organisations, Systems, Assessments, Reviews, Tips, and Users) that belong to the organisations of their associated frontend `cyber_advisor` user(s).
+  - If a user in the `cyber advisor` group does not have an association configured, a warning message is displayed prompting an admin to create one, and no organisation entities are returned.
+- **Unrestricted access:** Superusers and members of the `admin` group have full access to view and manage all organisations and entities without restriction.
+
+### Editable JSON Fields in Admin
+
+Assessment and Review admin forms include JSON data fields displayed in a readable, pretty-printed format.
+
+- **Read/Write access:** Superusers and any user in the `admin` group can edit and save the JSON data fields directly in the admin form (implemented via `JsonDataEnableEditMixin`). Submitted values are validated to ensure valid JSON syntax before saving.
+- **Read-Only access:** For all other users with admin access, the JSON data fields are rendered in read-only mode.
 
 
 ## Running
