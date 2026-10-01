@@ -127,7 +127,7 @@ objectives:
             description: You have effective organisational security management led at
               board level and articulated clearly in corresponding policies.
             indicators:
-              partially-achieved: { }
+              partially-achieved: {}
               not-achieved:
                 A1.a.1:
                   description: The security of network and information systems related to
@@ -196,7 +196,7 @@ objectives:
               the security of network and information systems at all levels, with clear
               and well-understood channels for communicating and escalating risks.
             indicators:
-              partially-achieved: { }
+              partially-achieved: {}
               not-achieved:
                 A1.b.1:
                   description: Key roles are missing, left vacant, or fulfilled on an
@@ -240,7 +240,7 @@ objectives:
               related to the operation of your essential function(s) are considered in the
               context of other organisational risks.
             indicators:
-              partially-achieved: { }
+              partially-achieved: {}
               not-achieved:
                 A1.c.1:
                   description: What should be relatively straightforward risk decisions
@@ -429,7 +429,7 @@ objectives:
                   ncsc-index: A2.a.A.9
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           A2.b:
             code: A2.b
@@ -535,7 +535,7 @@ objectives:
               of your technology, people, and processes relevant to the operation of
               network and information systems supporting your essential function(s).
             indicators:
-              partially-achieved: { }
+              partially-achieved: {}
               not-achieved:
                 A2.c.1:
                   description: A particular product or service is seen as a "silver
@@ -592,7 +592,7 @@ objectives:
             title: Asset Management
             description: ''
             indicators:
-              partially-achieved: { }
+              partially-achieved: {}
               not-achieved:
                 A3.a.1:
                   description: Inventories of assets relevant to network and information
@@ -750,8 +750,8 @@ objectives:
                     capable and well-resourced threat actors.
                   ncsc-index: A4.a.A.5
                 A4.a.16:
-                  description: You understand which contracts are relevant and you
-                    include appropriate security obligations, in relevant contracts.
+                  description: You understand which contracts are relevant and you include
+                    appropriate security obligations, in relevant contracts.
                   ncsc-index: A4.a.A.6
                 A4.a.17:
                   description: You have a proactive approach to contract management which
@@ -878,8 +878,8 @@ objectives:
                   ncsc-index: A4.b.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
   B:
     code: B
     title: Protecting against cyber attack
@@ -979,7 +979,7 @@ objectives:
                   ncsc-index: B1.a.A.7
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           B1.b:
             code: B1.b
@@ -1009,8 +1009,8 @@ objectives:
                     other organisational policies, processes and procedures.
                   ncsc-index: B1.b.NA.5
                 B1.b.6:
-                  description: Your policies, processes and procedures are not well communicated
-                    across your organisation.
+                  description: Your policies, processes and procedures are not well
+                    communicated across your organisation.
                   ncsc-index: B1.b.NA.6
               partially-achieved:
                 B1.b.6:
@@ -1054,7 +1054,7 @@ objectives:
                   ncsc-index: B1.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
       B2:
         code: B2
@@ -1243,7 +1243,7 @@ objectives:
                   ncsc-index: B2.b.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           B2.c:
             code: B2.c
@@ -1418,9 +1418,8 @@ objectives:
               of network and information systems supporting your essential function(s),
               where it is stored, where it travels and how unavailability or unauthorised
               access, uncontrolled release, modification or deletion would adversely
-              impact the essential function(s). This also applies to third parties
-              storing or accessing data important to the operation of your
-              essential function(s).
+              impact the essential function(s). This also applies to third parties storing
+              or accessing data important to the operation of your essential function(s).
             indicators:
               not-achieved:
                 B3.a.1:
@@ -1517,8 +1516,8 @@ objectives:
                   ncsc-index: B3.a.A.9
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.b:
             code: B3.b
             title: Data in Transit
@@ -1573,7 +1572,7 @@ objectives:
                   ncsc-index: B3.b.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           B3.c:
             code: B3.c
@@ -1654,8 +1653,8 @@ objectives:
                   ncsc-index: B3.c.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.d:
             code: B3.d
             title: Mobile Data
@@ -1714,8 +1713,8 @@ objectives:
                   ncsc-index: B3.d.A.3
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B3.e:
             code: B3.e
             title: Media / Equipment Sanitisation
@@ -1958,7 +1957,7 @@ objectives:
                   ncsc-index: B4.b.A.7
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           B4.c:
             code: B4.c
@@ -2093,7 +2092,7 @@ objectives:
                   ncsc-index: B4.d.A.4
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
       B5:
         code: B5
@@ -2151,7 +2150,7 @@ objectives:
                   ncsc-index: B5.a.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           B5.b:
             code: B5.b
@@ -2221,8 +2220,8 @@ objectives:
                   ncsc-index: B5.b.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B5.c:
             code: B5.c
             title: Backups
@@ -2268,7 +2267,7 @@ objectives:
                   ncsc-index: B5.c.A.2
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
       B6:
         code: B6
@@ -2359,8 +2358,8 @@ objectives:
                   ncsc-index: B6.a.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
-              enhanced: *achieved
+              baseline: *partially_achieved
+              enhanced: *partially_achieved
           B6.b:
             code: B6.b
             title: Cyber Security Training
@@ -2638,7 +2637,7 @@ objectives:
                   ncsc-index: C1.b.A.5
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           C1.c:
             code: C1.c
@@ -2844,7 +2843,7 @@ objectives:
                   ncsc-index: C1.d.A.6
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           C1.e:
             code: C1.e
@@ -2961,7 +2960,7 @@ objectives:
                   ncsc-index: C1.e.A.9
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
           C1.f:
             code: C1.f
@@ -3067,7 +3066,7 @@ objectives:
                   ncsc-index: C1.f.A.8
             assessment-rules: *standard-rules
             min_profile_requirement:
-              baseline: *achieved
+              baseline: *partially_achieved
               enhanced: *achieved
       C2:
         code: C2
