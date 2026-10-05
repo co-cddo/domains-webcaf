@@ -10,15 +10,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && rm -rf /var/lib/apt/lists/*
 
 # Point python3 to 3.12 and install pip
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 20 && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
-    python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 20
+RUN python3 -m ensurepip --upgrade \
+    && python3 -m pip install --no-cache-dir --upgrade \
+        pip setuptools wheel \
+    && python3 -m pip --version
 
 WORKDIR /app
 
 # Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+RUN python3 -m pip install --no-cache-dir poetry
 
 # Install deps early for better caching
 COPY pyproject.toml poetry.lock ./
