@@ -1,6 +1,7 @@
 from django.test import Client
 from django.urls import reverse
 from freezegun import freeze_time
+from parameterized import parameterized
 
 from tests.test_views.base_view_test import BaseViewTest
 from webcaf.webcaf.models import (
@@ -8,6 +9,7 @@ from webcaf.webcaf.models import (
     Configuration,
     Organisation,
     Review,
+    Settings,
     System,
     UserProfile,
 )
@@ -64,7 +66,7 @@ class TestReviewIndexVisibility(BaseViewTest):
         self.assessment_other_period = Assessment.objects.create(
             system=self.system,
             status="submitted",
-            assessment_period="1900",  # obviously not current
+            assessment_period="48/49",  # obviously not current
         )
         self.review_other_period = Review.objects.create(
             assessment=self.assessment_other_period,
@@ -82,15 +84,30 @@ class TestReviewIndexVisibility(BaseViewTest):
             assessment=self.assessment_foreign,
         )
 
-    def test_admin_roles_see_only_current_org_and_period(self):
+    @parameterized.expand(
+        [
+            ("filter_previous_assessments_enabled",),
+            ("filter_previous_assessments_disabled",),
+        ],
+        name_func=lambda func, num, param: func.__name__ + "_" + param.args[0],
+    )
+    def test_admin_roles_see_only_current_org_and_period(self, filter_setting):
+        if filter_setting == "filter_previous_assessments_disabled":
+            instance = Settings.get_instance()
+            instance.filter_previous_assessments = False
+            instance.save()
+
         for role in ("cyber_advisor", "organisation_lead"):
             client, _ = self._login_with_role(role, self.org)
             resp = client.get(reverse("review-list"))
             self.assertEqual(resp.status_code, 200)
             reviews = list(resp.context["reviews"])  # provided by ReviewIndexView
+            # Current org and period reviews are always visible
             self.assertIn(self.review_ok, reviews)
-            # All reviews are allowed to be viewed regardless of the assessment period
-            self.assertIn(self.review_other_period, reviews)
+            if filter_setting == "filter_previous_assessments_disabled":
+                self.assertIn(self.review_other_period, reviews)
+            else:
+                self.assertNotIn(self.review_other_period, reviews)
             self.assertNotIn(self.review_foreign, reviews)
 
     def test_assessor_and_reviewer_only_see_reviews_for_their_organisation(self):

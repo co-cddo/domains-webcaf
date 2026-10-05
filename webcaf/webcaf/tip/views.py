@@ -44,7 +44,8 @@ class TipIndexView(BaseTipMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
+        user_profile = SessionUtil.get_current_user_profile(self.request)
+        data["current_profile"] = user_profile
         data["breadcrumbs"] = [
             {
                 "url": reverse("my-account"),
@@ -53,7 +54,15 @@ class TipIndexView(BaseTipMixin, TemplateView):
             },
         ]
         configuration = Configuration.objects.get_default_config()
-        data["tips"] = self.get_tip_for_user(data["current_profile"], configuration)
+        user_tips = self.get_tip_for_user(user_profile, configuration)
+        if Settings.get_instance().filter_previous_assessments:
+            user_tips = [
+                tip
+                for tip in user_tips
+                if tip.review.assessment.assessment_period == configuration.get_current_assessment_period()
+            ]
+
+        data["tips"] = user_tips
         return data
 
 
@@ -69,7 +78,8 @@ class TipDetailView(BaseTipMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
+        user_profile = SessionUtil.get_current_user_profile(self.request)
+        data["current_profile"] = user_profile
         data["breadcrumbs"] = [
             {
                 "url": reverse("tip:list"),
@@ -111,7 +121,8 @@ class TipRecommendationsView(BaseTipMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
+        user_profile = SessionUtil.get_current_user_profile(self.request)
+        data["current_profile"] = user_profile
         recommendation_type = self.kwargs.get("recommendation_type", "priority")
 
         data["breadcrumbs"] = [
@@ -548,17 +559,29 @@ class TipReportView(BaseTipMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
+        assessment_period = Configuration.objects.get_default_config().get_current_assessment_period()
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
-        data["breadcrumbs"] = [
-            {
-                "url": reverse("tip:list"),
-                "text": "My account",
-            },
-            {
-                "url": None,
-                "text": ("Draft " if self.object.status != "approved" else "") + "Targeted Improvement Plan (TIP)",
-            },
-        ]
+        data["breadcrumbs"] = (
+            [
+                {
+                    "url": reverse("tip:list"),
+                    "text": "My account",
+                },
+                {
+                    "url": None,
+                    "text": ("Draft " if self.object.status != "approved" else "") + "Targeted Improvement Plan (TIP)",
+                },
+            ]
+            if not Settings.get_instance().filter_previous_assessments
+            or assessment_period == self.get_object().review.assessment.assessment_period
+            else [
+                {
+                    "url": reverse("historical-assessments"),
+                    "text": "Back",
+                    "class": "govuk-back-link",
+                }
+            ]
+        )
         data["priority_recommendations"] = self.recommendation_service.filter_recommendations("priority")
         data["other_recommendations"] = self.recommendation_service.filter_recommendations("other")
         data["tag_line"] = self.recommendation_service.generate_tag_line()

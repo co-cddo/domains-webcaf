@@ -53,7 +53,14 @@ class ReviewIndexView(BaseReviewMixin, TemplateView):
         data = super().get_context_data(**kwargs)
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
         configuration = Configuration.objects.get_default_config()
-        data["reviews"] = self.get_reviews_for_user(data["current_profile"], configuration)
+        reviews_for_user = self.get_reviews_for_user(data["current_profile"], configuration)
+        if Settings.get_instance().filter_previous_assessments:
+            reviews_for_user = [
+                review
+                for review in reviews_for_user
+                if review.assessment.assessment_period == configuration.get_current_assessment_period()
+            ]
+        data["reviews"] = reviews_for_user
         return data
 
 
@@ -604,21 +611,34 @@ class ShowReportView(BaseReviewMixin, DetailView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         version = self.kwargs["version"]
-        data["object_version"] = self.object.get_version(version).instance
+        assessment_period = Configuration.objects.get_default_config().get_current_assessment_period()
+        review_instance = self.object.get_version(version).instance
+        data["object_version"] = review_instance
         data["version"] = version
-        data["breadcrumbs"] = [
-            {
-                "url": reverse("my-account"),
-                "text": "My account",
-            },
-            {
-                "url": reverse("review-history", kwargs={"pk": self.object.id}),
-                "text": "Report history",
-            },
-            {
-                "text": f"View Report (Version {version})",
-            },
-        ]
+        data["breadcrumbs"] = (
+            [
+                {
+                    "url": reverse("my-account"),
+                    "text": "My account",
+                },
+                {
+                    "url": reverse("review-history", kwargs={"pk": self.object.id}),
+                    "text": "Report history",
+                },
+                {
+                    "text": f"View Report (Version {version})",
+                },
+            ]
+            if not Settings.get_instance().filter_previous_assessments
+            or assessment_period == review_instance.assessment.assessment_period
+            else [
+                {
+                    "url": reverse("historical-assessments"),
+                    "text": "Back",
+                    "class": "govuk-back-link",
+                }
+            ]
+        )
         return data
 
 

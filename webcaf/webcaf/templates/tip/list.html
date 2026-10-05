@@ -75,12 +75,15 @@
                                     <a href="{% url 'tip:view-report' pk=tip.id %}?mode=template" class="govuk-link"
                                        title="Download TIP template" target="_blank">Download TIP template (XLS)</a>
                                     <br/>
-                                    <a href="{% url 'show-report' pk=tip.review.id version=tip.review.current_version_number %}"
-                                       class="govuk-link"
-                                       target="_blank"
-                                       title="View final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review report{% else %}IARR{% endif %} report">View
-                                        final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review
-                                            Report{% else %}IAAR{% endif %}</a>
+                                    {% current_user_can_view_review current_profile as can_view_reviews %}
+                                    {% if can_view_reviews %}
+                                        <a href="{% url 'show-report' pk=tip.review.id version=tip.review.current_version_number %}"
+                                           class="govuk-link"
+                                           target="_blank"
+                                           title="View final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review report{% else %}IARR{% endif %} report">View
+                                            final {% if tip.review.assessment.review_type == 'peer_review' %}Peer Review
+                                                Report{% else %}IAAR{% endif %}</a>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                         </td>

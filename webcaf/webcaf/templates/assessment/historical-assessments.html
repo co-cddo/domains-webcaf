@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% load permission_extras %}
+{% block title %}Previous GovAssure submissions - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block content %}
+    {% current_user_can_view_tips current_profile as can_view_tips %}
+    {% current_user_can_view_submitted_assessment current_profile as can_view_submitted_assessments %}
+    {% current_user_can_view_review current_profile as can_view_reviews %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Previous GovAssure submissions</h1>
+            <p class="govuk-body">View completed GovAssure submissions from previous years by selecting a:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                {% if can_view_submitted_assessments %}
+                    <li>stage 3 self-assessment</li>
+                {% endif %}
+                {% if can_view_reviews %}
+                    <li>stage 4 Peer Review Report or Independent Assurance Review Report (IARR)</li>
+                {% endif %}
+                {% if can_view_tips %}
+                    <li>stage 5 Targeted Improvement Plan (TIP)</li>
+                {% endif %}
+            </ul>
+
+            {% for assessment_year, assessment_data in systems.items %}
+                <table class="govuk-table">
+                    <caption class="govuk-table__caption govuk-table__caption--m">
+                        GovAssure {{ assessment_year }} </caption>
+                    <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">System</th>
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Profile</th>
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-third">Submission</th>
+                    </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                    {% for assessment_row in assessment_data %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">{{ assessment_row.assessment.system.name }}</th>
+                            <td class="govuk-table__cell">
+                                {{ assessment_row.assessment.get_caf_profile_display|title }}
+                            </td>
+                            <td class="govuk-table__cell">
+                                {% if can_view_submitted_assessments %}
+                                    <a href="{% url 'view-submitted-assessment' assessment_row.assessment.id %}"
+                                       class="govuk-link">Self-assessment</a>
+                                    <br/>
+                                {% endif %}
+                                {% if assessment_row.review and can_view_reviews %}
+                                    <a href="{% url 'show-report' assessment_row.review.id assessment_row.review.current_version_number %}"
+                                       class="govuk-link">
+                                        {% if assessment_row.review.assessment.review_type == 'peer_review' %}
+                                            Peer Review Report{% else %}IARR{% endif %}</a>
+                                    <br/>
+                                {% endif %}
+                                {% if assessment_row.tip and can_view_tips %}
+                                    {% if assessment_row.tip.is_submitted %}
+                                        <a href="{% url 'tip:view-report' assessment_row.tip.id %}"
+                                           class="govuk-link">TIP</a>
+                                    {% else %}
+                                        <a href="{% url 'tip:edit' assessment_row.tip.id %}"
+                                           class="govuk-link">Continue TIP</a>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -21,7 +21,7 @@
             </div>
             {% current_user_can_create_system current_profile as can_create_systems %}
             {% current_user_can_view_assessments current_profile as can_view_assessments %}
-            {% current_user_can_view_submitted_assessment current_profile as can_view_submittted_assessments %}
+            {% current_user_can_view_submitted_assessment current_profile as can_view_submitted_assessments %}
             {% if can_create_systems %}
                 <form action="{% url 'create-new-system' %}" method="GET">
                     {% csrf_token %}
@@ -69,7 +69,7 @@
                         </a>
                     </p>
                 {% endif %}
-                {% if can_view_submittted_assessments %}
+                {% if can_view_submitted_assessments %}
                     <h3 class="govuk-heading-m govuk-!-margin-bottom-2">
                         Self-assessments sent for review
                     </h3>
@@ -140,7 +140,10 @@
                     {{ current_profile.organisation.name }}
                 </span>
             </h2>
-            <nav role="navigation" aria-labelledby="subsection-title">
+            <nav role="navigation" aria-labelledby="update_organisation-details">
+                <h2 id="update_organisation-details" class="govuk-visually-hidden">
+                    Update your organisation details
+                </h2>
                 <ul class="govuk-list">
                     <li>
                         <a href="{% url 'my-organisation' id=current_profile.id %}"
@@ -152,7 +155,10 @@
             </nav>
             {% current_user_can_create_user current_profile as can_create_user %}
             {% if can_create_user %}
-                <nav role="navigation" aria-labelledby="subsection-title">
+                <nav role="navigation" aria-labelledby="manage_users">
+                    <h2 id="manage_users" class="govuk-visually-hidden">
+                        Manage users
+                    </h2>
                     <ul class="govuk-list">
                         <li>
                             <a href="{% url 'view-profiles' %}"
@@ -162,6 +168,24 @@
                         </li>
                     </ul>
                 </nav>
+            {% endif %}
+            {% is_historical_assessments_enabled current_profile as historical_assessments_enabled %}
+            {% if historical_assessments_enabled %}
+                {% if  can_view_reviews or can_view_tips or can_view_submitted_assessments %}
+                    <nav role="navigation" aria-labelledby="previous_assessments">
+                        <h2 id="previous_assessments" class="govuk-visually-hidden">
+                            View previous GovAssure submissions
+                        </h2>
+                        <ul class="govuk-list">
+                            <li>
+                                <a href="{% url 'historical-assessments' %}"
+                                   class="govuk-link govuk-link--no-visited-state">
+                                    View previous GovAssure submissions
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endif %}
             {% endif %}
         </div>
     </div>
