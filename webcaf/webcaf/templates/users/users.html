@@ -4,7 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include "partials/error_message.html" %}
+            {% include "partials/error_message.html" with hide_label=True%}
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--l">{{ current_profile.organisation.name }}
                     has {{ current_profile.organisation.members.all |length|default:0 }} users
@@ -66,7 +66,7 @@
                         </div>
                         {% if form.errors.add_new_user %}
                             <p id="add-new-user-error" class="govuk-error-message">
-                                <span class="govuk-visually-hidden">Error:</span> You must select yes or no
+                                <span class="govuk-visually-hidden">Error:</span> Select yes or no
                             </p>
                         {% endif %}
                         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios"

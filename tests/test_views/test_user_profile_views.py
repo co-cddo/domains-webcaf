@@ -102,7 +102,7 @@ class TestUserProfileView(BaseViewTest):
         response = self.client.post(
             reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
             data={
-                "email": "new-email@@bigorganisation.gov.uk",
+                "email": "new-email@bigorganisation.gov.uk",
                 "role": "organisation_lead",
                 "action": "confirm",
                 "first_name": "Test",
@@ -115,8 +115,8 @@ class TestUserProfileView(BaseViewTest):
 
         # Assert the role was updated
         self.assertEqual(self.target_profile.role, "organisation_lead")
-        self.assertEqual(self.target_profile.user.email, "new-email@@bigorganisation.gov.uk")
-        self.assertEqual(self.target_profile.user.username, "new-email@@bigorganisation.gov.uk")
+        self.assertEqual(self.target_profile.user.email, "new-email@bigorganisation.gov.uk")
+        self.assertEqual(self.target_profile.user.username, "new-email@bigorganisation.gov.uk")
         # Assert redirect to success URL
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/view-profiles/")

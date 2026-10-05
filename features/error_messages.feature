@@ -14,22 +14,22 @@ Scenario: New assessment no profile is selected
     And click link with text "Choose your government CAF profile"
     And click button with text "Save and continue"
     # Then should see an error summary with error link text "CAF profile : This field is required."
-    Then should see an error message with text "You must select a profile."
+    Then should see an error message with text "Select a profile for this system"
 
 Scenario: New assessment no review type is selected
     Given Think time 1 seconds
     And click button with text "Start a self-assessment"
     And click link with text "Choose a review type"
     And click button with text "Save and continue"
-    Then should see an error summary with error link text "Review type : This field is required."
-    Then should see an error message with text "You must select a review type."
+    Then should see an error summary with error link text "Select a review type for your self-assessment"
+    Then should see an error message with text "Select a review type for your self-assessment"
 
 Scenario: Manage User yes or no not selected
     Given Think time 1 seconds
     And click link with text "Manage users"
     And click button with text "Continue"
-    Then should see an error summary with error link text "Add another user : This field is required."
-    Then should see an error message with text "You must select yes or no"
+    Then should see an error summary with error link text "Select yes or no"
+    Then should see an error message with text "Select yes or no"
 
 Scenario: Create new user but omit last name
     Given Think time 1 seconds
@@ -40,8 +40,8 @@ Scenario: Create new user but omit last name
     And enter text "the.tester@example.gov.uk" for id "email"
     And select radio with value "organisation_user"
     And click button with text "Save and continue"
-    Then should see an error summary with error link text "Last name : This field is required."
-    Then should see an error message with text "You must add a last name"
+    Then should see an error summary with error link text "Enter last name"
+    Then should see an error message with text "Enter last name"
 
 Scenario: Nothing selected on indicators page
     Given Think time 1 seconds
@@ -58,7 +58,7 @@ Scenario: Nothing selected on indicators page
     And get assessment id from url and add to context
     Then navigate to "Objective A: Managing security risk"
     And Fill outcome "A1.a Board Direction" with "achieved, partially-achieved, not-achieved" with "none,none,none"
-    Then should see an error summary with error link text "You need to select at least one statement to answer"
+    Then should see an error summary with error link text "select at least one statement"
 
 Scenario: Nothing selected indicator confirmation page
     Given Think time 1 seconds
@@ -76,5 +76,5 @@ Scenario: Nothing selected indicator confirmation page
     Then navigate to "Objective A: Managing security risk"
     And Fill outcome "A1.a Board Direction" with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And click button with text "Save and continue"
-    Then should see an error summary with error link text "Confirm outcome : This field is required."
-    Then should see an error message with text "You must confirm you agree with the status or change your response."
+    Then should see an error summary with error link text "Confirm the status or change your response"
+    Then should see an error message with text "Confirm the status or change your response"

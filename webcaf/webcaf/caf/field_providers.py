@@ -80,6 +80,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 ],
                 "required": True,
                 "label": "Confirm outcome",
+                "error_messages": {"required": "Confirm the status or change your response"},
             },
         ] + [
             # Add justification_text for the confirmation choice list

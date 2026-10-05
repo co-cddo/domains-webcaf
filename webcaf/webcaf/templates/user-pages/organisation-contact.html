@@ -3,47 +3,83 @@
 {% block title %}Select organisation type - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">{{profile.organisation.name}}</span>
-            Add contact details
-        </h1>
-        <form class="form" id="mainForm" method="post">
-            {% csrf_token %}
-            <p class="govuk-body">We are collecting your contact details, so that the GovAssure team can get in touch
-                with you.</p>
-            <div class="govuk-form-group">
-                <label class="govuk-label" for="contact_name">
-                    Full name
-                </label>
-                <input class="govuk-input govuk-input--width-20" id="contact_name" name="contact_name" type="text"
-                       spellcheck="false" autocomplete="name"
-                       value="{{ profile.organisation.contact_name|default:'' }}">
-            </div>
-            <div class="govuk-form-group">
-                <label class="govuk-label" for="contact_role">
-                    Organisation role
-                </label>
-                <input class="govuk-input govuk-input--width-20" id="contact_role" name="contact_role" type="text"
-                       value="{{ profile.organisation.contact_role|default:'' }}">
-            </div>
-            <div class="govuk-form-group">
-                <label class="govuk-label" for="contact_email">
-                    Email address
-                </label>
-                <div id="orgEmail-hint" class="govuk-hint">
-                    Use a current work email address
+        <div class="govuk-grid-column-two-thirds">
+            {% include "partials/error_message.html" with hide_label=True %}
+            <h1 class="govuk-heading-l">
+                <span class="govuk-caption-l">{{ profile.organisation.name }}</span>
+                Add contact details
+            </h1>
+            <form class="form" id="mainForm" method="post">
+                {% csrf_token %}
+                <p class="govuk-body">We are collecting your contact details, so that the GovAssure team can get in
+                    touch
+                    with you.</p>
+                <div class="govuk-form-group {% if form.errors.contact_name %}govuk-form-group--error{% endif %}"
+                     id="id_contact_name">
+                    <label class="govuk-label" for="contact_name">
+                        Full name
+                    </label>
+                    {% if form.errors.contact_name %}
+                        <span id="contact_name-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.contact_name|first }}
+                        </span>
+                    {% endif %}
+                    <input class="govuk-input govuk-input--width-20" id="contact_name" name="contact_name" type="text"
+                           spellcheck="false" autocomplete="name"
+                           value="{{ form.contact_name.value|default:'' }}">
                 </div>
-                <input class="govuk-input" id="contact_email" name="contact_email" type="email" spellcheck="false"
-                       aria-describedby="orgEmail-hint" autocomplete="email"
-                       value="{{ profile.organisation.contact_email|default:'' }}">
-            </div>
-            <div class="govuk-button-group">
-                <button type="submit" class="govuk-button" data-module="govuk-button">
-                    Continue
-                </button>
-            </div>
-        </form>
+                <div class="govuk-form-group {% if form.errors.contact_role %}govuk-form-group--error{% endif %}"
+                     id="id_contact_role">
+                    <label class="govuk-label" for="contact_role">
+                        Organisation role
+                    </label>
+                    {% if form.errors.contact_role %}
+                        <span id="contact_role-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.contact_role|first }}
+                        </span>
+                    {% endif %}
+                    <input class="govuk-input govuk-input--width-20" id="contact_role" name="contact_role" type="text"
+                           value="{{ form.contact_role.value|default:'' }}">
+                </div>
+                <div class="govuk-form-group {% if form.errors.contact_email %}govuk-form-group--error{% endif %}"
+                     id="id_contact_email">
+                    <label class="govuk-label" for="contact_email">
+                        Email address
+                    </label>
+                    {% if form.errors.contact_email %}
+                        <span id="contact_email-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.contact_email|first }}
+                        </span>
+                    {% endif %}
+                    <div id="orgEmail-hint" class="govuk-hint">
+                        Use a current work email address
+                    </div>
+                    <input class="govuk-input" id="contact_email" name="contact_email" type="email" spellcheck="false"
+                           aria-describedby="orgEmail-hint" autocomplete="email"
+                           title="Enter an email address"
+                           value="{{ form.contact_email.value|default:'' }}">
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+        <script language="JavaScript" nonce="{{ request.csp_nonce }}">
+            document.addEventListener('DOMContentLoaded', function () {
+                let emailInput = document.getElementById("contact_email");
+                emailInput.addEventListener('invalid', function () {
+                    this.setCustomValidity('Enter an email address')
+                });
+                emailInput.addEventListener('input', function () {
+                    if (this.validity.typeMismatch) {
+                        this.setCustomValidity('Enter an email address');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            });
+        </script>
     </div>
-
 {% endblock %}
