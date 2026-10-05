@@ -2,7 +2,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %} Review Objective {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}{% if object.assessment.review_type != 'peer_review' %}Add risks and recommendations{% else %}Add recommendations{% endif %} {{ objective_code }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-{% block title %}Two-factor authentication{% endblock %}
+{% block title %}Two-factor authentication {{ block.super }}{% endblock %}
 
 {% block content %}
     {% include 'partials/error_message.html' %}

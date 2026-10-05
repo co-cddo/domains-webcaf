@@ -2,7 +2,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}View report- {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}IAR View report {{ block.super }}{% endblock %}
 {% block content %}
 
     <header class="govuk-!-padding-top-6 govuk-!-padding-bottom-6 report-header" id="report-header">
@@ -421,7 +421,8 @@
                                     {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ review_data.review_data.review_decision|status_to_label }}</strong>
                                 </p>
-                                <p class="govuk-heading-s">{{ object_version.assessment.get_caf_profile_display }} CAF profile:
+                                <p class="govuk-heading-s">{{ object_version.assessment.get_caf_profile_display }} CAF
+                                    profile:
                                     <strong class="govuk-tag govuk-tag--{% if profile_met.0 == 'Yes' %}green{% else %}red{% endif %}">
                                         {% if profile_met.0 == 'Not met' %}Not met{% else %} Met{% endif %}
                                     </strong>

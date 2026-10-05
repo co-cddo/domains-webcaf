@@ -15,5 +15,6 @@ Feature: User login with a profile
     Then they should see page title "<page_title>"
     And page contains text "<page_text>" in header
     Examples:
-      | user_name            | password | page_title                                                                       | page_text                                                                                                                                      |
-      | admin@example.gov.uk | password | GovAssure lead - My account - admin - Complete a WebCAF self-assessment - GOV.UK |  My GovAssure lead account  |
+      | user_name            | password | page_title                                                               | page_tex                  |
+      | admin@example.gov.uk | password | GovAssure lead - My account - Complete a WebCAF self-assessment - GOV.UK | My GovAssure lead account |
+
