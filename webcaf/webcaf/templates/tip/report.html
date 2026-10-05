@@ -20,6 +20,10 @@
                 </strong>
             </p>
             <p class="govuk-body govuk-!-margin-bottom-0">
+                Assessment year: 20{{ object.review.assessment.assessment_period|slice:"2" }} to
+                20{{ object.review.assessment.assessment_period|slice:"3:" }}
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-0">
                 Reference: {{ object.review.assessment.reference }}
             </p>
             <p class="govuk-body govuk-!-margin-bottom-0">
@@ -31,7 +35,7 @@
              id="notification-banner">
         <div class="govuk-notification-banner__content">
             <p class="govuk-notification-banner__heading">
-                This content is UK OFFICIAL-SENSITIVE.
+                This report is UK OFFICIAL-SENSITIVE.
             </p>
         </div>
     </section>

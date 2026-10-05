@@ -27,7 +27,11 @@
                     {% endif %}
                 </strong>
             </p>
-            <p class="govuk-body">
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                Assessment year: 20{{ object_version.assessment.assessment_period|slice:"2" }} to
+                20{{ object_version.assessment.assessment_period|slice:"3:" }}
+            </p>
+            <p class="govuk-body govuk-!-margin-bottom-0">
                 Updated {{ object_version.last_updated| date:"j F Y" }}
             </p>
         </div>
@@ -36,7 +40,7 @@
              id="notification-banner">
         <div class="govuk-notification-banner__content">
             <p class="govuk-notification-banner__heading">
-                This content is UK OFFICIAL-SENSITIVE.
+                This report is UK OFFICIAL-SENSITIVE.
             </p>
         </div>
     </section>
@@ -84,26 +88,42 @@
                 of cyber security risks, and support to understand and manage them more effectively.
                 <br><br>
                 This report contains the findings of the Peer Review carried out against
-                {{ object_version.assessment.system.organisation.name }}’s <abbr title="Cyber Assessment Framework">CAF</abbr>
+                {{ object_version.assessment.system.organisation.name }}’s <abbr
+                    title="Cyber Assessment Framework">CAF</abbr>
                 self-assessment for {{ system_and_scope.completed_data.system_details.system_name }}
                 in {{ iar_period.start_date|slice:"6:" }}-{{ iar_period.end_date|slice:"8:" }}.
                 The system was assessed against the
                 {{ system_and_scope.completed_data.review_details.government_caf_profile }} Government
                 <abbr title="Cyber Assessment Framework">CAF</abbr> profile.
-                The report identifies areas of good practice and areas for improvement, and provides specific recommendations
+                The report identifies areas of good practice and areas for improvement, and provides specific
+                recommendations
                 to enable {{ object_version.assessment.system.organisation.name }} to improve its cyber security and
                 resilience.
                 <br><br>
                 Several core CAF principles serve as a foundation for an organisation’s overall security.
-                The principles of governance (A1) and risk management (A2) are essential for running a security ecosystem
-                founded on risk. The principles of response and recovery planning (D1) and lessons learned (D2) are fundamental
-                to business continuity and an organisation's ability to operate through and recover from a cyber incident.
+                The principles of governance (A1) and risk management (A2) are essential for running a security
+                ecosystem
+                founded on risk. The principles of response and recovery planning (D1) and lessons learned (D2) are
+                fundamental
+                to business continuity and an organisation's ability to operate through and recover from a cyber
+                incident.
                 Organisations are encouraged to prioritise recommendations for these principles and the underlying
-                contributing outcomes where they have not met the {{ system_and_scope.completed_data.review_details.government_caf_profile }} Government <abbr title="Cyber Assessment Framework">CAF</abbr> profile.
+                contributing outcomes where they have not met
+                the {{ system_and_scope.completed_data.review_details.government_caf_profile }} Government <abbr
+                    title="Cyber Assessment Framework">CAF</abbr> profile.
             </p>
 
             <h2 id="system-details" class="govuk-heading-m page-break-before report_para">System overview</h2>
             <dl class="govuk-summary-list govuk-summary-list system_overview">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Assessment year
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        20{{ object_version.assessment.assessment_period|slice:"2" }} to
+                        20{{ object_version.assessment.assessment_period|slice:"3:" }}
+                    </dd>
+                </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
                         System name
@@ -387,14 +407,14 @@
                                 {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
                                 {% indicator_min_profile_requirement_met object_version.assessment principle.code o.code review_data.review_data.review_decision|status_to_label True as profile_met %}
                                 <p class="govuk-heading-s">Baseline CAF profile requirement:
-                                    {% get_tag_for_status profile_met.1 as tag_colour%}
+                                    {% get_tag_for_status profile_met.1 as tag_colour %}
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">
                                         {{ profile_met.1 }}
                                     </strong>
                                 </p>
-                                {% get_tag_for_status review_data.review_data.review_decision as tag_colour%}
+                                {% get_tag_for_status review_data.review_data.review_decision as tag_colour %}
                                 <p class="govuk-heading-s">Review status:
-                                    {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour%}
+                                    {% get_tag_for_status review_data.review_data.review_decision|status_to_label as tag_colour %}
                                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ review_data.review_data.review_decision|status_to_label }}</strong>
                                 </p>
                                 <p class="govuk-heading-s">Baseline CAF profile:

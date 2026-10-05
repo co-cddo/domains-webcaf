@@ -298,12 +298,16 @@ class ViewSubmittedAssessmentsView(UserRoleCheckMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        submitted_assessments = list(
-            Assessment.objects.filter(
-                system__organisation=SessionUtil.get_current_user_profile(self.request).organisation,
-                status__in=["submitted"],
+        query_set = Assessment.objects.filter(
+            system__organisation=SessionUtil.get_current_user_profile(self.request).organisation,
+            status__in=["submitted"],
+        )
+        if Settings.get_instance().filter_previous_assessments:
+            query_set = query_set.filter(
+                assessment_period=Configuration.objects.get_default_config().get_current_assessment_period()
             )
-            .only(
+        submitted_assessments = list(
+            query_set.only(
                 "id",
                 "system__name",
                 "caf_profile",
@@ -313,8 +317,7 @@ class ViewSubmittedAssessmentsView(UserRoleCheckMixin, TemplateView):
                 "assessment_period",
                 "created_by__username",
                 "assessments_data",
-            )
-            .all()
+            ).all()
         )
 
         # Check the history table of the assessment to see when the status was changed to submitted
@@ -356,11 +359,26 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
             ]
         )
         first_submitted_on = submitted_changes[assessment.id] if assessment.id in submitted_changes else None
+        assessment_period = Configuration.objects.get_default_config().get_current_assessment_period()
         data: dict[str, Any] = {
             "assessment": assessment,
             "objectives": assessment.get_router().get_sections(),
-            "breadcrumbs": [{"url": reverse("view-submitted-assessments"), "text": "Back", "class": "govuk-back-link"}],
+            "breadcrumbs": [
+                {
+                    # The back button should take the user back to the submitted assessments page if they are viewing
+                    # the current assessment period, otherwise it should take them back to the historical assessments page
+                    "url": (
+                        reverse("view-submitted-assessments")
+                        if not Settings.get_instance().filter_previous_assessments
+                        or assessment_period == assessment.assessment_period
+                        else reverse("historical-assessments")
+                    ),
+                    "text": "Back",
+                    "class": "govuk-back-link",
+                }
+            ],
             "first_submitted": first_submitted_on,
+            "current_assessment_period": assessment_period,
         }
         return data
 
