@@ -9,7 +9,7 @@
     <div class="govuk-grid-row">
 
         <div class="govuk-grid-column-three-quarters">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">Areas of good practice</h1>
             <p class="govuk-body">
@@ -37,12 +37,12 @@
                         data-module="govuk-character-count"
                         data-maxwords="{{ form.text.field.widget.attrs.max_words }}"
                         class="govuk-form-group {% if form.text.errors %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label" for="id_form-text">Your comments</label>
+                    <label class="govuk-label" for="id_text">Your comments</label>
                     <textarea class="govuk-textarea govuk-js-character-count"
-                              aria-describedby="id_form-text-info"
+                              aria-describedby="id_text-info"
                               name="{{ form.text.html_name }}" cols="40" rows="20"
-                              id="id_form-text">{{ form.text.value|default:"" }}</textarea>
-                    <div id="id_form-text-info"
+                              id="id_text">{{ form.text.value|default:"" }}</textarea>
+                    <div id="id_text-info"
                          class="govuk-hint govuk-character-count__message">You can
                         enter up to
                         {{ form.text.field.widget.attrs.max_words }} words

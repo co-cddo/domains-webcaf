@@ -8,7 +8,7 @@
         {% get_review_completed_percentage object as percentage %}
         {% include "partials/progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-three-quarters">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
 
             {% if object.assessment.review_type == "peer_review" %}
@@ -38,64 +38,79 @@
             {% endif %}
             <form method="post" id="comment-form">
                 {% csrf_token %}
-                <h2 class="govuk-heading-s">From</h2>
-                <div class="govuk-form-group">
+                <h2 class="govuk-heading-s">Start date</h2>
+                <div class="govuk-form-group" id="id_start_date">
+                    {% if form.errors.start_date %}
+                        <p id="start_date-missing-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.start_date.0 }}
+                        </p>
+                    {% endif %}
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group {% if form.start_date_day.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form.start_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_start_date_day">Day</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-2"
                                    id="id_start_date_day"
-                                   name="{{ form.start_date_day.html_name }}" type="text" inputmode="numeric"
-                                   value="{{ form.start_date_day.value|default:'' }}">
+                                   name="start_date_0" type="text" inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   value="{{ form.start_date.value.0|default:'' }}">
                         </div>
                     </div>
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group {% if form.start_date_month.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form.start_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_start_date_month">Month</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-2"
-                                   id="id_start_date_month" name="{{ form.start_date_month.html_name }}" type="text"
+                                   id="id_start_date_month" name="start_date_1" type="text"
                                    inputmode="numeric"
-                                   value="{{ form.start_date_month.value|default:'' }}">
+                                   pattern="[0-9]*"
+                                   value="{{ form.start_date.value.1|default:'' }}">
                         </div>
                     </div>
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group {% if form.start_date_year.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form.start_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_start_date_year">Year</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-4"
                                    id="id_start_date_year" type="text" inputmode="numeric"
-                                   name="{{ form.start_date_year.html_name }}"
-                                   value="{{ form.start_date_year.value|default:'' }}"
-                            >
+                                   name="start_date_2"
+                                   pattern="[0-9]*"
+                                   value="{{ form.start_date.value.2|default:'' }}">
                         </div>
                     </div>
                 </div>
                 <br/>
-                <h2 class="govuk-heading-s">To</h2>
-                <div class="govuk-form-group">
+                <h2 class="govuk-heading-s">End date</h2>
+                <div class="govuk-form-group" id="id_end_date">
+                    {% if form.errors.end_date %}
+                        <p id="end_date-missing-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.end_date.0 }}
+                        </p>
+                    {% endif %}
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group  {% if form.end_date_day.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group  {% if form.end_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_end_date_day">Day</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="id_end_date_day"
-                                   name="{{ form.end_date_day.html_name }}" type="text" inputmode="numeric"
-                                   value="{{ form.end_date_day.value|default:'' }}">
+                                   name="end_date_0" type="text" inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   value="{{ form.end_date.value.0|default:'' }}">
                         </div>
                     </div>
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group {% if form.end_date_month.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form.end_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_end_date_month">Month</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-2"
-                                   id="id_end_date_month" name="{{ form.end_date_month.html_name }}" type="text"
+                                   id="id_end_date_month" name="end_date_1" type="text"
                                    inputmode="numeric"
-                                   value="{{ form.end_date_month.value|default:'' }}">
+                                   pattern="[0-9]*"
+                                   value="{{ form.end_date.value.1|default:'' }}">
                         </div>
                     </div>
                     <div class="govuk-date-input__item">
-                        <div class="govuk-form-group {% if form.end_date_year.errors %}govuk-form-group--error{% endif %}">
+                        <div class="govuk-form-group {% if form.end_date.errors %}govuk-form-group--error{% endif %}">
                             <label class="govuk-label govuk-date-input__label" for="id_end_date_year">Year</label>
                             <input class="govuk-input govuk-date-input__input govuk-input--width-4"
                                    id="id_end_date_year" type="text" inputmode="numeric"
-                                   name="{{ form.end_date_year.html_name }}"
-                                   value="{{ form.end_date_year.value|default:'' }}"
+                                   name="end_date_2"
+                                   pattern="[0-9]*"
+                                   value="{{ form.end_date.value.2|default:'' }}"
                             >
                         </div>
                     </div>

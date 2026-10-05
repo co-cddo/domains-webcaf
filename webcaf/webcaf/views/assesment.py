@@ -197,6 +197,7 @@ class AssessmentProfileForm(BaseAssessmentForm):
         model = Assessment
         fields = ["caf_profile"]
         labels = {"caf_profile": "CAF profile"}
+        error_messages = {"caf_profile": {"required": "Select a profile for this system"}}
 
 
 class AssessmentSystemForm(BaseAssessmentForm):
@@ -238,6 +239,7 @@ class AssessmentReviewTypeForm(BaseAssessmentForm):
                 }
             ),
         }
+        error_messages = {"review_type": {"required": "Select a review type for your self-assessment"}}
 
 
 class EditAssessmentProfileView(EditAssessmentView):

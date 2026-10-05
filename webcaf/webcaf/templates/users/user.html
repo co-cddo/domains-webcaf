@@ -4,7 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ current_profile.organisation.name }}</span>
             {% if form.instance.id %}
                 <h1 class="govuk-heading-l">Edit user</h1>
@@ -20,7 +20,7 @@
                     </label>
                     {% if form.errors.first_name %}
                         <p id="user-first-name-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must add a first name
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.first_name|first }}
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="first_name" name="first_name" type="text"
@@ -33,7 +33,7 @@
                     </label>
                     {% if form.errors.last_name %}
                         <p id="user-last-name-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must add a last name
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.last_name|first }}
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="last_name" name="last_name" type="text"
@@ -41,16 +41,17 @@
                            value="{{ form.last_name.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group {% if form.errors.email %}govuk-form-group--error{% endif %}">
-                    <label class="govuk-label" for="email" , id="id_email">
+                    <label class="govuk-label" for="email" id="id_email">
                         Email address
                     </label>
                     {% if form.errors.email %}
                         <p id="user-email-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must add a valid email address
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.email|first }}
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="email" name="email" type="email"
                            spellcheck="false"
+                           title="Enter an email address"
                            value="{{ form.email.value|default:'' }}">
                 </div>
                 <div class="govuk-form-group {% if form.errors.role %}govuk-form-group--error{% endif %}">
@@ -60,7 +61,7 @@
                     <p class="govuk-hint" id="id_role">Select one that applies</p>
                     {% if form.errors.role %}
                         <p id="user-role-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must select a user role
+                            <span class="govuk-visually-hidden">Error:</span> {{ form.errors.role|first }}
                         </p>
                     {% endif %}
                     <div class="govuk-radios" data-module="govuk-radios">
@@ -109,5 +110,20 @@
                 </div>
             </form>
         </div>
+        <script language="JavaScript" nonce="{{ request.csp_nonce }}">
+            document.addEventListener('DOMContentLoaded', function () {
+                let emailInput = document.getElementById("email");
+                emailInput.addEventListener('invalid', function () {
+                    this.setCustomValidity('Enter an email address')
+                });
+                emailInput.addEventListener('input', function () {
+                    if (this.validity.typeMismatch) {
+                        this.setCustomValidity('Enter an email address');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            });
+        </script>
     </div>
 {% endblock %}

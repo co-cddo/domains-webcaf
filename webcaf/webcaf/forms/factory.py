@@ -59,6 +59,7 @@ def create_form(provider: FieldProvider) -> type[forms.Form]:  # noqa: C901
                 required=field_def.get("required", True),
                 initial=field_def.get("initial"),
                 widget=widget,
+                error_messages=field_def.get("error_messages", {}),
             )
         elif field_def["type"] == "text":
             widget_attrs = field_def.get("widget_attrs", {})
