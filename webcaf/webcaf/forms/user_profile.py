@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db import connection
 
 from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.utils import mask_email
@@ -67,6 +68,18 @@ class UserProfileForm(forms.ModelForm):
         """
 
         user_email = self.cleaned_data["email"]
+
+        qs = User.objects.filter(
+            email=user_email,
+            is_staff=False,
+        )
+
+        print("DB:", connection.settings_dict["NAME"])
+        print("EMAIL:", repr(user_email))
+        print("COUNT:", qs.count())
+        print("ROWS:", list(qs.values("id", "email", "is_staff")))
+        print("SQL:", qs.query)
+
         user, created = User.objects.get_or_create(
             email=user_email,
             defaults={
