@@ -21,7 +21,12 @@ class AddNewUserForm(forms.Form):
     Represents a form for selecting Yes or No.
     """
 
-    add_new_user = forms.ChoiceField(choices=[("yes", "Yes"), ("no", "No")], required=True, label="Add another user")
+    add_new_user = forms.ChoiceField(
+        choices=[("yes", "Yes"), ("no", "No")],
+        required=True,
+        label="Add another user",
+        error_messages={"required": "Select yes or no"},
+    )
 
 
 class UserProfilesView(UserRoleCheckMixin, FormView):

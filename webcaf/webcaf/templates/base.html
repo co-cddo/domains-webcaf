@@ -3,12 +3,12 @@
 <head>
     {% if GOOGLE_ANALYTICS_ID %}
         <!-- Google Tag Manager -->
-        <script type="unknown/type" id="gtm-script" nonce="{{ request.csp_nonce }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','{{ GOOGLE_ANALYTICS_ID }}');
-        </script>
+        {#        <script type="unknown/type" id="gtm-script" nonce="{{ request.csp_nonce }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':#}
+        {#                  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],#}
+        {#              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=#}
+        {#              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);#}
+        {#          })(window,document,'script','dataLayer','{{ GOOGLE_ANALYTICS_ID }}');#}
+        {#        </script>#}
         <!-- End Google Tag Manager -->
     {% endif %}
     <title>{% block title %} - Complete a WebCAF self-assessment - GOV.UK{% endblock %}</title>
@@ -61,14 +61,14 @@
         </style>
         <div class="cookie-banner" id="cookie-banner">
             {% gds_cookie_banner %}
-                {% gds_cookie_banner_message headingText="Cookies on the Title service" %}
+                {% gds_cookie_banner_message headingText="Cookies on the WebCAF service" %}
                     <p class="govuk-body">We use essential cookies to make this website work.</p>
                     <p class="govuk-body">We want to set additional cookies to remember your settings, understand how
                         people use the
                         service, and make improvements.</p>
                     {% gds_cookie_banner_message_action text="Accept analytics cookies" %}
                     {% gds_cookie_banner_message_action text="Reject analytics cookies" %}
-                    {% gds_cookie_banner_message_action text="View cookies" href="/cookies" %}
+                    {% gds_cookie_banner_message_action text="View cookies" href="/public/cookies" %}
                 {% endgds_cookie_banner_message %}
             {% endgds_cookie_banner %}
         </div>
@@ -76,9 +76,9 @@
         <div class="cookie-banner" id="cookie-banner-done">
             {% gds_cookie_banner %}
                 {% gds_cookie_banner_message %}
-                    <p class="govuk-body">You have accepted additional cookies. You can <a href="/cookies">change your
-                        cookie
-                        settings</a> at any time.</p>
+                    <p class="govuk-body">You have successfully updated your cookie setting. You can <a href="{% url 'cookies' %}">
+                        change your cookie settings</a> at any time.
+                    </p>
                     {% gds_cookie_banner_message_action text="Hide this message" %}
                 {% endgds_cookie_banner_message %}
             {% endgds_cookie_banner %}

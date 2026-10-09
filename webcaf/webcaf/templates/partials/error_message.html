@@ -7,10 +7,11 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                {% for field in form %}
+                {% for field in form|sort_fields %}
                     {% for error in field.errors %}
                         {% if field.label != 'Action' %}
-                            <li><a href="#id_{{ field.name|safe_id }}">{{ field.label }} : {{ error }}</a></li>
+                            <li><a href="#id_{{ field.name|safe_id }}">
+                                {% if not hide_label %}{{ field.label }}: {% endif %}{{ error }}</a></li>
                         {% endif %}
                     {% endfor %}
                 {% endfor %}

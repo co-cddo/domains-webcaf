@@ -583,3 +583,20 @@ def caf_slug(code: str, title: str) -> str:
     """
     slug = slugify(f"{code} {title}")
     return slug
+
+
+@register.filter
+def sort_fields(fields):
+    """
+    Sort a list of form fields based on index values
+    This function expects the widgets to have a special
+    attribute named 'idx' which represents the position
+    of the element
+    :param fields: The list of form fields to sort
+    :return: The sorted list of form fields
+    """
+
+    def sort_key(field):
+        return field.field.widget.attrs.get("idx", "9999") if field.field.widget else "9999"
+
+    return sorted(fields, key=sort_key, reverse=False)

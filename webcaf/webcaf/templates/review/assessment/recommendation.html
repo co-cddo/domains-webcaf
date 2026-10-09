@@ -18,7 +18,7 @@
                             {% for form_ in form %}
                                 {% for field in form_.visible_fields %}
                                     {% for error in field.errors %}
-                                        <li><a href="#{{ field.id_for_label }}">{{ field.label }} :{{ error }}</a></li>
+                                        <li><a href="#{{ field.id_for_label }}">{{ error }}</a></li>
                                     {% endfor %}
                                 {% endfor %}
                                 {% for error in form_.non_field_errors %}

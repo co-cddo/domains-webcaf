@@ -158,36 +158,52 @@ class OutcomeView(BaseReviewMixin, UpdateView):
             fields = {}
             labels = {
                 "achieved": "Achieved",
-                "not-achieved": "Not Achieved",
-                "partially-achieved": "Partially Achieved",
+                "not-achieved": "Not achieved",
+                "partially-achieved": "Partially achieved",
             }
-            for indicator, statements in outcome["indicators"].items():
-                idx = 1
-                for key, statement in statements.items():
+            indicator_sorting = {
+                "achieved": 1,
+                "not-achieved": 3,
+                "partially-achieved": 2,
+            }
+            for index, indicator_and_statements in enumerate(outcome["indicators"].items(), 1):
+                indicator, statements = indicator_and_statements
+                for idx, key_and_statement in enumerate(statements.items(), 1):
+                    key, statement = key_and_statement
                     indicator_id = f"{indicator}_{key}"
                     indicator_comment = f"{indicator_id}_comment"
-
+                    sort_index = f"{indicator_sorting[indicator]}{idx}1"
                     fields[indicator_id] = ChoiceField(
                         label=f"{labels[indicator]} statement {idx}",
                         help_text=statement["description"],
                         choices=[("yes", "Yes"), ("no", "No")],
                         required=True,
-                        widget=RadioSelect(),
+                        # Assign the index, so the files can be ordered based on it.
+                        widget=RadioSelect(attrs={"idx": sort_index}),
+                        error_messages={"required": f"{labels[indicator]} statement {idx}: Select yes or no"},
                     )
-                    idx += 1
+
                     max_word_count = 750 if review.assessment.review_type != "peer_review" else 500
+                    comment_required = (
+                        review.assessment.review_type != "peer_review"
+                        and answered_statements["indicators"].get(indicator_comment, "") != ""
+                    )
+                    sort_index = f"{indicator_sorting[indicator]}{idx}2"
                     fields[indicator_comment] = CharField(
-                        label="Alternative controls",
+                        label=f"{labels[indicator]} statement {idx} Alternative controls",
                         help_text=answered_statements["indicators"].get(indicator_comment, ""),
                         validators=([WordCountValidator(max_word_count)]),
-                        widget=Textarea(attrs={"rows": 5, "max_words": max_word_count}),
+                        # Assign the index, so the files can be ordered based on it.
+                        widget=Textarea(attrs={"rows": 5, "max_words": max_word_count, "idx": sort_index}),
                         # You only require the inout if they have entered any text already
-                        required=review.assessment.review_type != "peer_review"
-                        and answered_statements["indicators"].get(indicator_comment, "") != "",
+                        required=comment_required,
+                        error_messages={
+                            "required": f"{labels[indicator]} statement {idx}: Add comments on alternative controls or exemptions"
+                        },
                     )
 
             fields["review_decision"] = ChoiceField(
-                label="review decision",
+                label="Review decision",
                 help_text="Overall independent review outcome",
                 choices=(
                     [
@@ -199,15 +215,17 @@ class OutcomeView(BaseReviewMixin, UpdateView):
                     if outcome["indicators"].get("partially-achieved")
                     else [("achieved", "Achieved"), ("not-achieved", "Not achieved")]
                 ),
+                error_messages={"required": "Select an outcome status"},
             )
             max_word_count = 1500 if self.object.assessment.review_type != "peer_review" else 500
             fields["review_comment"] = CharField(
                 help_text="Comment on the contributing outcome",
-                label="review comment",
+                label="Review comment",
                 validators=([WordCountValidator(max_word_count)]),
                 widget=Textarea(
                     attrs={"rows": 20, "max_words": max_word_count},
                 ),
+                error_messages={"required": "Add comments to support your review"},
             )
             return fields
 
@@ -330,26 +348,31 @@ class AddRecommendationView(BaseReviewMixin, UpdateView, ABC):
         elif preview_form.cleaned_data["preview_status"] == "preview":
             # Data validation errors are handled by the formset, so we only need to check for empty forms
 
-            for form in comment_formset.forms:
+            for index, form in enumerate(comment_formset.forms, 1):
                 if not form.cleaned_data:
-                    form.add_error("text", ValidationError("This field is required.", code="required"))
+                    form.add_error(
+                        "text", ValidationError(f"Add risk details to recommendation {index}", code="required")
+                    )
                     # Peer review does not need a title
                     if self.object.assessment.review_type != "peer_review":
-                        form.add_error("title", ValidationError("This field is required.", code="required"))
+                        form.add_error(
+                            "title", ValidationError(f"Add details to recommendation {index}", code="required")
+                        )
                 elif not form.cleaned_data.get("DELETE", False):
                     if not form.cleaned_data["text"]:
-                        form.add_error("text", ValidationError("This field is required.", code="required"))
+                        form.add_error(
+                            "text", ValidationError(f"Add risk details to recommendation {index}", code="required")
+                        )
                     #     Peer review does not need a title
                     if not form.cleaned_data["title"] and not self.object.assessment.review_type == "peer_review":
-                        form.add_error("title", ValidationError("This field is required.", code="required"))
+                        form.add_error(
+                            "title", ValidationError(f"Add details to recommendation {index}", code="required")
+                        )
 
             errors_added = any(form.errors for form in comment_formset.forms)
             if errors_added:
-                return TemplateResponse(
-                    request=self.request,
-                    template=self.template_name,
-                    context=context_data | {"form": comment_formset},
-                )
+                return self.form_invalid(comment_formset)
+
             # If no validation errors were found, we can proceed with the preview
             # Change the breadcrumb to indicate we are in the confirm view
             context_data["breadcrumbs"][-1]["text"] = context_data["breadcrumbs"][-1]["text"].replace(
@@ -534,7 +557,21 @@ class BaseAddCommentsView(BaseReviewMixin, UpdateView, ABC):
         pass
 
 
-class AddObjectiveCommentsView(BaseAddCommentsView, ABC):
+class ErrorMessageOverrideMixin:
+    """
+    Mixin to provide a default error message for required fields. Subclasses can
+    override this mixin to customize the error message.
+    """
+
+    required_error_message = "**Please add this field to your instance and override**"
+
+    def get_form(self, form_class: type[CommentsForm] | None = None) -> CommentsForm:
+        the_form = super().get_form(form_class)  # type: ignore[misc]
+        the_form.fields["text"].error_messages = {"required": self.required_error_message}
+        return the_form
+
+
+class AddObjectiveCommentsView(ErrorMessageOverrideMixin, BaseAddCommentsView, ABC):
     """
     Provides functionality for adding and managing comments for specific objectives
     within an assessment or review. This class abstracts common behaviors for
@@ -621,6 +658,7 @@ class AddObjectiveAreasOfImprovementView(AddObjectiveCommentsView):
     """
 
     template_name = "review/assessment/objective-areas-of-improvement.html"
+    required_error_message = "Add comments to areas for improvement"
 
     def get_comment_category(self):
         return "objective-areas-of-improvement"
@@ -650,6 +688,7 @@ class AddObjectiveAreasOfGoodPracticeView(AddObjectiveCommentsView):
     """
 
     template_name = "review/assessment/objective-areas-of-good-practice.html"
+    required_error_message = "Add comments to areas of good practice"
 
     def get_comment_category(self):
         return "objective-areas-of-good-practice"
@@ -711,7 +750,7 @@ class AddReviewCommentsView(BaseAddCommentsView, ABC):
         )
 
 
-class AddQualityOfEvidenceView(AddReviewCommentsView):
+class AddQualityOfEvidenceView(ErrorMessageOverrideMixin, AddReviewCommentsView):
     """
     Represents a view for adding quality of evidence during an assessment review.
 
@@ -726,6 +765,7 @@ class AddQualityOfEvidenceView(AddReviewCommentsView):
     """
 
     template_name = "review/assessment/quality-of-evidence.html"
+    required_error_message = "Add comments on the quality of the self-assessment"
 
     def get_form_class(self):
         if self.object.assessment.review_type == "peer_review":
@@ -746,7 +786,7 @@ class AddQualityOfEvidenceView(AddReviewCommentsView):
         return data
 
 
-class AddReviewMethodView(AddReviewCommentsView):
+class AddReviewMethodView(ErrorMessageOverrideMixin, AddReviewCommentsView):
     """
     Handles the display and interaction for adding review methods in the review
     assessment feature.
@@ -760,6 +800,7 @@ class AddReviewMethodView(AddReviewCommentsView):
     """
 
     template_name = "review/assessment/review-method.html"
+    required_error_message = "Add a description of your review method"
 
     def get_form_class(self):
         if self.object.assessment.review_type == "peer_review":
@@ -837,7 +878,9 @@ class AddCompanyDetailsView(AddReviewCommentsView):
         # Change the labels if we are in peer review mode
         if form_instance.instance.assessment.review_type == "peer_review":
             form_instance.fields["company_name"].label = "Organisation name"
+            form_instance.fields["company_name"].error_messages = {"required": "Enter the organisation name"}
             form_instance.fields["lead_assessor_name"].label = "Lead reviewer name"
+            form_instance.fields["lead_assessor_name"].error_messages = {"required": "Enter the lead reviewer name"}
             form_instance.fields["lead_assessor_email"].label = "Lead reviewer email"
             # Peer review does not require a lead assessor email
             form_instance.fields["lead_assessor_email"].required = False
@@ -859,12 +902,13 @@ class AddCompanyDetailsView(AddReviewCommentsView):
         return data
 
 
-class AddAreasOfGoodPracticeView(AddReviewCommentsView):
+class AddAreasOfGoodPracticeView(ErrorMessageOverrideMixin, AddReviewCommentsView):
     """
     Represents a detailed view for adding comments related to review areas of good practice.
     """
 
     template_name = "review/assessment/areas-of-good-practice.html"
+    required_error_message = "Add comments to areas of good practice"
 
     def get_comment_category(self):
         return "areas_of_good_practice"
@@ -880,12 +924,13 @@ class AddAreasOfGoodPracticeView(AddReviewCommentsView):
         return data
 
 
-class AddAreasOfImprovementView(AddReviewCommentsView):
+class AddAreasOfImprovementView(ErrorMessageOverrideMixin, AddReviewCommentsView):
     """
     Handles the addition of comments related to areas for improvement in a review or assessment context.
     """
 
     template_name = "review/assessment/areas-of-improvement.html"
+    required_error_message = "Add comments to areas for improvement"
 
     def get_comment_category(self):
         return "areas_for_improvement"

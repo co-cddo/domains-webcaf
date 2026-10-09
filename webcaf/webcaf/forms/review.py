@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 from typing import Any
 
@@ -10,7 +11,10 @@ from django.forms import (
     HiddenInput,
     IntegerField,
     ModelForm,
+    MultiValueField,
+    MultiWidget,
     Textarea,
+    TextInput,
 )
 
 from webcaf.webcaf.forms.factory import WordCountValidator
@@ -163,6 +167,86 @@ class PeerReviewCommentsFormMax300Words(PeerReviewCommentsForm):
     max_words = 300
 
 
+class DateWidget(MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = [
+            TextInput(
+                attrs={
+                    "inputmode": "numeric",
+                    "class": "govuk-input govuk-date-input__input govuk-input--width-2",
+                }
+            ),
+            TextInput(
+                attrs={
+                    "inputmode": "numeric",
+                    "class": "govuk-input govuk-date-input__input govuk-input--width-2",
+                }
+            ),
+            TextInput(
+                attrs={
+                    "inputmode": "numeric",
+                    "class": "govuk-input govuk-date-input__input govuk-input--width-4",
+                }
+            ),
+        ]
+
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value is None:
+            return [None, None, None]
+
+        if isinstance(value, (list, tuple)) and len(value) == 3:
+            return list(value)
+
+        if isinstance(value, date):
+            return [value.day, value.month, value.year]
+
+        return [None, None, None]
+
+
+class DateField(MultiValueField):
+    def __init__(self, *args, **kwargs):
+        fields = [
+            IntegerField(
+                required=True,
+            ),
+            IntegerField(
+                required=True,
+            ),
+            IntegerField(
+                required=True,
+            ),
+        ]
+
+        super().__init__(
+            fields=fields,
+            widget=DateWidget,
+            # error_messages={"required": "Enter a valid date","invalid": "Enter a valid date"},
+            *args,
+            **kwargs,
+        )
+
+    def compress(self, data_list):
+        if not data_list:
+            return None
+
+        day, month, year = data_list
+
+        if not all([day, month, year]):
+            raise ValidationError(
+                f"{self.label}: Enter a valid date",
+                code="invalid_date",
+            )
+        try:
+            return date(year, month, day)
+        except ValueError:
+            raise ValidationError(
+                f"{self.label}: Enter a valid date",
+                code="invalid_date",
+            )
+
+
 class ReviewPeriodForm(ModelForm):
     """
     A ReviewPeriodForm class to handle date inputs for review periods.
@@ -171,52 +255,57 @@ class ReviewPeriodForm(ModelForm):
     It allows selecting dates through individual components (day, month, year) and ensures
     the start date occurs before the end date. Additionally, it provides mechanisms to
     process and format the date into a textual representation for use in views.
-
-    :ivar start_date_day: Integer field to capture the day component of the start date.
-    :ivar start_date_month: Integer field to capture the month component of the start date.
-    :ivar start_date_year: Integer field to capture the year component of the start date.
-    :ivar end_date_day: Integer field to capture the day component of the end date.
-    :ivar end_date_month: Integer field to capture the month component of the end date.
-    :ivar end_date_year: Integer field to capture the year component of the end date.
     """
 
-    start_date_day = IntegerField(min_value=1, max_value=31, label="Day")
-    start_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    start_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
-
-    end_date_day = IntegerField(min_value=1, max_value=31, label="Day")
-    end_date_month = IntegerField(min_value=1, max_value=12, label="Month")
-    end_date_year = IntegerField(min_value=date.today().year - 1, max_value=date.today().year, label="Year")
+    start_date = DateField(label="Start date", required=False)
+    end_date = DateField(label="End date", required=False)
 
     def __init__(self, *args, **kwargs):
-        text = kwargs.pop("initial", {}).get("text", {})
+        text = kwargs.get("initial", {}).get("text", {})
         if text:
-            initial = kwargs.get("initial", {})
-            for date_key, date_value in text.items():
-                date_part = date_value.split("/")
-                if len(date_part) == 3:
-                    initial = initial | {
-                        f"{date_key}_day": int(date_part[0]),
-                        f"{date_key}_month": int(date_part[1]),
-                        f"{date_key}_year": int(date_part[2]),
-                    }
-            kwargs["initial"] = initial
+            kwargs["initial"]["start_date"] = text.get("start_date", "//").split("/")
+            kwargs["initial"]["end_date"] = text.get("end_date", "//").split("/")
         super().__init__(*args, **kwargs)
 
-    def clean(self):
-        cleaned = super().clean()
+    def clean(self) -> dict[str, Any] | None:
+        cleaned = super().clean() or {}
         # Confirm we have correct value range
         if self.errors:
             return cleaned
 
-        start_date = self.clean_components(cleaned, "start")
-        end_date = self.clean_components(cleaned, "end")
-        if self.errors:
-            # If we have parsing errors
-            return cleaned
+        start_date = cleaned.get("start_date", "")
+        end_date = cleaned.get("end_date", "")
+
+        if not start_date or not end_date:
+            raise ValidationError(
+                (
+                    {"start_date": "Start date: Enter the start and end dates of your assurance review"}
+                    if not start_date
+                    else {}
+                )
+                | (
+                    {"end_date": "End date: Enter the start and end dates of your assurance review"}
+                    if not end_date
+                    else {}
+                )
+            )
+        now_ = datetime.datetime.now().date()
+        if start_date > now_ or end_date > now_:
+            raise ValidationError(
+                (
+                    {"start_date": "Start date: The date of your assurance review must be in the past"}
+                    if start_date > now_
+                    else {}
+                )
+                | (
+                    {"end_date": "End date: The date of your assurance review must be in the past"}
+                    if end_date > now_
+                    else {}
+                )
+            )
 
         if start_date > end_date:
-            raise ValidationError("The start date must be before the end date")
+            raise ValidationError({"start_date": "The start date of your assurance review must be before the end date"})
 
         # Set the text component to the formatted date. This is the attribute required in the view
         self.cleaned_data["text"] = {
@@ -225,54 +314,30 @@ class ReviewPeriodForm(ModelForm):
         }
         return cleaned
 
-    def clean_components(self, cleaned: dict[str, Any], prefix: str):
-        """
-        Cleans and validates date components from a given set of inputs for a specific prefix. It constructs
-        a `date` object if all the required components (day, month, year) are provided and valid. Raises a
-        `ValidationError` when the components are missing or form an invalid date.
-
-        :param cleaned: The dictionary containing date component values.
-        :type cleaned: dict[str, Any] | None
-        :param prefix: The prefix string used to extract date components from the `cleaned` dictionary.
-        :type prefix: str
-        :return: A `date` object if the components are valid.
-        :rtype: date
-        :raises ValidationError: If the date components are invalid or any component is missing.
-        """
-        d = cleaned.get(f"{prefix}_date_day")
-        m = cleaned.get(f"{prefix}_date_month")
-        y = cleaned.get(f"{prefix}_date_year")
-        if d and m and y:
-            try:
-                return date(y, m, d)
-            except ValueError:
-                self.add_error(f"{prefix}_date_day", "Invalid date combination")
-                self.add_error(f"{prefix}_date_month", "Invalid date combination")
-                self.add_error(f"{prefix}_date_year", "Invalid date combination")
-        return None
-
-    def prefixes(self):
-        """
-        Generates and returns a list of predefined prefixes.
-
-        This method returns a list containing specific string elements that can be used
-        as prefixes for various purposes. The list of prefixes is predefined and does
-        not depend on any external input or computation.
-
-        :return: A list of predefined string prefixes.
-        :rtype: list[str]
-        """
-        return ["start", "end"]
-
     class Meta:
         model = Review
         fields: list[str] = []
 
 
 class CompanyDetailsForm(ModelForm):
-    company_name = CharField(label="Company name", max_length=255, required=True)
-    lead_assessor_name = CharField(label="Lead reviewer name", max_length=255, required=True)
-    lead_assessor_email = EmailField(label="Lead reviewer email", max_length=255, required=True)
+    company_name = CharField(
+        label="Company name",
+        max_length=255,
+        required=True,
+        error_messages={"required": "Add the trading name of the company "},
+    )
+    lead_assessor_name = CharField(
+        label="Lead reviewer name",
+        max_length=255,
+        required=True,
+        error_messages={"required": "Add the lead reviewer name"},
+    )
+    lead_assessor_email = EmailField(
+        label="Lead reviewer email",
+        max_length=255,
+        required=True,
+        error_messages={"required": "Enter an email address in the correct format, like name@example.com"},
+    )
     company_address = CharField(label="Company address", max_length=500, required=False)
     company_phone = CharField(label="Company phone number", max_length=15, required=False)
 

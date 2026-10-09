@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm
@@ -18,6 +19,22 @@ class OrganisationContactForm(ModelForm):
         model = Organisation
         fields = ["contact_name", "contact_role", "contact_email"]
 
+    def clean(self) -> dict[str, Any] | None:
+        """
+        Custom validation for the form. If the contact email is not provided,
+        ensure that an error is raised.
+        :return:
+        """
+        cleaned_data = super().clean() or {}
+        contact_email = cleaned_data.get("contact_email")
+        if not contact_email:
+            self.add_error("contact_email", "Enter an email address")
+        if not cleaned_data.get("contact_name"):
+            self.add_error("contact_name", "Enter full name")
+        if not cleaned_data.get("contact_role"):
+            self.add_error("contact_role", "Enter organisation role")
+        return cleaned_data
+
 
 class OrganisationTypeForm(ModelForm):
     """
@@ -27,6 +44,20 @@ class OrganisationTypeForm(ModelForm):
     class Meta:
         model = Organisation
         fields = ["organisation_type"]
+
+    def clean(self) -> dict[str, Any] | None:
+        """
+        Custom validation for the form. If the organisation type is set to 'Other',
+        ensure that the 'other_organisation_type' field is filled in.
+
+        :return: Cleaned data if valid, otherwise raises a ValidationError.
+        """
+        cleaned_data = super().clean() or {}
+        organisation_type = cleaned_data.get("organisation_type")
+        if not organisation_type:
+            self.add_error("organisation_type", "Select an organisation type")
+            return cleaned_data
+        return cleaned_data
 
 
 class OrganisationForm(ModelForm):
