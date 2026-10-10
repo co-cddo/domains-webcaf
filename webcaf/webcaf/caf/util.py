@@ -34,6 +34,21 @@ class IndicatorStatusChecker:
         if not framework:
             framework = "caf32"
         router = IndicatorStatusChecker.get_router(framework)
+        return IndicatorStatusChecker.get_status_for_indicators(
+            indicators, router.framework["assessment-rules"]  # type: ignore
+        )
+
+    @staticmethod
+    def get_status_for_indicators(
+        indicators: Dict[str, Any], assessment_rules: Dict[str, Any]
+    ) -> Dict[str, Optional[str]]:
+        """
+        Get the outcome status for a set of indicator answers using the framework's assessment rules.
+
+        :param indicators: The outcome's indicator answers, keyed as ``{level}_{indicator_id}``.
+        :param assessment_rules: The ``assessment-rules`` section of the framework definition.
+        :return: A dictionary with the outcome status and its corresponding message.
+        """
 
         # Helper: filter only primary indicator keys (ignore any *_comment variants)
         def primary_items_with_prefix(prefix: str):
@@ -60,9 +75,7 @@ class IndicatorStatusChecker:
         partially_achieved_key = generate_key(partial_items)
         not_achieved_key = generate_key(not_achieved_items)
 
-        return router.framework["assessment-rules"][  # type: ignore
-            f"{achieved_key}_{partially_achieved_key}_{not_achieved_key}"
-        ]
+        return assessment_rules[f"{achieved_key}_{partially_achieved_key}_{not_achieved_key}"]
 
     @staticmethod
     def get_when_the_status_changed(assessment: Assessment, indicator_id: str, status: str) -> Assessment | None:

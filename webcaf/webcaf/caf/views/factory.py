@@ -157,10 +157,16 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
             if self.stage not in assessment.assessments_data[self.class_id]:
                 assessment.assessments_data[self.class_id][self.stage] = {}
 
-            if (
-                self.stage == "indicators"
-                and assessment.assessments_data[self.class_id][self.stage] != form.cleaned_data
-            ):
+            stage_data = dict(form.cleaned_data)
+            if self.stage == "indicators":
+                # Not-achieved comments only come from the Excel import; the form has no fields for them
+                stage_data |= {
+                    k: v
+                    for k, v in assessment.assessments_data[self.class_id][self.stage].items()
+                    if k.startswith("not-achieved_") and k.endswith("_comment") and k not in form.fields
+                }
+
+            if self.stage == "indicators" and assessment.assessments_data[self.class_id][self.stage] != stage_data:
                 # If we are changing the indicators, then we have to reset the confirmation data
                 if "confirmation" in assessment.assessments_data[self.class_id]:
                     current_outcome_status = assessment.assessments_data[self.class_id]["confirmation"].get(
@@ -178,7 +184,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
                     self.logger.info(
                         f"Updated assessment data for class {self.class_id} as the answers have changed status is {current_outcome_status}."
                     )
-            assessment.assessments_data[self.class_id][self.stage] = form.cleaned_data
+            assessment.assessments_data[self.class_id][self.stage] = stage_data
             assessment.last_updated_by = current_user_profile.user
             assessment.save()
             self.logger.info(

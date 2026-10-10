@@ -3,9 +3,14 @@
 Workbooks produced by :mod:`webcaf.webcaf.utils.excel_exporter` contain a
 hidden mapping sheet (``JSON_MAP_SHEET_NAME``) whose rows record, for every
 answer cell in the visible sheets, the JSON pointer path the value belongs to,
-the type of value expected and whether the cell is required. The functions in
-this module read that mapping, validate and transform the cell values, and
-assemble the nested ``assessments_data`` dictionary stored on an Assessment.
+the type of value expected, whether the cell is required and any placeholder
+text the cell was pre-filled with. The functions in this module read that
+mapping, validate and transform the cell values, and assemble the nested
+``assessments_data`` dictionary stored on an Assessment.
+
+Templates do not ask for the contributing outcome status: as in WebCAF, it is
+worked out from the indicator answers using the framework's assessment rules.
+Older templates that mapped a status cell are still honoured.
 """
 
 from typing import Any
@@ -13,7 +18,8 @@ from typing import Any
 from openpyxl import load_workbook
 
 JSON_MAP_SHEET_NAME = "__webcaf_json_map"
-JSON_MAP_HEADERS = ["visible_sheet", "visible_cell", "json_path", "value_type", "required"]
+JSON_MAP_HEADERS = ["visible_sheet", "visible_cell", "json_path", "value_type", "required", "placeholder"]
+LEGACY_JSON_MAP_HEADERS = JSON_MAP_HEADERS[:5]
 META_SHEET_NAME = "__webcaf_meta"
 
 OUTCOME_STATUS_TO_REVIEW_DECISION = {
@@ -27,22 +33,33 @@ class ExcelImportError(Exception):
     pass
 
 
-def excel_to_assessment_json(excel_file) -> dict[str, Any]:
+def excel_to_assessment_json(excel_file, framework: dict[str, Any] | None = None) -> dict[str, Any]:
     """Convert an uploaded workbook to assessment JSON, strictly.
 
     Used when importing for real: raises :class:`ExcelImportError` if any cell
-    holds an invalid value *or* if any required cell is blank.
+    holds an invalid value, if any required cell is blank *or* if an outcome's
+    status cannot be worked out.
 
     :param excel_file: A file path or file-like object readable by openpyxl.
+    :param framework: The framework definition whose assessment rules derive
+        outcome statuses. Defaults to the framework the template was made for.
     :return: The nested assessment data dictionary, keyed by outcome code.
     """
-    data, _raw_rows, missing_required = _parse_excel(excel_file)
-    if missing_required:
-        raise ExcelImportError("; ".join(f"Required cell {cell} is blank" for cell in missing_required))
+    data, _raw_rows, missing_required = _parse_excel(excel_file, framework)
+    errors = [f"Required cell {cell} is blank" for cell in missing_required]
+    errors += [
+        f"Could not work out the contributing outcome status for {outcome_code}"
+        for outcome_code, outcome_data in data.items()
+        if "outcome_status" not in outcome_data.get("confirmation", {})
+    ]
+    if errors:
+        raise ExcelImportError("; ".join(errors))
     return data
 
 
-def excel_to_assessment_json_with_raw(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool, Any]]]:
+def excel_to_assessment_json_with_raw(
+    excel_file, framework: dict[str, Any] | None = None
+) -> tuple[dict[str, Any], list[tuple[str, str, bool, Any]]]:
     """Convert an uploaded workbook to assessment JSON, leniently, for previewing.
 
     Unlike :func:`excel_to_assessment_json`, blank required cells do not raise:
@@ -50,11 +67,13 @@ def excel_to_assessment_json_with_raw(excel_file) -> tuple[dict[str, Any], list[
     highlight them while still showing everything that was parsed.
 
     :param excel_file: A file path or file-like object readable by openpyxl.
+    :param framework: See :func:`excel_to_assessment_json`.
     :return: A tuple of (assessment data dictionary, raw rows). Each raw row is
         a ``(json_path, value_type, required, raw_cell_value)`` tuple, one per
-        mapped cell, in mapping-sheet order.
+        mapped cell, in mapping-sheet order. Cells still holding their
+        placeholder text are reported as blank.
     """
-    data, raw_rows, _missing_required = _parse_excel(excel_file)
+    data, raw_rows, _missing_required = _parse_excel(excel_file, framework)
     return data, raw_rows
 
 
@@ -62,20 +81,14 @@ def excel_framework_id(excel_file) -> Any:
     """
     Read the framework id the template was generated for.
     """
-    wb = load_workbook(excel_file, data_only=True)
-    if META_SHEET_NAME not in wb.sheetnames:
-        return None
-    for key, value in wb[META_SHEET_NAME].iter_rows(max_col=2, values_only=True):
-        if key == "framework_id":
-            return value
-    return None
+    return _framework_id(load_workbook(excel_file, data_only=True))
 
 
 def excel_to_review_json(excel_file, framework: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
     """
     Convert an uploaded workbook into review answers, grouped by objective and outcome.
     """
-    assessment_data = excel_to_assessment_json(excel_file)
+    assessment_data = excel_to_assessment_json(excel_file, framework)
 
     outcome_to_objective = {
         outcome_code: objective["code"]
@@ -93,8 +106,8 @@ def excel_to_review_json(excel_file, framework: dict[str, Any]) -> dict[str, dic
             continue
 
         outcome_answers: dict[str, Any] = {
-            indicator_id: "yes" if agreed else "no"
-            for indicator_id, agreed in outcome_data.get("indicators", {}).items()
+            indicator_id: value if indicator_id.endswith("_comment") else ("yes" if value else "no")
+            for indicator_id, value in outcome_data.get("indicators", {}).items()
         }
         confirmation = outcome_data.get("confirmation", {})
         outcome_answers["review_decision"] = OUTCOME_STATUS_TO_REVIEW_DECISION[confirmation["outcome_status"]]
@@ -135,7 +148,7 @@ def assessment_json_to_review_data(
                         key = f"{level}_{item_code}"
                         answered = answers.get(key)
                         indicators[key] = "" if answered is None else ("yes" if answered else "no")
-                        indicators[f"{key}_comment"] = ""
+                        indicators[f"{key}_comment"] = answers.get(f"{key}_comment", "")
 
                 confirmation = outcome_data.get("confirmation", {})
                 objective_entry[outcome_code] = {
@@ -209,13 +222,17 @@ def assessment_json_to_review_data(
     }
 
 
-def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool, Any]], list[str]]:
+def _parse_excel(
+    excel_file, framework: dict[str, Any] | None = None
+) -> tuple[dict[str, Any], list[tuple[str, str, bool, Any]], list[str]]:
     """Parse the Excel workbook into assessment data using its hidden mapping sheet.
 
     Walks every row of the ``JSON_MAP_SHEET_NAME`` sheet, reads the visible
     cell it points at, transforms the value according to the row's
     ``value_type`` (see :func:`_transform_value`) and writes it into the result
-    dictionary at the row's JSON pointer path.
+    dictionary at the row's JSON pointer path. A cell still holding the
+    row's placeholder text is treated as blank. Finally, any outcome without a
+    status gets one derived from its indicator answers.
 
     Invalid values are collected and raised together as one
     :class:`ExcelImportError`. Blank required cells are *not* fatal here: they
@@ -223,6 +240,7 @@ def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool,
     (strict import) or flag them (preview).
 
     :param excel_file: A file path or file-like object readable by openpyxl.
+    :param framework: See :func:`excel_to_assessment_json`.
     :return: A tuple of (assessment data dictionary, raw rows as described in
         :func:`excel_to_assessment_json_with_raw`, list of blank required cells
         as ``"Sheet!CELL"`` references).
@@ -235,8 +253,8 @@ def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool,
         raise ExcelImportError(f"Workbook is missing the {JSON_MAP_SHEET_NAME} sheet")
 
     map_ws = wb[JSON_MAP_SHEET_NAME]
-    headers = [cell.value for cell in map_ws[1]]
-    if headers != JSON_MAP_HEADERS:
+    headers = [cell.value for cell in map_ws[1] if cell.value is not None]
+    if headers not in (JSON_MAP_HEADERS, LEGACY_JSON_MAP_HEADERS):
         raise ExcelImportError(f"{JSON_MAP_SHEET_NAME} has an invalid header row")
 
     data: dict[str, Any] = {}
@@ -244,7 +262,9 @@ def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool,
     missing_required: list[str] = []
     errors: list[str] = []
 
-    for visible_sheet, visible_cell, json_path, value_type, required in map_ws.iter_rows(min_row=2, values_only=True):
+    for visible_sheet, visible_cell, json_path, value_type, required, placeholder in map_ws.iter_rows(
+        min_row=2, max_col=len(JSON_MAP_HEADERS), values_only=True
+    ):
         if not visible_sheet or not visible_cell or not json_path:
             continue
         if visible_sheet not in wb.sheetnames:
@@ -252,6 +272,8 @@ def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool,
             continue
 
         value = wb[visible_sheet][visible_cell].value
+        if placeholder and _normalise_whitespace(value) == _normalise_whitespace(placeholder):
+            value = None
         required_bool = bool(required)
         raw_rows.append((str(json_path), str(value_type), required_bool, value))
 
@@ -272,6 +294,7 @@ def _parse_excel(excel_file) -> tuple[dict[str, Any], list[tuple[str, str, bool,
     if errors:
         raise ExcelImportError("; ".join(errors))
 
+    _add_derived_outcome_statuses(data, _assessment_rules(wb, framework))
     _add_confirmation_defaults(data)
     return data, raw_rows, missing_required
 
@@ -322,12 +345,57 @@ def _set_json_pointer(data: dict[str, Any], path: str, value: Any) -> None:
     current[parts[-1]] = value
 
 
+def _framework_id(wb) -> Any:
+    if META_SHEET_NAME not in wb.sheetnames:
+        return None
+    for key, value in wb[META_SHEET_NAME].iter_rows(max_col=2, values_only=True):
+        if key == "framework_id":
+            return value
+    return None
+
+
+def _assessment_rules(wb, framework: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Return the assessment rules of the given framework, or else of the framework
+    the workbook was generated for (from the router registry)."""
+    if framework is None:
+        # Imported here rather than at module level: the router registry is only
+        # populated once the Django app registry is ready.
+        from webcaf.webcaf.frameworks import routers
+
+        framework_id = _framework_id(wb)
+        if framework_id not in routers:
+            return None
+        framework = routers[framework_id].framework
+    return framework.get("assessment-rules")
+
+
+def _add_derived_outcome_statuses(data: dict[str, Any], assessment_rules: dict[str, Any] | None) -> None:
+    """Work out each outcome's status and status message from its indicator answers, as the
+    form journey does, unless the workbook supplied the status directly (older templates)."""
+    if not assessment_rules:
+        return
+    from webcaf.webcaf.caf.util import IndicatorStatusChecker
+
+    for outcome_data in data.values():
+        if not isinstance(outcome_data, dict) or "indicators" not in outcome_data:
+            continue
+        confirmation = outcome_data.setdefault("confirmation", {})
+        if "outcome_status" not in confirmation:
+            confirmation.update(
+                IndicatorStatusChecker.get_status_for_indicators(outcome_data["indicators"], assessment_rules)
+            )
+
+
 def _add_confirmation_defaults(data: dict[str, Any]) -> None:
     """Default each outcome's ``confirm_outcome`` to "confirm", as the form journey would,
     since the spreadsheet has no equivalent input."""
     for outcome_data in data.values():
         if isinstance(outcome_data, dict) and "confirmation" in outcome_data:
             outcome_data["confirmation"].setdefault("confirm_outcome", "confirm")
+
+
+def _normalise_whitespace(value: Any) -> str:
+    return " ".join(str(value or "").split())
 
 
 def _is_blank(value: Any) -> bool:
