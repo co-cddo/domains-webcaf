@@ -5,7 +5,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l govuk-!-margin-top-6">{{ review.assessment.system.name }} ({{ review.assessment.reference }})</span>
             <form class="form" method="post">
                 {% csrf_token %}

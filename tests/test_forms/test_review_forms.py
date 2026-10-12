@@ -113,20 +113,12 @@ class TestReviewPeriodForm(TestCase):
     Test the ReviewPeriodForm. Test the basic log around the date fields.
     """
 
-    def test_prefixes(self):
-        form = ReviewPeriodForm()
-        self.assertEqual(form.prefixes(), ["start", "end"])
-
     def test_initial_dict_is_parsed_into_components(self):
         """Test new dict-based initialization format."""
         form = ReviewPeriodForm(initial={"text": {"start_date": "01/02/2023", "end_date": "05/03/2024"}})
         # Check that __init__ split dict dates into day/month/year components
-        self.assertEqual(form.initial.get("start_date_day"), 1)
-        self.assertEqual(form.initial.get("start_date_month"), 2)
-        self.assertEqual(form.initial.get("start_date_year"), 2023)
-        self.assertEqual(form.initial.get("end_date_day"), 5)
-        self.assertEqual(form.initial.get("end_date_month"), 3)
-        self.assertEqual(form.initial.get("end_date_year"), 2024)
+        self.assertEqual(form.initial.get("start_date"), ["01", "02", "2023"])
+        self.assertEqual(form.initial.get("end_date"), ["05", "03", "2024"])
 
     def test_initial_empty_dict_handled(self):
         """Test that empty dict in initial text doesn't cause errors."""
@@ -139,12 +131,12 @@ class TestReviewPeriodForm(TestCase):
         year_ = date.today().year - 1
         form = ReviewPeriodForm(
             data={
-                "start_date_day": 2,
-                "start_date_month": 8,
-                "start_date_year": year_,
-                "end_date_day": 3,
-                "end_date_month": 8,
-                "end_date_year": year_,
+                "start_date_0": 2,
+                "start_date_1": 8,
+                "start_date_2": year_,
+                "end_date_0": 3,
+                "end_date_1": 8,
+                "end_date_2": year_,
             }
         )
         self.assertTrue(form.is_valid())
@@ -157,34 +149,35 @@ class TestReviewPeriodForm(TestCase):
 
         form = ReviewPeriodForm(
             data={
-                "start_date_day": 31,
-                "start_date_month": 2,
-                "start_date_year": year_,
-                "end_date_day": 1,
-                "end_date_month": 3,
-                "end_date_year": year_,
+                "start_date_0": 31,
+                "start_date_1": 2,
+                "start_date_2": year_,
+                "end_date_0": 1,
+                "end_date_1": 3,
+                "end_date_2": year_,
             }
         )
         self.assertFalse(form.is_valid())
-        for key in ("start_date_day", "start_date_month", "start_date_year"):
-            self.assertIn(key, form.errors)
+        self.assertIn("start_date", form.errors)
+        self.assertEqual(1, len(form.errors))
 
     def test_start_date_must_be_before_end_date(self):
         # Start after end triggers a non-field error via ValidationError in clean()
         year_ = date.today().year - 1
         form = ReviewPeriodForm(
             data={
-                "start_date_day": 10,
-                "start_date_month": 5,
-                "start_date_year": year_,
-                "end_date_day": 9,
-                "end_date_month": 5,
-                "end_date_year": year_,
+                "start_date_0": 10,
+                "start_date_1": 5,
+                "start_date_2": year_,
+                "end_date_0": 9,
+                "end_date_1": 5,
+                "end_date_2": year_,
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertIn("__all__", form.errors)
-        self.assertIn("The start date must be before the end date", form.errors["__all__"])
+        self.assertIn("start_date", form.errors)
+        self.assertIn("The start date of your assurance review must be before the end date", form.errors["start_date"])
+        self.assertEqual(1, len(form.errors))
 
     def test_missing_start_date_components(self):
         """Test that missing start date components returns None."""

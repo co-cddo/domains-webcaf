@@ -2,17 +2,19 @@ import logging
 
 from django import forms
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.utils import mask_email
 
 
 class UserProfileForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, required=True)
-    last_name = forms.CharField(max_length=150, required=True)
-    email = forms.CharField(max_length=150, required=True)
-    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
+    first_name = forms.CharField(max_length=150, required=True, error_messages={"required": "Enter first name"})
+    last_name = forms.CharField(max_length=150, required=True, error_messages={"required": "Enter last name"})
+    email = forms.EmailField(max_length=150, required=True, error_messages={"required": "Enter an email address"})
+    role = forms.ChoiceField(
+        choices=UserProfile.ROLE_CHOICES, required=True, error_messages={"required": "Select a user role"}
+    )
     # By default we do not pass the action field in the initial form, which makes the validation failure
     # and we capture that ant and redirect the user to the confirmation page.
     action = forms.ChoiceField(choices=[("change", "Change"), ("confirm", "Confirm")], required=True)
@@ -40,14 +42,30 @@ class UserProfileForm(forms.ModelForm):
             initial["email"] = instance.user.email
         super().__init__(*args, **kwargs)
 
+    def clean_first_name(self):
+        first_name = self.cleaned_data["first_name"]
+        if not first_name:
+            raise ValidationError("Enter a first name")
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data["last_name"]
+        if not last_name:
+            raise ValidationError("Enter a last name")
+        return last_name
+
     def clean_role(self):
         role = self.cleaned_data["role"]
         if role == "cyber_advisor":
             raise PermissionDenied("You are not allowed to change this role")
+        elif not role:
+            raise ValidationError("Select a user role")
         return role
 
     def clean_email(self):
         email = self.cleaned_data["email"]
+        if not email:
+            raise ValidationError("Enter a valid email address")
         return email.lower()
 
     def save(self, commit=True):

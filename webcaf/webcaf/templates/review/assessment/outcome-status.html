@@ -8,7 +8,7 @@
         {% get_review_completed_percentage object as percentage %}
         {% include "partials/progress_indicator.html" with percentage=percentage %}
         <div class="govuk-grid-column-three-quarters">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ object.assessment.system.name }} ({{ object.assessment.reference }})</span>
             <h1 class="govuk-heading-l">{{ outcome.code }} {{ outcome.title }} review</h1>
             <p class="govuk-body">{{ outcome.description }}</p>
@@ -58,9 +58,10 @@
                 {% indicator_min_profile_requirement_met object.assessment outcome.code|slice:2 outcome.code answered_statements.confirmation.outcome_status True as profile_met %}
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
-                        {{ object.assessment.get_caf_profile_display }} <abbr title="Cyber Assessment Framework">CAF</abbr> profile requirement
+                        {{ object.assessment.get_caf_profile_display }} <abbr
+                            title="Cyber Assessment Framework">CAF</abbr> profile requirement
                     </p>
-                    {%  get_tag_for_status profile_met.1 as tag_colour %}
+                    {% get_tag_for_status profile_met.1 as tag_colour %}
                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ profile_met.1 }}</strong>
                 </div>
                 <div class="status-stack__item">
@@ -70,7 +71,8 @@
                 </div>
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
-                        {{ object.assessment.get_caf_profile_display }} <abbr title="Cyber Assessment Framework">CAF</abbr> profile
+                        {{ object.assessment.get_caf_profile_display }} <abbr
+                            title="Cyber Assessment Framework">CAF</abbr> profile
                     </p>
                     {% if profile_met.0 == 'Not met' %}
                         <strong class="govuk-tag govuk-tag--red">{{ profile_met.0 }}</strong>
@@ -239,7 +241,9 @@
                                         </fieldset>
                                     </div>
                                     {% get_comment_field form field.name as comment_field %}
-                                    <div class="govuk-form-group {% if object.assessment.review_type == 'peer_review' %} govuk-visually-hidden {% endif %}">
+                                    <div class="govuk-form-group
+                                        {% if object.assessment.review_type == 'peer_review' %} govuk-visually-hidden {% endif %}
+                                        {% if comment_field.errors %} govuk-form-group--error {% endif %}">
                                         <div id="{{ comment_field.auto_id|safe_id }}_outer"
                                              class="govuk-form-group govuk-character-count"
                                              data-module="govuk-character-count"
@@ -257,6 +261,8 @@
                                                     name="{{ comment_field.name }}"
                                                     rows="{{ comment_field.field.widget.attrs.rows }}"
                                                     aria-describedby="{{ comment_field.auto_id|safe_id }}-info"
+                                                    aria-required="{{ comment_field.field.required }}"
+                                                    {% if comment_field.errors %} aria-invalid="true" {% endif %}
                                             >{{ comment_field.value|default:"" }}</textarea>
                                             <!-- @formatter:on -->
                                             <div id="{{ comment_field.auto_id|safe_id }}-info"

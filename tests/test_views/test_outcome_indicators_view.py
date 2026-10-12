@@ -169,7 +169,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Not achieved")
-        self.assertRegex(response.content.decode(), r"You must provide a summary.")
+        self.assertRegex(response.content.decode(), r"Provide a contributing outcome summary")
 
     def test_post_confirmation_with_summary(self):
         """
