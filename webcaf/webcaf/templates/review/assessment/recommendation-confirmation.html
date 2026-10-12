@@ -2,7 +2,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %} Review Objective {{ objective_code }} - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}Check your recommendations {{ objective_code }} {{ block.super }}{% endblock %}
 {% block content %}
     <div class="govuk-grid-row">
         {% get_review_completed_percentage object as percentage %}

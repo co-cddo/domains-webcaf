@@ -3,7 +3,7 @@
 {% load review_tags %}
 {% load form_extras %}
 {% load permission_extras %}
-{% block title %}Report history - {{ user.first_name }} {{ block.super }}{% endblock %}
+{% block title %}Report history {{ block.super }}{% endblock %}
 {% block content %}
     {% if messages %}
         <div class="govuk-notification-banner govuk-notification-banner--success" role="region"

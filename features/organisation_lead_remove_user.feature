@@ -13,10 +13,10 @@
 
     Scenario: GovAssure lead can remove user
         Given Think time 1 seconds
-        Then they should see page title "GovAssure lead - My account - other - Complete a WebCAF self-assessment - GOV.UK"
+        Then they should see page title "GovAssure lead - My account - Complete a WebCAF self-assessment - GOV.UK"
         And check user is logged in against organisation "Ministry of Agriculture"
         When click link with text "Manage users"
-        Then they should see page title "Manage users - other - Complete a WebCAF self-assessment - GOV.UK"
+        Then they should see page title "Manage users - Complete a WebCAF self-assessment - GOV.UK"
         Then they should see a table including value "alice@example.gov.uk"
         And link with text "Change"
         And link with text "Remove"
