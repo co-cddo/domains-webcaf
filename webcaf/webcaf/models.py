@@ -978,7 +978,7 @@ class Review(ReferenceGeneratorMixin, models.Model):
         total_outcomes = 0
         completed_outcomes = 0
         for caf_objective in caf_objectives:
-            review_objective = _get_or_create_nested_path(assessor_response_data, caf_objective["code"])
+            review_objective = assessor_response_data.get(caf_objective["code"], {})
             for principal in caf_objective["principles"].values():
                 for outcome in principal["outcomes"].values():
                     outcome_data = review_objective.get(outcome["code"], {})

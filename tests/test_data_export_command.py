@@ -1,10 +1,11 @@
 import json
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from webcaf.webcaf.management.commands.export_data import Command
+from webcaf.webcaf.management.commands.export_data import Command, extract_metadata
 from webcaf.webcaf.models import Assessment, Organisation, Review, System, Tip
 
 _LOREM_IPSUM = "Lorem ipsum."
@@ -46,6 +47,10 @@ class TestExportDataCommand(TestCase):
 
         self.assertEqual(1, transform_mock.call_count)
         self.assertEqual({"answer": "yes"}, transform_mock.call_args[0][0])
+        self.assertEqual(
+            {"meta": "assessment", "assessment_last_user_action": ""},
+            transform_mock.call_args[0][1],
+        )
 
         extract_metadata_mock.assert_called_once_with(self.assessment, {}, {})
         s3.put_object.assert_called_once_with(
@@ -77,6 +82,8 @@ class TestExportDataCommand(TestCase):
                 "review_created": str(self.review.created_on),
                 "review_finalised": {},
                 "review_last_updated": str(self.review.last_updated),
+                "review_last_user_action": "",
+                "review_progress": 0,
             },
             transform_mock.call_args[0][1],
         )
@@ -87,6 +94,83 @@ class TestExportDataCommand(TestCase):
             Key=f"reviews/2024-25/{self.assessment.reference}.json",
             Body=json.dumps({"transformed": "review"}),
         )
+
+    def test_exported_assessment_and_review_include_last_user_action(self):
+        user = User.objects.create_user(username="export-user")
+        self.assessment._history_user = user
+        self.assessment.save()
+        self.review._history_user = user
+        self.review.save()
+        expected_assessment_action = self.assessment.history.filter(history_user=user).first().history_date
+        expected_review_action = self.review.history.filter(history_user=user).first().history_date
+
+        with (
+            patch(
+                "webcaf.webcaf.management.commands.export_data.transform_assessment",
+                return_value={},
+            ) as transform_assessment,
+            patch(
+                "webcaf.webcaf.management.commands.export_data.transform_review",
+                return_value={},
+            ) as transform_review,
+            patch(
+                "webcaf.webcaf.management.commands.export_data.extract_metadata",
+                return_value={"meta": "assessment"},
+            ),
+            patch(
+                "webcaf.webcaf.management.commands.export_data.get_review_completed_percentage",
+                return_value=37,
+            ),
+        ):
+            self.command.export_assessments("test-bucket", MagicMock(), {}, {})
+            self.command.export_reviews("test-bucket", MagicMock(), {}, {})
+
+        self.assertEqual(
+            str(expected_assessment_action),
+            transform_assessment.call_args.args[1]["assessment_last_user_action"],
+        )
+        self.assertEqual(
+            str(expected_review_action),
+            transform_review.call_args.args[1]["review_last_user_action"],
+        )
+        self.assertEqual(37, transform_review.call_args.args[1]["review_progress"])
+
+
+class TestExtractMetadata(TestCase):
+    def setUp(self):
+        self.org = Organisation.objects.create(name="Metadata Org", organisation_type="other")
+        self.system = System.objects.create(name="Metadata System", organisation=self.org)
+        self.assessment = Assessment.objects.create(
+            system=self.system,
+            status="submitted",
+            assessment_period="2024/25",
+            framework="caf40",
+            caf_profile="enhanced",
+            review_type="independent",
+            assessments_data={},
+        )
+
+    def test_extract_metadata_includes_status_dates_and_framework_attributes(self):
+        submitted_date = datetime(2024, 3, 1, 10, 0)
+        in_progress_date = datetime(2024, 2, 1, 9, 0)
+
+        metadata = extract_metadata(
+            self.assessment,
+            {self.assessment.id: submitted_date},
+            {self.assessment.id: in_progress_date},
+        )
+
+        self.assertEqual(str(submitted_date), metadata["assessment_status_changed_to_submtd"])
+        self.assertEqual(str(in_progress_date), metadata["assessment_status_changed_to_aseing"])
+        self.assertEqual("4.0", metadata["caf_version"])
+        self.assertEqual("Cyber Assessment Framework v4.0", metadata["caf_description"])
+        self.assertEqual("Enhanced", metadata["system_profile"])
+
+    def test_extract_metadata_uses_empty_strings_when_status_dates_are_missing(self):
+        metadata = extract_metadata(self.assessment, {}, {})
+
+        self.assertEqual("", metadata["assessment_status_changed_to_submtd"])
+        self.assertEqual("", metadata["assessment_status_changed_to_aseing"])
 
 
 PATCH_TRANSFORM = "webcaf.webcaf.management.commands.export_data.transform_review"
@@ -255,6 +339,8 @@ class TestExportReviews(TestCase):
                         },
                     ],
                     "metadata": {
+                        "last_user_action": "",
+                        "progress": 4,
                         "review_completed": None,
                         "review_created": str(self.review.created_on),
                         "review_finalised": None,
@@ -515,6 +601,8 @@ class TestExportReviewsIntegration(TestCase):
         )
         self.assertEqual(
             {
+                "last_user_action": "",
+                "progress": 12,
                 "review_last_updated": str(self.review.last_updated),
                 "review_created": str(self.review.created_on),
                 "review_completed": "2026-01-30T16:08:52.644718",
@@ -845,8 +933,14 @@ class TestExportTips(TestExportReviewsIntegration):
         :raises AssertionError: If any of the assertions for equality between the S3 data body and
             the expected values fail during the test execution.
         """
+        user = User.objects.create_user(username="tip-export-user")
+        self.tip._history_user = user
+        self.tip.save()
+        expected_last_user_action = self.tip.history.filter(history_user=user).first().history_date
+
         s3 = MagicMock()
-        Command().export_tips("analytics-bucket", s3)
+        with patch.object(Tip, "completed_percentage", new_callable=PropertyMock, return_value=75):
+            Command().export_tips("analytics-bucket", s3)
         # Index all calls by S3 key
         calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
         s3_data_body = calls_by_key[f"tips/{self.tip.reference}.json"]
@@ -855,6 +949,17 @@ class TestExportTips(TestExportReviewsIntegration):
         self.assertEqual(s3_data_body["review_id"], self.review.id)
         self.assertEqual(s3_data_body["app_version"], "webcaf-2")
         self.assertEqual(s3_data_body["tip_id"], self.tip.id)
+        self.assertEqual(
+            {
+                "submitted_date": "",
+                "completed_date": "",
+                "in_progress_date": "",
+                "last_rejected_date": "",
+                "progress": 75,
+                "last_user_action": str(expected_last_user_action),
+            },
+            s3_data_body["metadata"],
+        )
         self.assertEqual(
             s3_data_body["actioned_recommendations"],
             [

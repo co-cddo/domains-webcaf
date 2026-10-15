@@ -166,6 +166,8 @@ def transform_assessment(
             "last_updated": metadata.get("assessment_last_updated"),
             "created": metadata.get("assessment_created_on"),
             "completed": metadata.get("assessment_status_changed_to_submtd"),
+            "last_user_action": metadata.get("assessment_last_user_action"),
+            "progress": metadata.get("assessment_progress_organisation"),
         },
         "assessment_details": {
             "caf_version": metadata["caf_version"],
@@ -274,6 +276,8 @@ def transform_review(
             "review_created": metadata.get("review_created"),
             "review_completed": metadata.get("review_completion", {}).get("review_completed_at"),
             "review_finalised": metadata.get("review_finalised", {}).get("review_finalised_at"),
+            "last_user_action": metadata.get("review_last_user_action"),
+            "progress": metadata.get("review_progress"),
         },
         "review_commentary": {
             "objective_level": review_commentary,
