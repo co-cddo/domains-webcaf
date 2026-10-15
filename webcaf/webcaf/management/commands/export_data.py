@@ -15,6 +15,7 @@ from webcaf.webcaf.models import Assessment, Organisation, Review, Tip
 from webcaf.webcaf.templatetags.form_extras import (
     generate_assessment_progress_indicators,
 )
+from webcaf.webcaf.templatetags.review_tags import get_review_completed_percentage
 from webcaf.webcaf.utils.data_analysis import (
     transform_assessment,
     transform_definition,
@@ -170,12 +171,21 @@ class Command(BaseCommand):
             in_progress_dates: Pre-fetched mapping of assessment ID → first in-progress datetime.
         """
         assessments = Assessment.objects.select_related("system", "system__organisation").all()
+        last_user_action_dates = {
+            entry["id"]: entry["last_user_action"]
+            for entry in Assessment.history.filter(history_user_id__isnull=False, history_user__is_staff=False)
+            .values("id")
+            .annotate(last_user_action=Max("history_date"))
+        }
         try:
             for assessment in assessments:
                 metadata = extract_metadata(assessment, submitted_dates, in_progress_dates)
                 transformed_data = transform_assessment(
                     assessment.assessments_data,
-                    metadata,
+                    metadata
+                    | {
+                        "assessment_last_user_action": str(last_user_action_dates.get(assessment.id, "")),
+                    },
                     # Provide assessment as the 1st argument by default
                     partial(self.profile_met_callback, assessment),
                 )
@@ -207,6 +217,12 @@ class Command(BaseCommand):
         reviews = Review.objects.select_related(
             "assessment", "assessment__system", "assessment__system__organisation"
         ).all()
+        last_user_action_dates = {
+            entry["id"]: entry["last_user_action"]
+            for entry in Review.history.filter(history_user_id__isnull=False, history_user__is_staff=False)
+            .values("id")
+            .annotate(last_user_action=Max("history_date"))
+        }
         try:
             for review in reviews:
                 assessment = review.assessment
@@ -221,6 +237,8 @@ class Command(BaseCommand):
                         "review_finalised": review.review_data.get("review_finalised", {}),
                         "review_created": str(review.created_on),
                         "review_last_updated": str(review.last_updated),
+                        "review_last_user_action": str(last_user_action_dates.get(review.id, "")),
+                        "review_progress": get_review_completed_percentage(review),
                     }
                 )
                 transformed_data = transform_review(
@@ -337,7 +355,12 @@ class Command(BaseCommand):
             .values("id")
             .annotate(first_in_progress=Min("history_date"))
         }
-
+        last_user_action_dates = {
+            entry["id"]: entry["last_user_action"]
+            for entry in Tip.history.filter(history_user_id__isnull=False, history_user__is_staff=False)
+            .values("id")
+            .annotate(last_user_action=Max("history_date"))
+        }
         rejected_dates = {
             entry["id"]: entry["last_rejected"]
             for entry in Tip.history.filter(status="rejected").values("id").annotate(last_rejected=Max("history_date"))
@@ -375,7 +398,14 @@ class Command(BaseCommand):
 
         try:
             for tip in tips:
-                self.stdout.write(f"File uploaded to s3://{bucket_name}/tips/{tip.reference}.json")
+                self.stdout.write(f"Uploading {tip.reference}")
+                try:
+                    percentage = tip.completed_percentage
+                except Exception as e:
+                    self.stderr.write(
+                        self.style.ERROR(f"Failed to calculate completed percentage for {tip.reference}: {e}")
+                    )
+                    percentage = None
                 s3.put_object(
                     Bucket=bucket_name,
                     Key=f"tips/{tip.reference}.json",
@@ -403,13 +433,18 @@ class Command(BaseCommand):
                                 for rec_id, action in tip.get_all_actions().items()
                                 if action.action_type == "action_not_planned"
                             ],
-                            "submitted_date": str(submitted_dates.get(tip.id, "")),
-                            "completed_date": str(completed_dates.get(tip.id, "")),
-                            "in_progress_date": str(in_progress_dates.get(tip.id, "")),
-                            "last_rejected_date": str(rejected_dates.get(tip.id, "")),
+                            "metadata": {
+                                "submitted_date": str(submitted_dates.get(tip.id, "")),
+                                "completed_date": str(completed_dates.get(tip.id, "")),
+                                "in_progress_date": str(in_progress_dates.get(tip.id, "")),
+                                "last_rejected_date": str(rejected_dates.get(tip.id, "")),
+                                "progress": percentage,
+                                "last_user_action": str(last_user_action_dates.get(tip.id, "")),
+                            },
                         }
                     ),
                 )
+                self.stdout.write(f"File uploaded to s3://{bucket_name}/tips/{tip.reference}.json")
         except Exception as ex:
             logging.getLogger("TipUpload").exception("Failed to upload tips to S3")
             self.stderr.write(self.style.ERROR(f"Failed to upload tips to S3: {ex}"))

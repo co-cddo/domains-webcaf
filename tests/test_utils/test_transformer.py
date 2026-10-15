@@ -55,7 +55,10 @@ class TestAssessmentTransformToOutcomeFormat(TestCase):
             _profile_met_callback,
         )
 
-        self.assertEqual(result["metadata"], {"completed": None, "created": None, "last_updated": None})
+        self.assertEqual(
+            result["metadata"],
+            {"completed": None, "created": None, "last_updated": None, "last_user_action": None, "progress": None},
+        )
         self.assertEqual(len(result["outcomes"]), 1)
         self.assertEqual(
             result["outcomes"][0],
@@ -102,7 +105,10 @@ class TestAssessmentTransformToOutcomeFormat(TestCase):
             _profile_met_callback,
         )
 
-        self.assertEqual(result["metadata"], {"completed": None, "created": None, "last_updated": None})
+        self.assertEqual(
+            result["metadata"],
+            {"completed": None, "created": None, "last_updated": None, "last_user_action": None, "progress": None},
+        )
         self.assertEqual(result["outcomes"][0]["outcome_id"], "B2.b")
         self.assertEqual(result["outcomes"][0]["outcome_status"], "")
         self.assertEqual(result["outcomes"][0]["outcome_status_message"], "")
@@ -166,7 +172,10 @@ class TestAssessmentTransformToOutcomeFormat(TestCase):
             },
             _profile_met_callback,
         )
-        self.assertEqual(result["metadata"], {"completed": None, "created": None, "last_updated": None})
+        self.assertEqual(
+            result["metadata"],
+            {"completed": None, "created": None, "last_updated": None, "last_user_action": None, "progress": None},
+        )
         self.assertEqual(len(result["outcomes"]), 2)
         outcome_codes = {o["outcome_id"] for o in result["outcomes"]}
         self.assertIn("A1.a", outcome_codes)
@@ -186,7 +195,10 @@ class TestAssessmentTransformToOutcomeFormat(TestCase):
             _profile_met_callback,
         )
         self.assertEqual(result["outcomes"], [])
-        self.assertEqual(result["metadata"], {"completed": None, "created": None, "last_updated": None})
+        self.assertEqual(
+            result["metadata"],
+            {"completed": None, "created": None, "last_updated": None, "last_user_action": None, "progress": None},
+        )
 
 
 class TestReviewTransformToOutcomeFormat(TestCase):
