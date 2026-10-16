@@ -48,6 +48,7 @@ from webcaf.webcaf.views import (
     ViewDraftAssessmentsView,
     ViewSubmittedAssessmentsView,
 )
+from webcaf.webcaf.views.assesment import HistoricalAssessmentView
 from webcaf.webcaf.views.assessor.review import (
     DownloadExcelReport,
     DownloadReport,
@@ -310,4 +311,6 @@ urlpatterns = [
         name="download-excel-report",
     ),
     path("tip/", include(tip_paths)),
+    #     Historical assessment paths
+    path("previous-govassure-submissions/", HistoricalAssessmentView.as_view(), name="historical-assessments"),
 ]

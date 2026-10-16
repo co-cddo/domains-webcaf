@@ -14,6 +14,7 @@ from webcaf.webcaf.models import (
     Assessment,
     Configuration,
     Review,
+    Settings,
     System,
     Tip,
     UserProfile,
@@ -295,10 +296,15 @@ def get_review_count(user_profile: UserProfile) -> int:
         based on the current assessment period.
     :rtype: int
     """
-    return Review.objects.filter(
+    objects_filter = Review.objects.filter(
         assessment__status__in=["submitted"],
         assessment__system__organisation=user_profile.organisation,
-    ).count()
+    )
+    if Settings.get_instance().filter_previous_assessments:
+        objects_filter = objects_filter.filter(
+            assessment__assessment_period=Configuration.objects.get_default_config().get_current_assessment_period(),
+        )
+    return objects_filter.count()
 
 
 @register.simple_tag()
@@ -309,20 +315,23 @@ def get_tip_count(user_profile: UserProfile) -> int:
     This function calculates the number of tips linked to reviews falling under assessments that are
     submitted and belong to the organization of the provided user profile. Additionally, it excludes
     reviews that have not been finalized based on the presence of relevant finalization data.
+    This function performs a query to count the reviews associated with the user's organisation and the currently
+    active assessment period.
 
     :param user_profile: The user profile used to determine the organization context for filtering reviews.
     :type user_profile: UserProfile
     :return: The count of tips meeting the specified criteria.
     :rtype: int
     """
-    return (
-        Tip.objects.filter(
-            review__assessment__status__in=["submitted"],
-            review__assessment__system__organisation=user_profile.organisation,
-        )
-        .exclude(review__review_data__review_finalised__review_finalised_at=None)
-        .count()
+    objects_filter = Tip.objects.filter(
+        review__assessment__status__in=["submitted"],
+        review__assessment__system__organisation=user_profile.organisation,
     )
+    if Settings.get_instance().filter_previous_assessments:
+        objects_filter = objects_filter.filter(
+            review__assessment__assessment_period=Configuration.objects.get_default_config().get_current_assessment_period(),
+        )
+    return objects_filter.exclude(review__review_data__review_finalised__review_finalised_at=None).count()
 
 
 @register.simple_tag()
@@ -378,7 +387,7 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
     from webcaf.webcaf.frameworks import routers
 
     progress_dict: dict[str, Any] = {}
-    router = routers["caf32"]
+    router = routers[assessment.framework]
     sections = router.get_sections()
 
     if principle_question:
@@ -453,6 +462,21 @@ def get_answers(
         assessment.assessments_data[outcome["code"]]["confirmation"]["confirm_outcome_confirm_comment"],
         total_questions=total_questions,
     )
+
+
+@register.simple_tag
+def is_historical_assessments_enabled(current_profile) -> bool:
+    """
+    Check if the historical assessments feature is enabled in the system settings.
+
+    This function retrieves the current system settings and checks the value of
+    the 'filter_previous_assessments' attribute. It returns True if the feature
+    is enabled, and False otherwise.
+
+    :return: A boolean indicating whether historical assessments are enabled.
+    :rtype: bool
+    """
+    return Settings.get_instance().filter_previous_assessments
 
 
 @register.simple_tag

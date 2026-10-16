@@ -5,7 +5,13 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from webcaf.webcaf.models import Assessment, System, UserProfile
+from webcaf.webcaf.models import (
+    Assessment,
+    Configuration,
+    Settings,
+    System,
+    UserProfile,
+)
 
 
 class AccountView(LoginRequiredMixin, TemplateView):
@@ -34,15 +40,22 @@ class AccountView(LoginRequiredMixin, TemplateView):
         data = super().get_context_data(**kwargs)
         current_profile = self.get_or_pick_user_profile()
         if current_profile:
+            current_config = Configuration.objects.get_default_config()
             # Data used by the page.
             data["current_profile"] = current_profile
             data["profile_count"] = self.request.session.get("profile_count", 1)
             data["system_count"] = System.objects.filter(organisation=data["current_profile"].organisation).count()
-            all_assessments = list(
-                Assessment.objects.filter(
-                    system__organisation=data["current_profile"].organisation, status__in=["draft", "submitted"]
+            assessment_queryset = Assessment.objects.filter(
+                system__organisation=data["current_profile"].organisation,
+                status__in=["draft", "submitted"],
+            )
+            if Settings.get_instance().filter_previous_assessments:
+                assessment_queryset = assessment_queryset.filter(
+                    assessment_period=current_config.get_current_assessment_period(),
                 )
-                .only(
+
+            all_assessments = list(
+                assessment_queryset.only(
                     "id",
                     "system__name",
                     "caf_profile",
@@ -52,8 +65,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
                     "assessment_period",
                     "created_by__username",
                     "assessments_data",
-                )
-                .order_by("-last_updated")
+                ).order_by("-last_updated")
             )
             data["draft_assessments"] = [assessment for assessment in all_assessments if assessment.status == "draft"]
             data["submitted_assessments"] = [
