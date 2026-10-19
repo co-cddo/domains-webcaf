@@ -17,7 +17,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             {% include 'partials/success_message.html' %}
             <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
             <h1 class="govuk-heading-l">
@@ -266,20 +266,25 @@
                     </h2>
                     <form method="post">
                         {% csrf_token %}
-                        <div class="govuk-form-group">
-                            <fieldset id="id_confirm_bulk_review" class="govuk-fieldset">
+                        <div class="govuk-form-group {% if form.confirm_bulk_review.errors %}govuk-form-group--error{% endif %}">
+                            <fieldset class="govuk-fieldset"
+                                      {% if form.confirm_bulk_review.errors %}aria-describedby="confirm_bulk_review-error"{% endif %}>
                                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                     Have you reviewed all the recommendations?
                                 </legend>
-                                <div class="govuk-radios--inline {% if form.confirm_bulk_review.errors %}govuk-form-group--error{% endif %}"
-                                     data-module="govuk-radios">
+                                {% if form.confirm_bulk_review.errors %}
+                                    <p id="confirm_bulk_review-error" class="govuk-error-message">
+                                        <span class="govuk-visually-hidden">Error:</span> {{ form.confirm_bulk_review.errors.0 }}
+                                    </p>
+                                {% endif %}
+                                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                                     <div class="govuk-radios__item">
-                                        <input class="govuk-radios__input" id="confirm_bulk_review"
+                                        <input class="govuk-radios__input" id="id_confirm_bulk_review"
                                                name="confirm_bulk_review"
                                                type="radio" value="yes" aria-controls="conditional-confirm_bulk_review"
                                                {% if form.confirm_bulk_review.value == "yes" %}checked{% endif %}
                                                aria-expanded="false">
-                                        <label class="govuk-label govuk-radios__label" for="confirm_bulk_review">
+                                        <label class="govuk-label govuk-radios__label" for="id_confirm_bulk_review">
                                             Yes
                                         </label>
                                     </div>

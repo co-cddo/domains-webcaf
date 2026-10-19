@@ -502,7 +502,7 @@ class TipSubmitView(BaseTipMixin, UpdateView):
 
     def form_valid(self, form: TipSubmitForm):
         if not form.cleaned_data["confirm"]:
-            form.add_error("confirm", "You must confirm before submitting")
+            form.add_error("confirm", TipSubmitForm.CONFIRM_REQUIRED_MESSAGE)
             return self.form_invalid(form)
         current_profile = SessionUtil.get_current_user_profile(self.request)
         form.cleaned_data["current_profile"] = current_profile

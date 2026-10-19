@@ -8,7 +8,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
             <h1 class="govuk-heading-l">
                 Submit your TIP for review
@@ -61,45 +61,56 @@
                 {% endif %}
                 <form method="post">
                     {% csrf_token %}
-                    <div class="govuk-checkboxes">
-                        {% if object.review.assessment.review_type == 'independent' %}
-                            <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
-                                 id="id_confirm">
-                                <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm"
-                                       type="checkbox"
-                                        {% if form.confirm.value %} checked {% endif %}
-                                       value="True" aria-describedby="confirm-checkbox-hint">
-                                <label class="govuk-label govuk-checkboxes__label" for="confirm-checkbox">I confirm that
-                                    the contents of this TIP have been signed off by my organisation's GovAssure senior
-                                    responsible officer (SRO).</label>
+                    <div class="govuk-form-group {% if form.errors %}govuk-form-group--error{% endif %}">
+                        <fieldset class="govuk-fieldset"
+                                  {% if form.errors %}aria-describedby="confirm-error"{% endif %}>
+                            <legend class="govuk-visually-hidden">Confirm sign-off of your TIP</legend>
+                            {% if form.confirm.errors %}
+                                <p id="confirm-error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> {{ form.confirm.errors.0 }}
+                                </p>
+                            {% elif form.confirm_lgd.errors %}
+                                <p id="confirm-error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> {{ form.confirm_lgd.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                {% if object.review.assessment.review_type == 'independent' %}
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="id_confirm" name="confirm"
+                                               type="checkbox"
+                                                {% if form.confirm.value %} checked {% endif %}
+                                               value="True">
+                                        <label class="govuk-label govuk-checkboxes__label" for="id_confirm">I confirm that
+                                            the contents of this TIP have been signed off by my organisation's GovAssure
+                                            senior responsible officer (SRO).</label>
+                                    </div>
+                                {% else %}
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="id_confirm" name="confirm"
+                                               type="checkbox"
+                                                {% if form.confirm.value %} checked {% endif %}
+                                               value="True">
+                                        <label class="govuk-label govuk-checkboxes__label"
+                                               for="id_confirm">My organisation's GovAssure senior responsible officer
+                                            (SRO)
+                                        </label>
+                                    </div>
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="id_confirm_lgd" name="confirm_lgd"
+                                               type="checkbox"
+                                                {% if form.confirm_lgd.value %} checked {% endif %}
+                                               value="True" aria-describedby="confirm_lgd-hint">
+                                        <label class="govuk-label govuk-checkboxes__label"
+                                               for="id_confirm_lgd">Lead Government Department (LGD)
+                                        </label>
+                                        <div id="confirm_lgd-hint" class="govuk-hint govuk-checkboxes__hint">
+                                            If your organisation is an ALB, you must also get sign-off from your LGD.
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% else %}
-                            <div class="govuk-checkboxes__item {% if form.confirm.errors %}govuk-form-group--error{% endif %}"
-                                 id="id_confirm">
-                                <input class="govuk-checkboxes__input" id="confirm-checkbox" name="confirm"
-                                       type="checkbox"
-                                        {% if form.confirm.value %} checked {% endif %}
-                                       value="True" aria-describedby="confirm-checkbox-hint">
-                                <label id="confirm-checkbox-hint" class="govuk-label govuk-checkboxes__label"
-                                       for="confirm-checkbox">My organisation's GovAssure senior responsible officer (SRO)
-                                </label>
-                            </div>
-                            <div class="govuk-checkboxes__item {% if form.confirm_lgd.errors %}govuk-form-group--error{% endif %}"
-                                 id="id_confirm_lgd">
-                                <input class="govuk-checkboxes__input" id="confirm-lgd-checkbox" name="confirm_lgd"
-                                       type="checkbox"
-                                        {% if form.confirm_lgd.value %} checked {% endif %}
-                                       value="True" aria-describedby="confirm-lgd-checkbox-hint">
-                                <label id="confirm-lgd-checkbox-hint" class="govuk-label govuk-checkboxes__label"
-                                       for="confirm-lgd-checkbox">Lead Government Department (LGD)
-                                </label>
-                                <div id="confirmSubmit-2-item-hint" class="govuk-hint govuk-checkboxes__hint">
-                                    If your organisation is an ALB, you must also get sign-off from your LGD.
-                                </div>
-                            </div>
-                        {% endif %}
-                        <br/>
-                        <br/>
+                        </fieldset>
                     </div>
                     <div class="govuk-button-group">
                         <button class='govuk-button govuk-button--primary' {% if not object.can_edit %}
