@@ -5,6 +5,7 @@ from webcaf.webcaf.abcs import FieldProvider
 AchievementChoice = namedtuple("AchievementChoice", ["value", "label", "needs_justification_text"])
 
 MAX_WORD_COUNT = 1500
+INDICATOR_MAX_WORD_COUNT = 500
 
 
 class OutcomeIndicatorsFieldProvider(FieldProvider):
@@ -41,9 +42,9 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                                 "type": "text",
                                 "required": False,
                                 "widget_attrs": {
-                                    "rows": 5,
+                                    "rows": 3,
                                     "class": "govuk-textarea",
-                                    "max_words": MAX_WORD_COUNT,
+                                    "max_words": INDICATOR_MAX_WORD_COUNT,
                                 },
                             }
                         )

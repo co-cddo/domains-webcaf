@@ -274,7 +274,7 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         for error_field, errors in form.errors.items():
             # validation on word count breaks the below so skip that and keep entered text
             if "_comment" in error_field:
-                error_message = "Word count limit exceeded in justifcation of answer for "
+                error_message = "Word count limit exceeded in justification of answer for "
             else:
                 error_message = "Need an answer for "
 
