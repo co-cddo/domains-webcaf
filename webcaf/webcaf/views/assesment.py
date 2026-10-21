@@ -12,7 +12,10 @@ from django.urls import reverse
 from django.views.generic import FormView, View
 
 from webcaf.webcaf.models import Assessment, Configuration, System, UserProfile
-from webcaf.webcaf.utils.excel_exporter import create_assessment_template_workbook
+from webcaf.webcaf.utils.excel_exporter import (
+    assessment_template_filename,
+    create_assessment_template_workbook,
+)
 from webcaf.webcaf.utils.excel_importer import (
     ExcelImportError,
     excel_to_assessment_json,
@@ -660,6 +663,6 @@ class ExportAssessmentTemplateView(UserRoleCheckMixin, View):
         return FileResponse(
             output,
             as_attachment=True,
-            filename=f"{framework_id}-assessment-template.xlsx",
+            filename=assessment_template_filename(framework_id),
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
