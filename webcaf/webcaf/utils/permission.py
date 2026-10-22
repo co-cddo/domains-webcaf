@@ -170,6 +170,7 @@ class PermissionUtil:
         """
         return user_profile and user_profile.role in [
             "organisation_lead",
+            "cyber_advisor",
         ]
 
     @classmethod

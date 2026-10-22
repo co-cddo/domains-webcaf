@@ -78,9 +78,13 @@ def get_organisations(request: HttpRequest):
         return Organisation.objects.values("id")
 
     if "cyber advisor" in user_groups:
-        frontend_user = UserAssociation.objects.filter(backend_user=current_user).values("frontend_user")  # type: ignore[misc]
+        frontend_user = UserAssociation.objects.filter(backend_user=current_user).values(  # type: ignore[misc]
+            "frontend_user"
+        )  # type: ignore[misc]
         if frontend_user.exists():
-            return UserProfile.objects.filter(user__in=frontend_user, role="cyber_advisor").values("organisation__id")  # type: ignore[misc]
+            return UserProfile.objects.filter(user__in=frontend_user, role="cyber_advisor").values(
+                "organisation__id"
+            )  # type: ignore[misc]
         messages.warning(
             request, "Warning: You do not have a User association created. Please ask admin to create one."
         )
@@ -257,6 +261,7 @@ class SettingsAdminForm(forms.ModelForm):
         labels = {
             "admin_verification_enabled": "Enable admin 2f verification",
             "gov_assure_email": "GovAssure email address",
+            "filter_previous_assessments": "Display only current assessment period assessments in the user account page",
         }
 
 
@@ -650,6 +655,7 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleH
     search_fields = ["status", "system__name", "reference"]
     list_display = [
         "status",
+        "completed_percentage",
         "reference",
         "review_type",
         "system_name",
@@ -657,9 +663,16 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleH
         "created_on",
         "last_updated",
     ]
-    list_filter = ["status", SortedOrganisationFilter, "review_type"]
+    list_filter = [
+        "status",
+        SortedOrganisationFilter,
+        "review_type",
+        "assessment_period",
+        "framework",
+        "assessment_period",
+    ]
     ordering = ["-created_on"]
-    readonly_fields = ["reference"]
+    readonly_fields = ["reference", "completed_percentage"]
     optional_fields = ["reference"]
     list_select_related = ["system", "system__organisation"]
 
@@ -700,6 +713,17 @@ class AssessmentAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleH
     @admin.display(ordering="system_organisation", description="Organisation")
     def system_organisation(self, obj):
         return obj.system_organisation
+
+    @admin.display(ordering=None, description="Completed %")
+    def completed_percentage(self, obj):
+        if not obj.assessments_data:
+            return "N/A"
+        from webcaf.webcaf.templatetags.form_extras import (
+            generate_assessment_progress_indicators,
+        )
+
+        completed_percentage = generate_assessment_progress_indicators(obj)["percentage"]
+        return f"{completed_percentage}%" if completed_percentage is not None else "N/A"
 
     IMPORT_STATUS_CHOICES = [
         ("draft", "Draft"),
@@ -1010,8 +1034,10 @@ class ReviewAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleHisto
         "assessment_reference",
         "assessment_organisation",
         "status",
+        "completed_percentage",
     ]
     list_filter = [
+        "assessment__assessment_period",
         "assessment__system__name",
         "assessment__framework",
         SortedOrganisationFilter,
@@ -1023,7 +1049,7 @@ class ReviewAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleHisto
         "assessment__system",
         "assessment__system__organisation",
     ]
-    readonly_fields = ["created_on", "last_updated", "last_updated_by", "reference"]
+    readonly_fields = ["created_on", "last_updated", "last_updated_by", "reference", "completed_percentage"]
     optional_fields = ["reference"]
 
     def get_queryset(self, request):
@@ -1247,6 +1273,24 @@ class ReviewAdmin(OptionalFieldsAdminMixin, JsonDataEnableEditMixin, SimpleHisto
     def assessment_organisation(self, obj):
         return obj.assessment_organisation
 
+    @admin.display(ordering=None, description="Completed %")
+    def completed_percentage(self, obj):
+        """
+        Returns the completed percentage of the review as a string with a percentage sign.
+        If the completed percentage is None, returns "N/A".
+
+        :param obj: The Review object for which to calculate the completed percentage.
+        :return: A string representing the completed percentage or "N/A" if not available.
+        """
+        if not obj:
+            return "N/A"
+        from webcaf.webcaf.templatetags.review_tags import (
+            get_review_completed_percentage,
+        )
+
+        completed_percentage = get_review_completed_percentage(obj)
+        return f"{completed_percentage}%" if completed_percentage is not None else "N/A"
+
     def get_form(self, request, obj=None, **kwargs):
         """
         This method customizes the form retrieved for the given request, allowing
@@ -1347,6 +1391,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         SortedOrganisationFilter,
         "review__assessment__review_type",
         "status",
+        "review__assessment__assessment_period",
     ]
     actions: list[str] = []
 
@@ -1390,6 +1435,10 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
     def assessment_organisation(self, obj):
         return obj.assessment_organisation
 
+    @admin.display(ordering="assessment_period", description="Assessment Period")
+    def assessment_period(self, obj):
+        return obj.assessment_period
+
     @admin.display(description="Status")
     def status_badge(self, obj):
         if obj.status == "review":
@@ -1423,6 +1472,7 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
                 assessment_review_type=F("review__assessment__review_type"),
                 assessment_reference=F("review__assessment__reference"),
                 assessment_organisation=F("review__assessment__system__organisation__name"),
+                assessment_period=F("review__assessment__assessment_period"),
             )
             .select_related(
                 "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
@@ -1489,17 +1539,27 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         :return: A string representing the formatted completion percentage.
         :rtype: str
         """
-        return f"{obj.completed_percentage}%"
+        if obj is None or obj.pk is None:
+            return "-"
+        try:
+            return f"{obj.completed_percentage}%"
+        except Exception as e:
+            self.logger.exception(f"Error calculating completed percentage for object {obj}: {e}")
+            return "-"
 
     def pdf_link(self, obj):
-        url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
-        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View PDF"})
+        if obj and obj.pk:
+            url = reverse("admin:tip_download", args=[obj.pk, "pdf"])
+            return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View PDF"})
+        return "-"
 
     pdf_link.short_description = "PDF download"  # type: ignore[attr-defined]
 
     def excel_link(self, obj):
-        url = reverse("admin:tip_download", args=[obj.pk, "excel"])
-        return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View Excel"})
+        if obj and obj.pk:
+            url = reverse("admin:tip_download", args=[obj.pk, "excel"])
+            return render_to_string("admin/webcaf/tip/partials/link.html", {"url": url, "text": "View Excel"})
+        return "-"
 
     excel_link.short_description = "Excel download"  # type: ignore[attr-defined]
 

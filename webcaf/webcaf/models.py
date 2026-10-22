@@ -1276,6 +1276,10 @@ class Settings(models.Model):
     # Max words for other text boxes
     tip_max_words_other = IntegerField(default=1000)
 
+    # ============= General settings ==============
+    # Whether to filter previous assessments when displayed
+    filter_previous_assessments = BooleanField(default=True)
+
     def save(self, *args, **kwargs):
         self.pk = 1  # force single row
         super().save(*args, **kwargs)
