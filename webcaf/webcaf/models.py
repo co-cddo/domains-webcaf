@@ -261,7 +261,14 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
         :rtype: list[tuple] | None
         """
         if self.assessments_data:
-            return [(k, v) for k, v in self.assessments_data.items() if k.startswith(objective_id)]
+            outcomes_from_spec = [
+                k for s in self.get_router().get_sections() for p in s["principles"].values() for k in p["outcomes"]
+            ]
+            return [
+                (k, v)
+                for k, v in self.assessments_data.items()
+                if k.startswith(objective_id) and k in outcomes_from_spec
+            ]
         return None
 
     def get_router(self) -> FrameworkRouter:
