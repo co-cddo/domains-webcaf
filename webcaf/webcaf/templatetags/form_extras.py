@@ -608,8 +608,11 @@ def caf_slug(code: str, title: str) -> str:
     :param title: The title of the objective or principle
     :return: The slug for the objective or principle
     """
-    slug = slugify(f"{code} {title}")
-    return slug
+    # Do not slugify the objective codes B and D as the target urls do not follow the
+    # same pattern
+    if code in ["B", "D"]:
+        return slugify(f"{code}")
+    return slugify(f"{code} {title}")
 
 
 @register.filter

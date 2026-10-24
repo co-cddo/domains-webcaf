@@ -122,7 +122,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
         assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
+                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"].lower().capitalize()}',
                 "url": reverse_lazy(f"{assessment.framework}_objective_{objective_data_['code']}"),
             }
         ]
@@ -262,7 +262,7 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         outcome = self.extra_context["outcome"]
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"]}',
+                "text": f'Objective {outcome["code"]} - {outcome["title"].lower().capitalize()}',
             }
         ]
 
@@ -274,19 +274,25 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         for error_field, errors in form.errors.items():
             # validation on word count breaks the below so skip that and keep entered text
             if "_comment" in error_field:
-                error_message = "Word count limit exceeded in justification of answer for "
+                friendly_errors.add(
+                    ValidationError(
+                        {
+                            error_field: f"{CafFormUtil.get_category_name(error_field)} question "
+                            f"{CafFormUtil.human_index(form, error_field)} {errors[0]}"
+                        }
+                    )
+                )
             else:
                 error_message = "Need an answer for "
-
-            friendly_errors.add(
-                ValidationError(
-                    {
-                        error_field: f"{error_message}"
-                        f"{CafFormUtil.get_category_name(error_field)} question "
-                        f"{CafFormUtil.human_index(form, error_field)}"
-                    }
+                friendly_errors.add(
+                    ValidationError(
+                        {
+                            error_field: f"{error_message}"
+                            f"{CafFormUtil.get_category_name(error_field)} question "
+                            f"{CafFormUtil.human_index(form, error_field)}"
+                        }
+                    )
                 )
-            )
 
         form.errors.clear()
         for message in friendly_errors:
@@ -389,11 +395,11 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"]}',
+                "text": f'Objective {outcome["code"]} - {outcome["title"].capitalize()}',
                 "url": reverse_lazy(f"{assessment.framework}_indicators_{self.class_id}"),
             },
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"]} outcome',
+                "text": f'Objective {outcome["code"]} - {outcome["title"].capitalize()} summary',
             },
         ]
 
@@ -411,6 +417,16 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
 
     def form_invalid(self, form):
         form.initial.update(form.cleaned_data)
+        friendly_errors = set()
+        # Build the user friendly error message list
+        for error_field, errors in form.errors.items():
+            if "_comment" in error_field:
+                friendly_errors.add(ValidationError({error_field: f"Confirmation comment {errors[0]}"}))
+            else:
+                friendly_errors.add(ValidationError({error_field: errors[0]}))
+        form.errors.clear()
+        for message in friendly_errors:
+            form.add_error(None, message)
         return super().form_invalid(form)
 
 

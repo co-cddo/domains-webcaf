@@ -22,9 +22,16 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
 
     def get_field_definitions(self) -> list[dict]:
         fields = []
+        indicator_sorting = {
+            "achieved": 1,
+            "not-achieved": 3,
+            "partially-achieved": 2,
+        }
         for level in ["not-achieved", "partially-achieved", "achieved"]:
             if level in self.outcome_data.get("indicators", {}):
+                idx = 0
                 for indicator_id, indicator_text in self.outcome_data["indicators"][level].items():
+                    sort_index = f"{indicator_sorting[level]}{idx}1"
                     fields.append(
                         {
                             "name": f"{level}_{indicator_id}",
@@ -45,10 +52,11 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                                     "rows": 3,
                                     "class": "govuk-textarea",
                                     "max_words": INDICATOR_MAX_WORD_COUNT,
+                                    "idx": sort_index,
                                 },
                             }
                         )
-
+                    idx += 1
         return fields
 
 
