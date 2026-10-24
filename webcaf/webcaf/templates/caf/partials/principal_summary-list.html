@@ -2,7 +2,7 @@
 {% load form_extras %}
 {% for principal in objective_data.principles.values %}
     <h2 class="govuk-heading-m">
-        Principle:&nbsp;{{ principal.code }}&nbsp;{{ principal.title }}
+        Principle:&nbsp;{{ principal.code }}&nbsp;{{ principal.title|lower|capfirst }}
     </h2>
     <details class="govuk-details">
         <summary class="govuk-details__summary">
@@ -17,7 +17,7 @@
         </div>
     </details>
     {% if forloop.first %}
-        <p class="govuk-body">Please provide your answers for each principle. You can review the status of
+        <p class="govuk-body">Provide your answers for each principle. You can review the status of
             individual outcomes below each principle and change your answers if you need to.</p>
     {% endif %}
     <dl class="govuk-summary-list">
@@ -26,7 +26,7 @@
             <div class="govuk-summary-list__row">
                 {% if outcome_details.complete %}
                     <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                        {{ outcome.code }}&nbsp;{{ outcome.title }}
+                        {{ outcome.code }}&nbsp;{{ outcome.title|lower|capfirst }}
                     </dt>
                     <dd class="govuk-summary-list__value govuk-!-width-one-third">
                         {% get_tag_for_status outcome_details.override_status|default:outcome_details.outcome_status as tag_colour %}
@@ -51,7 +51,7 @@
                     </dd>
                 {% else %}
                     <dt class="govuk-summary-list__key govuk-!-width-two-thirds">
-                        {{ outcome.code }}&nbsp;{{ outcome.title }}
+                        {{ outcome.code }}&nbsp;{{ outcome.title|lower|capfirst }}
                         <br><br>
                     </dt>
                     <dd class="govuk-summary-list__value govuk-!-width-one-third"></dd>
@@ -60,7 +60,7 @@
                             <a class="govuk-link govuk-!-width-full "
                                href="{% url indicator_url %}">
                                 Add your answers<span
-                                    class="govuk-visually-hidden"> Add answers to {{ outcome.code }}&nbsp;{{ outcome.title }}</span></a>
+                                    class="govuk-visually-hidden"> Add answers to {{ outcome.code }}&nbsp;{{ outcome.title|lower|capfirst }}</span></a>
                         {% endwith %}
                     </dd>
 

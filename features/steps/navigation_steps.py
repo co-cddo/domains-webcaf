@@ -390,7 +390,7 @@ def replace_html_spaces(text) -> str:
 def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment: str):
     page = context.page
     # We are on the confirmation page now
-    heading_element = page.locator("h1").filter(has_text=f"{context.outcome_text} Outcome")
+    heading_element = page.locator("h1").filter(has_text=f"{context.outcome_text} summary")
     heading_element.wait_for(state="visible")
 
     status_element = page.locator("strong.outcome_status").filter(has_text=outcome_status)

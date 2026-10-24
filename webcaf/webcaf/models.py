@@ -180,7 +180,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     PROFILE_CHOICES = [
         (
             "baseline",
-            "Baseline",
+            "Basic",
         ),
         (
             "enhanced",
@@ -193,8 +193,8 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     ]
 
     REVIEW_TYPE_CHOICES = [
-        ("independent", "Independent assurance review"),
-        ("peer_review", "Peer review"),
+        ("independent", "Independent Assurance Review"),
+        ("peer_review", "Peer Review"),
         ("self_assessment", "No review, self-assessment only"),
         ("not_decided", "Not decided"),
     ]
@@ -377,7 +377,7 @@ class UserProfile(models.Model):
         "reviewer": [],
     }
     ROLE_CHOICES = [
-        ("cyber_advisor", "Cyber advisor"),
+        ("cyber_advisor", "Cyber adviser"),
         ("organisation_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
         ("reviewer", "Peer reviewer"),

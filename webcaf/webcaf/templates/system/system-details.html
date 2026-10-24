@@ -29,11 +29,12 @@
                         </select>
                         <p><br></p>
                         <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-visually-hidden">Warning</span>
-                            If you cannot see your system in this list, or there is a problem, please email  <code class="govspeak-code">webcaf@dsit.gov.uk</code>.
-                        </strong>
+                            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                            <strong class="govuk-warning-text__text">
+                                <span class="govuk-visually-hidden">Warning</span>
+                                If you cannot see your system in this list, or there is a problem,
+                                email <code class="govspeak-code">webcaf@dsit.gov.uk</code>.
+                            </strong>
                         </div>
 
                         <div class="govuk-button-group">
@@ -47,15 +48,16 @@
 
                 </form>
             {% else %}
-                 <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-visually-hidden">Warning</span>
-                            You do not have any systems available to create a draft assessment. Please contact your GovAssure
-                            lead or
-                            check the my account page to see available draft assessments.
-                        </strong>
-                    </div>
+                <div class="govuk-warning-text">
+                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong class="govuk-warning-text__text">
+                        <span class="govuk-visually-hidden">Warning</span>
+                        You do not have any systems available to create a draft assessment. Please contact your
+                        GovAssure
+                        lead or check the <a class="govuk-link" href="{% url 'my-account' %}">My account</a>
+                        page to see available draft assessments.
+                    </strong>
+                </div>
 
             {% endif %}
         </div>
