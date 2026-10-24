@@ -463,6 +463,12 @@ class Configuration(models.Model):
         return self.config_data.get("default_framework")
 
     def get_banner_display_until(self):
+        """
+        Retrieve the banner display end date from the configuration data.
+        This represents the date until the assessments should be submitted,
+        and the banner should be displayed to users.
+        :return:
+        """
         return self.config_data.get("banner_display_until")
 
     def get_submission_due_date(self):

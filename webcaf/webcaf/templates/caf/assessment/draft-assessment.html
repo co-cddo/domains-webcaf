@@ -21,9 +21,10 @@
             {% should_display_cutoff as display_cutoff %}
             {% if display_cutoff %}
                 <div class="govuk-inset-text">
-                    For it to be assessed in GovAssure 2025/26 your stage 4 review must be
-                    completed by
-                    <strong>11:59PM</strong> on <strong>31 March 2026</strong>.
+                    To be assessed in the 20{{ current_assessment_period|split:"/"|first }} to
+                    20{{ current_assessment_period|split:"/"|last }} GovAssure year,
+                    your stage 4 review must be completed by <strong>{{ cutoff_time|lower }}</strong> on
+                    <strong>{{ cutoff_date }}</strong>.
                 </div>
             {% endif %}
             <h2 class="govuk-heading-m">1. Give system details and profile to be assessed</h2>
@@ -97,10 +98,15 @@
             </ul>
 
             <h2 class="govuk-heading-m govuk-!-margin-top-5">2. Create your self-assessment</h2>
-            <p class="govuk-body">Take time to select your answers for each outcome. They will be assessed against
-                your
-                system and
-                organisation.</p>
+            <p class="govuk-body">Select the <abbr title="Indicator of Good Practice">IGP</abbr> statements that apply
+                to your system or organisation and write a summary for each contributing outcome.
+            </p>
+            <p class="govuk-body govuk-inset-text">
+                You should keep any sensitive information and evidence used to support assessments within your
+                organisation’s own systems. Share it directly with your stage 4 reviewer through appropriate channels
+                with suitable access controls and visibility. Do not detail specific vulnerabilities relating to
+                individual systems in WebCAF.
+            </p>
             <ul class="govuk-task-list">
                 {% for objective in objectives %}
                     <li class="govuk-task-list__item">
@@ -110,7 +116,7 @@
                                     <a class="govuk-link govuk-task-list__link"
                                        href="{% url objective_id %}"
                                        aria-describedby="second-section-1-status">
-                                        Objective {{ objective.code }}: {{ objective.title }}
+                                        Objective {{ objective.code }}: {{ objective.title|lower|capfirst }}
                                     </a>
                                 {% endwith %}
                             {% else %}
