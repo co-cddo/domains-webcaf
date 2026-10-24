@@ -205,9 +205,9 @@ class TestProgressIndicators(TestCase):
             status="draft",
             system=System(name="test_db"),
             assessments_data={
-                "A.1.a": {"confirmation": {"outcome_status": "Achieved", "confirm_outcome": "confirm"}},
-                "B.1.a": {"confirmation": {"outcome_status": "Achieved", "confirm_outcome": "confirm"}},
-                "C.1.a": {"confirmation": {"outcome_status": "Achieved"}},
+                "A1.a": {"confirmation": {"outcome_status": "Achieved", "confirm_outcome": "confirm"}},
+                "B1.a": {"confirmation": {"outcome_status": "Achieved", "confirm_outcome": "confirm"}},
+                "C1.a": {"confirmation": {"outcome_status": "Achieved"}},
             },
         )
         test_progress_indicators = generate_assessment_progress_indicators(

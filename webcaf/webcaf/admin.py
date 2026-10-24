@@ -1464,23 +1464,32 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         return obj.get_status_display()
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return (
-            qs.annotate(
-                assessment_system_name=F("review__assessment__system__name"),
-                assessment_framework=F("review__assessment__framework"),
-                assessment_review_type=F("review__assessment__review_type"),
-                assessment_reference=F("review__assessment__reference"),
-                assessment_organisation=F("review__assessment__system__organisation__name"),
-                assessment_period=F("review__assessment__assessment_period"),
-            )
+        qs = (
+            super()
+            .get_queryset(request)
             .select_related(
                 "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
             )
-            .filter(
-                review__assessment__system__organisation__id__in=get_organisations(request),
-            )
         )
+        return qs.annotate(
+            assessment_system_name=F("review__assessment__system__name"),
+            assessment_framework=F("review__assessment__framework"),
+            assessment_review_type=F("review__assessment__review_type"),
+            assessment_reference=F("review__assessment__reference"),
+            assessment_organisation=F("review__assessment__system__organisation__name"),
+            assessment_period=F("review__assessment__assessment_period"),
+        ).filter(
+            review__assessment__system__organisation__id__in=get_organisations(request),
+        )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        # This fixes the N+1 query issue when displaying the review field
+        if db_field.name == "review":
+            kwargs["queryset"] = Review.objects.select_related(
+                "assessment", "assessment__system", "assessment__system__organisation"
+            )
+        form_field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return form_field
 
     def get_urls(self):
         urls = super().get_urls()
@@ -1511,7 +1520,9 @@ class TipAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):
         :return: An HTTP response containing the rendered PDF.
         :rtype: HttpResponse
         """
-        tip = Tip.objects.get(pk=tip_id)
+        tip = Tip.objects.select_related(
+            "review", "review__assessment", "review__assessment__system", "review__assessment__system__organisation"
+        ).get(pk=tip_id)
         service = RecommendationService(tip, request)
         if mode == "pdf":
             return service.render_pdf(

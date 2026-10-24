@@ -14,12 +14,13 @@
                 Choose your Government CAF profile
             </h1>
             <p class="govuk-body">
-                Every system undergoing GovAssure must be assigned one of the two Government CAF profiles. These are
-                baseline and enhanced. You will have agreed this during stage 2.
+                Every system going through GovAssure must be assigned a Government CAF Profile.
+                The two profiles are Basic and Enhanced. You should already have agreed
+                the profile for your system during stage 2.
             </p>
             <p class="govuk-body">You can read more in the
                 <a class="govuk-link"
-                   href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-2-in-scope-systems-and-assigning-target-caf-profile/#section_5_assign-caf-profiles-to-your-systems"
+                   href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-2-in-scope-systems-and-assigning-target-caf-profile/#section_5_assign-government-caf-profiles-to-critical-systems"
                    target="new" class="govuk-lik"> assign CAF profiles to your systems guidance (opens in new tab). </a>
             </p>
             <form class="form" method="post">
@@ -30,7 +31,7 @@
                             Choose a profile for this system
                         </legend>
                         <div id="cafprofile-hint" class="govuk-hint">
-                            Select one
+                            Select one option
                         </div>
                         {% if form.errors.caf_profile %}
                             <p id="caf-profile-missing-error" class="govuk-error-message">
@@ -45,7 +46,7 @@
                                         {% endif %}
                                        value="baseline" aria-describedby="cafprofile-item-hint">
                                 <label class="govuk-label govuk-radios__label" for="caf_profile">
-                                    Baseline
+                                    Basic
                                 </label>
                             </div>
                             <div class="govuk-radios__item">

@@ -131,7 +131,7 @@ class AssessmentCompletionWithIndicatorsShapeTests(BaseViewTest):
         objectives = ["A", "B"]
 
         def get_sections():
-            return [{"code": f"{objective}", "title": f"Objective {objective}"} for objective in objectives]
+            return [get_section(objective) for objective in objectives]
 
         def get_section(code):
             return {

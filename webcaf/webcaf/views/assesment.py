@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from io import BytesIO
 from typing import NamedTuple
 
@@ -91,6 +92,8 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
         user_profile = SessionUtil.get_current_user_profile(self.request)
         configuration = Configuration.objects.get_default_config()
 
+        display_until = configuration.get_banner_display_until()
+        display_until = datetime.strptime(display_until, "%d %B %Y %I:%M%p")
         data.update(
             {
                 "draft_assessment": draft_assessment,
@@ -119,8 +122,8 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                 "current_profile": user_profile,
                 "review_form": AssessmentReviewTypeForm,
                 "current_assessment_period": configuration.get_current_assessment_period(),
-                "cutoff_time": configuration.get_submission_due_date().strftime("%I:%M%p"),
-                "cutoff_date": configuration.get_submission_due_date().strftime("%d %B %Y"),
+                "cutoff_time": display_until.strftime("%I:%M%p").lower(),
+                "cutoff_date": display_until.strftime("%d %B %Y"),
             }
         )
 
@@ -333,7 +336,7 @@ class EditAssessmentSystemView(EditAssessmentView):
                 ),
                 "text": "Edit draft self-assessment",
             },
-            {"url": "#", "text": "Choose System"},
+            {"url": "#", "text": "Choose system"},
         ]
 
 
@@ -380,7 +383,7 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         configuration = Configuration.objects.get_default_config()
         current_assessment_period = configuration.get_current_assessment_period()
         data["current_assessment_period"] = current_assessment_period
-        data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p")
+        data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p").lower()
         data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
 
         data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
@@ -528,7 +531,7 @@ class CreateAssessmentSystemView(CreateAssessmentView):
     def breadcrumbs(self):
         return [
             {"url": reverse("create-draft-assessment"), "text": "Start a draft assessment"},
-            {"url": "#", "text": "Choose System"},
+            {"url": "#", "text": "Choose system"},
         ]
 
 

@@ -29,8 +29,7 @@ class TestWordCountValidator(TestCase):
         text = " ".join(["word"] * 751)
         with self.assertRaises(ValidationError) as context:
             validator(text)
-        self.assertIn("751", str(context.exception))
-        self.assertIn("750", str(context.exception))
+        self.assertIn("must be 750 words or less", str(context.exception))
 
     def test_boundary_exactly_max_words(self):
         """Test boundary condition: exactly max_words should be accepted."""
@@ -45,7 +44,7 @@ class TestWordCountValidator(TestCase):
         text = " ".join(["word"] * 11)
         with self.assertRaises(ValidationError) as context:
             validator(text)
-        self.assertIn("11", str(context.exception))
+        self.assertIn("must be 10 words or less", str(context.exception))
 
     def test_handles_empty_string(self):
         """Test that empty string is accepted (0 words)."""
@@ -89,8 +88,7 @@ class TestWordCountValidator(TestCase):
         with self.assertRaises(ValidationError) as context:
             validator(text)
         error_message = str(context.exception)
-        self.assertIn("Ensure this value has at most 100 words", error_message)
-        self.assertIn("it has 150", error_message)
+        self.assertIn("must be 100 words or less", error_message)
 
     def test_equality_same_max_words(self):
         """Test that two validators with same max_words are equal."""

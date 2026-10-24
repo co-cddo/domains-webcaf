@@ -260,16 +260,14 @@ class ShowSubmissionConfirmationView(UserRoleCheckMixin, TemplateView):
     def get_context_data(self, **kwargs):
         assessment = SessionUtil.get_current_assessment(self.request, "submitted")
         configuration = Configuration.objects.get_default_config()
+        display_until = configuration.get_banner_display_until()
+        display_until = datetime.strptime(display_until, "%d %B %Y %I:%M%p")
         if assessment:
             return {
                 "assessment_ref": assessment.reference,
                 "current_assessment_period": configuration.get_current_assessment_period(),
-                # Format it to this pattern 11:59pm on 31 March 2026
-                "cutoff_date_time": (
-                    assessment.submission_due_date.strftime("%I:%M%p on %d %B %Y")
-                    if assessment.submission_due_date
-                    else configuration.get_submission_due_date().strftime("%I:%M%p on %d %B %Y")
-                ),
+                "cutoff_time": display_until.strftime("%I:%M%p"),
+                "cutoff_date": display_until.strftime("%d %B %Y"),
             }
         return {}
 

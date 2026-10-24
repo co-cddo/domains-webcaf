@@ -400,17 +400,20 @@ def generate_assessment_progress_indicators(assessment: Assessment, principle_qu
         progress_dict["principle"] = principle
         progress_dict["principle_name"] = section_detail["principles"][principle]["title"]
 
+    outcomes_from_spec = [k for s in sections for p in s["principles"].values() for k in p["outcomes"]]
     # calculate the number of completed outcomes across the whole assessment, this is indicative of
     # having completed a previous indicator page and confirming its completion
-    completed_outcomes = len(
-        [
-            p
-            for p in assessment.assessments_data
-            if assessment.assessments_data[p].get("confirmation", {}).get("confirm_outcome") == "confirm"
-        ]
-    )
+    confirmed_in_assessment = [
+        p
+        for p in assessment.assessments_data
+        if assessment.assessments_data[p].get("confirmation", {}).get("confirm_outcome") == "confirm"
+    ]
+
+    # Filter out genuine outcomes from the spec that are confirmed in the assessment,
+    # this is indicative of having completed a previous indicator page and confirming its completion
+    completed_outcomes = sum(1 for x in confirmed_in_assessment if x in outcomes_from_spec)
     # calculate the number of total outcomes across the whole caf
-    total_outcomes = len([k for s in sections for p in s["principles"].values() for k in p["outcomes"]])
+    total_outcomes = len(outcomes_from_spec)
     progress_dict["percentage"] = int((completed_outcomes / total_outcomes) * 100)
 
     return progress_dict
@@ -605,8 +608,11 @@ def caf_slug(code: str, title: str) -> str:
     :param title: The title of the objective or principle
     :return: The slug for the objective or principle
     """
-    slug = slugify(f"{code} {title}")
-    return slug
+    # Do not slugify the objective codes B and D as the target urls do not follow the
+    # same pattern
+    if code in ["B", "D"]:
+        return slugify(f"{code}")
+    return slugify(f"{code} {title}")
 
 
 @register.filter

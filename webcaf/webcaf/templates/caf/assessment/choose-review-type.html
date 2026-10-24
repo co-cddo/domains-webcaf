@@ -13,10 +13,10 @@
             {% endif %}
             {% if draft_assessment.caf_profile == "enhanced" %}
                 <h1 class="govuk-heading-l">
-                    You have chosen an enhanced CAF profile for this system
+                    You have chosen an Enhanced CAF Profile for this system
                 </h1>
                 <p class="govuk-body">
-                    This means your self-assessment must have an independent assurance review.
+                    This means your self-assessment must have an Independent Assurance Review.
                 </p>
                 <a href="{{breadcrumbs.1.url}}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
                     Continue
@@ -27,7 +27,7 @@
                     Choose a review type for your self-assessment
                 </h1>
                 <p class="govuk-body">
-                    During the scoping phases, you will have agreed how your self-assessment will be reviewed in stage 4
+                    During the scoping phases, you agreed how your self-assessment will be reviewed in stage 4
                 </p>
                 <form class="form" method="post">
                     {% csrf_token %}
@@ -37,7 +37,7 @@
                                 Describe the type of review
                             </legend>
                             <div id="review-type-hint" class="govuk-hint">
-                                Select one
+                                Select one option
                             <div class="govuk-radios" data-module="govuk-radios" id="id_review_type">
                             {% if form.errors.review_type %}
                                 <p id="caf-profile-error" class="govuk-error-message">
@@ -62,7 +62,8 @@
                         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                         <strong class="govuk-warning-text__text">
                             <span class="govuk-visually-hidden">Warning</span>
-                            If you select no or not decided, the GDS GovAssure team must already be aware.
+                            If you select No review, self-assessment only or Not decided,
+                            you must have already agreed this with the GovAssure team.
                         </strong>
                     </div>
                     <div class="govuk-button-group">

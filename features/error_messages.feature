@@ -57,7 +57,7 @@ Scenario: Nothing selected on indicators page
     And click button with text "Save and continue"
     And get assessment id from url and add to context
     Then navigate to "Objective A: Managing security risk"
-    And Fill outcome "A1.a Board Direction" with "achieved, partially-achieved, not-achieved" with "none,none,none"
+    And Fill outcome "A1.a Board direction" with "achieved, partially-achieved, not-achieved" with "none,none,none"
     Then should see an error summary with error link text "select at least one statement"
 
 Scenario: Nothing selected indicator confirmation page
@@ -74,7 +74,7 @@ Scenario: Nothing selected indicator confirmation page
     And click button with text "Save and continue"
     And get assessment id from url and add to context
     Then navigate to "Objective A: Managing security risk"
-    And Fill outcome "A1.a Board Direction" with "achieved, partially-achieved, not-achieved" with "all,none,none"
+    And Fill outcome "A1.a Board direction" with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And click button with text "Save and continue"
     Then should see an error summary with error link text "Confirm the status or change your response"
     Then should see an error message with text "Confirm the status or change your response"
