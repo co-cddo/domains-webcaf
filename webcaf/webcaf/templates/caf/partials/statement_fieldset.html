@@ -5,10 +5,10 @@
             {% if item.value %}
            checked="checked"
             {% endif %}
-            {% if item.field.label_suffix and field_name_prefix == "partially-achieved"%}
-               data-auto_checked="true"
+            {% if item.field.label_suffix and field_name_prefix == "partially-achieved" %}
+           data-auto_checked="true"
             {% endif %}
-            data-uid="{{ field_name_prefix }}-{{ forloop.counter }}"
+           data-uid="{{ field_name_prefix }}-{{ forloop.counter }}"
     >
     <label class="govuk-label govuk-checkboxes__label {% if item.errors %}govuk-form-group--error{% endif %}"
            for="{{ item.auto_id|safe_id }}">
@@ -29,10 +29,15 @@
                 </label>
                 <!-- @formatter:off -->
                 {# Disable formatting the text area as it introduces spaces if wrongly formatted#}
-                <textarea class="govuk-textarea govuk-js-character-count"
+                {% if the_field_comment.errors %}
+                    <span class="govuk-error-message">
+                        {{ the_field_comment.errors.0 }}
+                    </span>
+                {% endif %}
+                <textarea class="govuk-textarea govuk-js-character-count govuk-textarea--auto-size"
                           id="{{ the_field_comment.auto_id|safe_id }}"
                           name="{{ the_field_comment.name }}"
-                          rows="5">{% if the_field_comment.value %}{{ the_field_comment.value|striptags|default:"" }}{% endif %}</textarea>
+                          rows="{{ the_field_comment.field.widget.attrs.rows }}">{% if the_field_comment.value %}{{ the_field_comment.value|striptags|default:"" }}{% endif %}</textarea>
                 <!-- @formatter:on -->
                 <div id="{{ the_field_comment.auto_id|safe_id }}-info"
                      class="govuk-hint govuk-character-count__message">You can enter up to

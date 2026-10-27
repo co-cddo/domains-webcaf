@@ -164,7 +164,7 @@ class TestCAF32Router(TestCase):
         self.assertEqual(breadcrumbs[0]["text"], "My account")
         self.assertEqual(breadcrumbs[1]["text"], "Edit draft self-assessment")
         self.assertEqual(breadcrumbs[2]["text"], "Objective A - Detecting cyber security events")
-        self.assertEqual(breadcrumbs[3]["text"], "Objective A1.a - Monitoring Coverage")
+        self.assertEqual(breadcrumbs[3]["text"], "Objective A1.a - Monitoring coverage")
 
     def test_breadcrumbs_have_urls(self):
         factory = RequestFactory()

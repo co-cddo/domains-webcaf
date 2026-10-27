@@ -14,11 +14,11 @@
             <h1 class="govuk-heading-xl">
                 Send your self-assessment for review
             </h1>
-            <p class="govuk-body">Based on your answers, you can review the status of individual outcomes below for each
-                principle. You can go back and change your answers.</p>
+            <p class="govuk-body">Based on your answers, you can review the status of individual contributing outcomes
+                below for each principle. You can go back and change your answers.</p>
             {% for objective in objectives %}
                 <h2 class="govuk-heading-l">
-                    Objective&nbsp;{{ objective.code }}&nbsp;-&nbsp;{{ objective.title }}
+                    Objective&nbsp;{{ objective.code }}:&nbsp;{{ objective.title }}
                 </h2>
                 {% include "partials/principal_summary-list.html" with objective_data=objective %}
             {% endfor %}

@@ -180,7 +180,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     PROFILE_CHOICES = [
         (
             "baseline",
-            "Baseline",
+            "Basic",
         ),
         (
             "enhanced",
@@ -193,8 +193,8 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     ]
 
     REVIEW_TYPE_CHOICES = [
-        ("independent", "Independent assurance review"),
-        ("peer_review", "Peer review"),
+        ("independent", "Independent Assurance Review"),
+        ("peer_review", "Peer Review"),
         ("self_assessment", "No review, self-assessment only"),
         ("not_decided", "Not decided"),
     ]
@@ -261,7 +261,14 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
         :rtype: list[tuple] | None
         """
         if self.assessments_data:
-            return [(k, v) for k, v in self.assessments_data.items() if k.startswith(objective_id)]
+            outcomes_from_spec = [
+                k for s in self.get_router().get_sections() for p in s["principles"].values() for k in p["outcomes"]
+            ]
+            return [
+                (k, v)
+                for k, v in self.assessments_data.items()
+                if k.startswith(objective_id) and k in outcomes_from_spec
+            ]
         return None
 
     def get_router(self) -> FrameworkRouter:
@@ -331,6 +338,24 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     def get_all_caf_objectives(self) -> list[dict]:
         return self.get_router().get_sections()
 
+    @classmethod
+    def is_previous_assessments_present(cls, current_organisation: Organisation) -> bool:
+        """
+        Returns true of there are submitted assessments that are not from the current assessment period
+        NOTE:
+        It is assumed that we will not create any assessments using the future dates
+        :param current_organisation:
+        :return:
+        """
+        return (
+            Assessment.objects.filter(system__organisation=current_organisation, status__in=["submitted"])
+            .exclude(
+                assessment_period=Configuration.objects.get_default_config().get_current_assessment_period(),
+            )
+            .count()
+            > 0
+        )
+
     def __str__(self):
         return f"reference={self.reference if self.reference else '-'}, status={self.status} org={self.system.organisation.name}"
 
@@ -370,7 +395,7 @@ class UserProfile(models.Model):
         "reviewer": [],
     }
     ROLE_CHOICES = [
-        ("cyber_advisor", "Cyber advisor"),
+        ("cyber_advisor", "Cyber adviser"),
         ("organisation_lead", "GovAssure lead"),
         ("organisation_user", "Organisation user"),
         ("reviewer", "Peer reviewer"),
@@ -456,6 +481,12 @@ class Configuration(models.Model):
         return self.config_data.get("default_framework")
 
     def get_banner_display_until(self):
+        """
+        Retrieve the banner display end date from the configuration data.
+        This represents the date until the assessments should be submitted,
+        and the banner should be displayed to users.
+        :return:
+        """
         return self.config_data.get("banner_display_until")
 
     def get_submission_due_date(self):
@@ -837,39 +868,19 @@ class Review(ReferenceGeneratorMixin, models.Model):
         }.issubset(review_objective.keys()):
             return False
 
-        # Local import to prevent cyclical imports
-        from webcaf.webcaf.caf.util import IndicatorStatusChecker
-
         for principal in caf_objective["principles"].values():
             for outcome in principal["outcomes"].values():
                 outcome_data = review_objective.get(outcome["code"], {})
                 # Outcome level check
                 # if the status is not present or not achieved state, then
                 # we need recommendations
-                if review_decision := outcome_data.get("review_data", {}).get("review_decision"):
-                    if self.assessment.review_type == "peer_review":
-                        # For peer review, we only need recommendations if the min profile requirement is not met
-                        if (
-                            not review_decision
-                            or IndicatorStatusChecker.indicator_min_profile_requirement_met(
-                                self.assessment,
-                                principal_id=principal["code"],
-                                indicator_id=outcome["code"],
-                                status=IndicatorStatusChecker.key_to_status(review_decision),
-                            )
-                            != "Yes"
-                            and not outcome_data.get("recommendations", [])
-                        ):
-                            return False
-                    else:
-                        # Independent assessment
-                        if (
-                            not review_decision
-                            or review_decision != "achieved"
-                            and not outcome_data.get("recommendations", [])
-                        ):
-                            return False
-                else:
+                review_decision = outcome_data.get("review_data", {}).get("review_decision", None)
+                if not self._is_outcome_complete(
+                    principal,
+                    outcome,
+                    review_decision,
+                    outcome_data.get("recommendations", []),
+                ):
                     return False
         return True
 
@@ -986,9 +997,14 @@ class Review(ReferenceGeneratorMixin, models.Model):
                     # if the status is not present or not achieved state, then
                     # we need recommendations
                     total_outcomes += 1
-                    if review_decision := outcome_data.get("review_data", {}).get("review_decision"):
-                        if review_decision and (review_decision == "achieved" or outcome_data.get("recommendations")):
-                            completed_outcomes += 1
+                    review_decision = outcome_data.get("review_data", {}).get("review_decision", None)
+                    if self._is_outcome_complete(
+                        principal,
+                        outcome,
+                        review_decision,
+                        outcome_data.get("recommendations", []),
+                    ):
+                        completed_outcomes += 1
 
         return {"total_outcomes": total_outcomes, "completed_outcomes": completed_outcomes}
 
@@ -1247,6 +1263,40 @@ class Review(ReferenceGeneratorMixin, models.Model):
             if self.all_versions and version_number > 0 and version_number - 1 < len(self.all_versions)
             else None
         )
+
+    def _is_outcome_complete(self, principal, outcome, review_decision, recommendations):
+        """
+        Apply the business logic for checking the outcome completion.
+        Outcome is complete only if:
+        Peer review:
+            The min profile requirement is Met or recommendations are present
+        Independent review:
+            Outcome status is achieved or recommendations are present
+        :param principal:
+        :param outcome:
+        :param review_decision:
+        :param recommendations:
+        :return:
+        """
+        if not review_decision:
+            return False
+
+        if self.assessment.review_type == "peer_review":
+            # Local import to prevent cyclical imports
+            from webcaf.webcaf.caf.util import IndicatorStatusChecker
+
+            min_profile_met = (
+                IndicatorStatusChecker.indicator_min_profile_requirement_met(
+                    self.assessment,
+                    principal_id=principal["code"],
+                    indicator_id=outcome["code"],
+                    status=IndicatorStatusChecker.key_to_status(review_decision),
+                )
+                == "Yes"
+            )
+            return min_profile_met or bool(recommendations)
+
+        return review_decision == "achieved" or bool(recommendations)
 
 
 class Settings(models.Model):

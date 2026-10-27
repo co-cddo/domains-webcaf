@@ -13,7 +13,7 @@
 
 {% block content %}
     <span class="govuk-caption-l">{{ assessment.system.name }}</span>
-    <h1 class="govuk-heading-l">{{ view.class_id }} {{ title }} Outcome</h1>
+    <h1 class="govuk-heading-l">{{ view.class_id }} {{ title|lower|capfirst }} summary</h1>
     <p class="govuk-body">{{ outcome.description }}</p>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -22,7 +22,7 @@
                 {% indicator_min_profile_requirement_met assessment outcome.code|slice:2 outcome.code outcome_status.outcome_status True as profile_met %}
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
-                        {{ assessment.get_caf_profile_display }} CAF profile requirement</p>
+                        {{ assessment.get_caf_profile_display }} CAF Profile requirement</p>
                     {% get_tag_for_status profile_met.1 as tag_colour %}
                     <strong class="govuk-tag govuk-tag--{{ tag_colour }}">{{ profile_met.1 }}</strong>
                 </div>
@@ -33,7 +33,7 @@
                 </div>
                 <div class="status-stack__item">
                     <p class="govuk-body govuk-!-font-weight-bold status-stack__label">
-                        {{ assessment.get_caf_profile_display }} CAF profile</p>
+                        {{ assessment.get_caf_profile_display }} CAF Profile</p>
                     {% if profile_met.0 == 'Not met' %}
                         <strong class="outcome_profile_status govuk-tag govuk-tag--red">{{ profile_met.0 }}</strong>
                     {% else %}
@@ -86,14 +86,13 @@
                                                 </span>
                                             </summary>
                                             <div class="govuk-details__text">
-                                                GovAssure stage 4 assessments are reviewed against the contributing
-                                                outcomes.<br><br>
+                                                In GovAssure stage 4 self-assessments are reviewed at the contributing
+                                                outcome levels.<br><br>
                                                 You must explain the achievement status by writing a contributing
                                                 outcome summary.<br><br>
 
-                                                <p class="govuk-body">This summary must reference the <abbr
-                                                        title="indicator of good practice">IGPs</abbr> (Indicators of
-                                                    Good Practice) and include:</p>
+                                                <p class="govuk-body">This summary must reference the indicators of
+                                                    good practice (<abbr title="indicator of good practice">IGP</abbr>s) and include:</p>
                                                 <ul class="govuk-list govuk-list--bullet">
                                                     <li>an explanation of how key controls and processes support the
                                                         contributing outcome
@@ -106,15 +105,15 @@
                                                     <li>clear references to supporting evidence</li>
                                                 </ul>
                                                 <p>
-                                                    If status is “not achieved”, you should still explain where you are
-                                                    working
-                                                    towards the contributing outcome with references to the <abbr
-                                                        title="indicator of good practice">IGPs</abbr> as this outcome
+                                                    If your status is 'not achieved', you should still explain how you
+                                                    are working towards the contributing outcome and reference the relevant
+                                                    <abbr title="indicator of good practice">IGPs</abbr>. This outcome
                                                     will still be assessed. <br><br>
-                                                    For more detailed guidance on what is expected visit the
+                                                    For more detailed guidance, read the
                                                     <a href="https://www.security.gov.uk/policy-and-guidance/govassure/stage-3-self-assessment/"
-                                                       class="govuk-link--no-visited-state" target="new">Stage 3
-                                                        guidance on security.gov.uk</a>.
+                                                       class="govuk-link--no-visited-state" target="new">
+                                                        Contributing outcome summary guidance (opens in new tab)
+                                                    </a>.
                                                 </p>
                                             </div>
                                         </details>

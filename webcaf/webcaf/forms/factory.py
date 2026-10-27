@@ -15,12 +15,12 @@ class WordCountValidator:
 
     def __init__(self, max_words):
         self.max_words = max_words
-        self.message = f"Ensure this value has at most {self.max_words} words (it has "
+        self.message = f"must be {self.max_words:,} words or less"
 
     def __call__(self, words: str):
         word_count = len(words.split())
         if word_count > self.max_words:
-            raise ValidationError(f"{self.message}{word_count}).")
+            raise ValidationError(f"{self.message}")
 
     def __eq__(self, other):
         return (

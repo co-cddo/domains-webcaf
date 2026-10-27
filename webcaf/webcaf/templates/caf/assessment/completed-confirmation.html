@@ -26,8 +26,8 @@
                         What happens next
                     </h2>
                     <p class="govuk-body">
-                        Now you have completed your self-assessment, you must make sure that your independent assessor
-                        or third-party reviewer can access it before starting stage 4.
+                        Now you have completed your self-assessment, you must make sure that your independent assurance
+                        reviewer or peer reviewer can access it before starting stage 4.
                     </p>
                     {% should_display_cutoff as display_cutoff %}
                     {% if display_cutoff %}
@@ -35,8 +35,10 @@
                             <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
                             <strong class="govuk-warning-text__text">
                                 <span class="govuk-visually-hidden">Warning</span>
-                                For your system to be assessed in GovAssure for 2025/26, your
-                                stage 4 review must be completed by 11:59PM on 31 March 2026.
+                                To be assessed in the 20{{ current_assessment_period|split:"/"|first }} to
+                                20{{ current_assessment_period|split:"/"|last }} GovAssure year, your stage 4 review
+                                must be completed by <strong>{{ cutoff_time|lower }}</strong> on
+                                <strong>{{ cutoff_date }}</strong>.
                             </strong>
                         </div>
                     {% endif %}

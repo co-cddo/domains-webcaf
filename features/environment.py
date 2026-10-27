@@ -76,6 +76,7 @@ def before_scenario(context, scenario):
                 "default_framework": "caf32",
                 "current_assessment_period": assessment_period,
                 "assessment_period_end": f"31 March {assessment_year} 11:59pm",
+                "banner_display_until": f"31 March {assessment_year} 11:59pm",
             },
         )
 

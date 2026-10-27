@@ -12,15 +12,15 @@
 
 
 {% block content %}
-    {% include "partials/error_message.html" %}
+    {% include "partials/error_message.html" with hide_label=True %}
     <span class="govuk-caption-l">{{ assessment.system.name }}</span>
-    <h1 class="govuk-heading-l">{{ view.class_id }} {{ title }}</h1>
+    <h1 class="govuk-heading-l">{{ view.class_id }} {{ title|lower|capfirst }}</h1>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <details class="govuk-details">
                 <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">
-              Read the outcome wording
+              Read the contributing outcome wording
             </span>
                 </summary>
                 <div class="govuk-details__text">
@@ -28,8 +28,12 @@
                 </div>
             </details>
             <p class="govuk-body">You must read each indicator of good practice (IGP). Select the statements that apply
-                to your systems. If you have alternative controls and exemptions you must still select the statements
+                to your systems. If you have alternative controls or exemptions you must still select the statements
                 and add your comments to explain this.</p>
+            <p class="govuk-body govuk-inset-text">
+                Where a 'partially achieved' statement is identical to an 'achieved' statement, your
+                response to the 'achieved' statement will be automatically applied.
+            </p>
             {% is_duplicate_questions_present form as is_duplicate_questions_present %}
             {% if is_duplicate_questions_present %}
                 <div class="govuk-warning-text">
@@ -111,7 +115,7 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         {% if not can_edit_assessments %}Continue{% else %}Save and continue{% endif %}
                     </button>
-                    <a class="govuk-link" href="{% url back_url %}">Back to {{ objective_name }} </a>
+                    <a class="govuk-link" href="{% url back_url %}">Back to  Objective&nbsp;{{ objective_data.code }}:&nbsp;{{ title }} </a>
                 </div>
             </form>
         </div>

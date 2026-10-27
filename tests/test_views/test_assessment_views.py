@@ -168,6 +168,7 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
                 "current_assessment_period": "49/50",
                 "assessment_period_end": "31 March 2050 11:59pm",
                 "default_framework": "caf32",
+                "banner_display_until": "31 March 2050 11:59pm",
             },
         )
 
@@ -202,5 +203,5 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
 
         # Check the actual values match what we set in the configuration
         self.assertEqual(response.context["current_assessment_period"], "49/50")
-        self.assertEqual(response.context["cutoff_time"], "11:59PM")
+        self.assertEqual(response.context["cutoff_time"], "11:59pm")
         self.assertEqual(response.context["cutoff_date"], "31 March 2050")

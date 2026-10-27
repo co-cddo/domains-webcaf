@@ -171,7 +171,9 @@
             {% endif %}
             {% is_historical_assessments_enabled current_profile as historical_assessments_enabled %}
             {% if historical_assessments_enabled %}
-                {% if  can_view_reviews or can_view_tips or can_view_submitted_assessments %}
+                {% is_previous_assessments_present current_profile as previous_assessments_present %}
+                {% current_user_can_view_previous_assessments current_profile as can_view_previous_assessments %}
+                {% if  previous_assessments_present and can_view_previous_assessments %}
                     <nav role="navigation" aria-labelledby="previous_assessments">
                         <h2 id="previous_assessments" class="govuk-visually-hidden">
                             View previous GovAssure submissions

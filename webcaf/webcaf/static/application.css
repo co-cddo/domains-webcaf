@@ -385,3 +385,7 @@ main {
     opacity: 0.8;
 }
 
+.govuk-textarea--auto-size {
+    field-sizing: content;
+    min-height: 5lh;
+}

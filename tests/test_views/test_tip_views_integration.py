@@ -809,7 +809,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         errors = resp.context["form"].errors
         self.assertIn("action_taken_description", errors)
-        self.assertIn("at most 3 words", " ".join(errors["action_taken_description"]))
+        self.assertIn("must be 3 words or less", " ".join(errors["action_taken_description"]))
         # Nothing should have been persisted.
         self.tip.refresh_from_db()
         self.assertIsNone(self.tip.get_action(self.priority_rec.id))
@@ -850,7 +850,7 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         errors = resp.context["form"].errors
         self.assertIn("target_date_unavailable_reason", errors)
-        self.assertIn("at most 2 words", " ".join(errors["target_date_unavailable_reason"]))
+        self.assertIn("must be 2 words or less", " ".join(errors["target_date_unavailable_reason"]))
         self.tip.refresh_from_db()
         self.assertIsNone(self.tip.get_action(self.priority_rec.id))
 
@@ -874,6 +874,6 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
         self.assertEqual(resp.status_code, 200)
         errors = resp.context["form"].errors
         self.assertIn("action_not_planned_reason", errors)
-        self.assertIn("at most 3 words", " ".join(errors["action_not_planned_reason"]))
+        self.assertIn("must be 3 words or less", " ".join(errors["action_not_planned_reason"]))
         self.tip.refresh_from_db()
         self.assertIsNone(self.tip.get_action(self.priority_rec.id))
