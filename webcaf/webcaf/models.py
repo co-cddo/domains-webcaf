@@ -338,6 +338,24 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     def get_all_caf_objectives(self) -> list[dict]:
         return self.get_router().get_sections()
 
+    @classmethod
+    def is_previous_assessments_present(cls, current_organisation: Organisation) -> bool:
+        """
+        Returns true of there are submitted assessments that are not from the current assessment period
+        NOTE:
+        It is assumed that we will not create any assessments using the future dates
+        :param current_organisation:
+        :return:
+        """
+        return (
+            Assessment.objects.filter(system__organisation=current_organisation, status__in=["submitted"])
+            .exclude(
+                assessment_period=Configuration.objects.get_default_config().get_current_assessment_period(),
+            )
+            .count()
+            > 0
+        )
+
     def __str__(self):
         return f"reference={self.reference if self.reference else '-'}, status={self.status} org={self.system.organisation.name}"
 

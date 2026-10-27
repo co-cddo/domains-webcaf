@@ -630,3 +630,15 @@ def sort_fields(fields):
         return field.field.widget.attrs.get("idx", "9999") if field.field.widget else "9999"
 
     return sorted(fields, key=sort_key, reverse=False)
+
+
+@register.simple_tag
+def is_previous_assessments_present(user_profile: UserProfile) -> bool:
+    """
+    Pass in the current user profile
+    :param user_profile:
+    :return:
+    """
+    if user_profile and user_profile.organisation:
+        return Assessment.is_previous_assessments_present(user_profile.organisation)
+    return False

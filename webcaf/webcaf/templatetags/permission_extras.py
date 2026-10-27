@@ -23,6 +23,15 @@ def current_user_can_create_system(user_profile: UserProfile) -> bool:
 
 
 @register.simple_tag()
+def current_user_can_view_previous_assessments(user_profile: UserProfile) -> bool:
+    return (
+        current_user_can_view_assessments(user_profile)
+        or current_user_can_view_review(user_profile)
+        or current_user_can_view_tips(user_profile)
+    )
+
+
+@register.simple_tag()
 def current_user_can_view_review(user_profile: UserProfile) -> bool:
     return PermissionUtil.current_user_can_create_review(user_profile)
 
