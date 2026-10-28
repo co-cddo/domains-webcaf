@@ -38,6 +38,9 @@ class DisableCacheMiddleware:
         response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response["Pragma"] = "no-cache"
         response["Expires"] = "0"
+        # Disable dns prefetch, based on pen test recommendations to reduce
+        # information leaking to other domains
+        response["X-DNS-Prefetch-Control"] = "off"
         return response
 
 
