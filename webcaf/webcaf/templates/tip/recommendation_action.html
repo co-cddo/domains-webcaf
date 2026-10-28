@@ -13,7 +13,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
-            {% include 'partials/error_message.html' %}
+            {% include 'partials/error_message.html' with hide_label=True %}
             <span class="govuk-caption-l">{{ object.review.assessment.system.name }} ({{ object.review.assessment.reference }})</span>
             <h1 class="govuk-heading-l">
                 {% if recommendation_type == 'priority' %}
@@ -65,10 +65,11 @@
                 </div>
             </div>
             <form method="post" novalidate="">
-                <div class="govuk-form-group">
+                <div class="govuk-form-group {% if form.recommendation_actioned.errors %}govuk-form-group--error{% endif %}">
                     {% csrf_token %}
                     <div id="conditional-answer_yes">
-                        <fieldset class="govuk-fieldset" aria-describedby="id_priority_recommendation_hint">
+                        <fieldset class="govuk-fieldset"
+                                  aria-describedby="id_priority_recommendation_hint{% if form.recommendation_actioned.errors %} recommendation_actioned-error{% endif %}">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                 <h1 class="govuk-fieldset__heading">
                                     Will you add an action for this recommendation?
@@ -81,16 +82,19 @@
                                     Adding an action for other recommendations is optional
                                 {% endif %}
                             </div>
-                            <div id="id_recommendation_actioned"
-                                 class="govuk-radios {% if form.recommendation_actioned.errors %}govuk-form-group--error{% endif %}"
-                                 data-module="govuk-radios">
+                            {% if form.recommendation_actioned.errors %}
+                                <p id="recommendation_actioned-error" class="govuk-error-message">
+                                    <span class="govuk-visually-hidden">Error:</span> {{ form.recommendation_actioned.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <div class="govuk-radios" data-module="govuk-radios">
                                 <div class="govuk-radios__item">
-                                    <input class="govuk-radios__input" id="actioned_answer_yes"
+                                    <input class="govuk-radios__input" id="id_recommendation_actioned"
                                            name="recommendation_actioned"
                                            {% if form.recommendation_actioned.value == 'action_planned' %}checked{% endif %}
                                            type="radio" value="action_planned">
                                     <label class="govuk-label govuk-radios__label"
-                                           for="actioned_answer_yes">
+                                           for="id_recommendation_actioned">
                                         Yes
                                     </label>
                                 </div>
@@ -105,22 +109,27 @@
                                     {% if recommendation_type == 'priority' %}
                                         <div class="govuk-radios__conditional govuk-radios__conditional--hidden"
                                              id="conditional-no_action_taken">
-                                            <div id="action_not_planned_reason"
-                                                 data-module="govuk-character-count"
+                                            <div data-module="govuk-character-count"
                                                  data-maxwords="{{ form.action_not_planned_reason.field.widget.attrs.max_words }}"
                                                  class="govuk-form-group {% if form.action_not_planned_reason.errors %}govuk-form-group--error{% endif %}">
                                                 <label class="govuk-label govuk-label--s"
-                                                       for="action_not_planned_reason">
+                                                       for="id_action_not_planned_reason">
                                                     Explain why you will not add an action
                                                 </label>
+                                                {% if form.action_not_planned_reason.errors %}
+                                                    <p id="action_not_planned_reason-error" class="govuk-error-message">
+                                                        <span class="govuk-visually-hidden">Error:</span> {{ form.action_not_planned_reason.errors.0 }}
+                                                    </p>
+                                                {% endif %}
                                                 <textarea
-                                                        class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3"
-                                                        id="action_not_planned_reason"
+                                                        class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3 {% if form.action_not_planned_reason.errors %}govuk-textarea--error{% endif %}"
+                                                        id="id_action_not_planned_reason"
                                                         name="action_not_planned_reason"
                                                         rows="5"
+                                                        {% if form.action_not_planned_reason.errors %}aria-describedby="action_not_planned_reason-error"{% endif %}
                                                         data-maxwords="{{ form.action_not_planned_reason.field.widget.attrs.max_words }}"
                                                 >{{ form.action_not_planned_reason.value|default:"" }}</textarea>
-                                                <div id="action_not_planned_reason-info"
+                                                <div id="id_action_not_planned_reason-info"
                                                      class="govuk-hint govuk-character-count__message">You can
                                                     enter up to
                                                     {{ form.action_not_planned_reason.field.widget.attrs.max_words }}
@@ -149,51 +158,59 @@
                                                     rel="noreferrer noopener" target="_blank">GovAssure stage 5 guidance
                                             page (opens in new tab)</a></p>
 
-                                        <div id="id_action_taken_description" class="govuk-!-margin-top-3">
+                                        <div class="govuk-!-margin-top-3">
                                             <div class="govuk-form-group {% if form.action_taken_description.errors %}govuk-form-group--error{% endif %}"
                                                  data-module="govuk-character-count"
                                                  data-maxwords="{{ form.action_taken_description.field.widget.attrs.max_words }}"
                                             >
                                                 <label class="govuk-label govuk-label--m"
-                                                       for="action_taken_description">
+                                                       for="id_action_taken_description">
                                                     What action will you take?
                                                 </label>
                                                 <div id="action_taken_description-hint" class="govuk-hint">
                                                     Describe the action or actions and how they will implement the
                                                     recommendation
                                                 </div>
+                                                {% if form.action_taken_description.errors %}
+                                                    <p id="action_taken_description-error" class="govuk-error-message">
+                                                        <span class="govuk-visually-hidden">Error:</span> {{ form.action_taken_description.errors.0 }}
+                                                    </p>
+                                                {% endif %}
                                                 <textarea
-                                                        class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3"
-                                                        id="action_taken_description"
+                                                        class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3 {% if form.action_taken_description.errors %}govuk-textarea--error{% endif %}"
+                                                        id="id_action_taken_description"
                                                         name="action_taken_description" rows="5"
-                                                        aria-describedby="action_taken_description-hint">{{ form.action_taken_description.value|default_if_none:"" }}</textarea>
+                                                        aria-describedby="action_taken_description-hint{% if form.action_taken_description.errors %} action_taken_description-error{% endif %}">{{ form.action_taken_description.value|default_if_none:"" }}</textarea>
 
-                                                <div id="action_taken_description-info"
+                                                <div id="id_action_taken_description-info"
                                                      class="govuk-hint govuk-character-count__message">You can
                                                     enter up to
                                                     {{ form.action_taken_description.field.widget.attrs.max_words }}
                                                     words
                                                 </div>
                                             </div>
-                                            <div id="id_action_owner"
-                                                 class="govuk-form-group {% if form.action_owner.errors %}govuk-form-group--error{% endif %}">
+                                            <div class="govuk-form-group {% if form.action_owner.errors %}govuk-form-group--error{% endif %}">
                                                 <label class="govuk-label govuk-label--m"
-                                                       for="action_owner">
+                                                       for="id_action_owner">
                                                     Who owns this action?
                                                 </label>
                                                 <div id="action_owner-hint" class="govuk-hint">
                                                     Name the person or team who has ultimate responsibility for
                                                     implementing the action
                                                 </div>
-                                                <input class="govuk-input govuk-!-width-two-thirds"
-                                                       id="action_owner" name="action_owner" type="text"
+                                                {% if form.action_owner.errors %}
+                                                    <p id="action_owner-error" class="govuk-error-message">
+                                                        <span class="govuk-visually-hidden">Error:</span> {{ form.action_owner.errors.0 }}
+                                                    </p>
+                                                {% endif %}
+                                                <input class="govuk-input govuk-!-width-two-thirds {% if form.action_owner.errors %}govuk-input--error{% endif %}"
+                                                       id="id_action_owner" name="action_owner" type="text"
                                                        value="{{ form.action_owner.value|default_if_none:'' }}"
-                                                       aria-describedby="action_owner-hint">
+                                                       aria-describedby="action_owner-hint{% if form.action_owner.errors %} action_owner-error{% endif %}">
                                             </div>
-                                            <div id="id_resources_available"
-                                                 class="govuk-form-group {% if form.resources_available.errors %}govuk-form-group--error{% endif %}">
+                                            <div class="govuk-form-group {% if form.resources_available.errors %}govuk-form-group--error{% endif %}">
                                                 <fieldset class="govuk-fieldset"
-                                                          aria-describedby="resources_available-hint">
+                                                          aria-describedby="resources_available-hint{% if form.resources_available.errors %} resources_available-error{% endif %}">
                                                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                                         Are the resources available to deliver this action?
                                                     </legend>
@@ -201,15 +218,20 @@
                                                         This means whether you have the people, capacity and supporting
                                                         resources needed to do the work
                                                     </div>
+                                                    {% if form.resources_available.errors %}
+                                                        <p id="resources_available-error" class="govuk-error-message">
+                                                            <span class="govuk-visually-hidden">Error:</span> {{ form.resources_available.errors.0 }}
+                                                        </p>
+                                                    {% endif %}
                                                     <div class="govuk-radios" data-module="govuk-radios">
                                                         <div class="govuk-radios__item">
                                                             <input class="govuk-radios__input"
-                                                                   id="resources_available"
+                                                                   id="id_resources_available"
                                                                    name="resources_available" type="radio"
                                                                    {% if form.resources_available.value == 'yes' %}checked{% endif %}
                                                                    value="yes">
                                                             <label class="govuk-label govuk-radios__label"
-                                                                   for="resources_available">
+                                                                   for="id_resources_available">
                                                                 Yes
                                                             </label>
                                                         </div>
@@ -239,11 +261,10 @@
                                                     </div>
                                                 </fieldset>
                                             </div>
-                                            <div id="id_budget_available"
-                                                 class="govuk-form-group {% if form.budget_available.errors %}govuk-form-group--error{% endif %}">
+                                            <div class="govuk-form-group {% if form.budget_available.errors %}govuk-form-group--error{% endif %}">
                                                 <fieldset
-                                                        class="govuk-fieldset {% if form.budget_available.errors %}govuk-form-group--error{% endif %}"
-                                                        aria-describedby="budget_available-hint">
+                                                        class="govuk-fieldset"
+                                                        aria-describedby="budget_available-hint{% if form.budget_available.errors %} budget_available-error{% endif %}">
                                                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                                         Is the budget approved to deliver this action?
                                                     </legend>
@@ -251,15 +272,20 @@
                                                         This means whether the funding needed for the action has been
                                                         approved
                                                     </div>
+                                                    {% if form.budget_available.errors %}
+                                                        <p id="budget_available-error" class="govuk-error-message">
+                                                            <span class="govuk-visually-hidden">Error:</span> {{ form.budget_available.errors.0 }}
+                                                        </p>
+                                                    {% endif %}
                                                     <div class="govuk-radios" data-module="govuk-radios">
                                                         <div class="govuk-radios__item">
                                                             <input class="govuk-radios__input"
-                                                                   id="budget_available"
+                                                                   id="id_budget_available"
                                                                    name="budget_available" type="radio"
                                                                    {% if form.budget_available.value == 'yes' %}checked{% endif %}
                                                                    value="yes">
                                                             <label class="govuk-label govuk-radios__label"
-                                                                   for="budget_available">
+                                                                   for="id_budget_available">
                                                                 Yes
                                                             </label>
                                                         </div>
@@ -289,13 +315,17 @@
                                                     </div>
                                                 </fieldset>
                                             </div>
-                                            <div id="id_target_date_provided"
-                                                 class="govuk-form-group {% if form.target_date_provided.errors %}govuk-form-group--error{% endif %}">
+                                            <div class="govuk-form-group {% if form.target_date_provided.errors %}govuk-form-group--error{% endif %}">
                                                 <fieldset class="govuk-fieldset"
-                                                          aria-describedby="id_target_date_provided_hint">
+                                                          {% if form.target_date_provided.errors %}aria-describedby="target_date_provided-error"{% endif %}>
                                                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                                                         Can you provide an estimated target completion date?
                                                     </legend>
+                                                    {% if form.target_date_provided.errors %}
+                                                        <p id="target_date_provided-error" class="govuk-error-message">
+                                                            <span class="govuk-visually-hidden">Error:</span> {{ form.target_date_provided.errors.0 }}
+                                                        </p>
+                                                    {% endif %}
                                                     <div class="govuk-radios" data-module="govuk-radios">
                                                         <div class="govuk-radios__item">
                                                             <input class="govuk-radios__input"
@@ -312,10 +342,10 @@
                                                             <div class="govuk-radios__conditional govuk-radios__conditional--hidden"
                                                                  id="conditional-target_date_provided">
                                                                 <div class="govuk-!-margin-top-3">
-                                                                    <div class="govuk-form-group">
+                                                                    <div class="govuk-form-group {% if form.target_date_error_fields %}govuk-form-group--error{% endif %}">
                                                                         <fieldset class="govuk-fieldset"
                                                                                   role="group"
-                                                                                  aria-describedby="targetDate-hint">
+                                                                                  aria-describedby="targetDate-hint{% if form.target_date_error_fields %} targetDate-error{% endif %}">
                                                                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                                                                                 Estimated target completion date
                                                                             </legend>
@@ -323,15 +353,22 @@
                                                                                  class="govuk-hint">
                                                                                 For example, 27 3 2027
                                                                             </div>
+                                                                            {% if form.target_date_error_fields %}
+                                                                                <p id="targetDate-error"
+                                                                                   class="govuk-error-message">
+                                                                                    <span class="govuk-visually-hidden">Error:</span>
+                                                                                    {% if form.target_day_day.errors %}{{ form.target_day_day.errors.0 }}{% elif form.target_day_month.errors %}{{ form.target_day_month.errors.0 }}{% else %}{{ form.target_day_year.errors.0 }}{% endif %}
+                                                                                </p>
+                                                                            {% endif %}
                                                                             <div class="govuk-date-input"
                                                                                  id="targetDate">
                                                                                 <div class="govuk-date-input__item">
-                                                                                    <div class="govuk-form-group {% if form.target_day_day.errors %}govuk-form-group--error{% endif %}">
+                                                                                    <div class="govuk-form-group">
                                                                                         <label class="govuk-label govuk-date-input__label"
                                                                                                for="id_target_day_day">
                                                                                             Day
                                                                                         </label>
-                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 {% if "target_day_day" in form.target_date_error_fields %}govuk-input--error{% endif %}"
                                                                                                id="id_target_day_day"
                                                                                                name="target_day_day"
                                                                                                type="text"
@@ -340,12 +377,12 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="govuk-date-input__item">
-                                                                                    <div class="govuk-form-group {% if form.target_day_month.errors %}govuk-form-group--error{% endif %}">
+                                                                                    <div class="govuk-form-group">
                                                                                         <label class="govuk-label govuk-date-input__label"
                                                                                                for="id_target_day_month">
                                                                                             Month
                                                                                         </label>
-                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 {% if "target_day_month" in form.target_date_error_fields %}govuk-input--error{% endif %}"
                                                                                                id="id_target_day_month"
                                                                                                name="target_day_month"
                                                                                                type="text"
@@ -354,12 +391,12 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="govuk-date-input__item">
-                                                                                    <div class="govuk-form-group {% if form.target_day_year.errors %}govuk-form-group--error{% endif %}">
+                                                                                    <div class="govuk-form-group">
                                                                                         <label class="govuk-label govuk-date-input__label"
                                                                                                for="id_target_day_year">
                                                                                             Year
                                                                                         </label>
-                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-4"
+                                                                                        <input class="govuk-input govuk-date-input__input govuk-input--width-4 {% if "target_day_year" in form.target_date_error_fields %}govuk-input--error{% endif %}"
                                                                                                id="id_target_day_year"
                                                                                                name="target_day_year"
                                                                                                type="text"
@@ -394,16 +431,23 @@
                                                                              data-maxwords="{{ form.target_date_unavailable_reason.field.widget.attrs.max_words }}"
                                                                         >
                                                                             <label class="govuk-label govuk-label--s"
-                                                                                   for="target_date_unavailable_reason">
+                                                                                   for="id_target_date_unavailable_reason">
                                                                                 Explain why you cannot provide a
                                                                                 target date
                                                                             </label>
+                                                                            {% if form.target_date_unavailable_reason.errors %}
+                                                                                <p id="target_date_unavailable_reason-error"
+                                                                                   class="govuk-error-message">
+                                                                                    <span class="govuk-visually-hidden">Error:</span> {{ form.target_date_unavailable_reason.errors.0 }}
+                                                                                </p>
+                                                                            {% endif %}
                                                                             <textarea
-                                                                                    class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3"
-                                                                                    id="target_date_unavailable_reason"
+                                                                                    class="govuk-textarea govuk-js-character-count govuk-!-margin-bottom-3 {% if form.target_date_unavailable_reason.errors %}govuk-textarea--error{% endif %}"
+                                                                                    id="id_target_date_unavailable_reason"
                                                                                     name="target_date_unavailable_reason"
+                                                                                    {% if form.target_date_unavailable_reason.errors %}aria-describedby="target_date_unavailable_reason-error"{% endif %}
                                                                                     rows="5">{{ form.target_date_unavailable_reason.value|default_if_none:'' }}</textarea>
-                                                                            <div id="target_date_unavailable_reason-info"
+                                                                            <div id="id_target_date_unavailable_reason-info"
                                                                                  class="govuk-hint govuk-character-count__message">
                                                                                 You can enter up
                                                                                 to {{ form.target_date_unavailable_reason.field.widget.attrs.max_words }}
