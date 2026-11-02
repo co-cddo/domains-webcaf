@@ -118,7 +118,7 @@ class EditAssessmentView(LoginRequiredMixin, FormView):
                         ]
                     )
                     .union(System.objects.filter(id=assessment.system_id))
-                ),
+                ).order_by("name"),
                 "current_profile": user_profile,
                 "review_form": AssessmentReviewTypeForm,
                 "current_assessment_period": configuration.get_current_assessment_period(),
@@ -386,16 +386,20 @@ class CreateAssessmentView(LoginRequiredMixin, FormView):
         data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p").lower()
         data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
 
-        data["systems"] = System.objects.filter(organisation=profile.organisation).exclude(
-            # Exclude any systems that already have assessments assigned for the current year
-            id__in=[
-                Subquery(
-                    Assessment.objects.filter(
-                        status__in=["draft", "submitted", "completed"],
-                        assessment_period__in=[current_assessment_period],
-                    ).values("system_id")
-                )
-            ]
+        data["systems"] = (
+            System.objects.filter(organisation=profile.organisation)
+            .exclude(
+                # Exclude any systems that already have assessments assigned for the current year
+                id__in=[
+                    Subquery(
+                        Assessment.objects.filter(
+                            status__in=["draft", "submitted", "completed"],
+                            assessment_period__in=[current_assessment_period],
+                        ).values("system_id")
+                    )
+                ]
+            )
+            .order_by("name")
         )
         return data
 
