@@ -30,21 +30,12 @@
             <p class="govuk-body">You must read each indicator of good practice (IGP). Select the statements that apply
                 to your systems. If you have alternative controls or exemptions you must still select the statements
                 and add your comments to explain this.</p>
-            <p class="govuk-body govuk-inset-text">
-                Where a 'partially achieved' statement is identical to an 'achieved' statement, your
-                response to the 'achieved' statement will be automatically applied.
-            </p>
             {% is_duplicate_questions_present form as is_duplicate_questions_present %}
             {% if is_duplicate_questions_present %}
-                <div class="govuk-warning-text">
-                    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                    <strong class="govuk-warning-text__text">
-                        <span class="govuk-visually-hidden">Warning</span>
-                        Some "Achieved" and "Partially achieved" statements are identical. Your selection
-                        for these statements under "Achieved" will be automatically applied under
-                        "Partially achieved".
-                    </strong>
-                </div>
+                <p class="govuk-body govuk-inset-text">
+                    Where a 'partially achieved' statement is identical to an 'achieved' statement, your
+                    response to the 'achieved' statement will be automatically applied.
+                </p>
             {% endif %}
             <form class="form" id="mainForm" method="post">
                 {% csrf_token %}
