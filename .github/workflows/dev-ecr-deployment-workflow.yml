@@ -22,9 +22,9 @@ jobs:
       - name: Derive image name
         id: image_name
         run: |
-          APP_PREFIX="dsv2-"
+          APP_PREFIX="dsv2"
           TAG="${GITHUB_REF_NAME}"
-          BASE_IMAGE="${APP_PREFIX}web-caf-app-ecr"
+          BASE_IMAGE="${APP_PREFIX}-web-caf-app-ecr"
 
           echo "Image name is : $BASE_IMAGE"
           echo "IMAGE_NAME=$BASE_IMAGE" >> $GITHUB_OUTPUT
@@ -32,7 +32,7 @@ jobs:
       - name: Configure AWS credentials (Development)
         uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
         with:
-          role-to-assume: "arn:aws:iam::${{ secrets.DEV_ACCOUNT_ID }}:role/${APP_PREFIX}github-actions-ecr-role-web-caf-app-ecr"
+          role-to-assume: "arn:aws:iam::${{ secrets.DEV_ACCOUNT_ID }}:role/github-actions-ecr-role-${APP_PREFIX}-web-caf-app-ecr"
           aws-region: eu-west-2
       - name: Log in to Amazon ECR
         id: login_ecr
