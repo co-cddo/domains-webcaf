@@ -1,11 +1,11 @@
 name: Build & Publish Docker to ECR (Development)
 
-#Run this workflow when a feature branch is merged into main. Image is deployed to staging environment.
+#Run this workflow when a feature branch is merged into main. Image is deployed to dev environment.
 on:
   push:
     branches:
-      - feature/\[dev\]-*
-      - bug/\[dev\]-*
+      - feature/dev-*
+      - bug/dev-*
 
 permissions:
   id-token: write   # required for AWS OIDC
