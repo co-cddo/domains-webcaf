@@ -31,7 +31,6 @@ dependencies = [
     "boto3 (>=1.42.73,<2.0.0)",
     "boto3-stubs (>=1.42.73,<2.0.0)",
     "python-slugify (>=8.0.4,<9.0.0)",
-    "certifi (!=2024.2.2)",
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -75,3 +74,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 # Disallow the problamatic versions that have the vulnerability
 litellm = "!=1.82.7, !=1.82.8"
+certifi = "!=2024.2.2"
