@@ -74,3 +74,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 # Disallow the problamatic versions that have the vulnerability
 litellm = "!=1.82.7, !=1.82.8"
+certifi = "!=2024.2.2"
