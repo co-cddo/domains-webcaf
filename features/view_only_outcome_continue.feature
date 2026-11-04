@@ -21,8 +21,8 @@ Feature: Moving through an outcome that has not been answered yet
     And click link in table row containing value "System 1" with text "View"
     And get assessment id from url and add to context
     Then navigate to "Objective C: Detecting Cyber Security Events"
-    When Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence" with "achieved, partially-achieved, not-achieved" with "some,none,none"
-    Then page has heading "Threat Intelligence Outcome"
+    When Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence (within Security Monitoring)" with "achieved, partially-achieved, not-achieved" with "some,none,none"
+    Then page has heading "Threat Intelligence (within Security Monitoring) Outcome"
 
   Scenario: Cyber advisor continues past an unanswered outcome without saving
     Given the user signs in with One Login as "cyber_advisor@example.gov.uk"
@@ -30,6 +30,6 @@ Feature: Moving through an outcome that has not been answered yet
     And click link in table row containing value "System 1" with text "View"
     And get assessment id from url and add to context
     Then navigate to "Objective C: Detecting Cyber Security Events"
-    When Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence" with "achieved, partially-achieved, not-achieved" with "some,none,none"
+    When Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence (within Security Monitoring)" with "achieved, partially-achieved, not-achieved" with "some,none,none"
     Then page has heading "Detecting Cyber Security Events"
     And confirm the current assessment has expected data "empty_assessment.json"

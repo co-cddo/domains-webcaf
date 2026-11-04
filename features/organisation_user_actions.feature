@@ -94,7 +94,7 @@ Feature: Organisation user filling assessments
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
     And Fill outcome "C1.e Personnel Skills for Monitoring and Detection" with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
-    And Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence" with "achieved, partially-achieved, not-achieved" with "all,none,none"
+    And Fill outcome "C1.f Understanding User's and System's Behaviour, and Threat Intelligence (within Security Monitoring)" with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"
     And Fill outcome "C2.a Threat Hunting" with "achieved, partially-achieved, not-achieved" with "all,none,none"
     And Fill outcome confirm status "Achieved" with "This is a test outcome comment"

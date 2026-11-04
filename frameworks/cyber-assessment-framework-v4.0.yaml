@@ -497,8 +497,8 @@ objectives:
                 A2.b.12:
                   description: You use appropriate techniques to develop an understanding
                     of network and information systems supporting your essential
-                    function(s) from a threat actor's perspective, anticipating probable
-                    attack methods and techniques, targets and objectives, and developing
+                    function(s) from a threat actor's perspective. You anticipate probable
+                    attack methods and techniques, targets and objectives, and develop
                     plausible scenarios.
                   ncsc-index: A2.b.A.3
                 A2.b.13:
@@ -513,8 +513,7 @@ objectives:
                   ncsc-index: A2.b.A.5
                 A2.b.15:
                   description: You maintain a detailed understanding of current threats
-                    (e.g. by threat intelligence and proactive research) and apply this
-                    understanding to inform your risk management decision-making.
+                    (e.g. by threat intelligence and proactive research).
                   ncsc-index: A2.b.A.6
                 A2.b.16:
                   description: You apply your detailed understanding of threat to inform
@@ -727,7 +726,7 @@ objectives:
                 A4.a.12:
                   description: You consider factors such as your supplier's ownership,
                     nationality, partnerships, competitors, other organisations with which
-                    they sub-contract and their approach to cyber security; these factors
+                    they sub-contract and their approach to cyber security. These factors
                     inform your risk assessment and are fully considered in your
                     procurement lifecycle processes and purchasing decisions.
                   ncsc-index: A4.a.A.2
@@ -1371,7 +1370,7 @@ objectives:
                     your joiners, leavers and movers process.
                   ncsc-index: B2.d.PA.3
                 B2.d.9:
-                  description: All user, device and systems access to the systems
+                  description: All user, device and system access to the systems
                     supporting the essential function(s) is logged and monitored, but it
                     is not compared to other log data or access records.
                   ncsc-index: B2.d.PA.4
@@ -1387,7 +1386,7 @@ objectives:
                     intervals - at least annually.
                   ncsc-index: B2.d.A.2
                 B2.d.12:
-                  description: All user, device and system access to network and
+                  description: All user, device and systems access to network and
                     information systems supporting your essential function(s) is logged
                     and monitored.
                   ncsc-index: B2.d.A.3
@@ -1409,7 +1408,10 @@ objectives:
         title: Data Security
         description: Data stored or transmitted electronically is protected from actions
           such as unauthorised access, modification, or deletion that may cause an adverse
-          impact on essential functions.
+          impact on essential functions. Such protection extends to the means by which
+          authorised users, devices and systems access critical data necessary for the
+          operation of essential functions. It also covers information that would assist
+          a threat actor, such as design details of network and information systems.
         outcomes:
           B3.a:
             code: B3.a
@@ -2966,6 +2968,7 @@ objectives:
           C1.f:
             code: C1.f
             title: Understanding User's and System's Behaviour, and Threat Intelligence
+              (within Security Monitoring)
             description: Threats to the operation of network and information systems, and
               corresponding user and system behaviour, are sufficiently understood. These
               are used to detect cyber security incidents.
@@ -3105,7 +3108,7 @@ objectives:
                   description: You deploy an effective threat hunting capability but not
                     frequent enough to match the risks posed to network and information
                     systems supporting your essential function(s) (e.g. you perform threat
-                    hunts in response to a tip off from a reputable source)
+                    hunts in response to a tip off from a reputable source).
                   ncsc-index: C2.a.PA.2
                 C2.a.6:
                   description: Your threat hunts follow pre-determined and documented
@@ -3340,7 +3343,7 @@ objectives:
                     validated.
                   ncsc-index: D1.c.A.2
                 D1.c.7:
-                  description: Exercises are routinely run, with findings documented and
+                  description: Exercises are routinely run, with the findings documented and
                     used to refine incident response plans and protective security, in
                     line with the lessons learned.
                   ncsc-index: D1.c.A.3
