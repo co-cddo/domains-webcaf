@@ -1,6 +1,8 @@
+import os
 import unittest
 from io import BytesIO
 
+import yaml
 from openpyxl import Workbook
 
 from webcaf.webcaf.utils.excel_exporter import build_assessment_template_workbook
@@ -10,7 +12,11 @@ from webcaf.webcaf.utils.excel_importer import (
     excel_to_review_json,
 )
 
+with open(os.path.join(os.path.dirname(__file__), "../frameworks", "cyber-assessment-framework-v3.2.yaml")) as file:
+    ASSESSMENT_RULES = yaml.safe_load(file)["assessment-rules"]
+
 FRAMEWORK = {
+    "assessment-rules": ASSESSMENT_RULES,
     "objectives": {
         "A": {
             "code": "A",
@@ -52,7 +58,7 @@ FRAMEWORK = {
                 }
             },
         }
-    }
+    },
 }
 
 
@@ -73,9 +79,7 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
         map_ws = wb[JSON_MAP_SHEET_NAME]
         return {
             json_path: (visible_sheet, visible_cell)
-            for visible_sheet, visible_cell, json_path, _value_type, _required in map_ws.iter_rows(
-                min_row=2, values_only=True
-            )
+            for visible_sheet, visible_cell, json_path, *_rest in map_ws.iter_rows(min_row=2, values_only=True)
         }
 
     @staticmethod
@@ -88,13 +92,11 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
     COMPLETE_ANSWERS = {
         "/A1.a/indicators/achieved_A1.a.1": "Yes",
         "/A1.a/indicators/achieved_A1.a.2": "No",
-        "/A1.a/indicators/partially-achieved_A1.a.3": "No",
-        "/A1.a/indicators/not-achieved_A1.a.4": "Yes",
-        "/A1.a/confirmation/outcome_status": "Partially achieved",
+        "/A1.a/indicators/partially-achieved_A1.a.3": "Yes",
+        "/A1.a/indicators/not-achieved_A1.a.4": "No",
         "/A1.a/confirmation/confirm_outcome_confirm_comment": "Evidence for A1.a",
         "/A1.b/indicators/achieved_A1.b.1": "Yes",
         "/A1.b/indicators/not-achieved_A1.b.2": "No",
-        "/A1.b/confirmation/outcome_status": "Achieved",
     }
 
     def test_round_trip_produces_expected_review_json(self):
@@ -105,15 +107,21 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
                 "A": {
                     "A1.a": {
                         "achieved_A1.a.1": "yes",
+                        "achieved_A1.a.1_comment": "",
                         "achieved_A1.a.2": "no",
-                        "partially-achieved_A1.a.3": "no",
-                        "not-achieved_A1.a.4": "yes",
+                        "achieved_A1.a.2_comment": "",
+                        "partially-achieved_A1.a.3": "yes",
+                        "partially-achieved_A1.a.3_comment": "",
+                        "not-achieved_A1.a.4": "no",
+                        "not-achieved_A1.a.4_comment": "",
                         "review_decision": "partially-achieved",
                         "review_comment": "Evidence for A1.a",
                     },
                     "A1.b": {
                         "achieved_A1.b.1": "yes",
+                        "achieved_A1.b.1_comment": "",
                         "not-achieved_A1.b.2": "no",
+                        "not-achieved_A1.b.2_comment": "",
                         "review_decision": "achieved",
                         "review_comment": "",
                     },
@@ -130,21 +138,23 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
         review_keys = {key for key in outcome_answers if key.startswith("review_")}
         self.assertEqual(review_keys, {"review_decision", "review_comment"})
         indicator_keys = set(outcome_answers) - review_keys
-        self.assertEqual(
-            indicator_keys,
-            {
-                "achieved_A1.a.1",
-                "achieved_A1.a.2",
-                "partially-achieved_A1.a.3",
-                "not-achieved_A1.a.4",
-            },
-        )
+        indicator_ids = {"achieved_A1.a.1", "achieved_A1.a.2", "partially-achieved_A1.a.3", "not-achieved_A1.a.4"}
+        self.assertEqual(indicator_keys, indicator_ids | {f"{key}_comment" for key in indicator_ids})
+
+    def test_alternative_controls_comments_are_kept_as_text(self):
+        answers = {**self.COMPLETE_ANSWERS, "/A1.a/indicators/not-achieved_A1.a.4_comment": "Exemption agreed"}
+        data = excel_to_review_json(self._workbook_file(answers), FRAMEWORK)
+        self.assertEqual(data["A"]["A1.a"]["not-achieved_A1.a.4_comment"], "Exemption agreed")
 
     def test_blank_indicator_answers_import_as_no(self):
         answers = {key: value for key, value in self.COMPLETE_ANSWERS.items() if "indicators" not in key}
         data = excel_to_review_json(self._workbook_file(answers), FRAMEWORK)
         self.assertEqual(
-            {key: value for key, value in data["A"]["A1.a"].items() if not key.startswith("review_")},
+            {
+                key: value
+                for key, value in data["A"]["A1.a"].items()
+                if not key.startswith("review_") and not key.endswith("_comment")
+            },
             {
                 "achieved_A1.a.1": "no",
                 "achieved_A1.a.2": "no",
@@ -152,23 +162,11 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
                 "not-achieved_A1.a.4": "no",
             },
         )
-
-    def test_blank_required_status_raises(self):
-        answers = {
-            key: value for key, value in self.COMPLETE_ANSWERS.items() if key != "/A1.b/confirmation/outcome_status"
-        }
-        with self.assertRaises(ExcelImportError) as ctx:
-            excel_to_review_json(self._workbook_file(answers), FRAMEWORK)
-        self.assertIn("Required cell", str(ctx.exception))
-
-    def test_invalid_outcome_status_raises(self):
-        answers = {**self.COMPLETE_ANSWERS, "/A1.a/confirmation/outcome_status": "Sort of achieved"}
-        with self.assertRaises(ExcelImportError) as ctx:
-            excel_to_review_json(self._workbook_file(answers), FRAMEWORK)
-        self.assertIn("invalid outcome status", str(ctx.exception))
+        self.assertEqual(data["A"]["A1.a"]["review_decision"], "not-achieved")
 
     def test_workbook_from_other_framework_raises(self):
         other_framework = {
+            "assessment-rules": ASSESSMENT_RULES,
             "objectives": {
                 "B": {
                     "code": "B",
@@ -190,7 +188,7 @@ class TestCAF32ReviewExcelImporter(unittest.TestCase):
                         }
                     },
                 }
-            }
+            },
         }
         with self.assertRaises(ExcelImportError) as ctx:
             excel_to_review_json(self._workbook_file(self.COMPLETE_ANSWERS), other_framework)

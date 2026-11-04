@@ -513,8 +513,7 @@ objectives:
                   ncsc-index: A2.b.A.5
                 A2.b.15:
                   description: You maintain a detailed understanding of current threats
-                    (e.g. by threat intelligence and proactive research) and apply this
-                    understanding to inform your risk management decision-making.
+                    (e.g. by threat intelligence and proactive research).
                   ncsc-index: A2.b.A.6
                 A2.b.16:
                   description: You apply your detailed understanding of threat to inform
