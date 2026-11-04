@@ -263,11 +263,9 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
             response_content,
         )
         self.assertInHTML(
-            """<strong class="govuk-warning-text__text">
-                        <span class="govuk-visually-hidden">Warning</span>
-                        Some "Achieved" and "Partially achieved" statements are identical. Your selection
-                        for these statements under "Achieved" will be automatically applied under
-                        "Partially achieved".
-                    </strong>""",
+            """<p class="govuk-body govuk-inset-text">
+                    Where a 'partially achieved' statement is identical to an 'achieved' statement, your
+                    response to the 'achieved' statement will be automatically applied.
+                </p>""",
             response_content,
         )

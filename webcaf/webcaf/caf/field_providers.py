@@ -2,6 +2,10 @@ from collections import namedtuple
 
 from webcaf.webcaf.abcs import FieldProvider
 
+# Number of rows for the outcome summary text area
+OUTCOME_SUMMARY_ROWS = 5
+INDICATOR_COMMENT_ROWS = 5
+
 AchievementChoice = namedtuple("AchievementChoice", ["value", "label", "needs_justification_text"])
 
 MAX_WORD_COUNT = 1500
@@ -49,7 +53,7 @@ class OutcomeIndicatorsFieldProvider(FieldProvider):
                                 "type": "text",
                                 "required": False,
                                 "widget_attrs": {
-                                    "rows": 3,
+                                    "rows": INDICATOR_COMMENT_ROWS,
                                     "class": "govuk-textarea",
                                     "max_words": INDICATOR_MAX_WORD_COUNT,
                                     "idx": sort_index,
@@ -99,7 +103,7 @@ class OutcomeConfirmationFieldProvider(FieldProvider):
                 "type": "text",
                 "required": False,
                 "widget_attrs": {
-                    "rows": 5,
+                    "rows": OUTCOME_SUMMARY_ROWS,
                     "class": "govuk-textarea",
                     "max_words": MAX_WORD_COUNT,
                 },

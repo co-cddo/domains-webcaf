@@ -389,3 +389,13 @@ main {
     field-sizing: content;
     min-height: 5lh;
 }
+
+.govuk-textarea--auto-size-10lh {
+    field-sizing: content;
+    min-height: 10lh !important;
+}
+
+.govuk-textarea--auto-size-20lh {
+    field-sizing: content;
+    min-height: 20lh !important;
+}
