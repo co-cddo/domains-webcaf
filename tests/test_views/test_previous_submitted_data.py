@@ -293,7 +293,7 @@ class TestHistoricalAssessmentView(BaseViewTest):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "GovAssure 2024 to 2025")
         self.assertContains(response, self.system.name)
-        self.assertContains(response, reverse("view-submitted-assessment", args=[assessment.id]))
+        self.assertContains(response, reverse("view-submitted-assessment", args=[assessment.uid]))
         self.assertContains(response, reverse("show-report", args=[review.id, review.current_version_number]))
         self.assertContains(response, "IARR")
         self.assertContains(response, reverse("tip:view-report", args=[tip.id]))

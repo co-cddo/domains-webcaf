@@ -33,11 +33,11 @@
                             {% endtimezone %}
                         </td>
                         <td class="govuk-table__cell">
-                            <a class="govuk-link" href="{% url 'edit-draft-assessment' assessment_id=draft.id %}"
+                            <a class="govuk-link" href="{% url 'edit-draft-assessment' assessment_uid=draft.uid %}"
                                title="Continue editing the assessment">View</a>
                             <br/>
                             <a class="govuk-link"
-                               href="{% url 'download-assessment' pk=draft.id %}?mode=excel"
+                               href="{% url 'download-assessment' assessment_uid=draft.uid %}?mode=excel"
                                title="Download assessment data in excel format ">Download data (XLSX)</a>
                         </td>
                     </tr>

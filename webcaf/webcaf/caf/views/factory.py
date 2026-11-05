@@ -55,7 +55,7 @@ class ObjectiveView(FormViewWithBreadcrumbs):
         assessment = SessionUtil.get_current_assessment(self.request)
         if form.cleaned_data["action"] == "confirm":
             return redirect(reverse(f"{assessment.framework}_objective_{form.cleaned_data['next_objective']}"))
-        return redirect(reverse("edit-draft-assessment", kwargs={"assessment_id": assessment.id}))
+        return redirect(reverse("edit-draft-assessment", kwargs={"assessment_uid": str(assessment.uid)}))
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
