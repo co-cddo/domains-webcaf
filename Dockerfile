@@ -46,7 +46,7 @@ RUN sed -i 's/\r$//' /app/manage.py  && \
 
 ENV SECRET_KEY=unneeded
 ENV DOMAIN_NAME=http://localhost:2010
-ENV SSO_MODE=one-login
+ENV SSO_MODE=internal-access
 
 #Pass SSO_MODE=none for static file generation since we don't need SSO
 #but we keep the default value of False in the environment

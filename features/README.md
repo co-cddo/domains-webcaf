@@ -8,7 +8,8 @@ Feature tests run in dedicated Docker Compose projects with their own PostgreSQL
 and volumes. The default One Login suite uses `webcaf-behave`; focused DEX coverage uses `webcaf-behave-dex`. Neither
 project publishes host ports, so the tests can run while the normal development stack is running.
 
-One Login is the default identity provider. `make behave` runs the application, focused One Login and
+The automated suite explicitly selects the One Login simulator; normal local development uses GDS Internal Access.
+`make behave` runs the application, focused One Login and
 provider-independent Django admin scenarios while excluding scenarios tagged `@dex`. `make behave_dex` runs only the
 scenarios tagged `@dex` that explicitly verify DEX login and logout.
 

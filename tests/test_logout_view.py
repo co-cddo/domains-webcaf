@@ -55,6 +55,40 @@ class LogoutViewTest(TestCase):
         self.assertRedirects(response, "https://example.com/logout", fetch_redirect_response=False)
 
     @override_settings(
+        SSO_MODE="internal-access",
+        OIDC_OP_LOGOUT_ENDPOINT="https://example.test/sign-out",
+        OIDC_RP_CLIENT_ID="internal-access-client",
+        LOGOUT_REDIRECT_URL="https://webcaf.example.test/",
+    )
+    def test_internal_access_logout_clears_session_and_redirects_to_provider(self):
+        session = self.client.session
+        session["oidc_id_token"] = "test-id-token"
+        session.save()
+
+        response = self.client.post(reverse("logout"))
+
+        self.assertEqual(urlparse(response.url).path, "/sign-out")
+        self.assertEqual(
+            parse_qs(urlparse(response.url).query),
+            {"to_client": ["internal-access-client"]},
+        )
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertNotIn("oidc_id_token", self.client.session)
+
+    @override_settings(
+        SSO_MODE="internal-access",
+        OIDC_OP_LOGOUT_ENDPOINT="https://example.test/sign-out",
+        OIDC_RP_CLIENT_ID="client/with spaces",
+    )
+    def test_internal_access_logout_without_id_token_still_signs_out_at_provider(self):
+        response = self.client.post(reverse("logout"))
+
+        parsed = urlparse(response.url)
+        self.assertEqual((parsed.scheme, parsed.netloc, parsed.path), ("https", "example.test", "/sign-out"))
+        self.assertEqual(parse_qs(parsed.query), {"to_client": ["client/with spaces"]})
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    @override_settings(
         SSO_MODE="local",
         OIDC_OP_LOGOUT_ENDPOINT="http://localhost:5556/auth/logout",
         OIDC_RP_CLIENT_ID="my-django-app",

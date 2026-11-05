@@ -80,6 +80,10 @@ class OIDCBackend(OIDCAuthenticationBackend):
         email = claims.get("email")
         if not email:
             return self.UserModel.objects.none()
+        if settings.SSO_MODE == "internal-access":
+            # Existing accounts may have a username that differs from their email.
+            # Return every match so the OIDC library rejects ambiguous identities.
+            return self.UserModel.objects.filter(email__iexact=email, is_staff=False)
         # We set the username and the email the same value
         # when we create the accounts
         return self.UserModel.objects.filter(username__iexact=email, email__iexact=email, is_staff=False)

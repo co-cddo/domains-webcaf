@@ -52,6 +52,7 @@ Dockerfile-dex-feature-tests
 docker-compose.yml
 docker-compose.feature-tests.yml
 docker-compose.dex.yml
+docker-compose.one-login.yml
 docker-compose.dex-feature-tests.yml
 .dockerignore
 

@@ -25,6 +25,8 @@ files use the `!override` and `!reset` YAML tags.
 
 ## Run the application in Docker
 
+Copy `webcaf/.env.example` to the ignored `webcaf/.env` and supply your registered GDS Internal Access client ID and secret. Confirm the callback `http://localhost:8010/oidc/callback/` is registered with IA. See [Internal Access setup](docs/INTERNAL_ACCESS.md).
+
 Start the default development stack from the repository root:
 
 ```shell
@@ -35,7 +37,6 @@ Open WebCAF at [http://localhost:8010](http://localhost:8010). The default stack
 
 - `postgres`: PostgreSQL 18.3, exposed to the host on port `54321`
 - `redis`: Valkey 9.0.6, exposed to the host on port `6379`
-- `one-login-simulator`: the local GOV.UK One Login provider, exposed on port `3000`
 - `init`: a one-shot service that runs `makemigrations`, `collectstatic`, and `migrate`
 - `web`: WebCAF served by Gunicorn with source reloading enabled
 
@@ -56,37 +57,49 @@ docker compose down
 
 ## Run Django on the host
 
-Create the local environment file and install the Python dependencies before starting the One Login simulator:
+Create the local environment file, supply your registered Internal Access credentials, and install the Python dependencies:
 
 ```shell
 cp webcaf/.env.example webcaf/.env
 uv sync
 uv run pre-commit install
-make up_one_login_simulator
+docker compose up -d postgres redis
 uv run python manage.py migrate
 uv run python manage.py runserver 127.0.0.1:8010
 ```
 
 The host server must use port `8010` because that port is registered for the local authentication callbacks.
-`make up_one_login_simulator` starts PostgreSQL, Valkey, and the simulator, and configures the Alice preset. Run
-`uv sync` first because the preset helper uses the uv-managed development environment.
+Normal startup uses the real Internal Access service; no local identity-provider container is required.
 
 ## Authentication
 
-GOV.UK One Login is the default identity provider for local development and BDD tests. DEX is retained for explicit
-generic OIDC testing. `SSO_MODE` supports these modes:
+GDS Internal Access is the default authentication provider locally and in sandbox. One Login and DEX are inactive
+alternatives. Automated BDD tests explicitly use simulators so they do not depend on interactive IA sign-in. `SSO_MODE` supports these modes:
 
-- `one-login`: GOV.UK One Login or the local simulator; this is the local default
+- `one-login`: GOV.UK One Login or its simulator, explicitly selected
+- `internal-access`: GDS Internal Access; the default; see [local and sandbox configuration](docs/INTERNAL_ACCESS.md)
 - `dex`: DEX reached by its Compose network name; used by the fully containerised DEX workflow
 - `local` or `localhost`: DEX reached at `localhost:5556`; used when Django runs on the host
 - `external`: a generic provider configured through the `OIDC_*` environment variables
 - `none`: build-time tasks that do not need to authenticate a user
 
-Start the complete containerised application with DEX instead of One Login using:
+Start the complete containerised application with DEX instead of Internal Access using:
 
 ```shell
 make up_dex
 ```
+
+Start the retained One Login simulator alternative explicitly with:
+
+```shell
+make up_one_login
+```
+
+This selects One Login for both application containers and starts its simulator. See
+[One Login setup](docs/GOV_UK_ONE_LOGIN.md) for the host workflow and test configuration.
+Existing `webcaf/.env` files must be updated to `SSO_MODE=internal-access` for host development;
+copying an example does not modify an existing private configuration. Compose selects Internal
+Access by default; use the alternative Compose files/Make targets to switch providers.
 
 To run Django on the host with DEX, set `SSO_MODE=local` in `webcaf/.env`, then start only its dependencies so that the
 containerised `web` service does not take port `8010`:

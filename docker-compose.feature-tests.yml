@@ -30,6 +30,7 @@ services:
     ports: !override []
 
   one-login-simulator:
+    profiles: !override []
     ports: !override []
     environment:
       REDIRECT_URLS: http://web:8000/one-login/callback/

@@ -4,23 +4,23 @@ WebCAF uses `govuk-onelogin-django` for GOV.UK One Login and retains `mozilla-dj
 
 ## Local simulator
 
-The official [GOV.UK One Login simulator](https://github.com/govuk-one-login/simulator) is WebCAF's default local identity provider. It exercises the One Login protocol flow without a registered integration-environment client. DEX remains available through explicit commands for generic OIDC testing.
+The official [GOV.UK One Login simulator](https://github.com/govuk-one-login/simulator) is an explicitly selected alternative to GDS Internal Access. It exercises the One Login protocol flow without a registered integration-environment client. DEX remains available through explicit commands for generic OIDC testing.
 
 ## One Login Simulator vs DEX
 
-The GOV.UK One Login Simulator is the default identity provider for local development and automated BDD testing. It provides a closer representation of the GOV.UK One Login authentication flow than DEX and allows One Login-specific behaviour to be exercised locally and in CI.
+The GOV.UK One Login Simulator is retained for optional local development and automated BDD testing. It provides a closer representation of the GOV.UK One Login authentication flow than DEX and allows One Login-specific behaviour to be exercised locally and in CI.
 
 DEX is retained as an optional generic OIDC provider. This allows WebCAF's underlying OIDC integration to be exercised independently of GOV.UK One Login and avoids coupling the local development and test environments exclusively to a single identity provider.
 
-Retaining DEX also preserves a generic OIDC development path should WebCAF need to support additional identity providers in future. This is particularly relevant while the wider authentication requirements, including the potential use of GDS Internal Access are still being clarified.
+Retaining DEX also preserves a generic OIDC development path. GDS Internal Access uses this OIDC integration; see [Internal Access sandbox configuration](INTERNAL_ACCESS.md). Internal Access is the default locally and in sandbox. One Login is retained as an inactive, configurable alternative.
 
 The two providers therefore have distinct purposes:
 
-- **GOV.UK One Login Simulator** - the default for local development and One Login-focused automated/BDD testing.
+- **GOV.UK One Login Simulator** - an optional local provider and the explicitly selected provider for One Login automated/BDD testing.
 - **DEX** - retained for generic OIDC testing and for exercising provider-independent authentication behaviour.
 
 The simulator is intended to reproduce the One Login interfaces needed for development and automated testing, but it is not the real GOV.UK One Login service. Successful testing against the simulator therefore does not replace integration testing against GOV.UK One Login in an appropriate deployed environment.
-Copy `webcaf/.env.example` to `webcaf/.env`. The example enables these simulator values by default:
+Copy `webcaf/.env.example` to `webcaf/.env`. To opt into the simulator on the host, replace the Internal Access selection and enable these values:
 
 ```text
 SSO_MODE=one-login
@@ -36,7 +36,7 @@ The committed private key is the simulator project's published default test key.
 Start the complete containerised application at `http://localhost:8010` with:
 
 ```shell
-docker compose up
+make up_one_login
 ```
 
 The `one-login.localhost` simulator hostname resolves to the published simulator port for the host browser and to the simulator network alias for WebCAF's server-side requests. To run Django on the host instead, start PostgreSQL, Valkey and the simulator, then run migrations and the development server:

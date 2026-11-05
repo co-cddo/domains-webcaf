@@ -1,8 +1,9 @@
 BEHAVE_COMPOSE = docker compose --project-name webcaf-behave -f docker-compose.yml -f docker-compose.feature-tests.yml
 BEHAVE_DEX_COMPOSE = docker compose --project-name webcaf-behave-dex --profile dex -f docker-compose.yml -f docker-compose.feature-tests.yml -f docker-compose.dex.yml -f docker-compose.dex-feature-tests.yml
+DEV_ONE_LOGIN_COMPOSE = docker compose --profile one-login -f docker-compose.yml -f docker-compose.one-login.yml
 DEV_DEX_COMPOSE = docker compose --profile dex -f docker-compose.yml -f docker-compose.dex.yml
 
-.PHONY: up-devserver up-devserver-nodebug shell clear-db test build behave behave_dex behave-clean up_dex up_one_login_simulator one_login_user
+.PHONY: up-devserver up-devserver-nodebug shell clear-db test build behave behave_dex behave-clean up_dex up_one_login up_one_login_simulator one_login_user
 
 up-devserver:
 	docker compose -f docker-compose.yml run --rm --service-ports --entrypoint "python manage.py runserver 0.0.0.0:8000" web
@@ -17,8 +18,8 @@ clear-db:
 	docker compose down && docker container prune -f && docker volume rm domains-webcaf_postgres-data
 
 test:
-	docker compose run --rm --service-ports --remove-orphans -e SSO_MODE=one-login --entrypoint "pytest --html=reports/pytest-report.html --self-contained-html" web
-	docker compose down
+	$(DEV_ONE_LOGIN_COMPOSE) run --rm --remove-orphans -e SSO_MODE=one-login --entrypoint "pytest --html=reports/pytest-report.html --self-contained-html" web
+	$(DEV_ONE_LOGIN_COMPOSE) down
 
 lint:
 	#	Check formatting and linting without changing anything.
@@ -76,8 +77,12 @@ behave-clean:
 up_dex:
 	$(DEV_DEX_COMPOSE) up -d --wait web
 
+up_one_login:
+	$(DEV_ONE_LOGIN_COMPOSE) up -d --wait web
+	$(MAKE) one_login_user PRESET=alice
+
 up_one_login_simulator:
-	docker compose up -d --wait postgres redis one-login-simulator
+	$(DEV_ONE_LOGIN_COMPOSE) up -d --wait postgres redis one-login-simulator
 	$(MAKE) one_login_user PRESET=alice
 
 one_login_user:

@@ -131,6 +131,12 @@ def logout_view(request):
             logout_url = get_one_login_logout_url(request, post_logout_redirect_uri)
         except (KeyError, RequestException, ValueError):
             logout_view_logger.exception("Unable to create the GOV.UK One Login logout URL")
+    elif settings.SSO_MODE == "internal-access":
+        # IA selects the return URL from the registered client's app_url.
+        # Its sign-out endpoint does not use generic OIDC logout parameters.
+        if settings.OIDC_OP_LOGOUT_ENDPOINT:
+            query = urlencode({"to_client": settings.OIDC_RP_CLIENT_ID})
+            logout_url = f"{settings.OIDC_OP_LOGOUT_ENDPOINT}?{query}"
     else:
         id_token = request.session.get("oidc_id_token")
         if id_token and settings.OIDC_OP_LOGOUT_ENDPOINT:

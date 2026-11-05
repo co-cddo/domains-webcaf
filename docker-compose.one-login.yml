@@ -1,0 +1,21 @@
+# Explicit alternative for local One Login simulator development and unit tests.
+x-one-login-variables: &one-login-variables
+  SSO_MODE: one-login
+  GOV_UK_ONE_LOGIN_CLIENT_ID: webcaf-local
+  GOV_UK_ONE_LOGIN_PRIVATE_KEY_PATH: /app/tests/fixtures/one-login-simulator-private-key.pem
+  GOV_UK_ONE_LOGIN_CLIENT_SECRET: ""
+  GOV_UK_ONE_LOGIN_OPENID_CONFIG_URL: http://one-login.localhost:3000/.well-known/openid-configuration
+  GOV_UK_ONE_LOGIN_SCOPE: openid email
+  GOV_UK_ONE_LOGIN_ENVIRONMENT: integration
+
+services:
+  web:
+    environment:
+      <<: *one-login-variables
+    depends_on:
+      one-login-simulator:
+        condition: service_healthy
+
+  init:
+    environment:
+      <<: *one-login-variables
