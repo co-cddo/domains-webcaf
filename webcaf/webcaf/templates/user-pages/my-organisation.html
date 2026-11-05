@@ -43,7 +43,7 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                   href="{% url 'edit-my-organisation-type' id=profile.id %}">Change</a>
+                                   href="{% url 'edit-my-organisation-type' profile_uid=profile.uid %}">Change</a>
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">
@@ -73,7 +73,7 @@
                         Additional contact information
                     </h2>
                     <div class="govuk-summary-card__actions">
-                        <a class="govuk-link" href="{% url 'edit-my-organisation-contact' id=profile.id %}">Change
+                        <a class="govuk-link" href="{% url 'edit-my-organisation-contact' profile_uid=profile.uid %}">Change
                             details<span class="govuk-visually-hidden"> Update additional information details (Additional contact information)</span></a>
                     </div>
                 </div>
