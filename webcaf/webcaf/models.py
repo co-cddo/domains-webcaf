@@ -412,6 +412,7 @@ class UserProfile(models.Model):
         Organisation, on_delete=models.CASCADE, related_name="members", null=True, blank=True
     )
     role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES)
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 
