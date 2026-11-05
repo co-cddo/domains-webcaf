@@ -41,11 +41,11 @@
                         <td class="govuk-table__cell"> {{ user_profile.user.email }}</td>
                         <td scope="row" class="govuk-table__cell">
                             {% if user_profile.id != current_profile.id and user_profile.role != 'cyber_advisor' %}
-                                <a href="{% url 'edit-profile' user_profile_id=user_profile.id %}"
+                                <a href="{% url 'edit-profile' user_profile_uid=user_profile.uid %}"
                                    class="govuk-link govuk-link--no-visited-state">
                                     Change
                                 </a> |
-                                <a href="{% url 'remove-profile' user_profile_id=user_profile.id %}"
+                                <a href="{% url 'remove-profile' user_profile_uid=user_profile.uid %}"
                                    class="govuk-link govuk-link--no-visited-state">
                                     Remove
                                 </a>

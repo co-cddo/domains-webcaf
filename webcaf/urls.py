@@ -199,8 +199,8 @@ urlpatterns = [
     #     User management paths
     path("create-new-profile/", CreateUserProfileView.as_view(), name="create-new-profile"),
     path("create-or-skip-new-profile/", CreateOrSkipUserProfileView.as_view(), name="create-or-skip-new-profile"),
-    path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
-    path("remove-profile/<int:user_profile_id>", RemoveUserProfileView.as_view(), name="remove-profile"),
+    path("edit-profile/<uuid:user_profile_uid>", UserProfileView.as_view(), name="edit-profile"),
+    path("remove-profile/<uuid:user_profile_uid>", RemoveUserProfileView.as_view(), name="remove-profile"),
     path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
     # Public pages
     path("public/data-usage-policy/", TemplateView.as_view(template_name="data-policy.html"), name="data-usage-policy"),

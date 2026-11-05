@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from django.contrib.auth.models import User
 from django.test import Client
@@ -66,11 +68,11 @@ class TestUserProfileView(BaseViewTest):
         Converting organisation user to organisation lead
         """
         # Get the edit profile page first
-        self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
+        self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post valid data with action=confirm
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": self.target_user.email,
                 "role": "organisation_lead",
@@ -96,11 +98,11 @@ class TestUserProfileView(BaseViewTest):
         Converting organisation user to organisation lead
         """
         # Get the edit profile page first
-        self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
+        self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post valid data with action=confirm
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": "new-email@bigorganisation.gov.uk",
                 "role": "organisation_lead",
@@ -124,11 +126,11 @@ class TestUserProfileView(BaseViewTest):
     def test_form_valid_returns_to_form_with_change_action(self):
         """Test that form_valid returns to edit form when action is 'change'"""
         # Get the edit profile page first
-        self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
+        self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post with action=change
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": self.target_user.email,
                 "role": "organisation_lead",
@@ -148,11 +150,11 @@ class TestUserProfileView(BaseViewTest):
         Not allowed to change role to cyber_advisor
         """
         # Get the edit profile page first
-        self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
+        self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Assert PermissionDenied is raised when trying to set cyber_advisor role
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": self.target_user.email,
                 "role": "cyber_advisor",
@@ -168,11 +170,11 @@ class TestUserProfileView(BaseViewTest):
         original_role = self.target_profile.role
 
         # Get the edit profile page first
-        self.client.get(reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}))
+        self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post with action=change
         self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": self.target_user.email,
                 "role": "organisation_lead",
@@ -337,7 +339,7 @@ class TestUserProfileView(BaseViewTest):
         self.assertFalse(User.objects.filter(email=new_email).exists())
 
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": new_email,
                 "role": "organisation_lead",
@@ -369,9 +371,9 @@ class TestUserProfileView(BaseViewTest):
 
     def test_delete_non_existing_profile_shows_error_message(self):
         """Test that requesting deletion of a non-existing profile ID renders an error message"""
-        non_existing_id = 999999
+        non_existing_id = uuid.uuid4()
 
-        response = self.client.get(reverse("remove-profile", kwargs={"user_profile_id": non_existing_id}))
+        response = self.client.get(reverse("remove-profile", kwargs={"user_profile_uid": non_existing_id}))
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("This user no longer exists", response.context["error_message"]["paragraphs"][0])
@@ -397,7 +399,7 @@ class TestUserProfileView(BaseViewTest):
         new_last_name = "Name"
 
         response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_id": self.target_profile.id}),
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
             data={
                 "email": existing_email,
                 "role": "organisation_lead",

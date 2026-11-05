@@ -83,11 +83,11 @@ class UserProfileView(UserRoleCheckMixin, UpdateView):
 
     def get_object(self, queryset: QuerySet[Any, Any] | None = None) -> Any:
         current_profile = SessionUtil.get_current_user_profile(request=self.request)
-        if "user_profile_id" in self.kwargs and current_profile:
+        if "user_profile_uid" in self.kwargs and current_profile:
             # When editing a profile
             try:
                 return UserProfile.objects.get(
-                    id=self.kwargs["user_profile_id"], organisation=current_profile.organisation
+                    uid=self.kwargs["user_profile_uid"], organisation=current_profile.organisation
                 )
             except UserProfile.DoesNotExist:
                 return None
@@ -171,7 +171,7 @@ class RemoveUserProfileView(UserRoleCheckMixin, DeleteView):
         if not user_profile:
             raise PermissionDenied("Shouldn't have reached this code")
         try:
-            return UserProfile.objects.get(id=self.kwargs["user_profile_id"], organisation=user_profile.organisation)
+            return UserProfile.objects.get(uid=self.kwargs["user_profile_uid"], organisation=user_profile.organisation)
         except UserProfile.DoesNotExist:
             # Return None if the profile is not found.
             # we will display an error to the user
@@ -230,20 +230,20 @@ class RemoveUserProfileView(UserRoleCheckMixin, DeleteView):
 
         if current_user_profile and not PermissionUtil.current_user_can_delete_user(current_user_profile):
             self.logger.error(
-                f"User {self.request.user.pk} is not allowed to delete user profile {self.kwargs['user_profile_id']}"
+                f"User {self.request.user.pk} is not allowed to delete user profile {self.kwargs['user_profile_uid']}"
             )
             raise PermissionDenied("You are not allowed to delete this user profile")
 
-        profile_to_delete = UserProfile.objects.get(id=self.kwargs["user_profile_id"])
+        profile_to_delete = UserProfile.objects.get(uid=self.kwargs["user_profile_uid"])
 
         if profile_to_delete.organisation != current_user_profile.organisation:
             self.logger.error(
-                f"User {self.request.user.pk} attempted to delete user profile {self.kwargs['user_profile_id']} "
+                f"User {self.request.user.pk} attempted to delete user profile {self.kwargs['user_profile_uid']} "
                 f"from different organisation {profile_to_delete.organisation}"
             )
             raise PermissionDenied("You are not allowed to delete this user profile in a different organisation")
 
-        self.logger.info(f"Deleting user profile {self.kwargs['user_profile_id']} by user {self.request.user.pk}")
+        self.logger.info(f"Deleting user profile {self.kwargs['user_profile_uid']} by user {self.request.user.pk}")
         profile_to_delete.delete()
 
         return redirect(reverse("view-profiles"))
