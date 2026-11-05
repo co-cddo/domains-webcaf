@@ -32,7 +32,7 @@ class TestEditAssessmentSystemViewFormValid(
     def test_form_valid_updates_session_with_system_id(self):
         """Test that form_valid updates the session with the selected system ID"""
         # you have to call the view before you can access the session
-        self.client.get(reverse("edit-draft-assessment-system", kwargs={"assessment_id": self.assessment.id}))
+        self.client.get(reverse("edit-draft-assessment-system", kwargs={"assessment_uid": self.assessment.uid}))
         self.assertEqual(self.assessment.system.id, self.test_system.id)
 
         available_systems = self.org_map[self.test_organisation.name]["systems"]
@@ -40,9 +40,9 @@ class TestEditAssessmentSystemViewFormValid(
         self.client.post(
             reverse(
                 "edit-draft-assessment-system",
-                kwargs={"assessment_id": self.assessment.id},
+                kwargs={"assessment_uid": self.assessment.uid},
             ),
-            data={"system": available_systems["Large system"].id},
+            data={"system": available_systems["Large system"].uid},
         )
 
         self.assessment.refresh_from_db()
@@ -54,14 +54,14 @@ class TestEditAssessmentSystemViewFormValid(
         other_system = self.org_map["Large organisation"]["systems"]["Large system"]
         # View page
 
-        self.client.get(reverse("edit-draft-assessment-system", kwargs={"assessment_id": self.assessment.id}))
+        self.client.get(reverse("edit-draft-assessment-system", kwargs={"assessment_uid": self.assessment.uid}))
 
         # Assert PermissionDenied is raised
         response = self.client.post(
             reverse(
                 "edit-draft-assessment-system",
-                kwargs={"assessment_id": self.assessment.id},
+                kwargs={"assessment_uid": self.assessment.uid},
             ),
-            data={"system": other_system.id},
+            data={"system": other_system.uid},
         )
         self.assertEqual(response.status_code, 403)

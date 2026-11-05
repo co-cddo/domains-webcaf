@@ -162,6 +162,7 @@ class System(ReferenceGeneratorMixin, models.Model):
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
     corporate_services = MultiSelectField(choices=CORPORATE_SERVICES, null=True, blank=True, max_length=255)
     corporate_services_other = models.CharField(max_length=100, blank=True, null=True)
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 
