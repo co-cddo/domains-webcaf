@@ -89,8 +89,8 @@ from webcaf.webcaf.views.sections import (
 from webcaf.webcaf.views.session_expired import session_expired
 from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
+    CreateSystemView,
     EditSystemView,
-    SystemView,
     ViewSystemsView,
 )
 from webcaf.webcaf.views.two_factor_auth import Verify2FATokenView
@@ -192,8 +192,8 @@ urlpatterns = [
         "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
     ),
     #     system paths
-    path("create-new-system/", SystemView.as_view(), name="create-new-system"),
-    path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),
+    path("create-new-system/", CreateSystemView.as_view(), name="create-new-system"),
+    path("edit-system/<uuid:system_uid>/", EditSystemView.as_view(), name="edit-system"),
     path("view-systems/", ViewSystemsView.as_view(), name="view-systems"),
     path("create-or-skip-new-system/", CreateOrSkipSystemView.as_view(), name="create-or-skip-new-system"),
     #     User management paths

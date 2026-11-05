@@ -19,7 +19,7 @@
                         </label>
                         <select class="govuk-select" id="system_id" name="system">
                             {% for system_ in systems %}
-                                <option value="{{ system_.id }}"
+                                <option value="{{ system_.uid }}"
                                         {% if draft_assessment.system == system_.id %}
                                         selected
                                         {% endif %}

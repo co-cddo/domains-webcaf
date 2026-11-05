@@ -85,6 +85,7 @@ class AssessmentSystemForm(BaseAssessmentForm):
         label="System",
         widget=forms.Select(attrs={"class": "govuk-select", "id": "system_uid"}),
         error_messages={"required": "Select a system for this assessment"},
+        to_field_name="uid",
     )
 
     def __init__(
