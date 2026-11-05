@@ -89,6 +89,7 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
     parent_organisation = models.ForeignKey(
         "self", on_delete=models.SET_NULL, related_name="sub_organisations", null=True, blank=True
     )
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 

@@ -131,13 +131,13 @@ tip_paths = (
 urlpatterns = [
     path("my-account/", AccountView.as_view(), name="my-account"),
     path("my-account/view-draft-assessments/", ViewDraftAssessmentsView.as_view(), name="view-draft-assessments"),
-    path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
+    path("my-organisation/<uuid:profile_uid>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
     path(
-        "my-organisation/<int:id>/contact",
+        "my-organisation/<uuid:profile_uid>/contact",
         OrganisationContactView.as_view(),
         name="edit-my-organisation-contact",
     ),
-    path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
+    path("my-organisation/<uuid:profile_uid>/", MyOrganisationView.as_view(), name="my-organisation"),
     path("view-organisations/", ChangeActiveProfileView.as_view(), name="view-organisations"),
     path("change-organisation/", ChangeActiveProfileView.as_view(), name="change-organisation"),
     path("admin/", admin.site.urls),
