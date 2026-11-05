@@ -90,9 +90,9 @@ class OrganisationView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        profile_id = self.kwargs.get("id")
+        profile_id = self.kwargs.get("profile_uid")
         # Ensure that the claimed profile belongs to teh current user
-        profile = UserProfile.objects.get(user=self.request.user, id=profile_id)
+        profile = UserProfile.objects.get(user=self.request.user, uid=profile_id)
         data["breadcrumbs"] = [{"url": reverse("my-account"), "text": "Back", "class": "govuk-back-link"}]
         data["profile"] = profile
         return data
@@ -103,7 +103,7 @@ class OrganisationView(LoginRequiredMixin, FormView):
         profile id. This makes sure that the given user can only modify allowed profiles.
         :return:
         """
-        return UserProfile.objects.get(user=self.request.user, id=self.kwargs.get("id")).organisation
+        return UserProfile.objects.get(user=self.request.user, uid=self.kwargs.get("profile_uid")).organisation
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -133,7 +133,7 @@ class OrganisationTypeView(OrganisationView):
     form_class = OrganisationTypeForm
 
     def get_success_url(self):
-        return reverse("edit-my-organisation-contact", kwargs={"id": self.kwargs["id"]})
+        return reverse("edit-my-organisation-contact", kwargs={"profile_uid": self.kwargs["profile_uid"]})
 
 
 class OrganisationContactView(OrganisationView):
@@ -159,7 +159,7 @@ class OrganisationContactView(OrganisationView):
     form_class = OrganisationContactForm
 
     def get_success_url(self):
-        return reverse("my-organisation", kwargs={"id": self.kwargs["id"]})
+        return reverse("my-organisation", kwargs={"profile_uid": self.kwargs["profile_uid"]})
 
 
 class MyOrganisationView(OrganisationView):
@@ -201,10 +201,10 @@ class ChangeActiveProfileView(LoginRequiredMixin, TemplateView):
         :param kwargs:
         :return:
         """
-        profile_id = request.POST.get("profile_id")
+        profile_id = request.POST.get("profile_uid")
         if profile_id:
             self.logger.info(f"The user {self.request.user.id} switching to  profile_id: {profile_id}")
-            profile = UserProfile.objects.filter(user=self.request.user, id=profile_id).first()
+            profile = UserProfile.objects.filter(user=self.request.user, uid=profile_id).first()
             if profile:
                 self.request.session["current_profile_id"] = profile.id
             else:
