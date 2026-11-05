@@ -17,7 +17,9 @@ class SetupAssessmentTestData(BaseViewTest):
 
     def setUp(self):
         self.client = Client()
-        # login to authenticate test user
+        # login to authenticate test user (org lead)
+        self.test_user = self.org_map["Big organisation"]["users"]["organisation_lead"]
+        self.user_profile = self.test_user.profiles.first()
         self.client.force_login(self.test_user)
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
@@ -82,10 +84,10 @@ class TestCreateAssessmentViews(SetupAssessmentTestData):
 
         # we can now test that submission of the profile form has created the correct reviewtype in
         # the assessment
-        assessment = Assessment.objects.get(id=response.context_data["draft_assessment"]["assessment_id"])
+        assessment = Assessment.objects.get(uid=response.context_data["draft_assessment"]["assessment_uid"])
         self.assertEqual(assessment.review_type, "independent")
         edit_review_type_url = reverse(
-            "edit-draft-assessment-choose-review-type", kwargs={"assessment_id": assessment.id}
+            "edit-draft-assessment-choose-review-type", kwargs={"assessment_uid": assessment.uid}
         )
 
         # We should also be redirected to the review page to be shown this review type is mandatory for an enhanced profile
@@ -103,11 +105,11 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
             framework="caf32",
             caf_profile="baseline",
         )
-        self.edit_assessment_url = reverse("edit-draft-assessment", kwargs={"assessment_id": self.assessment.id})
-        self.edit_system_url = reverse("edit-draft-assessment-system", kwargs={"assessment_id": self.assessment.id})
-        self.edit_profile_url = reverse("edit-draft-assessment-profile", kwargs={"assessment_id": self.assessment.id})
+        self.edit_assessment_url = reverse("edit-draft-assessment", kwargs={"assessment_uid": self.assessment.uid})
+        self.edit_system_url = reverse("edit-draft-assessment-system", kwargs={"assessment_uid": self.assessment.uid})
+        self.edit_profile_url = reverse("edit-draft-assessment-profile", kwargs={"assessment_uid": self.assessment.uid})
         self.edit_review_type_url = reverse(
-            "edit-draft-assessment-choose-review-type", kwargs={"assessment_id": self.assessment.id}
+            "edit-draft-assessment-choose-review-type", kwargs={"assessment_uid": self.assessment.uid}
         )
 
     def test_edit_system(self):
@@ -140,6 +142,7 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
             "system": self.assessment.system.id,
             "review_type": self.assessment.review_type,
             "assessment_id": self.assessment.id,
+            "assessment_uid": str(self.assessment.uid),
         }
         session["current_profile_id"] = self.user_profile.id
         session.save()
@@ -182,7 +185,7 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
             caf_profile="baseline",
         )
 
-        edit_url = reverse("edit-draft-assessment", kwargs={"assessment_id": assessment_2050.id})
+        edit_url = reverse("edit-draft-assessment", kwargs={"assessment_uid": assessment_2050.uid})
 
         # login to authenticate test user
         self.client.force_login(self.test_user)

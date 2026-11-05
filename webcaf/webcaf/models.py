@@ -1,5 +1,6 @@
 import logging
 import typing
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any, Literal
@@ -16,6 +17,7 @@ from django.db.models import (
     Func,
     IntegerField,
     QuerySet,
+    UUIDField,
     Value,
 )
 from django.db.models.functions import Cast
@@ -225,6 +227,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default="not_decided")
 
     history = HistoricalRecords()
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]

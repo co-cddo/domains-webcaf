@@ -53,7 +53,7 @@ class ConfirmationStatusRenderingTests(BaseViewTest):
         self.client.force_login(self.org_user)
         session = self.client.session
         session["current_profile_id"] = self.org_user_profile.id
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_id": self.assessment.id, "assessment_uid": str(self.assessment.uid)}
         session.save()
 
     @patch("webcaf.webcaf.caf.util.IndicatorStatusChecker.indicator_min_profile_requirement_met")

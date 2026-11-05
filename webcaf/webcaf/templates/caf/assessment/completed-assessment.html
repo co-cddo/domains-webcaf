@@ -23,12 +23,12 @@
                 Self-assessment summary
             </h1>
             <div class="govuk-button-group no_print">
-                <a href="{% url 'download-submitted-assessment' assessment_id=assessment.id %}" target="_blank"
+                <a href="{% url 'download-submitted-assessment' assessment_uid=assessment.uid %}" target="_blank"
                    class="govuk-button govuk-button--secondary"
                    data-module="govuk-button">
                     Download as PDF
                 </a>
-                <a href="{% url 'download-assessment' pk=assessment.id %}?mode=excel" target="_blank"
+                <a href="{% url 'download-assessment' assessment_uid=assessment.uid %}?mode=excel" target="_blank"
                    class="govuk-button govuk-button--secondary"
                    data-module="govuk-button">
                     Download data as XLSX
@@ -134,12 +134,12 @@
                 </a>
             </div>
             <div class="govuk-button-group no_print">
-                <a href="{% url 'download-submitted-assessment' assessment_id=assessment.id %}" target="_blank"
+                <a href="{% url 'download-submitted-assessment' assessment_uid=assessment.uid %}" target="_blank"
                    class="govuk-button govuk-button--secondary"
                    data-module="govuk-button">
                     Download as PDF
                 </a>
-                <a href="{% url 'download-assessment' pk=assessment.id %}?mode=excel" target="_blank"
+                <a href="{% url 'download-assessment' assessment_uid=assessment.uid %}?mode=excel" target="_blank"
                    class="govuk-button govuk-button--secondary"
                    data-module="govuk-button">
                     Download data as XLSX

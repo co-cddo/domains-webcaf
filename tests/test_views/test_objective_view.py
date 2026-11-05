@@ -26,7 +26,7 @@ class ObjectiveViewIntegrationTests(BaseViewTest):
         self.client.force_login(self.test_user)
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_id": self.assessment.id, "assessment_uid": str(self.assessment.uid)}
         session.save()
 
     def test_post_confirm_redirects_to_next_objective(self):
@@ -54,5 +54,5 @@ class ObjectiveViewIntegrationTests(BaseViewTest):
         )
         self.assertEqual(resp.status_code, 302)
 
-        expected_url = reverse("edit-draft-assessment", kwargs={"assessment_id": self.assessment.id})
+        expected_url = reverse("edit-draft-assessment", kwargs={"assessment_uid": self.assessment.uid})
         self.assertEqual(resp["Location"], expected_url)
