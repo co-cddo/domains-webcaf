@@ -59,6 +59,23 @@ class Verify2FATokenViewTests(BaseViewTest):
         # Check that the token was generated
         mock_generate_challenge.assert_called_once()
 
+    def test_get_uses_settings_otp_email_token_validity_for_device_expiry(self):
+        """
+        A GET request should persist the configured OTP validity window on the
+        generated device so the DB-backed expiry matches settings.OTP_EMAIL_TOKEN_VALIDITY.
+        """
+        with self.settings(OTP_EMAIL_TOKEN_VALIDITY=123):
+            response = self.client.get(self.verify_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        device = GovNotifyEmailDevice.objects.get(user=self.test_user, email=self.test_user.email)
+        self.assertIsNotNone(device.last_generated_timestamp)
+        self.assertIsNotNone(device.valid_until)
+
+        actual_validity = device.valid_until - device.last_generated_timestamp
+        self.assertAlmostEqual(actual_validity.total_seconds(), 123, delta=1)
+
     @patch("webcaf.webcaf.models.GovNotifyEmailDevice.generate_challenge")
     def test_get_uses_existing_device_and_generates_token(self, mock_generate_challenge):
         """
