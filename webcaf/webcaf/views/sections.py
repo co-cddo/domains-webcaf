@@ -349,7 +349,7 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
         if not user_profile:
             raise PermissionDenied("You are not allowed to view this page")
         assessment = Assessment.objects.get(
-            id=kwargs["assessment_id"], status="submitted", system__organisation=user_profile.organisation
+            uid=kwargs["assessment_uid"], status="submitted", system__organisation=user_profile.organisation
         )
         submitted_changes = first_submitted_changes(
             [
@@ -385,7 +385,7 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
     template_name = "caf/assessment/completed-assessment.html"
 
     def get(self, request, *args, **kwargs):
-        self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.pk}")
+        self.logger.info(f"Downloading assessment {kwargs['assessment_uid']} for user {request.user.pk}")
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
         from django.conf import settings

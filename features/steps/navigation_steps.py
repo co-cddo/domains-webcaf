@@ -419,8 +419,16 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
 @step("get assessment id from url and add to context")
 def add_assessment_id_to_context(context: Context):
     url = context.page.url
-    assessment_id = url.strip("/").split("/")[-1]
-    context.current_assessment_id = assessment_id
+
+    def is_valid_uuid(value: str) -> bool:
+        try:
+            uuid.UUID(value)
+            return True
+        except (ValueError, AttributeError, TypeError):
+            return False
+
+    assessment_id = filter(lambda x: is_valid_uuid(x), url.strip("/").split("/"))
+    context.current_assessment_id = list(assessment_id)[-1]
 
 
 @then('should see an error summary with error link text "{text}"')

@@ -27,7 +27,7 @@
                                 {% else %}
                                     <button type="submit" class="govuk-button" data-module="govuk-button"
                                             title="Login to this organisation as {{ profile.role|get_role_display }}"
-                                            name="profile_id" value="{{ profile.id }}">
+                                            name="profile_uid" value="{{ profile.uid }}">
                                         Login as {{ profile.role|get_role_display }}
                                     </button>
                                 {% endif %}

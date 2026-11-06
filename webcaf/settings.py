@@ -174,13 +174,14 @@ CONTENT_SECURITY_POLICY = {
         "script-src": (
             SELF,
             NONCE,
-            "sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE=",  # pragma: allowlist secret
-            "https://*.googletagmanager.com",
+            "'sha256-nBhTljJHpMrd9MOPzdAm2s1BkTJWObIEdVxg/bet7PE='",  # pragma: allowlist secret
+            "https://www.googletagmanager.com",
         ),
         "style-src": (
             SELF,
             NONCE,
         ),
+        "base-uri": (SELF,),
     }
 }
 

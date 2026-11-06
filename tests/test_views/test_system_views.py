@@ -101,7 +101,7 @@ class TestEditSystemViewFormValidation(BaseViewTest):
 
     def test_clean_requires_description_when_corporate_services_is_other_on_edit(self):
         resp = self.client.post(
-            reverse("edit-system", kwargs={"system_id": self.system.id}),
+            reverse("edit-system", kwargs={"system_uid": self.system.uid}),
             data={
                 "action": "confirm",
                 "name": self.system.name,
@@ -120,7 +120,7 @@ class TestEditSystemViewFormValidation(BaseViewTest):
 
     def test_clean_clears_other_description_when_not_other_on_edit(self):
         resp = self.client.post(
-            reverse("edit-system", kwargs={"system_id": self.system.id}),
+            reverse("edit-system", kwargs={"system_uid": self.system.uid}),
             data={
                 "action": "confirm",
                 "name": self.system.name,

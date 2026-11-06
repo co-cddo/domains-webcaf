@@ -44,7 +44,7 @@
                                     <span class="govuk-visually-hidden">Error:</span> {{ form.errors.review_type.0 }}
                                 </p>
                             {% endif %}
-                            {% for choice in review_form.fields.review_type.choices %}
+                            {% for choice in form.fields.review_type.choices %}
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input"
                                         id="review_type{{ forloop.counter }}"
