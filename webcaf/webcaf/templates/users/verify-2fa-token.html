@@ -21,10 +21,9 @@
             </div>
 
             <p class="govuk-body">
-                It might take a few minutes to arrive. The code will expire after 5 minutes. <br>
+                It might take a few minutes to arrive. The code will expire after {{ email_validity }} minutes. <br>
                 If you request a new code it will be sent 1 minute after the last request.
             </p>
-
 
             <form method="post">
                 {% csrf_token %}
