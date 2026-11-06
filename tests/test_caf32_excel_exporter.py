@@ -76,11 +76,11 @@ class TestCAF32ExcelExporter(unittest.TestCase):
             self.assertIsNotNone(ws.cell(row=indicator_row, column=col))
 
     def test_validators_prevent_free_text(self):
-        ws = self.wb.worksheets[0]
-        for dv in ws.data_validations.dataValidation:
-            self.assertTrue(dv.showErrorMessage)
-            self.assertEqual(dv.errorStyle, "stop")
-            self.assertIsNotNone(dv.error)
+        for ws in self.wb.worksheets:
+            for dv in ws.data_validations.dataValidation:
+                self.assertTrue(dv.showErrorMessage)
+                self.assertEqual(dv.errorStyle, "stop")
+                self.assertIsNotNone(dv.error)
 
     def test_confirmation_validators_isolated_per_sheet(self):
         for ws in self.wb.worksheets:
