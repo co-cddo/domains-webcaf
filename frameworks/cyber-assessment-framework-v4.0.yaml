@@ -127,7 +127,7 @@ objectives:
             description: You have effective organisational security management led at
               board level and articulated clearly in corresponding policies.
             indicators:
-              partially-achieved: {}
+              partially-achieved: { }
               not-achieved:
                 A1.a.1:
                   description: The security of network and information systems related to
@@ -196,7 +196,7 @@ objectives:
               the security of network and information systems at all levels, with clear
               and well-understood channels for communicating and escalating risks.
             indicators:
-              partially-achieved: {}
+              partially-achieved: { }
               not-achieved:
                 A1.b.1:
                   description: Key roles are missing, left vacant, or fulfilled on an
@@ -240,7 +240,7 @@ objectives:
               related to the operation of your essential function(s) are considered in the
               context of other organisational risks.
             indicators:
-              partially-achieved: {}
+              partially-achieved: { }
               not-achieved:
                 A1.c.1:
                   description: What should be relatively straightforward risk decisions
@@ -535,7 +535,7 @@ objectives:
               of your technology, people, and processes relevant to the operation of
               network and information systems supporting your essential function(s).
             indicators:
-              partially-achieved: {}
+              partially-achieved: { }
               not-achieved:
                 A2.c.1:
                   description: A particular product or service is seen as a "silver
@@ -590,9 +590,12 @@ objectives:
           A3.a:
             code: A3.a
             title: Asset Management
-            description: ''
+            description: Everything required to deliver, maintain or support network and
+              information systems necessary for the operation of essential functions is
+              determined and understood. This includes data, people and systems, as well as
+              any supporting infrastructure (such as power or cooling).
             indicators:
-              partially-achieved: {}
+              partially-achieved: { }
               not-achieved:
                 A3.a.1:
                   description: Inventories of assets relevant to network and information
@@ -3080,7 +3083,11 @@ objectives:
           C2.a:
             code: C2.a
             title: Threat Hunting
-            description: ''
+            description: The organisation proactively seeks to detect, within networks and
+              information systems, adverse activity affecting, or with the potential to
+              affect, the operation of essential functions even when the activity evades
+              standard security prevent / detect solutions (or when standard solutions are not
+              deployable).
             indicators:
               not-achieved:
                 C2.a.1:
