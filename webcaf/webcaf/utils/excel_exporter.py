@@ -46,8 +46,6 @@ def build_assessment_template_workbook(framework: dict[str, Any], framework_id: 
 
     border = _thin_border()
     fills = _fills()
-    validators = _validators()
-    confirmation_validators = _confirmation_status_validators()
     headers = _header_specs(fills)
 
     # Iterate objectives -> principles -> outcomes
@@ -56,6 +54,10 @@ def build_assessment_template_workbook(framework: dict[str, Any], framework_id: 
 
         # Top header block required by specification
         row = _write_top_header(ws)
+
+        # Validators per worksheet to avoid it across sheets
+        validators = _validators()
+        confirmation_validators = _confirmation_status_validators()
 
         # Register data validations on the worksheet
         for validator in validators.values():
@@ -301,8 +303,8 @@ def _write_indicator_rows(
             # Adjacent answer dropdown cell
             ans_cell = ws.cell(row=row, column=col_idx)
             ans_cell.border = border
-            validators[key].add(ws[ans_cell.coordinate])
             if item_code:
+                validators[key].add(ws[ans_cell.coordinate])
                 _append_json_map(
                     json_map_rows,
                     ws,
@@ -310,6 +312,8 @@ def _write_indicator_rows(
                     f"/{outcome_code}/indicators/{key}_{item_code}",
                     "indicator_answer",
                 )
+            else:
+                ans_cell.fill = fills["grey"]  # Grey out answer for empty item_code
             col_idx += 1
 
         # Evidence cell at the end
@@ -337,7 +341,15 @@ def _fills() -> dict[str, PatternFill]:
 
 def _validators() -> dict[str, DataValidation]:
     return {
-        key: DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
+        key: DataValidation(
+            type="list",
+            formula1='"Yes,No"',
+            allow_blank=False,
+            showErrorMessage=True,
+            errorStyle="stop",
+            errorTitle="Invalid Selection",
+            error="Please select either 'Yes' or 'No' from the dropdown list.",
+        )
         for key in ("not-achieved", "partially-achieved", "achieved")
     }
 
@@ -357,9 +369,23 @@ def _header_specs(fills: dict[str, PatternFill]) -> list[tuple[str, Optional[Pat
 def _confirmation_status_validators() -> dict[str, DataValidation]:
     return {
         "with-partial": DataValidation(
-            type="list", formula1='"Achieved,Partially achieved,Not achieved"', allow_blank=False
+            type="list",
+            formula1='"Achieved,Partially achieved,Not achieved"',
+            allow_blank=False,
+            showErrorMessage=True,
+            errorStyle="stop",
+            errorTitle="Invalid Selection",
+            error="Please select a valid achievement status from the dropdown list.",
         ),
-        "without-partial": DataValidation(type="list", formula1='"Achieved,Not achieved"', allow_blank=False),
+        "without-partial": DataValidation(
+            type="list",
+            formula1='"Achieved,Not achieved"',
+            allow_blank=False,
+            showErrorMessage=True,
+            errorStyle="stop",
+            errorTitle="Invalid Selection",
+            error="Please select a valid achievement status from the dropdown list.",
+        ),
     }
 
 

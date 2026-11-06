@@ -75,6 +75,28 @@ class TestCAF32ExcelExporter(unittest.TestCase):
         for col in (4, 6, 8):
             self.assertIsNotNone(ws.cell(row=indicator_row, column=col))
 
+    def test_validators_prevent_free_text(self):
+        for ws in self.wb.worksheets:
+            for dv in ws.data_validations.dataValidation:
+                self.assertTrue(dv.showErrorMessage)
+                self.assertEqual(dv.errorStyle, "stop")
+                self.assertIsNotNone(dv.error)
+
+    def test_confirmation_validators_isolated_per_sheet(self):
+        for ws in self.wb.worksheets:
+            if not ws.title.startswith("CAF - Objective"):
+                continue
+            for dv in ws.data_validations.dataValidation:
+                if "Achieved" in dv.formula1:
+                    for coord in str(dv.sqref).split():
+                        row = int("".join(filter(str.isdigit, coord)))
+                        label = ws.cell(row=row, column=7).value
+                        self.assertEqual(
+                            label,
+                            "Contributing Outcome achievement:",
+                            f"Unexpected validation at {coord} in {ws.title}: {label}",
+                        )
+
     def test_indicator_fill_colours(self):
         # Validate fill colors for the first indicator line across achieved/partially/not columns
         ws = self.wb.worksheets[0]
