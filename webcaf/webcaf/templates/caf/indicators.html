@@ -106,7 +106,7 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         {% if not can_edit_assessments %}Continue{% else %}Save and continue{% endif %}
                     </button>
-                    <a class="govuk-link" href="{% url back_url %}">Back to  Objective&nbsp;{{ objective_data.code }}:&nbsp;{{ title }} </a>
+                    <a class="govuk-link" href="{% url back_url %}">Back to  Objective&nbsp;{{ objective_data.code }}:&nbsp;{{ objective_data.title }} </a>
                 </div>
             </form>
         </div>
