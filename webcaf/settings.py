@@ -266,6 +266,8 @@ LOGGING = {
 }
 
 SSO_MODE = env.str("SSO_MODE", "external")  # or dex or local or none
+# Set the OTP email token validity to 10 minutes for production and staging environments
+OTP_EMAIL_TOKEN_VALIDITY = env.int("OTP_EMAIL_TOKEN_VALIDITY", 600)  # 10 minutes
 
 if SSO_MODE.lower() == "external":
     OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
@@ -284,6 +286,7 @@ if SSO_MODE.lower() == "external":
     # 5 users as the Notify service does not allow us to use more than 5 users
     # for the non-live notify service
     ENABLED_2FA = ENVIRONMENT not in ["dev", "test"]
+
 else:
     sso_host = "dex" if SSO_MODE == "dex" else "localhost"
     OIDC_RP_CLIENT_ID = "my-django-app"

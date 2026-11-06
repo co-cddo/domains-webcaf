@@ -1,6 +1,8 @@
 import logging
+from typing import Any
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.views.generic.edit import FormView
@@ -157,3 +159,16 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         if self.request.user.is_staff:
             return reverse("admin:index")
         return reverse("my-account")
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """
+        Adds additional context to the template.
+
+        This method adds the user's email (masked for privacy) and any
+        error messages related to sending the OTP code.
+        """
+        context = super().get_context_data(**kwargs)
+
+        # Email validity in minutes
+        context["email_validity"] = settings.OTP_EMAIL_TOKEN_VALIDITY // 60
+        return context
