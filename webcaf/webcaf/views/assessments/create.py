@@ -99,6 +99,7 @@ class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
         data["current_assessment_period"] = current_assessment_period
         data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p").lower()
         data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
+        data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
 
         data["systems"] = (
             System.objects.filter(organisation=profile.organisation)
@@ -187,7 +188,7 @@ class CreateAssessmentSystemView(CreateAssessmentMixin):
     """
 
     form_class = AssessmentSystemForm
-    template_name = "system/system-details.html"
+    template_name = "caf/assessment/system-details.html"
 
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]
@@ -228,7 +229,7 @@ class CreateAssessmentProfileView(CreateAssessmentMixin):
     """
 
     form_class = AssessmentProfileForm
-    template_name = "assessment-profile.html"
+    template_name = "caf/assessment/assessment-profile.html"
 
     def form_valid(self, form):
         draft_assessment = self.request.session["draft_assessment"]

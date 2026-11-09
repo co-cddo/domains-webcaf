@@ -144,7 +144,7 @@ class EditAssessmentProfileView(EditAssessmentView):
     :type form_class: type
     """
 
-    template_name = "assessment-profile.html"
+    template_name = "caf/assessment/assessment-profile.html"
     form_class = AssessmentProfileForm
 
     def form_valid(self, form):
@@ -197,7 +197,7 @@ class EditAssessmentSystemView(EditAssessmentView):
     :type form_class: Type[forms.Form]
     """
 
-    template_name = "system/system-details.html"
+    template_name = "caf/assessment/system-details.html"
     form_class = AssessmentSystemForm
 
     def form_valid(self, form):

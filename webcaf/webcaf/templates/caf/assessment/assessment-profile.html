@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load permission_extras %}
 {% load govuk_frontend_django %}
 {% load static %}
 {% load form_extras %}
@@ -62,7 +63,10 @@
                         </div>
                     </fieldset>
                 </div>
-                <button type="submit" class="govuk-button" data-module="govuk-button">
+                {% current_user_can_start_assessment current_profile as can_start_assessment %}
+                {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
+                <button type="submit" class="govuk-button" data-module="govuk-button"
+                        {% if not can_start_assessment and not can_edit_assessments %}disabled{% endif %}>
                     Save and continue
                 </button>
             </form>
