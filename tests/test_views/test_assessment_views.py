@@ -34,13 +34,13 @@ class TestCreateAssessmentViews(SetupAssessmentTestData):
         response = self.client.get(self.create_system_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "system/system-details.html")
+        self.assertTemplateUsed(response, "caf/assessment/system-details.html")
 
     def test_create_profile(self):
         response = self.client.get(self.create_profile_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "assessment-profile.html")
+        self.assertTemplateUsed(response, "caf/assessment/assessment-profile.html")
 
     def test_create_review_type(self):
         response = self.client.get(self.create_review_type_url)
@@ -116,13 +116,13 @@ class TestEditAssessmentViews(SetupAssessmentTestData):
         response = self.client.get(self.edit_system_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "system/system-details.html")
+        self.assertTemplateUsed(response, "caf/assessment/system-details.html")
 
     def test_edit_profile(self):
         response = self.client.get(self.create_profile_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "assessment-profile.html")
+        self.assertTemplateUsed(response, "caf/assessment/assessment-profile.html")
 
     def test_edit_review_type(self):
         response = self.client.get(self.create_review_type_url)
