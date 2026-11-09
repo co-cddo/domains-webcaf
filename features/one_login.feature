@@ -33,3 +33,9 @@ Feature: GOV.UK One Login authentication
     And the user signs in with One Login as "admin@example.gov.uk"
     When the user logs out through One Login
     Then they should see page title "Start page  - Complete a WebCAF self-assessment - GOV.UK"
+
+Scenario: User without an approved domain signs in
+    Given the application is running
+    And cookies have been "accepted"
+    When the user signs in with One Login as "abc@nodomain.com"
+    Then page contains text "Your email domain is not approved" in header
