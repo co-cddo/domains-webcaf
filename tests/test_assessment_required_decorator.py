@@ -81,7 +81,7 @@ class AssessmentRequiredDecoratorTests(BaseViewTest):
         """
         # Set assessment in session
         session = self.client.session
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_uid": str(self.assessment.uid), "assessment_id": self.assessment.id}
         session.save()
 
         # POST should succeed
@@ -133,7 +133,7 @@ class AssessmentRequiredDecoratorTests(BaseViewTest):
         """
         # Set assessment in session
         session = self.client.session
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_uid": str(self.assessment.uid), "assessment_id": self.assessment.id}
         session.save()
 
         # POST should succeed
@@ -214,7 +214,7 @@ class AssessmentRequiredDecoratorTests(BaseViewTest):
 
         # Set assessment in session
         session = self.client.session
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_uid": str(self.assessment.uid), "assessment_id": self.assessment.id}
         session.save()
 
         # POST should succeed

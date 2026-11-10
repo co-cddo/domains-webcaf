@@ -64,7 +64,7 @@ def check_assessment_data(context: Context, data_file_name: str):
 
     with open(Path(__file__).parent.parent / "data" / data_file_name, "r") as f:
         json_data = f.read()
-        assert json.loads(json_data) == get_model(Assessment, id=context.current_assessment_id).assessments_data
+        assert json.loads(json_data) == get_model(Assessment, uid=context.current_assessment_id).assessments_data
 
 
 @step('confirm current assessment is in "{expected_state}" state')
@@ -91,7 +91,7 @@ def check_assessment_initial_setup(context: Context, system_name: str, caf_profi
     """
     from webcaf.webcaf.models import Assessment, System
 
-    assessment = get_model(Assessment, id=context.current_assessment_id)
+    assessment = get_model(Assessment, uid=context.current_assessment_id)
     system = get_model(System, id=assessment.system_id)
     assert system.name == system_name, f"System name persisted as '{system.name}' not expect '{system_name}'"
     assert (

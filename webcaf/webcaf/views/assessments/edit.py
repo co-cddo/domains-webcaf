@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from uuid import UUID
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Subquery
@@ -55,6 +56,7 @@ class EditAssessmentView(AssessmentProfileCheckMixin, UpdateView):
         current_profile = UserProfile.objects.get(id=self.request.session["current_profile_id"])
         current_organisation = current_profile.organisation
         draft_assessment = {
+            "assessment_uid": str(self.object.uid),
             "assessment_id": self.object.id,
             "system": self.object.system.id,
             "caf_profile": self.object.caf_profile,
@@ -77,7 +79,7 @@ class EditAssessmentView(AssessmentProfileCheckMixin, UpdateView):
                 "breadcrumbs": [
                     {"url": reverse("my-account"), "text": "My account"},
                 ]
-                + self.breadcrumbs(self.object.id),
+                + self.breadcrumbs(self.object.uid),
                 "systems": (
                     System.objects.filter(organisation=current_organisation)
                     .exclude(
@@ -102,7 +104,7 @@ class EditAssessmentView(AssessmentProfileCheckMixin, UpdateView):
 
         return data
 
-    def breadcrumbs(self, assessment_id: int):
+    def breadcrumbs(self, assessment_uid: UUID):
         return [{"url": "#", "text": "Edit draft self-assessment"}]
 
     def get_form_kwargs(self):
@@ -161,17 +163,17 @@ class EditAssessmentProfileView(EditAssessmentView):
         if draft_assessment["caf_profile"] == "enhanced":
             return reverse(
                 "edit-draft-assessment-choose-review-type",
-                kwargs={"assessment_id": draft_assessment["assessment_id"]},
+                kwargs={"assessment_uid": draft_assessment["assessment_uid"]},
             )
-        return reverse("edit-draft-assessment", kwargs={"assessment_id": draft_assessment["assessment_id"]})
+        return reverse("edit-draft-assessment", kwargs={"assessment_uid": draft_assessment["assessment_uid"]})
 
-    def breadcrumbs(self, assessment_id: int):
+    def breadcrumbs(self, assessment_uid: UUID):
         return [
             {
                 "url": reverse(
                     "edit-draft-assessment",
                     kwargs={
-                        "assessment_id": assessment_id,
+                        "assessment_uid": str(assessment_uid),
                     },
                 ),
                 "text": "Edit draft self-assessment",
@@ -224,15 +226,15 @@ class EditAssessmentSystemView(EditAssessmentView):
 
     def get_success_url(self):
         draft_assessment = self.request.session["draft_assessment"]
-        return reverse("edit-draft-assessment", kwargs={"assessment_id": draft_assessment["assessment_id"]})
+        return reverse("edit-draft-assessment", kwargs={"assessment_uid": draft_assessment["assessment_uid"]})
 
-    def breadcrumbs(self, assessment_id: int):
+    def breadcrumbs(self, assessment_uid: UUID):
         return [
             {
                 "url": reverse(
                     "edit-draft-assessment",
                     kwargs={
-                        "assessment_id": assessment_id,
+                        "assessment_uid": str(assessment_uid),
                     },
                 ),
                 "text": "Edit draft self-assessment",
@@ -265,13 +267,13 @@ class EditAssessmentReviewTypeView(EditAssessmentView):
         self.request.session.save()
         return super().form_valid(form)
 
-    def breadcrumbs(self, assessment_id: int):
+    def breadcrumbs(self, assessment_uid: UUID):
         return [
             {
                 "url": reverse(
                     "edit-draft-assessment",
                     kwargs={
-                        "assessment_id": assessment_id,
+                        "assessment_uid": str(assessment_uid),
                     },
                 ),
                 "text": "Edit draft self-assessment",
@@ -280,4 +282,4 @@ class EditAssessmentReviewTypeView(EditAssessmentView):
         ]
 
     def get_success_url(self):
-        return reverse("edit-draft-assessment", kwargs={"assessment_id": self.kwargs["assessment_id"]})
+        return reverse("edit-draft-assessment", kwargs={"assessment_uid": self.kwargs["assessment_uid"]})

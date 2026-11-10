@@ -228,6 +228,16 @@ class AssessmentProfileCheckMixin(UserRoleCheckMixin, ABC):
     Expected to be used with any views related to assessments.
     """
 
+    # By default we look up by pk_url_kwarg
+    slug_url_kwarg = "assessment_uid"
+
+    def get_slug_field(self) -> str:
+        """
+        We look up objects by its uid when dealing with the external requests
+        :return:
+        """
+        return "uid"
+
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()

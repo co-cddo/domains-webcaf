@@ -58,7 +58,7 @@
                 </form>
             {% else %}
                 <form method="GET"
-                      action="{% url 'edit-draft-assessment' assessment_id=assessment.id %}">
+                      action="{% url 'edit-draft-assessment' assessment_uid=assessment.uid %}">
                     <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button"
                             data-govuk-button-init="">
                         Back to draft self-assessment

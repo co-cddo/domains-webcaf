@@ -155,36 +155,36 @@ urlpatterns = [
         name="create-draft-assessment-choose-review-type",
     ),
     # Editing existing draft assessment
-    path("edit-draft-assessment/<int:assessment_id>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
+    path("edit-draft-assessment/<uuid:assessment_uid>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
     path(
-        "edit-draft-assessment/<int:assessment_id>/profile",
+        "edit-draft-assessment/<uuid:assessment_uid>/profile",
         EditAssessmentProfileView.as_view(),
         name="edit-draft-assessment-profile",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/system",
+        "edit-draft-assessment/<uuid:assessment_uid>/system",
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/review-type",
+        "edit-draft-assessment/<uuid:assessment_uid>/review-type",
         EditAssessmentReviewTypeView.as_view(),
         name="edit-draft-assessment-choose-review-type",
     ),
     path("objective-confirmation/", SectionConfirmationView.as_view(), name="objective-confirmation"),
     path("view-submitted-assessments/", ViewSubmittedAssessmentsView.as_view(), name="view-submitted-assessments"),
     path(
-        "view-submitted-assessment/<int:assessment_id>",
+        "view-submitted-assessment/<uuid:assessment_uid>",
         ViewSubmittedAssessment.as_view(),
         name="view-submitted-assessment",
     ),
     path(
-        "download-submitted-assessment/<int:assessment_id>",
+        "download-submitted-assessment/<uuid:assessment_uid>",
         DownloadSubmittedAssessmentPdf.as_view(),
         name="download-submitted-assessment",
     ),
     path(
-        "download-assessment/<int:pk>/",
+        "download-assessment/<uuid:assessment_uid>/",
         DownloadAssessment.as_view(),
         name="download-assessment",
     ),

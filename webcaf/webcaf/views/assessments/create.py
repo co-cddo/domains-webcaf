@@ -64,7 +64,7 @@ class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
                     "submission_due_date": configuration.get_submission_due_date(),
                 },
             )
-            draft_assessment["assessment_id"] = assessment.id
+            draft_assessment["assessment_uid"] = str(assessment.uid)
             draft_assessment["framework"] = assessment.framework
             # Set the manually created instance as the object attribute to continue the flow
             self.object = assessment
@@ -241,8 +241,8 @@ class CreateAssessmentProfileView(CreateAssessmentMixin):
         draft_assessment = self.request.session["draft_assessment"]
         if self.object:
             if draft_assessment["caf_profile"] == "enhanced":
-                return reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_id": self.object.id})
-            return reverse("edit-draft-assessment", kwargs={"assessment_id": self.object.id})
+                return reverse("edit-draft-assessment-choose-review-type", kwargs={"assessment_uid": self.object.uid})
+            return reverse("edit-draft-assessment", kwargs={"assessment_uid": self.object.uid})
         return reverse("create-draft-assessment")
 
     def breadcrumbs(self):
@@ -282,7 +282,7 @@ class CreateAssessmentReviewTypeView(CreateAssessmentMixin):
 
     def get_success_url(self):
         if self.object:
-            return reverse("edit-draft-assessment", kwargs={"assessment_id": self.object.id})
+            return reverse("edit-draft-assessment", kwargs={"assessment_uid": self.object.uid})
         return reverse("create-draft-assessment")
 
     def form_invalid(self, form) -> HttpResponse:

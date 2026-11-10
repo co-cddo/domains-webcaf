@@ -1,5 +1,6 @@
 import os
 import unittest
+import uuid
 from unittest.mock import Mock, patch
 
 import pytest
@@ -201,6 +202,7 @@ class TestCAF32Router(TestCase):
         middleware.process_request(request)
         request.session["draft_assessment"] = {
             "assessment_id": 1,
+            "assessment_uid": uuid.uuid4().hex,
         }
         request.session["current_profile_id"] = 1
         request.session.save()
