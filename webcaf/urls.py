@@ -29,26 +29,21 @@ from webcaf.webcaf.tip.views import (
     TipSubmissionConfirmationView,
     TipSubmitView,
 )
-from webcaf.webcaf.views import (
-    AccountView,
-    ChangeActiveProfileView,
+from webcaf.webcaf.views.account import AccountView, ViewDraftAssessmentsView
+from webcaf.webcaf.views.assessments.create import (
     CreateAssessmentProfileView,
     CreateAssessmentReviewTypeView,
     CreateAssessmentSystemView,
     CreateAssessmentView,
+)
+from webcaf.webcaf.views.assessments.edit import (
     EditAssessmentProfileView,
     EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
-    ExportAssessmentTemplateView,
-    Index,
-    MyOrganisationView,
-    OrganisationContactView,
-    OrganisationTypeView,
-    ViewDraftAssessmentsView,
-    ViewSubmittedAssessmentsView,
 )
-from webcaf.webcaf.views.assesment import HistoricalAssessmentView
+from webcaf.webcaf.views.assessments.historical import HistoricalAssessmentView
+from webcaf.webcaf.views.assessments.import_export import ExportAssessmentTemplateView
 from webcaf.webcaf.views.assessor.review import (
     DownloadExcelReport,
     DownloadReport,
@@ -76,13 +71,20 @@ from webcaf.webcaf.views.assessor.review_assessment import (
     OutcomeView,
     ShowReportConfirmation,
 )
-from webcaf.webcaf.views.general import logout_view
+from webcaf.webcaf.views.general import Index, logout_view
+from webcaf.webcaf.views.organisation import (
+    ChangeActiveProfileView,
+    MyOrganisationView,
+    OrganisationContactView,
+    OrganisationTypeView,
+)
 from webcaf.webcaf.views.sections import (
     DownloadAssessment,
     DownloadSubmittedAssessmentPdf,
     SectionConfirmationView,
     ShowSubmissionConfirmationView,
     ViewSubmittedAssessment,
+    ViewSubmittedAssessmentsView,
 )
 from webcaf.webcaf.views.session_expired import session_expired
 from webcaf.webcaf.views.system import (
@@ -130,7 +132,11 @@ urlpatterns = [
     path("my-account/", AccountView.as_view(), name="my-account"),
     path("my-account/view-draft-assessments/", ViewDraftAssessmentsView.as_view(), name="view-draft-assessments"),
     path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
-    path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
+    path(
+        "my-organisation/<int:id>/contact",
+        OrganisationContactView.as_view(),
+        name="edit-my-organisation-contact",
+    ),
     path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
     path("view-organisations/", ChangeActiveProfileView.as_view(), name="view-organisations"),
     path("change-organisation/", ChangeActiveProfileView.as_view(), name="change-organisation"),

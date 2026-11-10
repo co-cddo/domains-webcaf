@@ -225,7 +225,7 @@ class UserRoleCheckMixin(LoginRequiredMixin):
 class AssessmentProfileCheckMixin(UserRoleCheckMixin, ABC):
     """
     Mixin to check if the user has the required profile to access the view.
-    Expected to be used wit any views related to assessments.
+    Expected to be used with any views related to assessments.
     """
 
     def get_object(self, queryset=None):
