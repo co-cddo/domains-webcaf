@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
+from django.test import Client, override_settings
 from django.urls import reverse
 
 from tests.test_views.base_view_test import BaseViewTest
@@ -428,3 +430,72 @@ class TestUserProfileView(BaseViewTest):
         old_user.refresh_from_db()
         self.assertEqual(old_user.id, old_user_id)
         self.assertFalse(UserProfile.objects.filter(user=old_user, organisation=self.test_organisation).exists())
+
+    @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
+    @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
+    def test_create_profile_sends_notification_email(self, mock_send_email):
+        """Test that creating a new user profile sends a notification email to the added user."""
+        new_email = "john.doe@test.gov.uk"
+
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": new_email,
+                "role": "organisation_user",
+                "action": "confirm",
+                "first_name": "Jane",
+                "last_name": "Doe",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        mock_send_email.assert_called_once_with(
+            email_addresses=[new_email],
+            personalisation_data={
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": new_email,
+                "role": "Organisation user",
+                "organisation_name": self.test_organisation.name,
+            },
+            template_id="test-new-user-template",
+        )
+
+    @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="")
+    @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
+    def test_create_profile_does_not_send_email_when_template_id_empty(self, mock_send_email):
+        """Test that no notification email is sent when NOTIFY_NEW_USER_TEMPLATE_ID is empty."""
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": "noemail@test.gov.uk",
+                "role": "organisation_user",
+                "action": "confirm",
+                "first_name": "Jane",
+                "last_name": "Doe",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        mock_send_email.assert_not_called()
+
+    @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
+    @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
+    def test_create_profile_email_failure_does_not_raise_error(self, mock_send_email):
+        """Test that email notification failure is logged and does not break profile creation."""
+        mock_send_email.side_effect = Exception("Notify service error")
+        new_email = "failure@test.gov.uk"
+
+        response = self.client.post(
+            reverse("create-new-profile"),
+            data={
+                "email": new_email,
+                "role": "organisation_user",
+                "action": "confirm",
+                "first_name": "Jane",
+                "last_name": "Doe",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(email=new_email).exists())
