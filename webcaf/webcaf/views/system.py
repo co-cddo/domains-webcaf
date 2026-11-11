@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
@@ -7,7 +10,9 @@ from django.views.generic import CreateView, FormView, TemplateView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.system import SystemForm
-from webcaf.webcaf.models import Configuration, System, UserProfile
+from webcaf.webcaf.models import Configuration, Settings, System, UserProfile
+from webcaf.webcaf.notification import send_notify_email
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -27,6 +32,8 @@ class SystemViewMixin(UserRoleCheckMixin, SystemContextDataMixin):
     Only cyber_advisors can maintain systems
     """
 
+    logger = logging.getLogger("SystemView")
+
     def get_allowed_roles(self) -> list[str]:
         return ["cyber_advisor"]
 
@@ -41,7 +48,43 @@ class SystemViewMixin(UserRoleCheckMixin, SystemContextDataMixin):
             return self.form_invalid(form)
 
         form.instance.organisation = current_profile.organisation
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.send_new_system_email(form.instance)
+        return response
+
+    def send_new_system_email(self, system: System) -> None:
+        """
+        Sends a notification email when a new system is created to organisation leads
+        and the GovAssure mailbox.
+        :param system: newly created system
+        :return: None
+        """
+        if template_id := settings.NOTIFY_NEW_SYSTEM_TEMPLATE_ID:
+            try:
+                email_addresses = list(
+                    UserProfile.objects.filter(
+                        organisation=system.organisation,
+                        role="organisation_lead",
+                    ).values_list("user__email", flat=True)
+                )
+                gov_assure_email = Settings.get_instance().gov_assure_email
+                if gov_assure_email:
+                    email_addresses.append(gov_assure_email)
+                else:
+                    self.logger.warning("Gov Assurance email is not set")
+                if email_addresses:
+                    send_notify_email(
+                        email_addresses=email_addresses,
+                        personalisation_data={
+                            "system_name": system.name,
+                            "organisation_name": system.organisation.name,
+                        },
+                        template_id=template_id,
+                    )
+            except Exception as ex:  # type: ignore
+                self.logger.exception(mask_email(f"GOV.UK Notify: Failed to send new system email {ex}"))
+        else:
+            self.logger.info("GOV.UK Notify: No template ID provided for new system email")
 
     def form_invalid(self, form):
         # Capture the first user input, which may later be flagged

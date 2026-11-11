@@ -12,7 +12,7 @@ from django.views.generic import DeleteView, FormView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
-from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.models import Settings, UserProfile
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
@@ -133,16 +133,28 @@ class CreateUserProfileView(UserProfileView):
 
     def send_new_user_email(self, user_profile: UserProfile) -> None:
         """
-        Sends a notification email to the newly created user.
+        Sends a notification email to the newly created user simultaneously informing organisation lead and Gov Assurance lead.
         :param user_profile: newly created user profile
         :return: None
         """
         if template_id := settings.NOTIFY_NEW_USER_TEMPLATE_ID:
             try:
                 user = user_profile.user
-                if user.email:
+                email_addresses = list(
+                    UserProfile.objects.filter(
+                        organisation=user_profile.organisation,
+                        role="organisation_lead",
+                    ).values_list("user__email", flat=True)
+                )
+                gov_assure_email = Settings.get_instance().gov_assure_email
+                if gov_assure_email:  # Gov assure mailbox
+                    email_addresses.append(gov_assure_email)
+                else:
+                    self.logger.warning("Gov Assurance email is not set")
+                if user.email:  # New user
+                    email_addresses.append(user.email)
                     send_notify_email(
-                        email_addresses=[user.email],
+                        email_addresses=email_addresses,
                         personalisation_data={
                             "first_name": user.first_name,
                             "last_name": user.last_name,

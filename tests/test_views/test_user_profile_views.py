@@ -30,6 +30,31 @@ class TestUserProfileView(BaseViewTest):
         session["current_profile_id"] = self.org_lead_profile.id
         session.save()
 
+    def _create_profile(self, **overrides):
+        data = {
+            "email": "john.doe@test.gov.uk",
+            "role": "organisation_user",
+            "first_name": "Test",
+            "last_name": "User",
+            "action": "confirm",
+            **overrides,
+        }
+        return self.client.post(reverse("create-new-profile"), data=data)
+
+    def _edit_profile(self, **overrides):
+        data = {
+            "email": self.target_user.email,
+            "role": "organisation_lead",
+            "first_name": "Test",
+            "last_name": "User",
+            "action": "confirm",
+            **overrides,
+        }
+        return self.client.post(
+            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
+            data=data,
+        )
+
     def test_create_user_with_mixed_case_email_is_lowercased(self):
         """
         When creating a user with a mixed-case email address via CreateUserProfileView,
@@ -41,16 +66,7 @@ class TestUserProfileView(BaseViewTest):
         # First GET to initialise any view state
         self.client.get(reverse("create-new-profile"))
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": mixed_email,
-                "role": "organisation_user",
-                "first_name": "New",
-                "last_name": "Person",
-                "action": "confirm",
-            },
-        )
+        response = self._create_profile(email=mixed_email, first_name="New", last_name="Person")
 
         # Should redirect to success URL
         self.assertEqual(response.status_code, 302)
@@ -72,16 +88,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post valid data with action=confirm
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": self.target_user.email,
-                "role": "organisation_lead",
-                "first_name": "Test",
-                "last_name": "User",
-                "action": "confirm",
-            },
-        )
+        response = self._edit_profile()
 
         # Refresh from database
         self.target_profile.refresh_from_db()
@@ -102,16 +109,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post valid data with action=confirm
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": "new-email@bigorganisation.gov.uk",
-                "role": "organisation_lead",
-                "action": "confirm",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        response = self._edit_profile(email="new-email@bigorganisation.gov.uk")
 
         # Refresh from database
         self.target_profile.refresh_from_db()
@@ -130,16 +128,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post with action=change
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": self.target_user.email,
-                "role": "organisation_lead",
-                "action": "change",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        response = self._edit_profile(action="change")
 
         # Should show confirmation template
         self.assertEqual(response.status_code, 200)
@@ -154,16 +143,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Assert PermissionDenied is raised when trying to set cyber_advisor role
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": self.target_user.email,
-                "role": "cyber_advisor",
-                "action": "confirm",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        response = self._edit_profile(role="cyber_advisor")
         self.assertEqual(response.status_code, 403)
 
     def test_form_valid_does_not_save_with_change_action(self):
@@ -174,16 +154,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}))
 
         # Post with action=change
-        self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": self.target_user.email,
-                "role": "organisation_lead",
-                "action": "change",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        self._edit_profile(action="change")
 
         # Refresh from database
         self.target_profile.refresh_from_db()
@@ -195,16 +166,7 @@ class TestUserProfileView(BaseViewTest):
         """Test creating a new user profile"""
         new_email = "newuser@bigorganisation.gov.uk"
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": new_email,
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        response = self._create_profile(email=new_email)
 
         # Assert user was created
         self.assertTrue(User.objects.filter(email=new_email).exists())
@@ -230,16 +192,7 @@ class TestUserProfileView(BaseViewTest):
         self.client.get(reverse("create-new-profile"))
 
         # Assert PermissionDenied is raised when trying to create cyber_advisor
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": new_email,
-                "role": "cyber_advisor",
-                "action": "confirm",
-                "first_name": "Test",
-                "last_name": "User",
-            },
-        )
+        response = self._create_profile(email=new_email, role="cyber_advisor")
         self.assertEqual(response.status_code, 403)
         # Assert user was not created with cyber_advisor role
         self.assertFalse(User.objects.filter(email=new_email).exists())
@@ -256,16 +209,7 @@ class TestUserProfileView(BaseViewTest):
         # Verify user doesn't exist
         self.assertFalse(User.objects.filter(email=new_email).exists())
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": new_email,
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": first_name,
-                "last_name": last_name,
-            },
-        )
+        response = self._create_profile(email=new_email, first_name=first_name, last_name=last_name)
 
         # Should redirect to success URL
         self.assertEqual(response.status_code, 302)
@@ -296,16 +240,7 @@ class TestUserProfileView(BaseViewTest):
         new_first_name = "Updated"
         new_last_name = "Person"
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": existing_email,
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": new_first_name,
-                "last_name": new_last_name,
-            },
-        )
+        response = self._create_profile(email=existing_email, first_name=new_first_name, last_name=new_last_name)
 
         # Should redirect to success URL
         self.assertEqual(response.status_code, 302)
@@ -339,16 +274,7 @@ class TestUserProfileView(BaseViewTest):
         # Verify new user doesn't exist
         self.assertFalse(User.objects.filter(email=new_email).exists())
 
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": new_email,
-                "role": "organisation_lead",
-                "action": "confirm",
-                "first_name": new_first_name,
-                "last_name": new_last_name,
-            },
-        )
+        response = self._edit_profile(email=new_email, first_name=new_first_name, last_name=new_last_name)
 
         # Should redirect to success URL
         self.assertEqual(response.status_code, 302)
@@ -399,16 +325,7 @@ class TestUserProfileView(BaseViewTest):
         new_first_name = "Updated"
         new_last_name = "Name"
 
-        response = self.client.post(
-            reverse("edit-profile", kwargs={"user_profile_uid": self.target_profile.uid}),
-            data={
-                "email": existing_email,
-                "role": "organisation_lead",
-                "action": "confirm",
-                "first_name": new_first_name,
-                "last_name": new_last_name,
-            },
-        )
+        response = self._edit_profile(email=existing_email, first_name=new_first_name, last_name=new_last_name)
 
         # Should redirect to success URL
         self.assertEqual(response.status_code, 302)
@@ -435,47 +352,37 @@ class TestUserProfileView(BaseViewTest):
     @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
     @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
     def test_create_profile_sends_notification_email(self, mock_send_email):
-        """Test that creating a new user profile sends a notification email to the added user."""
+        """Creating a new user profile sends a notification email to the organisation leads and added user."""
         new_email = "john.doe@test.gov.uk"
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": new_email,
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": "Jane",
-                "last_name": "Doe",
-            },
-        )
+        response = self._create_profile(email=new_email, first_name="Jane", last_name="Doe")
 
         self.assertEqual(response.status_code, 302)
-        mock_send_email.assert_called_once_with(
-            email_addresses=[new_email],
-            personalisation_data={
-                "first_name": "Jane",
-                "last_name": "Doe",
-                "email": new_email,
-                "role": "Organisation user",
-                "organisation_name": self.test_organisation.name,
-            },
-            template_id="test-new-user-template",
-        )
+        mock_send_email.assert_called_once()
+        call_kwargs = mock_send_email.call_args.kwargs
+        self.assertEqual(call_kwargs["email_addresses"], [self.org_lead_user.email, new_email])
+        self.assertEqual(call_kwargs["template_id"], "test-new-user-template")
+
+    @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
+    @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
+    def test_create_profile_email_personalisation(self, mock_send_email):
+        """New user notification email carries the expected personalisation fields."""
+        new_email = "john.doe@test.gov.uk"
+        self._create_profile(email=new_email, first_name="Jane", last_name="Doe")
+
+        mock_send_email.assert_called_once()
+        personalisation = mock_send_email.call_args.kwargs["personalisation_data"]
+        self.assertEqual(personalisation["first_name"], "Jane")
+        self.assertEqual(personalisation["last_name"], "Doe")
+        self.assertEqual(personalisation["email"], new_email)
+        self.assertEqual(personalisation["role"], "Organisation user")
+        self.assertEqual(personalisation["organisation_name"], self.test_organisation.name)
 
     @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="")
     @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
     def test_create_profile_does_not_send_email_when_template_id_empty(self, mock_send_email):
-        """Test that no notification email is sent when NOTIFY_NEW_USER_TEMPLATE_ID is empty."""
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": "noemail@test.gov.uk",
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": "Jane",
-                "last_name": "Doe",
-            },
-        )
+        """No notification email is sent when NOTIFY_NEW_USER_TEMPLATE_ID is empty."""
+        response = self._create_profile(email="noemail@test.gov.uk", first_name="Jane", last_name="Doe")
 
         self.assertEqual(response.status_code, 302)
         mock_send_email.assert_not_called()
@@ -483,20 +390,11 @@ class TestUserProfileView(BaseViewTest):
     @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
     @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
     def test_create_profile_email_failure_does_not_raise_error(self, mock_send_email):
-        """Test that email notification failure is logged and does not break profile creation."""
+        """Email notification failure is logged and does not break profile creation."""
         mock_send_email.side_effect = Exception("Notify service error")
         new_email = "failure@test.gov.uk"
 
-        response = self.client.post(
-            reverse("create-new-profile"),
-            data={
-                "email": new_email,
-                "role": "organisation_user",
-                "action": "confirm",
-                "first_name": "Jane",
-                "last_name": "Doe",
-            },
-        )
+        response = self._create_profile(email=new_email, first_name="Jane", last_name="Doe")
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(email=new_email).exists())
