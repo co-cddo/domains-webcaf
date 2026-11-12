@@ -16,6 +16,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from django.views.generic.detail import DetailView
+from weasyprint import HTML
+from weasyprint.urls import URLFetcher
 
 from webcaf.webcaf.models import (
     Assessment,
@@ -381,6 +383,25 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
         return data
 
 
+class CustomURLFetcher(URLFetcher):
+    """
+    Custom URL fetcher for WeasyPrint PDF generation.
+    Intercepts URLs containing static assets (matching 'assets/') to resolve
+    and load them directly from the local filesystem via ``settings.STATIC_ROOT``,
+    All other URLs fall back to the default URLFetcher implementation.
+    """
+
+    def fetch(self, url, headers=None):
+        if "assets/" in url:
+            # Need to set the absolute path to the static files as pdf generation does not work with relative paths
+            asset_relative_path = url.split("assets/")[-1]
+            asset_path = Path(settings.STATIC_ROOT) / asset_relative_path
+            local_uri = asset_path.as_uri()
+            return super().fetch(local_uri, headers=headers)
+
+        return super().fetch(url, headers=headers)
+
+
 class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
     template_name = "caf/assessment/completed-assessment.html"
 
@@ -388,8 +409,6 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         self.logger.info(f"Downloading assessment {kwargs['assessment_id']} for user {request.user.pk}")
         # Local import to avoid crashing the app if the dependency is not installed
         # on the developer machines
-        from django.conf import settings
-        from weasyprint import HTML, default_url_fetcher
 
         # Disable style warnings from weasyprint
         logging.getLogger("weasyprint").setLevel(logging.ERROR)
@@ -399,13 +418,10 @@ class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
         html_string = render_to_string(self.template_name, context, request=request)
 
         # Generate PDF
-        # Need to set the absolute path to the static files as pdf generation does not work with relative paths
-        def custom_url_fetcher(url, timeout=10, ssl_context=None, http_headers=None):
-            return default_url_fetcher(
-                Path(settings.STATIC_ROOT + "/" + url.split("assets/")[-1]).as_uri(), timeout, ssl_context, http_headers
-            )
+        # Instantiate the custom fetcher with timeout constraints directly in the constructor
+        fetcher_instance = CustomURLFetcher(timeout=10)
 
-        pdf = HTML(string=html_string, url_fetcher=custom_url_fetcher, base_url=Path(settings.STATIC_ROOT)).write_pdf()
+        pdf = HTML(string=html_string, url_fetcher=fetcher_instance, base_url=Path(settings.STATIC_ROOT)).write_pdf()
         pdf_file = pdf
 
         # Return as PDF response
