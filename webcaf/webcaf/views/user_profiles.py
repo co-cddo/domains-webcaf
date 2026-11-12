@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.db.transaction import atomic
@@ -11,7 +12,9 @@ from django.views.generic import DeleteView, FormView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
-from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.models import Settings, UserProfile
+from webcaf.webcaf.notification import send_notify_email
+from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
 from webcaf.webcaf.utils.session import SessionUtil
 
@@ -124,7 +127,47 @@ class CreateUserProfileView(UserProfileView):
         current_profile = SessionUtil.get_current_user_profile(self.request)
         form.instance.organisation = current_profile.organisation
 
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.send_new_user_email(form.instance)
+        return response
+
+    def send_new_user_email(self, user_profile: UserProfile) -> None:
+        """
+        Sends a notification email to the newly created user simultaneously informing organisation lead and Gov Assurance lead.
+        :param user_profile: newly created user profile
+        :return: None
+        """
+        if template_id := settings.NOTIFY_NEW_USER_TEMPLATE_ID:
+            try:
+                user = user_profile.user
+                email_addresses = list(
+                    UserProfile.objects.filter(
+                        organisation=user_profile.organisation,
+                        role="organisation_lead",
+                    ).values_list("user__email", flat=True)
+                )
+                gov_assure_email = Settings.get_instance().gov_assure_email
+                if gov_assure_email:  # Gov assure mailbox
+                    email_addresses.append(gov_assure_email)
+                else:
+                    self.logger.warning("Gov Assurance email is not set")
+                if user.email:  # New user
+                    email_addresses.append(user.email)
+                    send_notify_email(
+                        email_addresses=email_addresses,
+                        personalisation_data={
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "role": user_profile.get_role_display(),
+                            "organisation_name": (user_profile.organisation.name if user_profile.organisation else "-"),
+                        },
+                        template_id=template_id,
+                    )
+            except Exception as ex:  # type: ignore
+                self.logger.exception(mask_email(f"GOV.UK Notify: Failed to send new user email {ex}"))
+        else:
+            self.logger.info("GOV.UK Notify: No template ID provided for new user email")
 
 
 class CreateOrSkipUserProfileView(UserProfilesView):
