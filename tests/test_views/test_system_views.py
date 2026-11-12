@@ -138,4 +138,4 @@ class TestEditSystemViewFormValidation(BaseViewTest):
         self.assertIn(resp.status_code, (302, 303))
         self.system.refresh_from_db()
         #
-        self.assertEqual(self.system.corporate_services_other, "")
+        self.assertEqual("", self.system.corporate_services_other)

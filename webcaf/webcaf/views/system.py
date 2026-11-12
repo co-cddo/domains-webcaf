@@ -44,8 +44,8 @@ class SystemViewMixin(UserRoleCheckMixin, SystemContextDataMixin):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # Capture the first instance of the user input, where we would get flagged
-        # for unconfirmed changes.
+        # Capture the first user input, which may later be flagged
+        # if there are unconfirmed changes.
         if len(form.errors) == 1 and "action" in form.errors:
             current_profile = SessionUtil.get_current_user_profile(self.request)
             return render(

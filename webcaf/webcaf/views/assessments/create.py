@@ -24,6 +24,11 @@ from webcaf.webcaf.utils.session import SessionUtil
 
 
 class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
+    """
+    Base mixin class for creating assessments. This class provides common functionality for handling
+    the creation of assessments, including form validation, context data preparation, and
+    permission checks.
+    """
 
     def form_valid(self, form):
         """
@@ -79,6 +84,12 @@ class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
         return logging.getLogger(self.__class__.__name__)
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves the base context data for rendering the template, including user profile,
+        :param kwargs:
+        :return:
+        """
+        # local import to avoid circular import issues
         from webcaf.webcaf.frameworks import routers
 
         data = super().get_context_data(**kwargs)
@@ -91,7 +102,6 @@ class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
         data["draft_assessment"] = self.request.session.get("draft_assessment", {})
 
         configuration = Configuration.objects.get_default_config()
-        # Hard code the router class version for now
         router = routers[configuration.get_default_framework()]
         data["objectives"] = router.get_sections()
 
@@ -149,6 +159,7 @@ class CreateAssessmentView(AssessmentProfileCheckMixin, TemplateView):
         data["breadcrumbs"] = self.breadcrumbs()
         data["draft_assessment"] = self.request.session["draft_assessment"]
         configuration = Configuration.objects.get_default_config()
+        # local import to avoid circular import issues
         from webcaf.webcaf.frameworks import routers
 
         router = routers[configuration.get_default_framework()]
@@ -196,6 +207,7 @@ class CreateAssessmentSystemView(CreateAssessmentMixin):
         if form.cleaned_data["system"].organisation != current_user_profile.organisation:
             # Just to make sure that the user is sending back the correct system
             # From the allowed systems for the organisation.
+            self.logger.warning("User attempted to access a system they do not have permission for.")
             raise PermissionDenied("You do not have access to this system")
         draft_assessment["system"] = form.cleaned_data["system"].id
         # We store the data in the session and redirect to the next step

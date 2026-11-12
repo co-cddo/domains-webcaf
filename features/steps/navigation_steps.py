@@ -418,13 +418,25 @@ def fill_outcome_confirm(context: Context, outcome_status: str, outcome_comment:
 
 @step("get assessment id from url and add to context")
 def add_assessment_id_to_context(context: Context):
+    """
+    Extracts the assessment uid from the url and adds it to the context.
+
+    :param context: The context object.
+    :return: None
+    """
     url = context.page.url
 
     def is_valid_uuid(value: str) -> bool:
+        """
+        Utility function to check if a given value is a valid UUID.
+        :param value:
+        :return:
+        """
         try:
             uuid.UUID(value)
             return True
         except (ValueError, AttributeError, TypeError):
+            # If the value is not a valid UUID, return False
             return False
 
     assessment_id = filter(lambda x: is_valid_uuid(x), url.strip("/").split("/"))

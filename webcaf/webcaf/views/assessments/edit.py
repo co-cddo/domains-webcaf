@@ -213,7 +213,7 @@ class EditAssessmentSystemView(EditAssessmentView):
     def form_invalid(self, form):
         """
         Handle invalid form submissions.
-        The systems fiiis can only be invalid if the suer chooses a system that is not in the list of available systems for the organisation.
+        The systems can be considered invalid if the user selects a system that is not in the organisation's list of available systems.
         :param form:
         :return:
         """
