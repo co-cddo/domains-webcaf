@@ -30,7 +30,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         self.client.force_login(self.test_user)
         session = self.client.session
         session["current_profile_id"] = self.user_profile.id
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_id": self.assessment.id, "assessment_uid": str(self.assessment.uid)}
         session.save()
 
     @parameterized.parameterized.expand(
@@ -98,7 +98,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
         self.client.force_login(cyber_advisor_profile.user)
         session = self.client.session
         session["current_profile_id"] = cyber_advisor_profile.id
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_id": self.assessment.id, "assessment_uid": str(self.assessment.uid)}
         session.save()
 
         original_data = {}
@@ -227,7 +227,7 @@ class OutcomeIndicatorsViewTests(BaseViewTest):
 
         session = self.client.session
         session["current_profile_id"] = other_user_profile.id
-        session["draft_assessment"] = {"assessment_id": self.assessment.id}
+        session["draft_assessment"] = {"assessment_id": self.assessment.id, "assessment_uid": str(self.assessment.uid)}
         session.save()
 
         form_data = {

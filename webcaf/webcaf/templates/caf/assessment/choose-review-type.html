@@ -44,7 +44,7 @@
                                     <span class="govuk-visually-hidden">Error:</span> {{ form.errors.review_type.0 }}
                                 </p>
                             {% endif %}
-                            {% for choice in review_form.fields.review_type.choices %}
+                            {% for choice in form.fields.review_type.choices %}
                                 <div class="govuk-radios__item">
                                     <input class="govuk-radios__input"
                                         id="review_type{{ forloop.counter }}"
@@ -68,7 +68,10 @@
                     </div>
                     <div class="govuk-button-group">
                         <span class="govuk-body govuk-!-font-size-24">
-                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                            {% current_user_can_start_assessment current_profile as can_start_assessment %}
+                            {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
+                            <button type="submit" class="govuk-button" data-module="govuk-button"
+                            {% if not can_start_assessment and not can_edit_assessments %}disabled{% endif %}>
                                 Save and continue
                             </button>
                         </span>

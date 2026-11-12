@@ -42,7 +42,7 @@
                             </td>
                             <td class="govuk-table__cell">
                                 {% if can_view_submitted_assessments %}
-                                    <a href="{% url 'view-submitted-assessment' assessment_row.assessment.id %}"
+                                    <a href="{% url 'view-submitted-assessment' assessment_row.assessment.uid %}"
                                        class="govuk-link">Self-assessment</a>
                                     <br/>
                                 {% endif %}

@@ -29,26 +29,21 @@ from webcaf.webcaf.tip.views import (
     TipSubmissionConfirmationView,
     TipSubmitView,
 )
-from webcaf.webcaf.views import (
-    AccountView,
-    ChangeActiveProfileView,
+from webcaf.webcaf.views.account import AccountView, ViewDraftAssessmentsView
+from webcaf.webcaf.views.assessments.create import (
     CreateAssessmentProfileView,
     CreateAssessmentReviewTypeView,
     CreateAssessmentSystemView,
     CreateAssessmentView,
+)
+from webcaf.webcaf.views.assessments.edit import (
     EditAssessmentProfileView,
     EditAssessmentReviewTypeView,
     EditAssessmentSystemView,
     EditAssessmentView,
-    ExportAssessmentTemplateView,
-    Index,
-    MyOrganisationView,
-    OrganisationContactView,
-    OrganisationTypeView,
-    ViewDraftAssessmentsView,
-    ViewSubmittedAssessmentsView,
 )
-from webcaf.webcaf.views.assesment import HistoricalAssessmentView
+from webcaf.webcaf.views.assessments.historical import HistoricalAssessmentView
+from webcaf.webcaf.views.assessments.import_export import ExportAssessmentTemplateView
 from webcaf.webcaf.views.assessor.review import (
     DownloadExcelReport,
     DownloadReport,
@@ -76,19 +71,26 @@ from webcaf.webcaf.views.assessor.review_assessment import (
     OutcomeView,
     ShowReportConfirmation,
 )
-from webcaf.webcaf.views.general import logout_view
+from webcaf.webcaf.views.general import Index, logout_view
+from webcaf.webcaf.views.organisation import (
+    ChangeActiveProfileView,
+    MyOrganisationView,
+    OrganisationContactView,
+    OrganisationTypeView,
+)
 from webcaf.webcaf.views.sections import (
     DownloadAssessment,
     DownloadSubmittedAssessmentPdf,
     SectionConfirmationView,
     ShowSubmissionConfirmationView,
     ViewSubmittedAssessment,
+    ViewSubmittedAssessmentsView,
 )
 from webcaf.webcaf.views.session_expired import session_expired
 from webcaf.webcaf.views.system import (
     CreateOrSkipSystemView,
+    CreateSystemView,
     EditSystemView,
-    SystemView,
     ViewSystemsView,
 )
 from webcaf.webcaf.views.two_factor_auth import Verify2FATokenView
@@ -129,9 +131,13 @@ tip_paths = (
 urlpatterns = [
     path("my-account/", AccountView.as_view(), name="my-account"),
     path("my-account/view-draft-assessments/", ViewDraftAssessmentsView.as_view(), name="view-draft-assessments"),
-    path("my-organisation/<int:id>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
-    path("my-organisation/<int:id>/contact", OrganisationContactView.as_view(), name="edit-my-organisation-contact"),
-    path("my-organisation/<int:id>/", MyOrganisationView.as_view(), name="my-organisation"),
+    path("my-organisation/<uuid:profile_uid>/type", OrganisationTypeView.as_view(), name="edit-my-organisation-type"),
+    path(
+        "my-organisation/<uuid:profile_uid>/contact",
+        OrganisationContactView.as_view(),
+        name="edit-my-organisation-contact",
+    ),
+    path("my-organisation/<uuid:profile_uid>/", MyOrganisationView.as_view(), name="my-organisation"),
     path("view-organisations/", ChangeActiveProfileView.as_view(), name="view-organisations"),
     path("change-organisation/", ChangeActiveProfileView.as_view(), name="change-organisation"),
     path("admin/", admin.site.urls),
@@ -149,36 +155,36 @@ urlpatterns = [
         name="create-draft-assessment-choose-review-type",
     ),
     # Editing existing draft assessment
-    path("edit-draft-assessment/<int:assessment_id>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
+    path("edit-draft-assessment/<uuid:assessment_uid>/", EditAssessmentView.as_view(), name="edit-draft-assessment"),
     path(
-        "edit-draft-assessment/<int:assessment_id>/profile",
+        "edit-draft-assessment/<uuid:assessment_uid>/profile",
         EditAssessmentProfileView.as_view(),
         name="edit-draft-assessment-profile",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/system",
+        "edit-draft-assessment/<uuid:assessment_uid>/system",
         EditAssessmentSystemView.as_view(),
         name="edit-draft-assessment-system",
     ),
     path(
-        "edit-draft-assessment/<int:assessment_id>/review-type",
+        "edit-draft-assessment/<uuid:assessment_uid>/review-type",
         EditAssessmentReviewTypeView.as_view(),
         name="edit-draft-assessment-choose-review-type",
     ),
     path("objective-confirmation/", SectionConfirmationView.as_view(), name="objective-confirmation"),
     path("view-submitted-assessments/", ViewSubmittedAssessmentsView.as_view(), name="view-submitted-assessments"),
     path(
-        "view-submitted-assessment/<int:assessment_id>",
+        "view-submitted-assessment/<uuid:assessment_uid>",
         ViewSubmittedAssessment.as_view(),
         name="view-submitted-assessment",
     ),
     path(
-        "download-submitted-assessment/<int:assessment_id>",
+        "download-submitted-assessment/<uuid:assessment_uid>",
         DownloadSubmittedAssessmentPdf.as_view(),
         name="download-submitted-assessment",
     ),
     path(
-        "download-assessment/<int:pk>/",
+        "download-assessment/<uuid:assessment_uid>/",
         DownloadAssessment.as_view(),
         name="download-assessment",
     ),
@@ -186,15 +192,15 @@ urlpatterns = [
         "show-submission-confirmation/", ShowSubmissionConfirmationView.as_view(), name="show-submission-confirmation"
     ),
     #     system paths
-    path("create-new-system/", SystemView.as_view(), name="create-new-system"),
-    path("edit-system/<int:system_id>/", EditSystemView.as_view(), name="edit-system"),
+    path("create-new-system/", CreateSystemView.as_view(), name="create-new-system"),
+    path("edit-system/<uuid:system_uid>/", EditSystemView.as_view(), name="edit-system"),
     path("view-systems/", ViewSystemsView.as_view(), name="view-systems"),
     path("create-or-skip-new-system/", CreateOrSkipSystemView.as_view(), name="create-or-skip-new-system"),
     #     User management paths
     path("create-new-profile/", CreateUserProfileView.as_view(), name="create-new-profile"),
     path("create-or-skip-new-profile/", CreateOrSkipUserProfileView.as_view(), name="create-or-skip-new-profile"),
-    path("edit-profile/<int:user_profile_id>", UserProfileView.as_view(), name="edit-profile"),
-    path("remove-profile/<int:user_profile_id>", RemoveUserProfileView.as_view(), name="remove-profile"),
+    path("edit-profile/<uuid:user_profile_uid>", UserProfileView.as_view(), name="edit-profile"),
+    path("remove-profile/<uuid:user_profile_uid>", RemoveUserProfileView.as_view(), name="remove-profile"),
     path("view-profiles/", UserProfilesView.as_view(), name="view-profiles"),
     # Public pages
     path("public/data-usage-policy/", TemplateView.as_view(template_name="data-policy.html"), name="data-usage-policy"),

@@ -27,7 +27,7 @@ class SetupPermissionsData(BaseViewTest):
         self.view_systems_url = reverse("view-systems")
 
         self.user_profile = UserProfile.objects.get(user=self.test_user)
-        self.edit_user_url = reverse("edit-profile", kwargs={"user_profile_id": self.user_profile.id})
+        self.edit_user_url = reverse("edit-profile", kwargs={"user_profile_uid": self.user_profile.uid})
         self.create_new_profile_url = reverse("create-new-profile")
         self.create_new_system_url = reverse("create-new-system")
         self.create_or_skip_new_system_url = reverse("create-or-skip-new-system")
@@ -62,6 +62,7 @@ class SetupPermissionsData(BaseViewTest):
             )
             and not url_pattern.pattern._route.startswith("public")
             and "<int:" not in url_pattern.pattern._route
+            and "<uuid:" not in url_pattern.pattern._route
         ]
 
     def tearDown(self):

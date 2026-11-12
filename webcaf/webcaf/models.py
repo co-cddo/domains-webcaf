@@ -1,5 +1,6 @@
 import logging
 import typing
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any, Literal
@@ -16,6 +17,7 @@ from django.db.models import (
     Func,
     IntegerField,
     QuerySet,
+    UUIDField,
     Value,
 )
 from django.db.models.functions import Cast
@@ -87,6 +89,7 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
     parent_organisation = models.ForeignKey(
         "self", on_delete=models.SET_NULL, related_name="sub_organisations", null=True, blank=True
     )
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 
@@ -160,6 +163,7 @@ class System(ReferenceGeneratorMixin, models.Model):
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="systems")
     corporate_services = MultiSelectField(choices=CORPORATE_SERVICES, null=True, blank=True, max_length=255)
     corporate_services_other = models.CharField(max_length=100, blank=True, null=True)
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 
@@ -225,6 +229,7 @@ class Assessment(ReferenceGeneratorMixin, models.Model):
     review_type = models.CharField(max_length=255, choices=REVIEW_TYPE_CHOICES, default="not_decided")
 
     history = HistoricalRecords()
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     class Meta:
         unique_together = ["assessment_period", "system", "status"]
@@ -407,6 +412,7 @@ class UserProfile(models.Model):
         Organisation, on_delete=models.CASCADE, related_name="members", null=True, blank=True
     )
     role = models.CharField(max_length=255, null=True, blank=True, choices=ROLE_CHOICES)
+    uid = UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     history = HistoricalRecords()
 

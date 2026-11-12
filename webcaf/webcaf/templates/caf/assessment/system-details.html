@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load permission_extras %}
 {% load govuk_frontend_django %}
 {% block title %}Choose a system - {{ user.first_name }} {{ block.super }}{% endblock %}
 {% block content %}
@@ -19,7 +20,7 @@
                         </label>
                         <select class="govuk-select" id="system_id" name="system">
                             {% for system_ in systems %}
-                                <option value="{{ system_.id }}"
+                                <option value="{{ system_.uid }}"
                                         {% if draft_assessment.system == system_.id %}
                                         selected
                                         {% endif %}
@@ -39,7 +40,10 @@
 
                         <div class="govuk-button-group">
                         <span class="govuk-body govuk-!-font-size-24">
-                            <button type="submit" class="govuk-button" data-module="govuk-button">
+                            {% current_user_can_start_assessment current_profile as can_start_assessment %}
+                            {% current_user_can_edit_assessments current_profile as can_edit_assessments %}
+                            <button type="submit" class="govuk-button" data-module="govuk-button"
+                            {% if not can_start_assessment and not can_edit_assessments %}disabled{% endif %}>
                                 Save and continue
                             </button>
                         </span>

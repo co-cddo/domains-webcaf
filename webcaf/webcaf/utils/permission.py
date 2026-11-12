@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -225,8 +226,18 @@ class UserRoleCheckMixin(LoginRequiredMixin):
 class AssessmentProfileCheckMixin(UserRoleCheckMixin, ABC):
     """
     Mixin to check if the user has the required profile to access the view.
-    Expected to be used wit any views related to assessments.
+    Expected to be used with any views related to assessments.
     """
+
+    # By default we look up by pk_url_kwarg
+    slug_url_kwarg = "assessment_uid"
+
+    def get_slug_field(self) -> str:
+        """
+        Look up objects by its uid when dealing with the external requests
+        :return:
+        """
+        return "uid"
 
     def get_object(self, queryset=None):
         if queryset is None:
@@ -239,3 +250,11 @@ class AssessmentProfileCheckMixin(UserRoleCheckMixin, ABC):
         queryset = super().get_queryset()
         current_profile = SessionUtil.get_current_user_profile(self.request)
         return queryset.filter(system__organisation=current_profile.organisation)
+
+    @property
+    def logger(self):
+        """
+        Returns the logger for the view.
+        :return:
+        """
+        return logging.getLogger(f"webcaf.{self.__class__.__name__}")

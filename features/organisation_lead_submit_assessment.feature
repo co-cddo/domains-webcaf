@@ -56,6 +56,5 @@ Feature: Organisation lead can submit assessment
     And confirm current assessment is in "submitted" state
     And click link with text "My account"
     And click button with text "Start a self-assessment"
-    And get assessment id from url and add to context
     And click link with text "Provide system details"
     And should see "System 2, System 3" in select box options
