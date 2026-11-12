@@ -113,7 +113,7 @@ def assign_user_profile(context, user_name, role, organisation_name):
     run_async_orm(create_profile)
 
 
-@step('the user logs in with username  "{user_name}" and password "{password}"')
+@step('the user logs in with username "{user_name}" and password "{password}"')
 def user_logging_in(context, user_name, password):
     page = context.page
     page.get_by_role("button", name="Sign in").click()

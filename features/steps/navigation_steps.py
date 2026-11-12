@@ -8,6 +8,7 @@ from pathlib import Path
 from time import sleep
 from typing import Any, Literal, Optional
 
+import behave
 from behave import step, then
 from behave.runner import Context
 from openpyxl import load_workbook
@@ -62,6 +63,17 @@ def click_link_with_text(context: Context, text: str):
         sleep(context.think_time)
     page = context.page
     page.get_by_role("link", name=text, exact=True).click()
+
+
+@step('logs out by clicking link')
+def log_out(context: Context):
+    """
+    :type context:Context
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    page.get_by_role("link", name="Logout", exact=False).click()
 
 
 @step('click link in summary card row "{key}" with text "{text}"')
@@ -228,16 +240,16 @@ def make_sure_no_system(context: Context, system_name: str, org_name: str):
 
 
 @step(
-    'there is a "{caf_profile}" profile assessment  for "{system_name}", "{organisation_name}", for the period "{period}" in "{status}" status and data "{data_file}"'
+    'there is a "{caf_profile}" profile assessment for "{system_name}", "{organisation_name}", for the period "{period}" in "{status}" status and data "{data_file}"'
 )
 def create_new_assessment(
-    context: Context,
-    caf_profile: str,
-    system_name: str,
-    organisation_name: str,
-    period: str,
-    status: str,
-    data_file: Optional[str],
+        context: Context,
+        caf_profile: str,
+        system_name: str,
+        organisation_name: str,
+        period: str,
+        status: str,
+        data_file: Optional[str],
 ):
     """
     :type context: behave.runner.Context
@@ -261,7 +273,7 @@ def create_new_assessment(
             assessment_period=get_current_assessment_period()[0],
             status=status,
             review_type="independent",
-            framework="caf32",
+            framework="caf40",
             assessments_data=initial_assessment_data,
         )
         assessment.save()
@@ -288,7 +300,7 @@ def confirm_heading_on_page(context: Context, heading: str):
     expect(heading_element).to_be_visible()
 
 
-@then('navigate to "{objective_text}"')
+@step('navigate to "{objective_text}"')
 def select_objective(context: Context, objective_text: str):
     """
     :type context: behave.runner.Context
@@ -326,7 +338,7 @@ def fill_outcome(context: Context, outcome_text: str, section_keys: str, section
     for i in range(link.count()):
         text = link.nth(i).inner_text()
         if "Add answers to" in text.strip() and re.sub(r"[^A-Za-z0-9]", "", outcome_text) in re.sub(
-            r"[^A-Za-z0-9]", "", text
+                r"[^A-Za-z0-9]", "", text
         ):
             link = link.nth(i)
             link.click()
@@ -602,3 +614,38 @@ def table_with_header(context: Context, header: str):
     expect(table).to_be_visible()
     header_cell = table.locator("th").filter(has_text=header)
     expect(header_cell).to_be_visible()
+
+
+@step("store the current review id from url and add to context")
+def store_current_review_id(context: Context):
+    """
+    :type context: Context
+    """
+    url = context.page.url
+
+    current_review_id = url.strip("/").split("/")
+    context.current_review_id = list(current_review_id)[-1]
+
+
+@step("confirm the current review has expected data")
+def check_review_data(context: Context):
+    """
+    :type context: Context
+    """
+    from webcaf.webcaf.models import Assessment, Review
+    current_review = get_model(Review, id=context.current_review_id)
+    current_assessment = get_model(Assessment, uid=context.current_assessment_id)
+    assert current_review.assessment_id == current_assessment.id
+
+
+@step('Fill review outcome "{outcome_text}" with "{section_keys}" with "{section_values}"')
+def fill_review_outcome(context: Context, outcome_text: str, section_keys: str, section_values: str):
+    """
+    :type context: behave.runner.Context
+    """
+    # Go to the review page for the CO
+    click_summary_card_link_with_text(context, outcome_text, "Review")
+
+    page = context.page
+    # Navigate to the section
+

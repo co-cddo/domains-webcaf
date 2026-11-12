@@ -67,6 +67,27 @@ def check_assessment_data(context: Context, data_file_name: str):
         assert json.loads(json_data) == get_model(Assessment, uid=context.current_assessment_id).assessments_data
 
 
+@step(
+    'confirm the current assessment has version as "{caf_version}" type as "{assessment_type}" and profile as "{caf_profile}"'
+)
+def check_assessment_version_type_profile(context: Context, caf_version: str, assessment_type: str, caf_profile: str):
+    """
+    :type context: behave.runner.Context
+    """
+    from webcaf.webcaf.models import Assessment
+
+    assessment = get_model(Assessment, uid=context.current_assessment_id)
+    assert (
+        assessment.framework == caf_version
+    ), f"Assessment version is '{assessment.framework}' but expected '{caf_version}'"
+    assert (
+        assessment.review_type == assessment_type
+    ), f"Assessment type is '{assessment.review_type}' but expected '{assessment_type}'"
+    assert (
+        assessment.caf_profile == caf_profile
+    ), f"Assessment profile is '{assessment.caf_profile}' but expected '{caf_profile}'"
+
+
 @step('confirm current assessment is in "{expected_state}" state')
 def confirm_assessment_status(context: Context, expected_state: str):
     """
