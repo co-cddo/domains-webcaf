@@ -17,7 +17,6 @@ from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 from django.views.generic.detail import DetailView
 from weasyprint import HTML
-from weasyprint.urls import URLFetcher
 
 from webcaf.webcaf.models import (
     Assessment,
@@ -28,6 +27,7 @@ from webcaf.webcaf.models import (
 )
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
+from webcaf.webcaf.utils.pdf import CustomURLFetcher
 from webcaf.webcaf.utils.permission import (
     AssessmentProfileCheckMixin,
     UserRoleCheckMixin,
@@ -381,25 +381,6 @@ class ViewSubmittedAssessment(UserRoleCheckMixin, TemplateView):
             "current_assessment_period": assessment_period,
         }
         return data
-
-
-class CustomURLFetcher(URLFetcher):
-    """
-    Custom URL fetcher for WeasyPrint PDF generation.
-    Intercepts URLs containing static assets (matching 'assets/') to resolve
-    and load them directly from the local filesystem via ``settings.STATIC_ROOT``,
-    All other URLs fall back to the default URLFetcher implementation.
-    """
-
-    def fetch(self, url, headers=None):
-        if "assets/" in url:
-            # Need to set the absolute path to the static files as pdf generation does not work with relative paths
-            asset_relative_path = url.split("assets/")[-1]
-            asset_path = Path(settings.STATIC_ROOT) / asset_relative_path
-            local_uri = asset_path.as_uri()
-            return super().fetch(local_uri, headers=headers)
-
-        return super().fetch(url, headers=headers)
 
 
 class DownloadSubmittedAssessmentPdf(ViewSubmittedAssessment):
