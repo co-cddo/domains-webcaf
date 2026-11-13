@@ -49,6 +49,7 @@ freezegun = "^1.5.5"
 pytest = "^9.1.1"
 pytest-django = "^4.14.0"
 pytest-html = "^4.2.0"
+deepdiff = "^9.1.0"
 
 [tool.isort]
 profile = "black"

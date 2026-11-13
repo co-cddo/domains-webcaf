@@ -7,8 +7,8 @@ Feature: Organisation lead can submit assessment
     And User "other@example.gov.uk" has the profile "GovAssure lead" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
-    And there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "current" in "draft" status and data "alice_completed_assessment.json"
-    And the user logs in with username  "other@example.gov.uk" and password "password"
+    And there is a "enhanced" profile assessment for "System 1", "Ministry of Agriculture", for the period "current" in "draft" status and data "alice_completed_assessment.json"
+    And the user logs in with username "other@example.gov.uk" and password "password"
 
   Scenario: Organisation lead can can submit a completed assessment
     Given Think time 1 seconds

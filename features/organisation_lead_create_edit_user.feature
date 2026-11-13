@@ -7,7 +7,7 @@ Feature: Create and edit a new user for the organisation
     And User "other@example.gov.uk" has the profile "GovAssure lead" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
-    And the user logs in with username  "other@example.gov.uk" and password "password"
+    And the user logs in with username "other@example.gov.uk" and password "password"
 
   Scenario: GovAssure lead can see option to create users and create an Organisation user and then edit
     Given Think time 1 seconds

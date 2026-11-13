@@ -12,7 +12,7 @@ Feature: Assessor can log in and view assessments
 
   Scenario: Assessor can log in and see their account page
     Given Think time 1 seconds
-    And the user logs in with username  "test_assessor@example.com" and password "password"
+    And the user logs in with username "test_assessor@example.com" and password "password"
     Then they should see page title "My account - test_assessor Review a WebCAF self-assessment"
     And text with "Logged in as:"
     And text with "Role:"
@@ -27,8 +27,8 @@ Feature: Assessor can log in and view assessments
 
 
   Scenario: Assessor sees an enhanced submitted assessment on login
-    Given there is a "enhanced" profile assessment  for "System 1", "Ministry of Agriculture", for the period "current" in "submitted" status and data "alice_completed_assessment.json"
-    And the user logs in with username  "test_assessor@example.com" and password "password"
+    Given there is a "enhanced" profile assessment for "System 1", "Ministry of Agriculture", for the period "current" in "submitted" status and data "alice_completed_assessment.json"
+    And the user logs in with username "test_assessor@example.com" and password "password"
     And Think time 1 seconds
     Then they should see page title "My account - test_assessor Review a WebCAF self-assessment"
     And they should see a table with header "Sent for review"

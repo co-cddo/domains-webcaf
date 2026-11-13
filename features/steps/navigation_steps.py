@@ -648,4 +648,106 @@ def fill_review_outcome(context: Context, outcome_text: str, section_keys: str, 
 
     page = context.page
     # Navigate to the section
+    trs = page.locator("tr.govuk-table__row")
+    trs.last.wait_for(state="visible")
+    section_filling_criteria = dict(
+        zip([s.strip() for s in section_keys.split(",")], [s.strip() for s in section_values.split(",")])
+    )
+    radios = page.locator("input[class='govuk-radios__input']")
+    radios.last.wait_for(state="visible")
+    radio_elements_by_category = defaultdict(list)
+    for i in range(radios.count()):
+        radio_ = radios.nth(i)
+        checkbox_name = radio_.get_attribute("name")
+        if checkbox_name.startswith("achieved"):
+            radio_elements_by_category["achieved"].append(radio_)
+        elif checkbox_name.startswith("not-achieved"):
+            radio_elements_by_category["not-achieved"].append(radio_)
+        elif checkbox_name.startswith("partially-achieved"):
+            radio_elements_by_category["partially-achieved"].append(radio_)
 
+    def find_comments_text_ara_if_needed(radio):
+        # Get the containing table row
+        row = radio.locator("xpath=ancestor::tr")
+
+        # Check whether Alternative controls exists
+        alternative_controls = row.locator(
+            "strong",
+            has_text="Alternative controls:"
+        )
+
+        if alternative_controls.count() > 0:
+            # Alternative controls exists, get the textarea
+            textarea = row.locator("textarea")
+            textarea_id = textarea.get_attribute("id")
+
+            print(f"Textarea ID: {textarea_id}")
+            textarea.fill("This is a comment for alternative controls.")
+            return textarea
+        else:
+            # No alternative controls in this row
+            print("No alternative controls")
+        return None
+
+    for key, value in section_filling_criteria.items():
+        elements = radio_elements_by_category[key]
+        if value == "all":
+            for element in elements:
+                if element.get_attribute("value") == "yes":
+                    element.check()
+                    find_comments_text_ara_if_needed(element)
+
+        elif value == "some":
+            # Select no by default, and only select the given elements 0 and 2 if they exist
+            for element in elements:
+                if element.get_attribute("value") == "no":
+                    element.check()
+                find_comments_text_ara_if_needed(element)
+            if len(elements) > 0:
+                elements[0].check()
+            if len(elements) >= 3:
+                elements[2].check()
+        else:
+            for element in elements:
+                if element.get_attribute("value") == "no":
+                    element.check()
+                find_comments_text_ara_if_needed(element)
+    print("Answers checked")
+
+
+@step('Fill review outcome confirm status "{review_decision}" with "{comment}"')
+def fill_review_outcome_confirm_status(context: behave.runner.Context, review_decision: str, comment: str):
+    """
+    :type context: behave.runner.Context
+    :type review_decision: str
+    :type comment: str
+    """
+    page = context.page
+    radios = page.locator(f"input[id^='id_{review_decision.lower().replace(' ', '-')}_review_decision']")
+    radios.click()
+    textarea = page.locator(f"textarea[id^='id_review_comment']")
+    textarea.fill(comment)
+    page.get_by_role("button", name="Save and continue").click()
+
+
+@step("Add Areas of good practice")
+def add_areas_of_good_practice(context: behave.runner.Context):
+    """
+    :type context: behave.runner.Context
+    """
+    page = context.page
+    click_summary_card_link_with_text(context, "Areas of good practice", "Add comment")
+    textarea = page.locator(f"textarea[id^='id_text']")
+    textarea.fill("comment")
+    page.get_by_role("button", name="Save and continue").click()
+
+@step("Add Areas for improvement")
+def add_areas_for_improvement(context: behave.runner.Context):
+    """
+    :type context: behave.runner.Context
+    """
+    page = context.page
+    click_summary_card_link_with_text(context, "Areas for improvement", "Add comment")
+    textarea = page.locator(f"textarea[id^='id_text']")
+    textarea.fill("comment")
+    page.get_by_role("button", name="Save and continue").click()

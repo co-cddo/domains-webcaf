@@ -11,7 +11,7 @@ Feature: User login with a profile
     Given the application is running
     And cookies have been "accepted"
     And Think time 1 seconds
-    When the user logs in with username  "<user_name>" and password "<password>"
+    When the user logs in with username "<user_name>" and password "<password>"
     Then they should see page title "<page_title>"
     And page contains text "<page_text>" in header
     Examples:
