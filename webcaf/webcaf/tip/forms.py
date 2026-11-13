@@ -1,3 +1,4 @@
+from datetime import date
 from enum import StrEnum
 from typing import Any
 
@@ -36,9 +37,9 @@ class RecommendationActionForm(forms.ModelForm):
     :ivar PLANNED_ACTION_REQUIRED_FIELDS: A mapping of fields required when an action is
         planned and their corresponding error messages.
     :type PLANNED_ACTION_REQUIRED_FIELDS: dict[str, str]
-    :ivar TARGET_DATE_REQUIRED_FIELDS: A mapping of fields required when a target date is
-        provided and their corresponding error messages.
-    :type TARGET_DATE_REQUIRED_FIELDS: dict[str, str]
+    :ivar TARGET_DATE_FIELDS: A mapping of the target date part fields to the name of
+        the date part used in the error messages.
+    :type TARGET_DATE_FIELDS: dict[str, str]
     :ivar PLANNED_ACTION_DETAIL_FIELDS: A tuple defining fields required for detailing
         planned actions when recommendation actions are set as planned.
     :type PLANNED_ACTION_DETAIL_FIELDS: tuple[str]
@@ -65,14 +66,14 @@ class RecommendationActionForm(forms.ModelForm):
         is provided for the planned action.
     :type target_date_provided: ChoiceField
     :ivar target_day_day: An optional field for the day component of the target date,
-        ranging from 1 to 31.
-    :type target_day_day: forms.IntegerField
+        ranging from 1 to 31. Cleaned to an integer.
+    :type target_day_day: CharField
     :ivar target_day_month: An optional field for the month component of the target date,
-        ranging from 1 to 12.
-    :type target_day_month: forms.IntegerField
+        ranging from 1 to 12. Cleaned to an integer.
+    :type target_day_month: CharField
     :ivar target_day_year: An optional field for the year component of the target date,
-        constrained between 2026 and 2100.
-    :type target_day_year: forms.IntegerField
+        constrained between 2026 and 2100. Cleaned to an integer.
+    :type target_day_year: CharField
     :ivar target_date_unavailable_reason: An optional text field for providing a reason
         when no target date is available, with a maximum of 1500 words as default.
     :type target_date_unavailable_reason: CharField
@@ -82,17 +83,20 @@ class RecommendationActionForm(forms.ModelForm):
     """
 
     PLANNED_ACTION_REQUIRED_FIELDS = {
-        "action_owner": "Enter the action owner.",
-        "resources_available": "Enter available resources.",
-        "action_taken_description": "Enter the action to be taken.",
-        "target_date_provided": "Please indicate whether a target date has been provided.",
-        "budget_available": "Is budget available for the action?",
+        "action_taken_description": "Enter the action you will take",
+        "action_owner": "Enter who owns this action",
+        "resources_available": "Select if the resources are available to deliver this action",
+        "budget_available": "Select if the budget is approved to deliver this action",
+        "target_date_provided": "Select yes if you can provide an estimated target completion date",
     }
-    TARGET_DATE_REQUIRED_FIELDS = {
-        "target_day_day": "Enter a target day.",
-        "target_day_month": "Enter a target month.",
-        "target_day_year": "Enter a target year.",
+    TARGET_DATE_LABEL = "Estimated target completion date"
+    TARGET_DATE_FIELDS = {
+        "target_day_day": "day",
+        "target_day_month": "month",
+        "target_day_year": "year",
     }
+    TARGET_DATE_MIN_YEAR = 2026
+    TARGET_DATE_MAX_YEAR = 2100
     PLANNED_ACTION_DETAIL_FIELDS = (
         "target_date_provided",
         "target_day_day",
@@ -127,6 +131,7 @@ class RecommendationActionForm(forms.ModelForm):
         required=True,
         choices=[("action_planned", "Yes"), ("action_not_planned", "No")],
         label="Will you add an action for this recommendation",
+        error_messages={"required": "Select yes if you will add an action for this recommendation"},
     )
 
     # If action planed we need the following
@@ -162,9 +167,9 @@ class RecommendationActionForm(forms.ModelForm):
         ),
         widget=forms.RadioSelect,
     )
-    target_day_day = forms.IntegerField(required=False, min_value=1, max_value=31, label="Estimated target Day")
-    target_day_month = forms.IntegerField(required=False, min_value=1, max_value=12, label="Estimated target Month")
-    target_day_year = forms.IntegerField(required=False, min_value=2026, max_value=2100, label="Estimated target Year")
+    target_day_day = CharField(required=False, label="Estimated target Day")
+    target_day_month = CharField(required=False, label="Estimated target Month")
+    target_day_year = CharField(required=False, label="Estimated target Year")
     target_date_unavailable_reason = CharField(
         required=False,
         validators=[],
@@ -208,6 +213,20 @@ class RecommendationActionForm(forms.ModelForm):
             field = self.fields[field_name]
             field.validators.append(WordCountValidator(max_words))
             field.widget.attrs["max_words"] = max_words
+        self.order_fields(
+            [
+                "recommendation_actioned",
+                "action_not_planned_reason",
+                "action_taken_description",
+                "action_owner",
+                "resources_available",
+                "budget_available",
+                "target_date_provided",
+                *self.TARGET_DATE_FIELDS,
+                "target_date_unavailable_reason",
+            ]
+        )
+        self.target_date_error_fields: set[str] = set()
 
     class Meta:
         model = Tip
@@ -270,9 +289,12 @@ class RecommendationActionForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         if cleaned_data:
-            # Basic validation check and skip detailed validation if the form contains errors or the
-            # submit action is SAVE_AND_NEXT_RECOMMENDATION or SAVE_AND_BACK_TO_SUMMARY
-            if self.errors or cleaned_data.get("submit_action") in (
+            raw_target_date = {field: str(cleaned_data.get(field) or "").strip() for field in self.TARGET_DATE_FIELDS}
+            cleaned_data.update(self._parse_target_date_parts(raw_target_date))
+
+            # Skip detailed validation if the hidden fields are missing or the submit action is
+            # SAVE_AND_NEXT_RECOMMENDATION or SAVE_AND_BACK_TO_SUMMARY
+            if "recommendation_category" not in cleaned_data or cleaned_data.get("submit_action") in (
                 RecommendationActionChoices.SAVE_AND_NEXT_RECOMMENDATION,
                 RecommendationActionChoices.SAVE_AND_BACK_TO_SUMMARY,
             ):
@@ -282,30 +304,71 @@ class RecommendationActionForm(forms.ModelForm):
             if recommendation_actioned == "action_not_planned":
                 if cleaned_data["recommendation_category"] == "priority":
                     # Only need a reason for priority recommendations
-                    self._require(
-                        cleaned_data, "action_not_planned_reason", "Enter a reason why no action will be planned."
-                    )
+                    self._require(cleaned_data, "action_not_planned_reason", "Explain why you will not add an action")
             elif recommendation_actioned == "action_planned":
-                self._validate_action_planned(cleaned_data)
+                self._validate_action_planned(cleaned_data, raw_target_date)
 
         return cleaned_data
 
-    def _validate_action_planned(self, cleaned_data: dict[str, Any]) -> None:
+    def _validate_action_planned(self, cleaned_data: dict[str, Any], raw_target_date: dict[str, str]) -> None:
         for field, message in self.PLANNED_ACTION_REQUIRED_FIELDS.items():
             self._require(cleaned_data, field, message)
 
         is_target_date_provided = cleaned_data.get("target_date_provided")
         if is_target_date_provided == "yes":
-            for field, message in self.TARGET_DATE_REQUIRED_FIELDS.items():
-                self._require(cleaned_data, field, message)
+            self._validate_target_date(raw_target_date)
         elif is_target_date_provided == "no":
             # Only need a reason for priority recommendations
             if cleaned_data["recommendation_category"] == "priority":
                 self._require(
                     cleaned_data,
                     "target_date_unavailable_reason",
-                    "Enter a reason why no target date has been provided.",
+                    "Explain why you cannot provide a target date",
                 )
+
+    @staticmethod
+    def _parse_target_date_parts(raw_target_date: dict[str, str]) -> dict[str, int | None]:
+        """
+        Converts the raw target date part values to integers, using None for any
+        value that is missing or not a whole number.
+        """
+        return {field: int(value) if value.isdigit() else None for field, value in raw_target_date.items()}
+
+    def _validate_target_date(self, raw: dict[str, str]) -> None:
+        """
+        Validates the estimated target completion date following the GOV.UK date input
+        pattern. Only one error is shown for the date, and it is added to the first date
+        part with a problem so the error summary links to it. All the date parts with a
+        problem are recorded in target_date_error_fields so they can be highlighted.
+        """
+        missing = [field for field, value in raw.items() if not value]
+
+        if len(missing) == len(self.TARGET_DATE_FIELDS):
+            self._add_target_date_error(missing, f"Enter the {self.TARGET_DATE_LABEL.lower()}")
+            return
+        if missing:
+            missing_names = " and ".join(self.TARGET_DATE_FIELDS[field] for field in missing)
+            self._add_target_date_error(missing, f"{self.TARGET_DATE_LABEL} must include a {missing_names}")
+            return
+
+        day, month, year = self._parse_target_date_parts(raw).values()
+        if year is not None and len(raw["target_day_year"]) != 4:
+            self._add_target_date_error(["target_day_year"], "Year must include 4 numbers")
+            return
+        try:
+            date(year, month, day)  # type: ignore [arg-type]
+        except (TypeError, ValueError):
+            self._add_target_date_error(list(self.TARGET_DATE_FIELDS), f"{self.TARGET_DATE_LABEL} must be a real date")
+            return
+        if not self.TARGET_DATE_MIN_YEAR <= year <= self.TARGET_DATE_MAX_YEAR:  # type: ignore [operator]
+            self._add_target_date_error(
+                ["target_day_year"],
+                f"{self.TARGET_DATE_LABEL} must be between {self.TARGET_DATE_MIN_YEAR} and {self.TARGET_DATE_MAX_YEAR}",
+            )
+
+    def _add_target_date_error(self, fields: list[str], message: str) -> None:
+        self.target_date_error_fields.update(fields)
+        self.add_error(fields[0], message)
 
     def _require(self, cleaned_data: dict[str, Any], field: str, message: str) -> None:
         """
@@ -317,7 +380,7 @@ class RecommendationActionForm(forms.ModelForm):
         :param message: The error message to associate with the field if validation fails.
         :return: None
         """
-        if not cleaned_data.get(field):
+        if field not in self.errors and not cleaned_data.get(field):
             self.add_error(field, message)
 
 
@@ -401,6 +464,7 @@ class TipBulkReviewForm(ModelForm):
             ("no", "No"),
         ),
         label="Do you want to mark all remaining other recommendations as reviewed",
+        error_messages={"required": "Select yes if you have reviewed all the recommendations"},
     )
 
     class Meta:
@@ -467,7 +531,17 @@ class TipSubmitForm(ModelForm):
     :type confirm: bool
     """
 
-    confirm = BooleanField(required=True, widget=forms.CheckboxInput, label="TIP confirmation")
+    CONFIRM_REQUIRED_MESSAGE = (
+        "Confirm that your organisation's GovAssure senior responsible officer (SRO) "
+        "has signed off the contents of this TIP"
+    )
+
+    confirm = BooleanField(
+        required=True,
+        widget=forms.CheckboxInput,
+        label="TIP confirmation",
+        error_messages={"required": CONFIRM_REQUIRED_MESSAGE},
+    )
     # LGD - Lead government department is only applicable to peer reviews
     confirm_lgd = BooleanField(required=False, widget=forms.CheckboxInput, label="Lead Government Department (LGD)")
 
