@@ -17,6 +17,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 
 from webcaf.webcaf.models import Configuration, RecommendationAction, Tip, UserProfile
+from webcaf.webcaf.utils.pdf import CustomURLFetcher
 from webcaf.webcaf.utils.permission import UserRoleCheckMixin
 from webcaf.webcaf.utils.review import (
     Recommendation,
@@ -206,24 +207,14 @@ class RecommendationService:
         # Local imports to avoid crashing the app if weasyprint is not installed
         # on developer machines.
         from django.conf import settings
-        from weasyprint import HTML, default_url_fetcher
+        from weasyprint import HTML
 
         context["pdf_printing"] = True
         self.logger.info(f"Downloading tip {self.object.pk} for user {self.request.user.pk}")
         html_string = render_to_string(template_name, context, request=self.request)
 
-        # Resolve static asset URLs to absolute file paths — weasyprint cannot
-        # fetch them via the relative URLs Django emits.
-        def custom_url_fetcher(url, timeout=10, ssl_context=None, http_headers=None):
-            return default_url_fetcher(
-                Path(settings.STATIC_ROOT + "/" + url.split("assets/")[-1]).as_uri(),
-                timeout,
-                ssl_context,
-                http_headers,
-            )
-
         pdf_file = HTML(
-            string=html_string, url_fetcher=custom_url_fetcher, base_url=Path(settings.STATIC_ROOT)
+            string=html_string, url_fetcher=CustomURLFetcher(timeout=10), base_url=Path(settings.STATIC_ROOT)
         ).write_pdf()
 
         reference = self.object.review.assessment.reference
