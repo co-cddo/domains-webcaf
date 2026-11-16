@@ -103,6 +103,25 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
                 return type[0]
         return None
 
+    def default_email_recipients(self, include_gov_assure: bool = True) -> list[str]:
+        """
+        Return the default notification email addresses for this organisation:
+        all 'organisation_lead' user emails plus the GovAssure (cyber advisor) mailbox.
+        :param include_gov_assure:bool
+        :return: The list of default email addresses for this organisation
+        """
+        email_addresses = [
+            email
+            for email in self.members.filter(role="organisation_lead").values_list("user__email", flat=True)
+            if email
+        ]
+        if include_gov_assure:
+            if gov_assure_email := Settings.get_instance().gov_assure_email:
+                email_addresses.append(gov_assure_email)
+            else:
+                logger.warning("Gov Assurance email is not set")
+        return email_addresses
+
 
 class System(ReferenceGeneratorMixin, models.Model):
     CORPORATE_SERVICES = [
@@ -1750,16 +1769,7 @@ class Tip(ReferenceGeneratorMixin, models.Model):
 
         if template_id:
             try:
-                email_addresses = list(
-                    UserProfile.objects.filter(
-                        organisation_id=self.review.assessment.system.organisation_id,
-                        role="organisation_lead",
-                    ).values_list("user__email", flat=True)
-                )
-                if email_addresses:
-                    gov_assure_email = Settings.get_instance().gov_assure_email
-                    if gov_assure_email:
-                        email_addresses.append(gov_assure_email)
+                if email_addresses := self.review.assessment.system.organisation.default_email_recipients():
                     send_notify_email(
                         email_addresses=email_addresses,
                         personalisation_data={

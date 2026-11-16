@@ -12,7 +12,7 @@ from django.views.generic import DeleteView, FormView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.user_profile import UserProfileForm
-from webcaf.webcaf.models import Settings, UserProfile
+from webcaf.webcaf.models import UserProfile
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
@@ -140,19 +140,12 @@ class CreateUserProfileView(UserProfileView):
         if template_id := settings.NOTIFY_NEW_USER_TEMPLATE_ID:
             try:
                 user = user_profile.user
-                email_addresses = list(
-                    UserProfile.objects.filter(
-                        organisation=user_profile.organisation,
-                        role="organisation_lead",
-                    ).values_list("user__email", flat=True)
+                email_addresses = (
+                    user_profile.organisation.default_email_recipients() if user_profile.organisation else []
                 )
-                gov_assure_email = Settings.get_instance().gov_assure_email
-                if gov_assure_email:  # Gov assure mailbox
-                    email_addresses.append(gov_assure_email)
-                else:
-                    self.logger.warning("Gov Assurance email is not set")
                 if user.email:  # New user
-                    email_addresses.append(user.email)
+                    if user.email not in email_addresses:
+                        email_addresses.append(user.email)
                     send_notify_email(
                         email_addresses=email_addresses,
                         personalisation_data={

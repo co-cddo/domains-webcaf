@@ -10,7 +10,7 @@ from django.views.generic import CreateView, FormView, TemplateView, UpdateView
 
 from webcaf.webcaf.forms.general import NextActionForm
 from webcaf.webcaf.forms.system import SystemForm
-from webcaf.webcaf.models import Configuration, Settings, System, UserProfile
+from webcaf.webcaf.models import Configuration, System, UserProfile
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.permission import PermissionUtil, UserRoleCheckMixin
@@ -61,18 +61,7 @@ class SystemViewMixin(UserRoleCheckMixin, SystemContextDataMixin):
         """
         if template_id := settings.NOTIFY_NEW_SYSTEM_TEMPLATE_ID:
             try:
-                email_addresses = list(
-                    UserProfile.objects.filter(
-                        organisation=system.organisation,
-                        role="organisation_lead",
-                    ).values_list("user__email", flat=True)
-                )
-                gov_assure_email = Settings.get_instance().gov_assure_email
-                if gov_assure_email:
-                    email_addresses.append(gov_assure_email)
-                else:
-                    self.logger.warning("Gov Assurance email is not set")
-                if email_addresses:
+                if email_addresses := system.organisation.default_email_recipients():
                     send_notify_email(
                         email_addresses=email_addresses,
                         personalisation_data={

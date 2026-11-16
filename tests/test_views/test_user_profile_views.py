@@ -7,7 +7,7 @@ from django.test import Client, override_settings
 from django.urls import reverse
 
 from tests.test_views.base_view_test import BaseViewTest
-from webcaf.webcaf.models import UserProfile
+from webcaf.webcaf.models import Settings, UserProfile
 
 
 @pytest.mark.django_db
@@ -398,3 +398,35 @@ class TestUserProfileView(BaseViewTest):
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(email=new_email).exists())
+
+    @override_settings(NOTIFY_NEW_USER_TEMPLATE_ID="test-new-user-template")
+    @patch("webcaf.webcaf.views.user_profiles.send_notify_email")
+    def test_create_organisation_lead_does_not_duplicate_recipient_email(self, mock_send_email):
+        """Creating an organisation lead sends notification without duplicating the new lead's email."""
+        Settings.objects.update_or_create(pk=1, defaults={"gov_assure_email": "govassure@test.gov.uk"})
+        new_lead_email = "new.lead@test.gov.uk"
+
+        response = self._create_profile(
+            email=new_lead_email, role="organisation_lead", first_name="New", last_name="Lead"
+        )
+
+        self.assertEqual(response.status_code, 302)
+        mock_send_email.assert_called_once()
+        call_kwargs = mock_send_email.call_args.kwargs
+        self.assertEqual(
+            call_kwargs["email_addresses"],
+            [self.org_lead_user.email, new_lead_email, "govassure@test.gov.uk"],
+        )
+
+    def test_default_email_recipients(self):
+        """Organisation.default_email_recipients returns organisation leads and optional gov_assure_email."""
+        Settings.objects.update_or_create(pk=1, defaults={"gov_assure_email": "govassure@test.gov.uk"})
+
+        self.assertEqual(
+            self.test_organisation.default_email_recipients(),
+            [self.org_lead_user.email, "govassure@test.gov.uk"],
+        )
+        self.assertEqual(
+            self.test_organisation.default_email_recipients(include_gov_assure=False),
+            [self.org_lead_user.email],
+        )
