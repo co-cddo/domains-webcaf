@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, UpdateView
 
 from webcaf import settings
-from webcaf.webcaf.models import Configuration, Review, Settings, System, UserProfile
+from webcaf.webcaf.models import Configuration, Review, Settings, System
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
 from webcaf.webcaf.utils.pdf import CustomURLFetcher
@@ -184,16 +184,7 @@ class FinaliseReview(BaseReviewMixin, UpdateView):
         """
         if template_id := settings.NOTIFY_REVIEW_FINALISED_TEMPLATE_ID:
             try:
-                email_addresses = list(
-                    UserProfile.objects.filter(
-                        organisation_id=review.assessment.system.organisation_id,
-                        role="organisation_lead",
-                    ).values_list("user__email", flat=True)
-                )
-                if email_addresses:
-                    gov_assure_email = Settings.get_instance().gov_assure_email
-                    if gov_assure_email:
-                        email_addresses.append(gov_assure_email)
+                if email_addresses := review.assessment.system.organisation.default_email_recipients():
                     send_notify_email(
                         email_addresses=email_addresses,
                         personalisation_data={
