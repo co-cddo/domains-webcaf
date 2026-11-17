@@ -9,11 +9,13 @@ from zoneinfo import ZoneInfo
 
 from django import forms
 from django.contrib import admin, messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import RegexValidator
-from django.db.models import F, Model, Q
+from django.db import transaction
+from django.db.models import Count, F, Model, Q
 from django.forms import CharField, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
+from django.forms.models import BaseInlineFormSet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -26,6 +28,7 @@ from webcaf.webcaf.models import (
     Assessment,
     Configuration,
     Organisation,
+    OrganisationEmailDomain,
     Review,
     Settings,
     System,
@@ -196,6 +199,26 @@ class SettingsAdmin(SimpleHistoryAdmin):
 class AllowedEmailDomainAdmin(SimpleHistoryAdmin):
     search_fields = ["domain"]
     ordering = ["domain"]
+    list_display = ["domain", "linked_organisation_count"]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                active_linked_organisation_count=Count(
+                    "organisation_links",
+                    filter=Q(organisation_links__status=OrganisationEmailDomain.Status.ACTIVE),
+                )
+            )
+        )
+
+    @admin.display(
+        ordering="active_linked_organisation_count",
+        description="Active linked organisations",
+    )
+    def linked_organisation_count(self, obj):
+        return obj.active_linked_organisation_count
 
 
 @admin.register(UserProfile)
@@ -223,6 +246,123 @@ class UserProfileAdmin(SimpleHistoryAdmin):
         return obj.organisation_name
 
 
+class OrganisationEmailDomainAdminForm(forms.ModelForm):
+    class Meta:
+        model = OrganisationEmailDomain
+        fields = "__all__"
+
+    def _get_validation_exclusions(self):
+        exclusions = super()._get_validation_exclusions()
+        # The formset validates the submitted set as a whole, so a primary can
+        # be switched in one submission before the database constraint runs.
+        exclusions.add("is_primary")
+        return exclusions
+
+
+class OrganisationEmailDomainInlineFormSet(BaseInlineFormSet):
+    """Validate and safely persist an organisation's complete set of domain links."""
+
+    def __init__(self, *args, can_change_existing_links=False, **kwargs):
+        self.can_change_existing_links = can_change_existing_links
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+
+        selected_domains = set()
+        primary_count = 0
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                continue
+
+            domain = form.cleaned_data.get("domain")
+            if domain:
+                if domain.pk in selected_domains:
+                    raise ValidationError("An email domain can only be linked to an organisation once.")
+                selected_domains.add(domain.pk)
+
+            if form.cleaned_data.get("is_primary"):
+                primary_count += 1
+                if form.cleaned_data.get("status") != OrganisationEmailDomain.Status.ACTIVE:
+                    raise ValidationError("A retired domain cannot be an organisation's primary domain.")
+
+        if primary_count > 1:
+            raise ValidationError("An organisation can have at most one primary email domain.")
+
+    @transaction.atomic
+    def save(self, commit=True):
+        if commit:
+            selected_primary = next(
+                (
+                    form.instance
+                    for form in self.forms
+                    if form.cleaned_data and not form.cleaned_data.get("DELETE") and form.cleaned_data.get("is_primary")
+                ),
+                None,
+            )
+            if selected_primary is not None:
+                # Lock the organisation, not its current primary: there may
+                # not be a primary yet when two requests arrive together.
+                Organisation.objects.select_for_update().get(pk=self.instance.pk)
+                current_primary_links = OrganisationEmailDomain.objects.filter(
+                    organisation=self.instance,
+                    is_primary=True,
+                )
+                if selected_primary.pk:
+                    current_primary_links = current_primary_links.exclude(pk=selected_primary.pk)
+                current_primary_links = list(current_primary_links)
+                if current_primary_links and not self.can_change_existing_links:
+                    raise PermissionDenied("You do not have permission to change the existing primary domain.")
+                # Demote before saving the selected primary so the partial
+                # unique constraint is never transiently violated. Save each
+                # link individually so every demotion is recorded in history.
+                for link in current_primary_links:
+                    link.is_primary = False
+                    link.save(update_fields=["is_primary"])
+
+        return super().save(commit=commit)
+
+
+class OrganisationEmailDomainInline(admin.TabularInline):
+    model = OrganisationEmailDomain
+    form = OrganisationEmailDomainAdminForm
+    formset = OrganisationEmailDomainInlineFormSet
+    fields = ["domain", "is_primary", "status"]
+    autocomplete_fields = ["domain"]
+    extra = 0
+    show_change_link = True
+
+
+@admin.register(OrganisationEmailDomain)
+class OrganisationEmailDomainAdmin(SimpleHistoryAdmin):
+    form = OrganisationEmailDomainAdminForm
+    list_display = ["organisation", "domain", "is_primary", "status"]
+    list_filter = ["status", "is_primary", SortedOrganisationFilter]
+    search_fields = ["organisation__name", "organisation__gss_code", "domain__domain"]
+    autocomplete_fields = ["organisation", "domain"]
+    list_select_related = ["organisation", "domain"]
+
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        if obj.is_primary:
+            # Use the same lock as the inline, including first assignments.
+            Organisation.objects.select_for_update().get(pk=obj.organisation_id)
+            current_primary_links = list(
+                OrganisationEmailDomain.objects.filter(
+                    organisation=obj.organisation,
+                    is_primary=True,
+                ).exclude(pk=obj.pk)
+            )
+            if any(not self.has_change_permission(request, link) for link in current_primary_links):
+                raise PermissionDenied("You do not have permission to change the existing primary domain.")
+            for link in current_primary_links:
+                link.is_primary = False
+                link.save(update_fields=["is_primary"])
+        super().save_model(request, obj, form, change)
+
+
 @admin.register(Organisation)
 class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: ignore
     model = Organisation
@@ -233,6 +373,13 @@ class OrganisationAdmin(OptionalFieldsAdminMixin, SimpleHistoryAdmin):  # type: 
     autocomplete_fields = [
         "parent_organisation",
     ]
+    inlines = [OrganisationEmailDomainInline]
+
+    def get_formset_kwargs(self, request, obj, inline, prefix):
+        kwargs = super().get_formset_kwargs(request, obj, inline, prefix)
+        if isinstance(inline, OrganisationEmailDomainInline):
+            kwargs["can_change_existing_links"] = inline.has_change_permission(request, obj)
+        return kwargs
 
     logger = logging.getLogger("OrganisationAdmin")
     csv_headers = [

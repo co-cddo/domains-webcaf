@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from webcaf.auth import EMAIL_DOMAIN_REJECTED_SESSION_KEY, OneLoginBackend
-from webcaf.webcaf.models import AllowedEmailDomain, UserProfile
+from webcaf.webcaf.models import AllowedEmailDomain, Organisation, OrganisationEmailDomain, UserProfile
 
 User = get_user_model()
 
@@ -47,6 +47,18 @@ class OneLoginBackendTest(TestCase):
         self.assertEqual(user.email, PROFILE["email"])
         self.assertFalse(user.has_usable_password())
         self.assertEqual(user.username, PROFILE["email"])
+        self.assertFalse(UserProfile.objects.filter(user=user).exists())
+
+    def test_linked_domain_does_not_grant_membership_or_choose_an_organisation(self):
+        first_organisation = Organisation.objects.create(name="First organisation")
+        second_organisation = Organisation.objects.create(name="Second organisation")
+        domain = AllowedEmailDomain.objects.get(domain="example.com")
+        OrganisationEmailDomain.objects.create(organisation=first_organisation, domain=domain, is_primary=True)
+        OrganisationEmailDomain.objects.create(organisation=second_organisation, domain=domain, is_primary=True)
+
+        user = self.authenticate()
+
+        self.assertIsNotNone(user)
         self.assertFalse(UserProfile.objects.filter(user=user).exists())
 
     def test_uses_existing_user_on_subsequent_login_with_same_email(self):

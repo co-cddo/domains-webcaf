@@ -462,6 +462,12 @@ class AllowedEmailDomain(models.Model):
     """A domain from which external authentication may create a new user."""
 
     domain = models.CharField(max_length=253, unique=True, validators=[validate_domain_name])
+    organisations: models.ManyToManyField = models.ManyToManyField(
+        Organisation,
+        through="OrganisationEmailDomain",
+        related_name="allowed_email_domains",
+        blank=True,
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -496,6 +502,66 @@ class AllowedEmailDomain(models.Model):
 
     def __str__(self):
         return self.domain
+
+
+class OrganisationEmailDomain(models.Model):
+    """An organisation's association with a globally allowed email domain."""
+
+    class Status(models.TextChoices):
+        ACTIVE = "active", "Active"
+        RETIRED = "retired", "Retired"
+
+    organisation = models.ForeignKey(
+        Organisation,
+        on_delete=models.CASCADE,
+        related_name="email_domain_links",
+    )
+    domain = models.ForeignKey(
+        AllowedEmailDomain,
+        on_delete=models.PROTECT,
+        related_name="organisation_links",
+    )
+    is_primary = models.BooleanField(default=False, verbose_name="Primary domain")
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
+
+    history = HistoricalRecords()
+
+    class Meta:
+        ordering = ["organisation__name", "domain__domain"]
+        verbose_name = "Organisation email domain"
+        verbose_name_plural = "Organisation email domains"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organisation", "domain"],
+                name="unique_organisation_email_domain",
+            ),
+            models.UniqueConstraint(
+                fields=["organisation"],
+                condition=models.Q(is_primary=True),
+                name="one_primary_email_domain_per_organisation",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(is_primary=False) | models.Q(status="active"),
+                name="primary_email_domain_must_be_active",
+            ),
+        ]
+
+    def clean(self):
+        if self.is_primary and self.status != self.Status.ACTIVE:
+            raise ValidationError({"is_primary": "A retired domain cannot be an organisation's primary domain."})
+        super().clean()
+
+    def __str__(self):
+        # Historical links retain parent IDs after those records are deleted.
+        try:
+            organisation = str(self.organisation)
+        except Organisation.DoesNotExist:
+            organisation = f"Deleted organisation (ID: {self.organisation_id})"
+        try:
+            domain = str(self.domain)
+        except AllowedEmailDomain.DoesNotExist:
+            domain = f"Deleted domain (ID: {self.domain_id})"
+        return f"{organisation} - {domain}"
 
 
 class ConfigurationManager(models.Manager):

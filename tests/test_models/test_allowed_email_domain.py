@@ -17,6 +17,12 @@ class AllowedEmailDomainTest(TestCase):
         self.assertFalse(AllowedEmailDomain.allows_email("user@service.example.com"))
         self.assertFalse(AllowedEmailDomain.allows_email("user@notexample.com"))
 
+    def test_mixed_case_spelling_does_not_create_duplicate_domain(self):
+        AllowedEmailDomain.objects.create(domain="kent.gov.uk")
+
+        with self.assertRaises(ValidationError):
+            AllowedEmailDomain.objects.create(domain="Kent.Gov.UK")
+
     def test_empty_allowlist_rejects_new_email_domains(self):
         self.assertFalse(AllowedEmailDomain.allows_email("user@example.com"))
 
