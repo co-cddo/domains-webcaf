@@ -14,9 +14,6 @@ from webcaf.webcaf.templatetags.review_tags import (
     ReviewComment,
     ReviewStatusInfo,
     get_indicator_comments,
-)
-from webcaf.webcaf.templatetags.review_tags import get_objectives as get_objectives_tag
-from webcaf.webcaf.templatetags.review_tags import (
     get_outcome_category_names,
     get_outcome_recommendation_count,
     get_outcome_status,
@@ -33,6 +30,7 @@ from webcaf.webcaf.templatetags.review_tags import (
     is_review_all_objectives_complete,
     is_review_objective_complete,
 )
+from webcaf.webcaf.templatetags.review_tags import get_objectives as get_objectives_tag
 
 
 class TestGetSelectedTag(TestCase):

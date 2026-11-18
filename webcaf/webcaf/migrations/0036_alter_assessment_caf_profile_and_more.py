@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("webcaf", "0035_settings_filter_previous_assessments"),
     ]

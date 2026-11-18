@@ -553,7 +553,7 @@ class EditReviewSystemView(BaseReviewMixin, UpdateView):
                         "what": "system",
                         "id": self.object.id,
                         "when": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                        "description": f'Updated the field {self.kwargs["field_to_change"]} : '
+                        "description": f"Updated the field {self.kwargs['field_to_change']} : "
                         f"{form.initial[field_to_change]} to {form.cleaned_data[field_to_change]}.",
                     },
                 )

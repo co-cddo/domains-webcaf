@@ -16,9 +16,7 @@ capture_output = True
 accesslog = "-"
 errorlog = "-"
 
-access_log_format = (
-    "%(t)s " "[pid=%(p)s] " "[user=- sess=%({trace_id}o)s] " "[%(h)s] " "%(r)s %(s)s %(b)s %(L)s %(f)s %(a)s"
-)
+access_log_format = "%(t)s [pid=%(p)s] [user=- sess=%({trace_id}o)s] [%(h)s] %(r)s %(s)s %(b)s %(L)s %(f)s %(a)s"
 
 
 class ELBHealthCheckFilter(logging.Filter):
