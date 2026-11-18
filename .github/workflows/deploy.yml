@@ -1,0 +1,45 @@
+name: Deploy - Dev
+
+#######################################################
+# Image deployment route to ECR
+# PR to main deploys to              => PLATFORM_DEV
+# push to main deploys to            => PLATFORM_DEV
+# Run workflow from any branch       => PLATFORM_DEV, optionally into a developer stack's ECR repository
+# Staging and Prod are driven by releases (release.yml)
+#######################################################
+#
+# Guardrail: Fork PRs and Dependabot PRs are skipped
+#
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ecr_repository:
+        description: ECR repository to push to (a developer stack uses <unique id>-web-caf-app-ecr)
+        required: false
+        type: string
+        default: web-caf-app-ecr
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-dev:
+    name: Deploy PLATFORM_DEV
+    if: >-
+      github.event_name != 'pull_request' ||
+      (!github.event.pull_request.head.repo.fork && github.actor != 'dependabot[bot]')
+    uses: ./.github/workflows/push-to-ecr.yml
+    with:
+      environment: PLATFORM_DEV
+      ecr_repository: ${{ inputs.ecr_repository || 'web-caf-app-ecr' }}
+    secrets: inherit

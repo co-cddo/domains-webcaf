@@ -1,0 +1,35 @@
+name: Release - Staging/Prod
+
+run-name: ${{ github.event.release.tag_name }}
+
+# Creating a pre-release from GitHub UI deploys to PLATFORM_STAGING
+#
+# Publishing a pre-release from UI, marks it latest and deploys it to PLATFORM_PROD
+#
+
+on:
+  release:
+    types: [prereleased, released]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-staging:
+    name: PLATFORM_STAGING
+    if: github.event.action == 'prereleased'
+    uses: ./.github/workflows/push-to-ecr.yml
+    with:
+      environment: PLATFORM_STAGING
+      ref: ${{ github.event.release.tag_name }}
+    secrets: inherit
+
+  deploy-prod:
+    name: PLATFORM_PROD
+    if: github.event.action == 'released'
+    uses: ./.github/workflows/push-to-ecr.yml
+    with:
+      environment: PLATFORM_PROD
+      ref: ${{ github.event.release.tag_name }}
+    secrets: inherit
