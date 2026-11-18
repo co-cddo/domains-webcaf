@@ -1,0 +1,57 @@
+name: Deploy
+run-name: Deploy ${{ inputs.environment }}
+
+# Builds the application image and pushes it to the ECR repository
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Target environment (PLATFORM_DEV, PLATFORM_STAGING, PLATFORM_PROD)
+        required: true
+        type: string
+      ref:
+        description: Git ref to build (defaults to the triggering sha)
+        required: false
+        type: string
+        default: ""
+      ecr_repository:
+        description: ECR repository to push to (a developer stack uses <unique id>-web-caf-app-ecr)
+        required: false
+        type: string
+        default: web-caf-app-ecr
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      ECR_REPOSITORY: ${{ inputs.ecr_repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref != '' && inputs.ref || github.sha }}
+
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_IAM_ROLE_ECR_PUSH }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+        id: ecr
+
+      - name: Build and push
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          REF_TAG: ${{ inputs.ref }}
+        run: |
+          TAGS=(--tag "$IMAGE:$(git rev-parse HEAD)" --tag "$IMAGE:latest")
+          [[ -n "$REF_TAG" ]] && TAGS+=(--tag "$IMAGE:$REF_TAG")
+          docker build "${TAGS[@]}" .
+          docker push "$IMAGE" --all-tags
