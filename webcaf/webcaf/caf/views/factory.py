@@ -45,7 +45,7 @@ class ObjectiveView(FormViewWithBreadcrumbs):
         objective_data_ = self.extra_context["objective_data"]
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"]}',
+                "text": f"Objective {objective_data_['code']} - {objective_data_['title']}",
             }
         ]
 
@@ -122,7 +122,7 @@ class BaseIndicatorsFormView(FormViewWithBreadcrumbs):
         assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {objective_data_["code"]} - {objective_data_["title"].lower().capitalize()}',
+                "text": f"Objective {objective_data_['code']} - {objective_data_['title'].lower().capitalize()}",
                 "url": reverse_lazy(f"{assessment.framework}_objective_{objective_data_['code']}"),
             }
         ]
@@ -262,7 +262,7 @@ class OutcomeIndicatorsView(BaseIndicatorsFormView):
         outcome = self.extra_context["outcome"]
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"].lower().capitalize()}',
+                "text": f"Objective {outcome['code']} - {outcome['title'].lower().capitalize()}",
             }
         ]
 
@@ -395,11 +395,11 @@ class OutcomeConfirmationView(BaseIndicatorsFormView):
         assessment = SessionUtil.get_current_assessment(self.request)
         return super().build_breadcrumbs() + [
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"].capitalize()}',
+                "text": f"Objective {outcome['code']} - {outcome['title'].capitalize()}",
                 "url": reverse_lazy(f"{assessment.framework}_indicators_{self.class_id}"),
             },
             {
-                "text": f'Objective {outcome["code"]} - {outcome["title"].capitalize()} summary',
+                "text": f"Objective {outcome['code']} - {outcome['title'].capitalize()} summary",
             },
         ]
 

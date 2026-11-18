@@ -111,9 +111,7 @@ class Verify2FATokenView(LoginRequiredMixin, FormView):
         `form_valid` returns `self.form_invalid(form)`.
         """
         logger.warning(
-            mask_email(
-                f"Invalid 2FA form submission for user {self.request.user.pk}. " f"Errors: {form.errors.as_json()}"
-            )
+            mask_email(f"Invalid 2FA form submission for user {self.request.user.pk}. Errors: {form.errors.as_json()}")
         )
         return super().form_invalid(form)
 

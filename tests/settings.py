@@ -5,4 +5,4 @@ os.environ["SECRET_KEY"] = secrets.token_hex(20)
 os.environ["SSO_MODE"] = "local"
 from webcaf.settings import *  # noqa
 
-INSTALLED_APPS += ["testapp"]  # noqa F405
+INSTALLED_APPS += ["testapp"]  # noqa: F405

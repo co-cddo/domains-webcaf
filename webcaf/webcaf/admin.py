@@ -82,9 +82,7 @@ def get_organisations(request: HttpRequest):
             "frontend_user"
         )  # type: ignore[misc]
         if frontend_user.exists():
-            return UserProfile.objects.filter(user__in=frontend_user, role="cyber_advisor").values(
-                "organisation__id"
-            )  # type: ignore[misc]
+            return UserProfile.objects.filter(user__in=frontend_user, role="cyber_advisor").values("organisation__id")  # type: ignore[misc]
         messages.warning(
             request, "Warning: You do not have a User association created. Please ask admin to create one."
         )

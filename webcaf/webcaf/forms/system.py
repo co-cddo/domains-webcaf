@@ -4,7 +4,6 @@ from webcaf.webcaf.models import System
 
 
 class SystemForm(ModelForm):
-
     action = ChoiceField(
         choices=[("change", "Change"), ("confirm", "Confirm")],
         required=True,
