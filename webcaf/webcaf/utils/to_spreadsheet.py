@@ -587,7 +587,7 @@ def _add_recommendations_tab(
                 "",
                 "",
                 "",
-                "ADDING ACTIONS FOR OTHER RECOMMENDATIONS IS OPTIONAL" "",
+                "ADDING ACTIONS FOR OTHER RECOMMENDATIONS IS OPTIONAL",
                 "",
                 "",
             ]

@@ -57,7 +57,9 @@ class OrganisationAdminImportCSVTest(TestCase):
         # Create a superuser for admin requests
 
         self.superuser = User.objects.create_superuser(
-            username="admin@test.gov.uk", email="admin@test.gov.uk", password="testpass123"  # pragma: allowlist secret
+            username="admin@test.gov.uk",
+            email="admin@test.gov.uk",
+            password="testpass123",  # pragma: allowlist secret
         )
 
     def create_csv_file(self, rows):

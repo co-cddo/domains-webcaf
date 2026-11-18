@@ -34,9 +34,9 @@ def check_user_does_not_exist(context, email):
     user_profile_exists = exists_model(UserProfile, **{"user": user})
 
     # Assert that the user was not found
-    assert (
-        not user_profile_exists
-    ), f"User profile with email '{email}' was found in the database but should have been removed."
+    assert not user_profile_exists, (
+        f"User profile with email '{email}' was found in the database but should have been removed."
+    )
 
 
 @then('check organisation "{org_name}" has type "{type}" and contact details "{name}" "{role}" and "{email}"')
@@ -94,9 +94,9 @@ def check_assessment_initial_setup(context: Context, system_name: str, caf_profi
     assessment = get_model(Assessment, uid=context.current_assessment_id)
     system = get_model(System, id=assessment.system_id)
     assert system.name == system_name, f"System name persisted as '{system.name}' not expect '{system_name}'"
-    assert (
-        assessment.caf_profile == caf_profile
-    ), f"Caf profile  persisted as '{assessment.caf_profile}' not expect '{caf_profile}'"
-    assert (
-        assessment.review_type == review_type
-    ), f"Caf profile  persisted as '{assessment.review_type}' not expect '{review_type}'"
+    assert assessment.caf_profile == caf_profile, (
+        f"Caf profile  persisted as '{assessment.caf_profile}' not expect '{caf_profile}'"
+    )
+    assert assessment.review_type == review_type, (
+        f"Caf profile  persisted as '{assessment.review_type}' not expect '{review_type}'"
+    )

@@ -419,17 +419,17 @@ def transform_definition(definition: dict[str, Any]) -> dict[str, Any]:
         "objectives": [
             {
                 "code": objective["code"],
-                "title": f'{objective["code"]} - {objective["title"]}',
+                "title": f"{objective['code']} - {objective['title']}",
                 "description": objective["description"],
                 "principles": [
                     {
                         "code": principle["code"],
-                        "title": f'{principle["code"]}- {principle["title"]}',
+                        "title": f"{principle['code']}- {principle['title']}",
                         "description": principle["description"],
                         "outcomes": [
                             {
                                 "code": outcome["code"],
-                                "title": f'{outcome["code"]} - {outcome["title"]}',
+                                "title": f"{outcome['code']} - {outcome['title']}",
                                 "description": outcome["description"],
                                 "indicators": [
                                     {
