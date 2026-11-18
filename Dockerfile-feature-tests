@@ -1,39 +1,25 @@
-# Playwright base image with all browser dependencies pre-installed
-FROM mcr.microsoft.com/playwright/python:v1.55.0-jammy
+# Playwright base image with all browser dependencies pre-installed; noble ships Python 3.12
+FROM mcr.microsoft.com/playwright/python:v1.55.0-noble
 
-# Install Python 3.12 via deadsnakes PPA
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    software-properties-common gnupg \
-    && add-apt-repository ppa:deadsnakes/ppa -y \
-    && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    python3.12 python3.12-venv python3.12-dev \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:0.13.5 /uv /uvx /bin/
 
-# Point python3 to 3.12 and install pip
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 20
-RUN python3 -m ensurepip --upgrade \
-    && python3 -m pip install --no-cache-dir --upgrade \
-        pip setuptools wheel \
-    && python3 -m pip --version
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_PYTHON=/usr/bin/python3 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PATH="/opt/venv/bin:$PATH" \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
-# Install Poetry
-RUN python3 -m pip install --no-cache-dir poetry
-
 # Install deps early for better caching
-COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-ansi
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-cache --all-groups
 
-# Set Playwright browsers path outside /app to avoid volume mount overwriting
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-
-# Install Playwright browsers for Python 3.12
-RUN poetry run playwright install chromium --with-deps && \
-    echo "Playwright installation complete" && \
-    poetry run playwright --version
+# Browsers matching the locked playwright package
+RUN playwright install chromium --with-deps && playwright --version
 
 # Copy the rest
 COPY . .
 
-CMD ["bash", "-lc", "pytest -q"]
+CMD ["pytest", "-q"]

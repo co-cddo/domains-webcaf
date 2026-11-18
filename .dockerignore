@@ -1,5 +1,7 @@
 # Python
 __pycache__/
+.venv/
+.ruff_cache/
 *.py[cod]
 *$py.class
 *.so
@@ -35,7 +37,6 @@ README.md
 artifacts/
 
 # Hooks and CI/CD
-.hooks/
 .github/
 .pre-commit-config.yaml
 
@@ -53,3 +54,5 @@ docker-compose.feature-tests.yml
 
 webcaf/static
 webcaf/seed
+
+toolchain.versions

@@ -130,7 +130,7 @@ make clear-db       # tear everything down and drop the Postgres volume
 
 ## Developing
 
-Make sure the python version you use is the same as in the [Dockerfile](Dockerfile) (Python 3.12).
+Dependencies are managed with [uv](https://docs.astral.sh/uv/), which installs the Python version pinned in `.python-version` (3.12, the same as the [Dockerfile](Dockerfile)).
 
 The database credentials are defined in `docker-compose.yml`: the Postgres container uses the user/password/database `webcaf`/`webcaf`/`webcaf` and is exposed on the host at port `54321`. To develop against it, first start Postgres (for example `docker compose up postgres`), then create a file called `.env` containing:
 
@@ -141,16 +141,15 @@ DATABASE_URL=postgresql://webcaf:webcaf@localhost:54321/webcaf #pragma: allowlis
 Then run in a terminal
 
 ``` shell
-pip install poetry pre-commit
-poetry install
-pre-commit install
-poetry run dotenv run ./manage.py migrate
+uv sync --all-groups
+uv run pre-commit install
+uv run --env-file .env ./manage.py migrate
 ```
 
 and to run the local server:
 
 ``` shell
-poetry run dotenv run ./manage.py runserver
+uv run --env-file .env ./manage.py runserver
 ```
 
 ### Running tests
@@ -218,39 +217,28 @@ python manage.py add_seed_data
 
 ### End-to-end testing
 
-This service uses pytest-playwright to perform browser-based end-to-end tests. In order to run the tests,
-follow the steps above to install poetry and run a local server, then in a terminal:
-
-``` shell
-cd end-to-end-tests
-poetry run pytest # add "--headed" to see the browser window
-```
+The browser-based end-to-end tests are the behave feature tests under `features/`, driven by Playwright.
+Run them with `make behave`; see `features/README.md` for running a subset or with a visible browser.
 
 ### Deployment strategy
 
-#### Staging
+GitHub Actions builds the image and pushes it to the `web-caf-app-ecr` repository of one AWS account per GitHub environment. The runtime infrastructure (ECS, RDS, CloudFront) lives in a private repository and deploys whichever image carries the `latest` tag for now.
 
-We deploy the latest image created from the main branch to staging. Each time a PR is merged to main,
-the image is rebuilt and deployed to staging. This is hanby the stage-ecr-deployment-workflow in the GitHub Actions.
+| Event | Environment | Image tags |
+|---|---|---|
+| Pull request to `main` | `PLATFORM_DEV` | commit sha, `latest` |
+| Push to `main` | `PLATFORM_DEV` | commit sha, `latest` |
+| `Deploy - Dev` run by hand from any branch | `PLATFORM_DEV`, optionally a developer stack's `<unique id>-web-caf-app-ecr` | commit sha, `latest` |
+| Pre-release published with a `vX.Y.Z` tag | `PLATFORM_STAGING` | commit sha, `vX.Y.Z`, `latest` |
+| Release published | `PLATFORM_PROD` | commit sha, `vX.Y.Z`, `latest` |
 
-#### Production
+Staging and production are gated GitHub environments: a reviewer must approve the deployment, and only a
+`v*.*.*` tag can deploy. To release, create a pre-release from `main` with the next `vX.Y.Z` tag (deploys
+staging), test it, then edit the release and untick "pre-release" (deploys production).
 
-We deploy the latest image created from the main branch to production. Each time a release tag i.e release-v1.0.0 is
-created from
-the main branch.
-the image is rebuilt and deployed to production. This is handled by the prod-ecr-deployment-workflow in the GitHub
-Actions.
+`infra/` holds the CDK stack for the ECR repository. The `Create ECR repositories` workflow deploys it to a
+chosen environment; tick `import` on the first run in an account to adopt the repository that already exists.
 
-#### dependencies
-
-- Production and the staging account information are stored in the GitHub secrets.
-    - Deployment roles are created in the domains-iac repo.
-        - You will need to run the following once per account to enable Github OIDC login for the workflow to obtain the
-          credentials.
-      ```bash
-       aws iam create-open-id-connect-provider \
-       --url https://token.actions.githubusercontent.com \
-       --client-id-list sts.amazonaws.com \
-       --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 --profile <profile>
-       ```
-      NOTE: if the github changes the thumbprint, you will need to run the above command with the new value.
+Each GitHub environment holds the secrets the workflows need (`AWS_ACCOUNT_ID`, `AWS_IAM_ROLE_ECR_PUSH`,
+`AWS_IAM_ROLE_CDK_DEPLOY`, `AWS_REGION`). The IAM roles, the OIDC provider and the environments themselves are
+provisioned centrally by the platform bootstrap, not by this repository.
