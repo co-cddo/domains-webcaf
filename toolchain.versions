@@ -1,0 +1,5 @@
+# Python version for the app is pinned in .python-version
+
+AWS_CDK_VERSION=2.1146.1
+NODE_VERSION=24.22.1
+UV_VERSION=0.13.5
