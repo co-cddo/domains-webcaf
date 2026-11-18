@@ -375,19 +375,19 @@
                                                         </div>
                                                         <div class="govuk-radios__item">
                                                             <input class="govuk-radios__input"
-                                                                   id="target_date_provided-2"
+                                                                   id="target_date_not_provided"
                                                                    name="target_date_provided" type="radio"
                                                                    value="no"
                                                                    {% if form.target_date_provided.value == 'no' %}checked{% endif %}
-                                                                   aria-controls="conditional-target_date_provided-2"
+                                                                   aria-controls="conditional-target_date_not_provided"
                                                                    aria-expanded="false">
                                                             <label class="govuk-label govuk-radios__label"
-                                                                   for="target_date_provided-2">
+                                                                   for="target_date_not_provided">
                                                                 No
                                                             </label>
                                                             {% if recommendation_type == 'priority' %}
                                                                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden"
-                                                                     id="conditional-target_date_provided-2">
+                                                                     id="conditional-target_date_not_provided">
                                                                     <div class="govuk-!-margin-top-3">
                                                                         <div data-module="govuk-character-count"
                                                                              class="govuk-form-group {% if form.target_date_unavailable_reason.errors %}govuk-form-group--error{% endif %}"
