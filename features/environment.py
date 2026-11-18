@@ -1,7 +1,10 @@
 import os
-from datetime import datetime
+import re
+from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 
+import allure
 import django
 from behave.model_type import Status
 from django.conf import settings
@@ -14,6 +17,7 @@ from features.util import ORM_EXECUTOR, run_async_orm
 
 
 def before_all(context):
+    write_report_environment(context.config)
     print("Starting Django")
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webcaf.settings")
     django.setup()
@@ -24,6 +28,28 @@ def before_all(context):
     context.browser = context.playwright.chromium.launch(headless=headless_testing)
     context.browser.new_context()
     context.page = context.browser.new_page()
+
+
+def write_report_environment(config):
+    """Record run metadata in the selected Allure results directory."""
+    metadata = {
+        "Environment": os.environ.get("SSO_MODE", "unknown"),
+        "Base URL": config.userdata.get("base_url", "unknown"),
+        "Branch": os.environ.get("FEATURE_TEST_BRANCH", "unknown"),
+        "Commit SHA": os.environ.get("FEATURE_TEST_COMMIT", "unknown"),
+        "Started at (UTC)": datetime.now(UTC).isoformat(),
+        "Feature/tag filter": os.environ.get("FEATURE_TEST_ARGS") or "(none)",
+    }
+    for formatter, output in zip(config.format, config.outputs):
+        if formatter != "allure_behave.formatter:AllureFormatter" or not output.name:
+            continue
+        results_dir = Path(output.name)
+        results_dir.mkdir(parents=True, exist_ok=True)
+        with (results_dir / "environment.properties").open("w", encoding="utf-8") as properties:
+            for key, value in metadata.items():
+                # Java properties use backslash escapes and one property per line.
+                value = value.replace("\\", "\\\\").replace("\r", "\\r").replace("\n", "\\n")
+                properties.write(f"{key.replace(' ', r'\ ')}={value}\n")
 
 
 def before_scenario(context, scenario):
@@ -120,17 +146,26 @@ def after_scenario(context, scenario):
         os.makedirs(parent_path / "artifacts", exist_ok=True)  # Folder for all failure artifacts
 
         if hasattr(context, "page") and isinstance(context.page, Page):
-            # Generate safe filename
-            safe_name = scenario.name.replace(" ", "_").replace("/", "_")
+            # Keep filenames readable while distinguishing names and source locations.
+            readable_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", scenario.name).strip("_")[:100] or "scenario"
+            scenario_id = f"{scenario.filename}:{scenario.line}:{scenario.name}"
+            safe_name = f"{readable_name}_{sha256(scenario_id.encode('utf-8')).hexdigest()[:16]}"
 
             # Save screenshot
             screenshot_path = f"artifacts/{safe_name}.png"
-            context.page.screenshot(path=screenshot_path, full_page=True)
+            screenshot = context.page.screenshot(path=screenshot_path, full_page=True)
+            allure.attach(
+                screenshot,
+                name="Screenshot",
+                attachment_type=allure.attachment_type.PNG,
+            )
 
             # Save HTML
             html_path = f"artifacts/{safe_name}.html"
+            html = context.page.content()
             with open(html_path, "w", encoding="utf-8") as f:
-                f.write(context.page.content())
+                f.write(html)
+            allure.attach(html, name="Page HTML", attachment_type=allure.attachment_type.HTML)
 
             print(f"📸 Screenshot saved: {screenshot_path}")
             print(f"💾 HTML saved: {html_path}")

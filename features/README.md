@@ -46,9 +46,31 @@ The containerized workflow is headless by default. Pass `-D headless_testing=fal
 when the environment supports headed Playwright. Do not run Behave directly against the normal development Compose
 stack because that bypasses the disposable test database.
 
-The HTML report is written to `reports/report.html`. Failed scenarios write screenshots and page HTML to
+## HTML reports and QA evidence
+
+Every run (including filtered smoke or regression runs) writes a self-contained Allure HTML report to
+`reports/allure-report/index.html`, with raw Allure results in `reports/allure-results/`. Open `index.html` directly in
+a browser; no Allure installation or web server is needed. Each run replaces the previous report and raw results,
+so copy reports you need to retain before starting another run. One Login and DEX runs share these output locations.
+
+The report includes scenario counts and statuses, duration, features, scenarios, step results and failure details.
+Its Environment section records the authentication environment, base URL, branch, commit SHA, UTC start time and
+the full `FEATURE_TEST_ARGS` filter (including the target's default tag selection). Use **Show all** in that widget
+to see every field. Make reads the branch and commit
+from Git locally, or GitHub Actions metadata in CI. In pull-request CI, the commit SHA identifies the checked-out
+merge commit. Override `FEATURE_TEST_BRANCH` and `FEATURE_TEST_COMMIT` if running from an exported source tree.
+
+Failed scenarios attach both the screenshot and captured page HTML to the Allure report and also write them to
 `artifacts/`. A failed One Login run writes `artifacts/one-login-docker-compose.log`; a failed DEX run writes
 `artifacts/dex-docker-compose.log` before cleanup.
+
+In GitHub Actions, open the **Feature tests** workflow run and download **allure-report** (One Login) or
+**dex-allure-report** (DEX) from **Artifacts**. Both jobs upload `reports/` and `artifacts/` whether tests pass or fail.
+Extract the ZIP and open `reports/allure-report/index.html`. Failure attachments are embedded in this single file,
+so it can be shared independently as release-sign-off evidence. Reports can only be generated once the test image
+builds and the test runner starts; image-build or service-startup failures may only have Compose logs.
+
+These artifacts may contain test page content and screenshots. Review them before sharing outside the team.
 
 If a run is forcibly terminated before cleanup completes, the next invocation removes stale resources before creating
 a fresh environment. Both isolated projects can also be removed explicitly with:

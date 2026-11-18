@@ -31,14 +31,15 @@ jobs:
           mkdir -p artifacts
           make behave
 
-      - name: Upload artifacts on failure
-        if: failure()
+      - name: Upload Allure test report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: one-login-failure-logs
+          name: allure-report
+          if-no-files-found: warn
           path: |
             artifacts
-            reports/report.html
+            reports
 
       - name: Teardown
         if: always()
@@ -68,14 +69,15 @@ jobs:
           mkdir -p artifacts
           make behave_dex
 
-      - name: Upload artifacts on failure
-        if: failure()
+      - name: Upload Allure test report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dex-failure-logs
+          name: dex-allure-report
+          if-no-files-found: warn
           path: |
             artifacts
-            reports/report.html
+            reports
 
       - name: Teardown
         if: always()

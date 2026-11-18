@@ -3,6 +3,10 @@ BEHAVE_DEX_COMPOSE = docker compose --project-name webcaf-behave-dex --profile d
 DEV_ONE_LOGIN_COMPOSE = docker compose --profile one-login -f docker-compose.yml -f docker-compose.one-login.yml
 DEV_DEX_COMPOSE = docker compose --profile dex -f docker-compose.yml -f docker-compose.dex.yml
 
+# Capture source metadata on the host: the feature-test image has no .git directory.
+export FEATURE_TEST_BRANCH ?= $(or $(GITHUB_HEAD_REF),$(GITHUB_REF_NAME),$(shell git branch --show-current))
+export FEATURE_TEST_COMMIT ?= $(or $(GITHUB_SHA),$(shell git rev-parse HEAD))
+
 .PHONY: up-devserver up-devserver-nodebug shell clear-db test build behave behave_dex behave-clean up_dex up_one_login up_one_login_simulator one_login_user
 
 up-devserver:

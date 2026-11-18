@@ -103,6 +103,8 @@ services:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       ONE_LOGIN_SIMULATOR_URL: http://one-login-simulator:3000
       FEATURE_TEST_ARGS: ${FEATURE_TEST_ARGS:-}
+      FEATURE_TEST_BRANCH: ${FEATURE_TEST_BRANCH:-unknown}
+      FEATURE_TEST_COMMIT: ${FEATURE_TEST_COMMIT:-unknown}
       PYTHONDONTWRITEBYTECODE: "1"
     volumes:
       - ./artifacts:/app/artifacts
@@ -113,7 +115,13 @@ services:
     command: > # pragma: allowlist secret
       bash -lc "
         echo 'Services ready. Starting tests...' &&
-        python3 -m behave -f behave_html_formatter:HTMLFormatter -o reports/report.html -D base_url=http://web:8000 $${FEATURE_TEST_ARGS}
+        rm -rf reports/allure-results reports/allure-report reports/report.html &&
+        status=0 &&
+        report_status=0 &&
+        python3 -m behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results -D base_url=http://web:8000 $${FEATURE_TEST_ARGS} || status=$$? ;
+        allure generate reports/allure-results -o reports/allure-report --clean --single-file || report_status=$$? ;
+        if [ $$report_status -ne 0 ]; then exit $$report_status; fi ;
+        exit $$status
       "
 
 secrets:

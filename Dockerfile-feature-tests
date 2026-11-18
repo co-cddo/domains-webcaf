@@ -2,6 +2,10 @@
 # Matches the Playwright version in uv.lock, so the browsers fit the library.
 FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
 
+ARG ALLURE_VERSION=2.46.2
+# Maven Central's published ZIP SHA-512; update together with ALLURE_VERSION.
+ARG ALLURE_SHA512=4ca6e3f2b312d98a626fb14df99123932955065a91ce96b6af6697178b80c7c6bcdcb417de58a58708a73b288f56b6aaa684cf9d94b844c29eb8bb91fa6e5247
+
 # Install Python 3.14 via deadsnakes PPA. The PPA is added by hand rather
 # than with add-apt-repository: software-properties-common pulls in Ubuntu's
 # python3-cryptography and python3-jwt, which cannot be uninstalled, so the
@@ -13,13 +17,21 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && echo "deb [signed-by=/etc/apt/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) main" \
        > /etc/apt/sources.list.d/deadsnakes.list \
     && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    python3.14 python3.14-venv python3.14-dev \
+    openjdk-21-jre-headless python3.14 python3.14-venv python3.14-dev unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Point python3 to 3.14 and install pip
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.14 20 && \
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
     python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+RUN curl -fsSL -o /tmp/allure-commandline.zip \
+    "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/${ALLURE_VERSION}/allure-commandline-${ALLURE_VERSION}.zip" && \
+    echo "${ALLURE_SHA512}  /tmp/allure-commandline.zip" | sha512sum --check --strict - && \
+    unzip -q /tmp/allure-commandline.zip -d /opt && \
+    ln -s "/opt/allure-${ALLURE_VERSION}/bin/allure" /usr/local/bin/allure && \
+    rm /tmp/allure-commandline.zip && \
+    allure --version
 
 WORKDIR /app
 
