@@ -1634,38 +1634,6 @@ files = [
 python-dateutil = ">=2.7"
 
 [[package]]
-name = "govuk-frontend-django"
-version = "0.15.1"
-description = "Django functionality to help when building a GOV.UK website."
-optional = false
-python-versions = "<4.0,>=3.9"
-groups = ["main"]
-files = [
-    {file = "govuk_frontend_django-0.15.1-py3-none-any.whl", hash = "sha256:bed09f64ebaced46b5d3efcec8b4534533c1c3b132d132aa3ded0562fe8baaee"},
-    {file = "govuk_frontend_django-0.15.1.tar.gz", hash = "sha256:33e3eac9d63195a563019a509b94f5c73c07623b5e219e758a753992a5185af9"},
-]
-
-[package.dependencies]
-Django = ">=4.1.9,<5.2"
-govuk-frontend-jinja = "3.5.0"
-jinja2 = ">=3.1.2,<4.0.0"
-
-[[package]]
-name = "govuk-frontend-jinja"
-version = "3.5.0"
-description = "GOV.UK Frontend Jinja Macros"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "govuk_frontend_jinja-3.5.0-py3-none-any.whl", hash = "sha256:787d3940cf40eaa78a851ff12b6470740d64bea4149b4984b1295aacd80be901"},
-    {file = "govuk_frontend_jinja-3.5.0.tar.gz", hash = "sha256:ed7577215bb288ccca0cfd8d0855bb4298d4f698f277a7ce19bd8ecbd33a53a7"},
-]
-
-[package.dependencies]
-jinja2 = "!=3.0.0,!=3.0.1"
-
-[[package]]
 name = "greenlet"
 version = "3.5.4"
 description = "Lightweight in-process concurrent programming"
@@ -1888,7 +1856,7 @@ version = "3.1.6"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "dev"]
+groups = ["dev"]
 files = [
     {file = "jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67"},
     {file = "jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d"},
@@ -2039,7 +2007,7 @@ version = "3.0.3"
 description = "Safely add untrusted strings to HTML/XML markup."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev"]
+groups = ["dev"]
 files = [
     {file = "markupsafe-3.0.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:2f981d352f04553a7171b8e44369f2af4055f888dfb147d55e42d29e29e74559"},
     {file = "markupsafe-3.0.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e1c1493fb6e50ab01d20a22826e57520f1284df32f2d8601fdd90b6304601419"},
@@ -3662,4 +3630,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "c1ef61c9b777da12946126a2f1aab03908455ee291f27fbc4fdda3bfa8e55bbf"
+content-hash = "4c2e37cd78ac7cb230d545ed840fcc46407d4642b7cc2bf4f6bdaf6e4a0dff6f"
