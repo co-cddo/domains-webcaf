@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ("admin_verification_enabled", models.BooleanField(default=False)),
             ],
             options={
-                "constraints": [models.CheckConstraint(name="single_row_only", check=models.Q(("pk", 1)))],
+                "constraints": [models.CheckConstraint(name="single_row_only", condition=models.Q(("pk", 1)))],
             },
         ),
         migrations.RunPython(code=init_settings, reverse_code=migrations.RunPython.noop),

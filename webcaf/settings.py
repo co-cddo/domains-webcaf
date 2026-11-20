@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "govuk_frontend_django",
     "webcaf.webcaf.apps.WebcafConfig",
     "csp",
     "django_otp",

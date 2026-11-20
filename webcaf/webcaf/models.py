@@ -1368,7 +1368,7 @@ class Settings(models.Model):
         return "Default site wide settings"
 
     class Meta:
-        constraints = [models.CheckConstraint(check=models.Q(pk=1), name="single_row_only")]
+        constraints = [models.CheckConstraint(condition=models.Q(pk=1), name="single_row_only")]
 
 
 @dataclass
