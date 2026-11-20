@@ -8,6 +8,7 @@ from pathlib import Path
 from time import sleep
 from typing import Any, Literal, Optional
 
+import behave
 from behave import step, then
 from behave.runner import Context
 from openpyxl import load_workbook
@@ -64,6 +65,17 @@ def click_link_with_text(context: Context, text: str):
     page.get_by_role("link", name=text, exact=True).click()
 
 
+@step("logs out by clicking link")
+def log_out(context: Context):
+    """
+    :type context:Context
+    """
+    if "think_time" in context:
+        sleep(context.think_time)
+    page = context.page
+    page.get_by_role("link", name="Logout", exact=False).click()
+
+
 @step('click link in summary card row "{key}" with text "{text}"')
 def click_summary_card_link_with_text(context: Context, key: str, text: str):
     page = context.page
@@ -117,6 +129,15 @@ def select_radio(context: Context, value: str):
     """
     page = context.page
     page.locator(f"input[type='radio'][value='{value}']").check()
+
+
+@step('select radio "{id}"')
+def select_radio_by_id(context: Context, id: str):
+    """
+    :type context:Context
+    """
+    page = context.page
+    page.locator(f"input[type='radio'][id='{id}']").check()
 
 
 @step('select checkbox with value "{value}"')
@@ -228,7 +249,7 @@ def make_sure_no_system(context: Context, system_name: str, org_name: str):
 
 
 @step(
-    'there is a "{caf_profile}" profile assessment  for "{system_name}", "{organisation_name}", for the period "{period}" in "{status}" status and data "{data_file}"'
+    'there is a "{caf_profile}" profile assessment for "{system_name}", "{organisation_name}", for the period "{period}" in "{status}" status and data "{data_file}"'
 )
 def create_new_assessment(
     context: Context,
@@ -261,7 +282,7 @@ def create_new_assessment(
             assessment_period=get_current_assessment_period()[0],
             status=status,
             review_type="independent",
-            framework="caf32",
+            framework="caf40",
             assessments_data=initial_assessment_data,
         )
         assessment.save()
@@ -288,7 +309,17 @@ def confirm_heading_on_page(context: Context, heading: str):
     expect(heading_element).to_be_visible()
 
 
-@then('navigate to "{objective_text}"')
+@step('page has subheading "{heading}"')
+def confirm_subheading_on_page(context: Context, heading: str):
+    """
+    :type context: behave.runner.Context
+    """
+    page = context.page
+    heading_element = page.locator("h2").filter(has_text=heading)
+    expect(heading_element).to_be_visible()
+
+
+@step('navigate to "{objective_text}"')
 def select_objective(context: Context, objective_text: str):
     """
     :type context: behave.runner.Context
@@ -602,3 +633,153 @@ def table_with_header(context: Context, header: str):
     expect(table).to_be_visible()
     header_cell = table.locator("th").filter(has_text=header)
     expect(header_cell).to_be_visible()
+
+
+@step("store the current review id from url and add to context")
+def store_current_review_id(context: Context):
+    """
+    :type context: Context
+    """
+    url = context.page.url
+
+    current_review_id = url.strip("/").split("/")
+    context.current_review_id = list(current_review_id)[-1]
+
+
+@step("confirm the current review has expected data")
+def check_review_data(context: Context):
+    """
+    :type context: Context
+    """
+    from webcaf.webcaf.models import Assessment, Review
+
+    current_review = get_model(Review, id=context.current_review_id)
+    current_assessment = get_model(Assessment, uid=context.current_assessment_id)
+    assert current_review.assessment_id == current_assessment.id
+
+
+@step('Fill review outcome "{outcome_text}" with "{section_keys}" with "{section_values}"')
+def fill_review_outcome(context: Context, outcome_text: str, section_keys: str, section_values: str):
+    """
+    :type context: behave.runner.Context
+    """
+    # Go to the review page for the CO
+    click_summary_card_link_with_text(context, outcome_text, "Review")
+
+    page = context.page
+    # Navigate to the section
+    trs = page.locator("tr.govuk-table__row")
+    trs.last.wait_for(state="visible")
+    section_filling_criteria = dict(
+        zip([s.strip() for s in section_keys.split(",")], [s.strip() for s in section_values.split(",")])
+    )
+    radios = page.locator("input[class='govuk-radios__input']")
+    radios.last.wait_for(state="visible")
+    radio_elements_by_category = defaultdict(list)
+    for i in range(radios.count()):
+        radio_ = radios.nth(i)
+        checkbox_name = radio_.get_attribute("name")
+        if checkbox_name.startswith("achieved"):
+            radio_elements_by_category["achieved"].append(radio_)
+        elif checkbox_name.startswith("not-achieved"):
+            radio_elements_by_category["not-achieved"].append(radio_)
+        elif checkbox_name.startswith("partially-achieved"):
+            radio_elements_by_category["partially-achieved"].append(radio_)
+
+    fill_elements(radio_elements_by_category, section_filling_criteria)
+    print("Answers checked")
+
+
+def fill_elements(radio_elements_by_category: defaultdict[Any, list], section_filling_criteria: dict[str, str]):
+    def find_comments_text_ara_if_needed(radio):
+        # Get the containing table row
+        row = radio.locator("xpath=ancestor::tr")
+
+        # Check whether Alternative controls exists
+        alternative_controls = row.locator("strong", has_text="Alternative controls:")
+
+        if alternative_controls.count() > 0:
+            # Alternative controls exists, get the textarea
+            textarea = row.locator("textarea")
+            textarea_id = textarea.get_attribute("id")
+
+            print(f"Textarea ID: {textarea_id}")
+            textarea.fill("This is a comment for alternative controls.")
+            return textarea
+        else:
+            # No alternative controls in this row
+            print("No alternative controls")
+        return None
+
+    for key, value in section_filling_criteria.items():
+        elements = radio_elements_by_category[key]
+        if value == "all":
+            for element in elements:
+                if element.get_attribute("value") == "yes":
+                    element.check()
+                    find_comments_text_ara_if_needed(element)
+
+        elif value == "some":
+            # Select no by default, and only select the given elements 0 and 2 if they exist
+            for element in elements:
+                if element.get_attribute("value") == "no":
+                    element.check()
+                find_comments_text_ara_if_needed(element)
+            if len(elements) > 0:
+                elements[0].check()
+            if len(elements) >= 3:
+                elements[2].check()
+        else:
+            for element in elements:
+                if element.get_attribute("value") == "no":
+                    element.check()
+                find_comments_text_ara_if_needed(element)
+
+
+@step('Fill review outcome confirm status "{review_decision}" with "{comment}"')
+def fill_review_outcome_confirm_status(context: behave.runner.Context, review_decision: str, comment: str):
+    """
+    :type context: behave.runner.Context
+    :type review_decision: str
+    :type comment: str
+    """
+    page = context.page
+    radios = page.locator(f"input[id^='id_{review_decision.lower().replace(' ', '-')}_review_decision']")
+    radios.click()
+    textarea = page.locator("textarea[id^='id_review_comment']")
+    textarea.fill(comment)
+    page.get_by_role("button", name="Save and continue").click()
+
+
+@step("Add Areas of good practice")
+def add_areas_of_good_practice(context: behave.runner.Context):
+    """
+    :type context: behave.runner.Context
+    """
+    page = context.page
+    click_summary_card_link_with_text(context, "Areas of good practice", "Add comment")
+    textarea = page.locator("textarea[id^='id_text']")
+    textarea.fill("comment")
+    page.get_by_role("button", name="Save and continue").click()
+
+
+@step("Add Areas for improvement")
+def add_areas_for_improvement(context: behave.runner.Context):
+    """
+    :type context: behave.runner.Context
+    """
+    page = context.page
+    click_summary_card_link_with_text(context, "Areas for improvement", "Add comment")
+    textarea = page.locator("textarea[id^='id_text']")
+    textarea.fill("comment")
+    page.get_by_role("button", name="Save and continue").click()
+
+
+@then('page contains text "{text}" in paragraph')
+def paragraph_with_text(context: behave.runner.Context, text: str):
+    """
+    :type context: behave.runner.Context
+    :type arg0: str
+    """
+    page = context.page
+    page.locator(f"p:has-text('{text}')").first.wait_for()

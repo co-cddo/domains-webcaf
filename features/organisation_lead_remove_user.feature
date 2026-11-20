@@ -9,7 +9,7 @@
     And User "alice@example.gov.uk" has the profile "Organisation user" assigned in "Ministry of Agriculture"
     And the application is running
     And cookies have been "accepted"
-    And the user logs in with username  "other@example.gov.uk" and password "password"
+    And the user logs in with username "other@example.gov.uk" and password "password"
 
     Scenario: GovAssure lead can remove user
         Given Think time 1 seconds

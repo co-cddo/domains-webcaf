@@ -35,3 +35,8 @@ def exists_model(model, **kwargs):
 
 def delete_model(instance):
     return run_async_orm(instance.delete)
+
+
+def update_model(instance, **kwargs):
+    kwargs.update({"id": instance.pk})  # Ensure we update the correct instance
+    return run_async_orm(instance._meta.base_manager.model.objects.update, **kwargs)
