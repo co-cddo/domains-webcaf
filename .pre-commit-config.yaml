@@ -47,7 +47,6 @@ repos:
           - 'django-stubs==5.1.3'
           - django-environ
           - psycopg2-binary
-          - govuk-frontend-django
           - django-storages
           - django-cors-headers
           - notifications-python-client

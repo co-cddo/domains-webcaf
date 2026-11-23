@@ -1,4 +1,4 @@
-{% load static i18n govuk_frontend_django csp %}<!DOCTYPE html>
+{% load static i18n csp %}<!DOCTYPE html>
 <html lang="en" class="govuk-template govuk-template--rebranded">
 <head>
     {% if GOOGLE_ANALYTICS_ID %}
@@ -60,31 +60,55 @@
             }
         </style>
         <div class="cookie-banner" id="cookie-banner">
-            {% gds_cookie_banner %}
-                {% gds_cookie_banner_message headingText="Cookies on the WebCAF service" %}
-                    <p class="govuk-body">We use essential cookies to make this website work.</p>
-                    <p class="govuk-body">We want to set additional cookies to remember your settings, understand how
-                        people use the
-                        service, and make improvements.</p>
-                    {% gds_cookie_banner_message_action text="Accept analytics cookies" %}
-                    {% gds_cookie_banner_message_action text="Reject analytics cookies" %}
-                    {% gds_cookie_banner_message_action text="View cookies" href="/public/cookies" %}
-                {% endgds_cookie_banner_message %}
-            {% endgds_cookie_banner %}
+            <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on the WebCAF service">
+                <div class="govuk-cookie-banner__message govuk-width-container">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-two-thirds">
+                            <h2 class="govuk-cookie-banner__heading govuk-heading-m">
+                                Cookies on the WebCAF service
+                            </h2>
+                            <div class="govuk-cookie-banner__content">
+                                <p class="govuk-body">We use essential cookies to make this website work.</p>
+                                <p class="govuk-body">We want to set additional cookies to remember your settings, understand how
+                                    people use the
+                                    service, and make improvements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="govuk-button-group">
+                        <button type="button" class="govuk-button" data-module="govuk-button">
+                            Accept analytics cookies
+                        </button>
+                        <button type="button" class="govuk-button" data-module="govuk-button">
+                            Reject analytics cookies
+                        </button>
+                        <a class="govuk-link" href="{% url 'cookies' %}">View cookies</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="cookie-banner" id="cookie-banner-done">
-            {% gds_cookie_banner %}
-                {% gds_cookie_banner_message %}
-                    <p class="govuk-body">You have successfully updated your cookie setting. You can <a href="{% url 'cookies' %}">
-                        change your cookie settings</a> at any time.
-                    </p>
-                    {% gds_cookie_banner_message_action text="Hide this message" %}
-                {% endgds_cookie_banner_message %}
-            {% endgds_cookie_banner %}
+            <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on the WebCAF service">
+                <div class="govuk-cookie-banner__message govuk-width-container">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-two-thirds">
+                            <div class="govuk-cookie-banner__content">
+                                <p class="govuk-body">You have successfully updated your cookie setting. You can <a class="govuk-link" href="{% url 'cookies' %}">
+                                    change your cookie settings</a> at any time.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="govuk-button-group">
+                        <button type="button" class="govuk-button" data-module="govuk-button">
+                            Hide this message
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
-
     <header class="govuk-header " role="banner" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__logo">
