@@ -60,6 +60,6 @@ repos:
           - python-dotenv
           - django-simple-history
           - django-axes
-          - 'sentry-sdk[django]'
+          - 'sentry-sdk[django]>=2.8.0,<3.0.0'
           - weasyprint
           - django-otp
