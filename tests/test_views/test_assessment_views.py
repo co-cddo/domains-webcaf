@@ -1,4 +1,3 @@
-from django.test import Client
 from django.urls import reverse
 from freezegun import freeze_time
 
@@ -16,19 +15,36 @@ class SetupAssessmentTestData(BaseViewTest):
         cls.create_review_type_url = reverse("create-draft-assessment-choose-review-type")
 
     def setUp(self):
-        self.client = Client()
         # login to authenticate test user (org lead)
         self.test_user = self.org_map["Big organisation"]["users"]["organisation_lead"]
         self.user_profile = self.test_user.profiles.first()
-        self.client.force_login(self.test_user)
-        session = self.client.session
-        session["current_profile_id"] = self.user_profile.id
-        session.save()
+        self.client, _ = self._login_with_role("organisation_lead", self.org_map["Big organisation"]["organisation"])
 
 
 class TestCreateAssessmentViews(SetupAssessmentTestData):
-    def setUp(self):
-        super().setUp()
+
+    @freeze_time("2050-01-15 10:00:00")
+    def test_create_assessment_context_uses_banner_display_until(self):
+        # Need to relogin here due to the freeze time as the session gets invalidated due to the time switch
+        self.client, _ = self._login_with_role("organisation_lead", self.org_map["Big organisation"]["organisation"])
+        Configuration.objects.create(
+            name="2050 Assessment Period",
+            config_data={
+                "current_assessment_period": "49/50",
+                "assessment_period_end": "30 June 2050 06:30am",
+                "default_framework": "caf32",
+                "banner_display_until": "31 March 2050 11:59pm",
+            },
+        )
+        session = self.client.session
+        session["draft_assessment"] = {}
+        session.save()
+
+        response = self.client.get(self.create_assessment_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["cutoff_time"], "11:59pm")
+        self.assertEqual(response.context["cutoff_date"], "31 March 2050")
 
     def test_create_system(self):
         response = self.client.get(self.create_system_url)

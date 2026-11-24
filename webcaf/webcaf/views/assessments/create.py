@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Subquery
@@ -107,8 +108,11 @@ class CreateAssessmentMixin(AssessmentProfileCheckMixin, CreateView, ABC):
 
         current_assessment_period = configuration.get_current_assessment_period()
         data["current_assessment_period"] = current_assessment_period
-        data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p").lower()
-        data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
+
+        banner_display_until = configuration.get_banner_display_until()
+        display_until = datetime.strptime(banner_display_until, "%d %B %Y %I:%M%p")
+        data["cutoff_time"] = display_until.strftime("%I:%M%p").lower()
+        data["cutoff_date"] = display_until.strftime("%d %B %Y")
         data["current_profile"] = SessionUtil.get_current_user_profile(self.request)
 
         data["systems"] = (
@@ -166,8 +170,10 @@ class CreateAssessmentView(AssessmentProfileCheckMixin, TemplateView):
         data["objectives"] = router.get_sections()
         current_assessment_period = configuration.get_current_assessment_period()
         data["current_assessment_period"] = current_assessment_period
-        data["cutoff_time"] = configuration.get_submission_due_date().strftime("%I:%M%p").lower()
-        data["cutoff_date"] = configuration.get_submission_due_date().strftime("%d %B %Y")
+        banner_display_until = configuration.get_banner_display_until()
+        display_until = datetime.strptime(banner_display_until, "%d %B %Y %I:%M%p")
+        data["cutoff_time"] = display_until.strftime("%I:%M%p").lower()
+        data["cutoff_date"] = display_until.strftime("%d %B %Y")
         return data
 
     def breadcrumbs(self):
