@@ -49,6 +49,21 @@ class OneLoginBackendTest(TestCase):
         self.assertEqual(user.username, PROFILE["email"])
         self.assertFalse(UserProfile.objects.filter(user=user).exists())
 
+    def test_email_case_variants_resolve_to_the_same_existing_account(self):
+        existing_user = User.objects.create_user(username="legacy-user", email=PROFILE["email"].upper())
+        profile = UserProfile.objects.create(user=existing_user, role="organisation_user")
+
+        for email in (PROFILE["email"], PROFILE["email"].upper()):
+            with self.subTest(email=email):
+                user = self.authenticate({**PROFILE, "email": email})
+                self.assertEqual(user.pk, existing_user.pk)
+
+        existing_user.refresh_from_db()
+        profile.refresh_from_db()
+        self.assertEqual(existing_user.username, "legacy-user")
+        self.assertEqual(profile.user_id, existing_user.pk)
+        self.assertEqual(User.objects.count(), 1)
+
     def test_linked_domain_does_not_grant_membership_or_choose_an_organisation(self):
         first_organisation = Organisation.objects.create(name="First organisation")
         second_organisation = Organisation.objects.create(name="Second organisation")

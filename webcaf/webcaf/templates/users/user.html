@@ -46,10 +46,12 @@
                     </label>
                     {% if form.errors.email %}
                         <p id="user-email-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> You must add a valid email address
+                            <span class="govuk-visually-hidden">Error:</span>
+                            {% for error in form.errors.email %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
                         </p>
                     {% endif %}
                     <input class="govuk-input govuk-input--width-20" id="email" name="email" type="email"
+                           {% if form.errors.email %}aria-describedby="user-email-error" aria-invalid="true"{% endif %}
                            spellcheck="false"
                            value="{{ form.email.value|default:'' }}">
                 </div>

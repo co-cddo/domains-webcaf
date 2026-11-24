@@ -5,7 +5,14 @@ from behave import step, then
 from behave.runner import Context
 from playwright.sync_api import expect
 
-from features.util import exists_model, get_model
+from features.util import exists_model, get_model, run_async_orm
+
+
+@then('exactly one user matches email "{email}" ignoring case')
+def check_single_user_ignoring_email_case(context, email):
+    from django.contrib.auth.models import User
+
+    assert run_async_orm(User.objects.filter(email__iexact=email).count) == 1
 
 
 @then('User model with email "{email}" should exist with "{user_role}" user role')

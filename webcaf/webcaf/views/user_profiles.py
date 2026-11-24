@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from django import forms
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import QuerySet
 from django.db.transaction import atomic
 from django.shortcuts import redirect, render
@@ -93,7 +93,13 @@ class UserProfileView(UserRoleCheckMixin, UpdateView):
         if form.cleaned_data["action"] == "change":
             return self.form_invalid(form)
 
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except ValidationError as exc:
+            # The form rechecks account matching inside its save transaction, so
+            # a conflicting account created after validation is still a form error.
+            form.add_error(None, exc)
+            return self.form_invalid(form)
 
     def form_invalid(self, form):
         # Capture the first instance of the user input, where we would get flagged

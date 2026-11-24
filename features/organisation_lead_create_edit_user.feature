@@ -23,14 +23,41 @@ Feature: Create and edit a new user for the organisation
     Then they should see page title "Manage user - other - Complete a WebCAF self-assessment - GOV.UK"
     And enter text "The" for id "first_name"
     And enter text "Tester" for id "last_name"
-    And enter text "the.tester@example.gov.uk" for id "email"
+    And enter text "The.Tester@Example.gov.uk" for id "email"
     And select radio with value "organisation_user"
     And click button with text "Save and continue"
     Then they should see page title "Manage user - other - Complete a WebCAF self-assessment - GOV.UK"
-    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "The Tester, the.tester@example.gov.uk, Organisation user"
+    Then they should see a summary card with header "Ministry of Agriculture" keys "Full name, Email address, User role" and values "The Tester, The.Tester@Example.gov.uk, Organisation user"
     And a button with text "Change"
     And click button with text "Save and continue"
     Then User model with email "the.tester@example.gov.uk" should exist with "organisation_user" user role
+    And exactly one user matches email "the.tester@example.gov.uk" ignoring case
+
+  Scenario: GovAssure lead reuses an existing mixed-case account when adding a user
+    Given the user "The.Tester@Example.gov.uk" exists
+    When click link with text "Manage users"
+    And select radio with value "yes"
+    And click button with text "Continue"
+    And enter text "The" for id "first_name"
+    And enter text "Tester" for id "last_name"
+    And enter text "the.tester@example.gov.uk" for id "email"
+    And select radio with value "organisation_user"
+    And click button with text "Save and continue"
+    And click button with text "Save and continue"
+    Then User model with email "The.Tester@Example.gov.uk" should exist with "organisation_user" user role
+    And exactly one user matches email "the.tester@example.gov.uk" ignoring case
+
+  Scenario: Invalid email is rejected even when browser validation is bypassed
+    When click link with text "Manage users"
+    And select radio with value "yes"
+    And click button with text "Continue"
+    And enter text "The" for id "first_name"
+    And enter text "Tester" for id "last_name"
+    And enter text "not-an-email" for id "email"
+    And select radio with value "organisation_user"
+    And browser validation is disabled for the user form
+    And click button with text "Save and continue"
+    Then should see an error message with text "You must add a valid email address"
 
   Scenario: GovAssure lead can edit user profile role
     Given the user "alice@example.gov.uk" exists

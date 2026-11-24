@@ -109,6 +109,11 @@ def enter_text(context: Context, text: str, id: str):
     page.locator(f"#{id}").fill(text)
 
 
+@step("browser validation is disabled for the user form")
+def disable_user_form_browser_validation(context: Context):
+    context.page.locator("form.form").evaluate("form => form.noValidate = true")
+
+
 @step('select radio with value "{value}"')
 def select_radio(context: Context, value: str):
     """
