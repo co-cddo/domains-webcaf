@@ -53,7 +53,6 @@ D2.b 	Using incidents to drive improvements 	Achieved 	Achieved
 
 
 class TestProfileRequirements(unittest.TestCase):
-
     def setUp(self):
         reader = csv.reader(V4_MIN_REQUIREMENTS.splitlines(), delimiter="\t")
         self.requirements = []

@@ -70,7 +70,9 @@ class TestAddLocalUsers(TestCase):
 
     def test_command_does_not_create_admin_user_if_it_exists(self):
         User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="password"  # pragma: allowlist secret
+            username="admin",
+            email="admin@example.com",
+            password="password",  # pragma: allowlist secret
         )
         call_command("add_local_seed_data")
         self.assertEqual(User.objects.count(), 1)

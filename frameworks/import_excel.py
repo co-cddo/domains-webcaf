@@ -77,11 +77,11 @@ with open("cyber-assessment-framework-v4.0.yaml", "r") as f:
                         description = row[idx + 1]
                         print(code, description)
                         if code:
-                            data_outcome = data["objectives"][principle[0]]["principles"][principle]["outcomes"][outcome]  # type: ignore[index]
+                            data_outcome = data["objectives"][principle[0]]["principles"][principle]["outcomes"][  # type: ignore[index]
+                                outcome
+                            ]
                             indicator_category = indicator_mapping[idx]
-                            data_outcome["indicators"][indicator_category][code][
-                                "description"
-                            ] = description  # type: ignore[index]
+                            data_outcome["indicators"][indicator_category][code]["description"] = description  # type: ignore[index]
 
 with open("cyber-assessment-framework-v4.0-updated.yaml", "w") as f:
     yaml.dump(data, f)

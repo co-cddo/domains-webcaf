@@ -19,7 +19,6 @@ def gen_uuid(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("webcaf", "0040_historicalsystem_uid_system_uid"),
     ]

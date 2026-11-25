@@ -22,7 +22,6 @@ class SetupAssessmentTestData(BaseViewTest):
 
 
 class TestCreateAssessmentViews(SetupAssessmentTestData):
-
     @freeze_time("2050-01-15 10:00:00")
     def test_create_assessment_context_uses_banner_display_until(self):
         # Need to relogin here due to the freeze time as the session gets invalidated due to the time switch
