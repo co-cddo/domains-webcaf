@@ -387,6 +387,18 @@ class TestTipRecommendationsView(TipViewsSetupMixin, BaseViewTest):
         for rec in self._other_recs:
             self.assertIsNone(self.tip.get_action(rec.id))
 
+    def test_bulk_update_requires_an_answer(self):
+        client, _ = _login_with_role(self, "organisation_lead")
+        url = reverse("tip:recommendations", kwargs={"pk": self.tip.pk, "recommendation_type": "other"})
+
+        resp = client.post(url, {"bulk_review_reason": ""})
+        self.assertEqual(resp.status_code, 200)
+        message = "Select yes if you have reviewed all the recommendations"
+        self.assertEqual(resp.context["form"].errors["confirm_bulk_review"], [message])
+        self.assertContains(resp, 'href="#id_confirm_bulk_review"')
+        self.assertContains(resp, 'id="confirm_bulk_review-error"')
+        self.assertContains(resp, message, count=2)
+
     def test_bulk_update_on_priority_view_is_rejected(self):
         # Even if the bulk update form were submitted against the priority view, the
         # view should refuse to apply changes (priority cannot be bulk-actioned).
@@ -687,10 +699,137 @@ class TestTipRecommendationActionView(TipViewsSetupMixin, BaseViewTest):
             },
         )
         self.assertEqual(resp.status_code, 200)
-        for field in ("target_day_day", "target_day_month", "target_day_year"):
-            self.assertIn(
-                field, resp.context["form"].errors, f"{field} should be required when target_date_provided=yes"
-            )
+        form = resp.context["form"]
+        self.assertEqual(form.errors["target_day_day"], ["Enter the estimated target completion date"])
+        self.assertNotIn("target_day_month", form.errors)
+        self.assertNotIn("target_day_year", form.errors)
+        self.assertEqual(form.target_date_error_fields, {"target_day_day", "target_day_month", "target_day_year"})
+        self.assertContains(resp, 'id="targetDate-error"')
+        self.assertContains(resp, "govuk-input--error", count=3)
+
+    def test_target_date_validation_messages(self):
+        client, _ = _login_with_role(self, "organisation_lead")
+        cases = [
+            (("", "6", "2027"), "target_day_day", "Estimated target completion date must include a day", {"day"}),
+            (
+                ("15", "", ""),
+                "target_day_month",
+                "Estimated target completion date must include a month and year",
+                {"month", "year"},
+            ),
+            (("31", "2", "2027"), "target_day_day", "Estimated target completion date must be a real date", None),
+            (("ab", "6", "2027"), "target_day_day", "Estimated target completion date must be a real date", None),
+            (("15", "6", "27"), "target_day_year", "Year must include 4 numbers", {"year"}),
+            (
+                ("15", "6", "2025"),
+                "target_day_year",
+                "Estimated target completion date must be between 2026 and 2100",
+                {"year"},
+            ),
+        ]
+        for (day, month, year), field, message, highlighted in cases:
+            with self.subTest(date=(day, month, year)):
+                resp = self._post_planned_action(
+                    client,
+                    self.priority_rec,
+                    overrides={"target_day_day": day, "target_day_month": month, "target_day_year": year},
+                )
+                self.assertEqual(resp.status_code, 200)
+                form = resp.context["form"]
+                self.assertEqual(form.errors[field], [message])
+                self.assertEqual(len(form.errors), 1)
+                expected_fields = (
+                    {f"target_day_{part}" for part in highlighted}
+                    if highlighted
+                    else {"target_day_day", "target_day_month", "target_day_year"}
+                )
+                self.assertEqual(form.target_date_error_fields, expected_fields)
+
+    def test_required_field_error_messages(self):
+        client, _ = _login_with_role(self, "organisation_lead")
+        resp = client.post(
+            self._action_url(self.priority_rec),
+            {
+                "recommendation_id": self.priority_rec.id,
+                "recommendation_category": "priority",
+                "submit_action": "validate_and_back_to_summary",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.context["form"].errors["recommendation_actioned"],
+            ["Select yes if you will add an action for this recommendation"],
+        )
+
+        resp = client.post(
+            self._action_url(self.priority_rec),
+            {
+                "recommendation_id": self.priority_rec.id,
+                "recommendation_category": "priority",
+                "recommendation_actioned": "action_planned",
+                "submit_action": "validate_and_back_to_summary",
+            },
+        )
+        expected = {
+            "action_taken_description": "Enter the action you will take",
+            "action_owner": "Enter who owns this action",
+            "resources_available": "Select if the resources are available to deliver this action",
+            "budget_available": "Select if the budget is approved to deliver this action",
+            "target_date_provided": "Select yes if you can provide an estimated target completion date",
+        }
+        form = resp.context["form"]
+        self.assertEqual({field: errors[0] for field, errors in form.errors.items()}, expected)
+        self.assertEqual([field.name for field in form if field.errors], list(expected))
+        for field, message in expected.items():
+            self.assertContains(resp, f'href="#id_{field}"')
+            self.assertContains(resp, f'id="id_{field}"')
+            self.assertContains(resp, f'id="{field}-error"')
+            self.assertContains(resp, message, count=2)
+
+    def test_reason_error_messages_for_priority_recommendation(self):
+        client, _ = _login_with_role(self, "organisation_lead")
+        resp = client.post(
+            self._action_url(self.priority_rec),
+            {
+                "recommendation_id": self.priority_rec.id,
+                "recommendation_category": "priority",
+                "recommendation_actioned": "action_not_planned",
+                "action_not_planned_reason": "",
+                "submit_action": "validate_and_back_to_summary",
+            },
+        )
+        self.assertEqual(
+            resp.context["form"].errors["action_not_planned_reason"], ["Explain why you will not add an action"]
+        )
+        self.assertContains(resp, 'id="action_not_planned_reason-error"')
+
+        resp = self._post_planned_action(
+            client,
+            self.priority_rec,
+            overrides={"target_date_provided": "no", "target_date_unavailable_reason": ""},
+        )
+        self.assertEqual(
+            resp.context["form"].errors["target_date_unavailable_reason"],
+            ["Explain why you cannot provide a target date"],
+        )
+        self.assertContains(resp, 'id="target_date_unavailable_reason-error"')
+
+    def test_save_and_finish_later_skips_validation(self):
+        client, _ = _login_with_role(self, "organisation_lead")
+        resp = self._post_planned_action(
+            client,
+            self.priority_rec,
+            overrides={
+                "action_owner": "",
+                "target_day_day": "ab",
+                "submit_action": "save_and_back_to_summary",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.tip.refresh_from_db()
+        details = self.tip.get_action(self.priority_rec.id).action_details
+        self.assertIsNone(details["target_day_day"])
+        self.assertEqual(details["target_day_month"], 6)
 
     def test_target_date_unavailable_reason_required_when_no_target_date(self):
         client, _ = _login_with_role(self, "organisation_lead")
