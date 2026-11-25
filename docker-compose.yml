@@ -11,7 +11,7 @@ x-api-base: &api-base
   build:
     context: .
     args:
-      POETRY_ARGS: "--no-root --no-ansi"
+      UV_SYNC_ARGS: "--all-groups"
 
 services:
   web:
@@ -20,7 +20,7 @@ services:
     ports:
       - "8010:8000"
     #Added the reload flag so the application will be reloaded when the source is modified.
-    entrypoint: [ "/usr/local/bin/gunicorn", "webcaf.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-", "--reload" ]
+    entrypoint: [ "gunicorn", "webcaf.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--access-logfile", "-", "--reload" ]
     environment:
       <<: *common-application-variables
       PYTHONBREAKPOINT: "ipdb.set_trace"

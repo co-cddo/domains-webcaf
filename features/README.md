@@ -25,5 +25,5 @@ Command to run.
     SSO_MODE=localhost \
     DATABASE_URL=postgresql://webcaf:webcaf@localhost:54321/webcaf \  #  pragma: allowlist secret
     SECRET_KEY=unused \
-    poetry run behave -D headless_testing=false
+    uv run behave -D headless_testing=false
 ```
