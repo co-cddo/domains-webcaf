@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [feature/refactor-dsv]
   pull_request:
 
 permissions:
@@ -27,12 +27,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-    env:
-      SECRET_KEY: unneeded
-      DATABASE_URL: postgresql://webcaf:webcaf@localhost:5432/webcaf
-      DOMAIN_NAME: http://localhost:8010
-      SSO_MODE: localhost
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
