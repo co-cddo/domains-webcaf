@@ -28,6 +28,7 @@ jobs:
         env:
           ENVIRONMENT: local
         run: |
+          mkdir -p reports
           make test
 
   feature-tests:
