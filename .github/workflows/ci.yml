@@ -23,10 +23,19 @@ jobs:
           uv sync --frozen --all-groups
           uv run pre-commit run --all-files
 
+  build-containers:
+    name: Build containers
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build images
+        run : |
+          make build
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest
-    needs: lint
+    needs: build-containers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Run unit tests
@@ -40,7 +49,7 @@ jobs:
   feature-tests:
     name: Feature tests
     runs-on: ubuntu-latest
-    needs: lint
+    needs: build-containers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build and run feature tests
