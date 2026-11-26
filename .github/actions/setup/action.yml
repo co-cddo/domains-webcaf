@@ -19,6 +19,9 @@ runs:
         version: ${{ steps.versions.outputs.UV_VERSION }}
         python-version: ${{ steps.versions.outputs.PYTHON_VERSION }}
         enable-cache: true
+        cache-dependency-glob: |
+           **/pyproject.toml
+           **/uv.lock
 
     - if: inputs.node == 'true'
       uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
