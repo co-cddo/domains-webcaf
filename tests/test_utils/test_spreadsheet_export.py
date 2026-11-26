@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 
@@ -118,13 +117,10 @@ class TestCSVExport(BaseViewTest):
         assessment = self.assessments[0]
 
         excel_bytes = review_to_excel(assessment.reviews.first())
-        assert excel_bytes is not None
+        wb = load_workbook(BytesIO(excel_bytes))
+        review_details = wb["Review details"]
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = Path(__file__).parent.parent.parent / f"assessment_export_{timestamp}.xlsx"
-
-        with open(output_path, "wb") as f:
-            f.write(excel_bytes)
-
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
+        # Row 2: System name:
+        row2 = [cell.value for cell in review_details[2]]
+        self.assertEqual(row2[0], "System name:")
+        self.assertEqual(row2[1], "Big system")
