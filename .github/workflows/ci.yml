@@ -32,13 +32,14 @@ jobs:
       - name: Build images
         run: |
           make build
+          docker pull postgres:18-alpine
+          docker pull ghcr.io/dexidp/dex:latest
           docker image ls
           docker save \
           domains-webcaf-init:latest \
           domains-webcaf-init:latest \
           ghcr.io/dexidp/dex:latest \
           postgres:18-alpine \
-          postgres:latest \
           -o images.tar
 
       - name: Upload Docker images
