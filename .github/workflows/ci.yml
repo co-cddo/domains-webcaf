@@ -32,7 +32,21 @@ jobs:
       - name: Build images
         run: |
           make build
-          docker images ls
+          docker image ls
+          docker save \
+          domains-webcaf-init:latest \
+          domains-webcaf-init:latest \
+          ghcr.io/dexidp/dex:latest \
+          postgres:18-alpine \
+          postgres:latest \
+          -o images.tar
+
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: images.tar
+          retention-days: 1
 
   unit-tests:
     name: Unit tests
@@ -40,6 +54,13 @@ jobs:
     needs: build-containers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+      - name: Load Docker images
+        run: docker load --input images.tar
+
       - name: Run unit tests
         env:
           ENVIRONMENT: local
@@ -54,6 +75,12 @@ jobs:
     needs: build-containers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+      - name: Load Docker images
+        run: docker load --input images.tar
       - name: Build and run feature tests
         run: |
           mkdir -p artifacts
