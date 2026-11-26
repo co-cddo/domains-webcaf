@@ -29,6 +29,7 @@ jobs:
           ENVIRONMENT: local
         run: |
           mkdir -p reports
+          chmod o+w reports
           make test
 
   feature-tests:
