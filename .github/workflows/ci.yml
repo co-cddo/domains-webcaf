@@ -37,7 +37,7 @@ jobs:
           docker image ls
           docker save \
           domains-webcaf-init:latest \
-          domains-webcaf-init:latest \
+          domains-webcaf-web:latest \
           ghcr.io/dexidp/dex:latest \
           postgres:18-alpine \
           -o images.tar
