@@ -332,14 +332,12 @@ def transform_organisation(org_data: dict[str, Any]) -> dict[str, Any]:
 
     :param org_data: A dictionary representing the organisation's details. The input
         must include keys such as "organisation_name", "organisation_id", and
-        "app_version". Optional keys such as "organisation_type",
-        "parent_organisation_id", "parent_organisation_name", and
+        "app_version". Optional keys "organisation_type" and
         "legacy_organisation_id" are also processed.
     :type org_data: dict[str, Any]
     :return: Transformed dictionary containing standardised organisation data. Keys
         included in the output are "organisation_name", "organisation_id",
-        "app_version", "organisation_type", "parent_organisation_id",
-        "parent_organisation_name", and "legacy_organisation_id".
+        "app_version", "organisation_type" and "legacy_organisation_id".
     :rtype: dict[str, Any]
     """
     return {
@@ -347,8 +345,6 @@ def transform_organisation(org_data: dict[str, Any]) -> dict[str, Any]:
         "organisation_id": org_data["organisation_id"],
         "app_version": org_data["app_version"],
         "organisation_type": org_data.get("organisation_type"),
-        "parent_organisation_id": org_data.get("parent_organisation_id"),
-        "parent_organisation_name": org_data.get("parent_organisation_name"),
         "legacy_organisation_id": org_data.get("legacy_organisation_id"),
     }
 

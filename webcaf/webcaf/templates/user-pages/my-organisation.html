@@ -41,84 +41,21 @@
                                     -
                                 {% endif %}
                             </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link"
-                                   href="{% url 'edit-my-organisation-type' id=profile.id %}">Change</a>
-                            </dd>
                         </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Parent organisation
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if profile %}
-                                    {% if profile.organisation.parent_organisation %}
-                                        {{ profile.organisation.parent_organisation.name }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </div>
+                        {% if profile.organisation.council_subtype %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Council subtype
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ profile.organisation.council_subtype }}
+                                </dd>
+                            </div>
+                        {% endif %}
                     </dl>
                 </div>
             </div>
 
-            <div class="govuk-summary-card">
-                <div class="govuk-summary-card__title-wrapper">
-
-                    <h2 class="govuk-summary-card__title">
-                        Additional contact information
-                    </h2>
-                    <div class="govuk-summary-card__actions">
-                        <a class="govuk-link" href="{% url 'edit-my-organisation-contact' id=profile.id %}">Change
-                            details<span class="govuk-visually-hidden"> Update additional information details (Additional contact information)</span></a>
-                    </div>
-                </div>
-
-                <div class="govuk-summary-card__content">
-                    <dl class="govuk-summary-list">
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Name
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if profile %}
-                                    {{ profile.organisation.contact_name }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Role
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if profile %}
-                                    {{ profile.organisation.contact_role }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Email address
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if profile %}
-                                    {{ profile.organisation.contact_email }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
         </div>
     </div>
 {% endblock %}

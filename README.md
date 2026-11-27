@@ -131,9 +131,10 @@ docker compose exec web python manage.py add_organisations
 docker compose exec web python manage.py add_local_seed_data
 ```
 
-`add_organisations` loads `webcaf/seed/webcaf-orgs.csv` only when the organisation table is empty.
-`add_local_seed_data` requires at least one organisation and creates development systems and the local Django
-superuser `admin` with password `password`. If the configured Alice and admin DEX users already exist, it also creates
+`add_organisations` loads `webcaf/seed/webcaf-orgs.csv` only when the organisation table is empty. The file currently
+lists no organisations.
+`add_local_seed_data` creates the organisation "An Organisation" if none exists, then development systems and the
+local Django superuser `admin` with password `password`. If the configured Alice and admin DEX users already exist, it also creates
 profiles for them against the first organisation.
 
 A fresh database has no allowed email domains. To use the One Login simulator for the first time:

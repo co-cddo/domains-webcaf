@@ -28,6 +28,7 @@ from simple_history.models import HistoricalRecords
 from webcaf.webcaf.abcs import FrameworkRouter
 from webcaf.webcaf.notification import send_notify_email
 from webcaf.webcaf.utils import mask_email
+from webcaf.webcaf.utils.council_codes import official_council_gss_codes
 from webcaf.webcaf.utils.references import generate_reference
 
 # Set up a logger for any Notify errors
@@ -60,33 +61,30 @@ class ReferenceGeneratorMixin:
         super().save(*args, **kwargs)
 
 
-class Organisation(ReferenceGeneratorMixin, models.Model):
-    GSS_CODE_REQUIRED_ORGANISATION_TYPES = frozenset({"council", "combined-authority"})
+class Organisation(models.Model):
+    GSS_CODE_REQUIRED_ORGANISATION_TYPES = frozenset({"council"})
     GSS_CODE_VALIDATOR = RegexValidator(
         regex=r"\A[A-Z][0-9]{8}\Z",
         message="Enter a valid GSS code: one uppercase letter followed by eight digits (for example, E06000001).",
         code="invalid_gss_code",
     )
-    ORGANISATION_TYPE_CHOICES = sorted(
-        [
-            ("ad-hoc-advisory-group", "Ad-hoc advisory group"),
-            ("advisory-non-departmental-public-body", "Advisory non-departmental public body"),
-            ("agency-or-other-public-body", "Agency or other public body"),
-            ("combined-authority", "Combined authority"),
-            ("council", "Council"),
-            ("devolved-administration", "Devolved administration"),
-            ("executive-agency", "Executive agency"),
-            ("executive-non-departmental-public-body", "Executive non-departmental public body"),
-            ("executive-office", "Executive office"),
-            ("high-profile-group", "High profile group"),
-            ("ministerial-department", "Ministerial department"),
-            ("non-ministerial-department", "Non-ministerial department"),
-            ("public-corporation", "Public corporation"),
-            ("tribunal", "Tribunal"),
-        ]
-    ) + [("other", "Other")]
+    # A council's subtype comes from the first three characters of its GSS code.
+    # This is the only place the mapping is kept (see docs/ORGANISATION_TYPES.md).
+    COUNCIL_SUBTYPES_BY_GSS_PREFIX = {
+        "E06": "Unitary authority",
+        "E07": "Non-metropolitan district",
+        "E08": "Metropolitan district",
+        "E09": "London borough",
+        "E10": "County council",
+        "E47": "Combined authority",
+    }
+    # Combined authorities are stored as councils; their GSS code identifies them.
+    ORGANISATION_TYPE_CHOICES = [
+        ("council", "Council"),
+        ("mhclg", "MHCLG"),
+        ("independent-assurer", "Independent assurer"),
+    ]
     name = models.CharField(max_length=255, unique=True)
-    reference = models.CharField(max_length=20, null=True, unique=True)
     gss_code = models.CharField(
         "GSS code",
         max_length=9,
@@ -95,14 +93,10 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
         unique=True,
         validators=[GSS_CODE_VALIDATOR],
     )
+    # Required in forms. The column stays nullable for organisations whose inherited
+    # type was cleared by migration 0040 in databases that were not reset.
     organisation_type = models.CharField(
-        max_length=255, null=True, blank=True, choices=ORGANISATION_TYPE_CHOICES, default=None
-    )
-    contact_name = models.CharField(max_length=255, null=True, blank=True)
-    contact_email = models.EmailField(null=True, blank=True)
-    contact_role = models.CharField(max_length=255, null=True, blank=True)
-    parent_organisation = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, related_name="sub_organisations", null=True, blank=True
+        max_length=255, null=True, blank=False, choices=ORGANISATION_TYPE_CHOICES, default=None
     )
 
     history = HistoricalRecords()
@@ -114,8 +108,26 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
             # Some user-facing forms intentionally expose only part of the model.
             # A non-field error lets those forms reject the save without raising
             # an error for a field they do not contain.
-            raise ValidationError("Councils and combined authorities must have a GSS code.")
+            raise ValidationError("Councils must have a GSS code.")
+        self._check_official_council_gss_code(self.organisation_type, self.gss_code)
         super().clean()
+
+    @classmethod
+    def _check_official_council_gss_code(cls, organisation_type, gss_code):
+        """Refuse a council GSS code that has the right format but is not in the ONS list."""
+        if (
+            organisation_type in cls.GSS_CODE_REQUIRED_ORGANISATION_TYPES
+            and cls.GSS_CODE_VALIDATOR.regex.match(gss_code or "")
+            and gss_code not in official_council_gss_codes()
+        ):
+            raise ValidationError(
+                {
+                    "gss_code": (
+                        f"{gss_code} is not the GSS code of an English council or combined authority "
+                        "in the ONS list. Check the code."
+                    )
+                }
+            )
 
     def save(self, *args, **kwargs):
         if self.gss_code == "":
@@ -136,14 +148,21 @@ class Organisation(ReferenceGeneratorMixin, models.Model):
             saved_gss_code = self.gss_code if "gss_code" in update_fields else stored_values["gss_code"]
 
             if saved_organisation_type in self.GSS_CODE_REQUIRED_ORGANISATION_TYPES and not saved_gss_code:
-                raise ValidationError(
-                    "Councils and combined authorities must save their GSS code in the same operation."
-                )
+                raise ValidationError("Councils must save their GSS code in the same operation.")
+            # clean() checked the values in memory; check the ones that will be stored together.
+            self._check_official_council_gss_code(saved_organisation_type, saved_gss_code)
 
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
+
+    @property
+    def council_subtype(self):
+        """The council subtype worked out from the GSS code, or None if it is not a council or the prefix is unknown."""
+        if self.organisation_type != "council" or not self.gss_code:
+            return None
+        return self.COUNCIL_SUBTYPES_BY_GSS_PREFIX.get(self.gss_code[:3])
 
     @classmethod
     def get_type_id(cls, label):

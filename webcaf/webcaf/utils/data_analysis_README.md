@@ -13,8 +13,6 @@ erDiagram
         string organisation_name
         string app_version
         string organisation_type
-        string parent_organisation_id FK
-        string parent_organisation_name
         string legacy_organisation_id
     }
 
@@ -111,7 +109,6 @@ erDiagram
     }
 
     ORGANISATION ||--o{ SYSTEM : "owns"
-    ORGANISATION ||--o{ ORGANISATION : "parent of"
     SYSTEM ||--o{ ASSESSMENT : "has"
     ORGANISATION ||--o{ ASSESSMENT : "has"
     ASSESSMENT ||--o{ ASSESSMENT_OUTCOME : "contains"
@@ -246,8 +243,6 @@ Converts raw organisation data into a standardised flat dictionary.
 | `organisation_id` | `str` | Yes | Unique identifier |
 | `app_version` | `str` | Yes | Application version at time of export |
 | `organisation_type` | `str \| None` | No | Classification of the organisation |
-| `parent_organisation_id` | `str \| None` | No | ID of the parent organisation |
-| `parent_organisation_name` | `str \| None` | No | Name of the parent organisation |
 | `legacy_organisation_id` | `str \| None` | No | Legacy system identifier |
 
 ---

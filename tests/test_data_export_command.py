@@ -12,7 +12,7 @@ _LOREM_IPSUM = "Lorem ipsum."
 
 class TestExportDataCommand(TestCase):
     def setUp(self):
-        self.org = Organisation.objects.create(name="Test Org", organisation_type="other")
+        self.org = Organisation.objects.create(name="Test Org", organisation_type="mhclg")
         self.system = System.objects.create(name="Test System", organisation=self.org)
         self.assessment = Assessment.objects.create(
             system=self.system,
@@ -97,7 +97,7 @@ class TestExportReviews(TestCase):
     """Comprehensive tests for Command.export_reviews."""
 
     def setUp(self):
-        self.org = Organisation.objects.create(name="Test Org", organisation_type="other")
+        self.org = Organisation.objects.create(name="Test Org", organisation_type="mhclg")
         self.system = System.objects.create(name="Test System", organisation=self.org)
         self.assessment = Assessment.objects.create(
             system=self.system,
@@ -308,7 +308,7 @@ class TestExportReviewsIntegration(TestCase):
     def setUpTestData(cls):
         cls.org = Organisation.objects.create(
             name="Ministry of Transport",
-            organisation_type="ministerial-department",
+            organisation_type="mhclg",
         )
         cls.system = System.objects.create(
             name="National Traffic Management System",
@@ -617,12 +617,12 @@ class TestExportSystemsIntegration(TestCase):
     No mocking beyond the S3 client — the real Django ORM is exercised end-to-end.
 
     Covers:
-      - S3 key format for organisations: organisations/{reference}.json
+      - S3 key format for organisations: organisations/{id}.json
       - S3 key format for systems: systems/{reference}.json
-      - Organisation body: name, type display, id, null parent fields
-      - Child organisation body: parent_organisation_id and parent_organisation_name populated
+      - Organisation body: name, type display, id, and no parent organisation fields
       - System body: name, type display, multi-select fields correctly split into lists,
                      organisation_id, system_id, last_assessed
+      - Organisation files for all three types, each named by its payload organisation_id
       - Total call count: one upload per organisation + one per system
     """
 
@@ -632,12 +632,16 @@ class TestExportSystemsIntegration(TestCase):
     def setUpTestData(cls):
         cls.parent_org = Organisation.objects.create(
             name="Cabinet Office",
-            organisation_type="ministerial-department",
+            organisation_type="mhclg",
         )
         cls.child_org = Organisation.objects.create(
             name="HMRC",
-            organisation_type="executive-agency",
-            parent_organisation=cls.parent_org,
+            organisation_type="council",
+            gss_code="E06000001",
+        )
+        cls.assurer_org = Organisation.objects.create(
+            name="Example Assurance Ltd",
+            organisation_type="independent-assurer",
         )
         cls.system = System.objects.create(
             name="Tax Filing Portal",
@@ -653,49 +657,64 @@ class TestExportSystemsIntegration(TestCase):
         s3 = MagicMock()
         Command().export_organisation_and_systems("analytics-bucket", s3)
 
-        # 2 organisations + 1 system = 3 put_object calls
-        self.assertEqual(3, s3.put_object.call_count)
+        # 3 organisations (one of each type) + 1 system = 4 put_object calls
+        self.assertEqual(4, s3.put_object.call_count)
 
         # Index all calls by S3 key for order-independent assertions
         calls_by_key = {call.kwargs["Key"]: json.loads(call.kwargs["Body"]) for call in s3.put_object.call_args_list}
 
         # --- S3 key format ---
-        self.assertIn(f"organisations/{self.parent_org.reference}.json", calls_by_key)
-        self.assertIn(f"organisations/{self.child_org.reference}.json", calls_by_key)
+        self.assertIn(f"organisations/{self.parent_org.id}.json", calls_by_key)
+        self.assertIn(f"organisations/{self.child_org.id}.json", calls_by_key)
+        self.assertIn(f"organisations/{self.assurer_org.id}.json", calls_by_key)
         self.assertIn(f"systems/{self.system.reference}.json", calls_by_key)
+
+        # --- Every organisation file is named by the organisation_id in its own payload ---
+        organisation_files = {key: body for key, body in calls_by_key.items() if key.startswith("organisations/")}
+        self.assertEqual(3, len(organisation_files))
+        for key, body in organisation_files.items():
+            with self.subTest(key=key):
+                self.assertEqual(f"organisations/{body['organisation_id']}.json", key)
 
         # --- Correct bucket on every call ---
         for call in s3.put_object.call_args_list:
             self.assertEqual("analytics-bucket", call.kwargs["Bucket"])
 
-        # --- Parent organisation: all fields correct, parent fields are None ---
-        parent_body = calls_by_key[f"organisations/{self.parent_org.reference}.json"]
+        # --- Organisations: all fields correct, no parent organisation fields ---
+        parent_body = calls_by_key[f"organisations/{self.parent_org.id}.json"]
         self.assertEqual(
             {
                 "app_version": "webcaf-2",
                 "organisation_name": "Cabinet Office",
-                "organisation_type": "Ministerial department",
+                "organisation_type": "MHCLG",
                 "organisation_id": self.parent_org.id,
-                "parent_organisation_id": None,
-                "parent_organisation_name": None,
                 "legacy_organisation_id": None,
             },
             parent_body,
         )
 
-        # --- Child organisation: parent_organisation_id and name populated ---
-        child_body = calls_by_key[f"organisations/{self.child_org.reference}.json"]
+        child_body = calls_by_key[f"organisations/{self.child_org.id}.json"]
         self.assertEqual(
             {
                 "app_version": "webcaf-2",
                 "organisation_name": "HMRC",
-                "organisation_type": "Executive agency",
+                "organisation_type": "Council",
                 "organisation_id": self.child_org.id,
-                "parent_organisation_id": self.parent_org.id,
-                "parent_organisation_name": "Cabinet Office",
                 "legacy_organisation_id": None,
             },
             child_body,
+        )
+
+        assurer_body = calls_by_key[f"organisations/{self.assurer_org.id}.json"]
+        self.assertEqual(
+            {
+                "app_version": "webcaf-2",
+                "organisation_name": "Example Assurance Ltd",
+                "organisation_type": "Independent assurer",
+                "organisation_id": self.assurer_org.id,
+                "legacy_organisation_id": None,
+            },
+            assurer_body,
         )
 
         # --- System: display values, multi-select fields split into lists ---

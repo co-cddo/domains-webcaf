@@ -46,22 +46,6 @@ def check_user_does_not_exist(context, email):
     )
 
 
-@then('check organisation "{org_name}" has type "{type}" and contact details "{name}" "{role}" and "{email}"')
-def check_saved_org_has_expected_fields(context, org_name, type, name, role, email):
-    from webcaf.webcaf.models import Organisation
-
-    organisation = get_model(
-        Organisation,
-        **{
-            "name": org_name,
-        },
-    )
-    assert organisation.organisation_type == type, f"organisation  {org_name} type is not {type} as expected"
-    assert organisation.contact_name == name, f"organisation {org_name} contact name is not {name} as expected"
-    assert organisation.contact_role == role, f"organisation {org_name} contact role is not {role} as expected"
-    assert organisation.contact_email == email, f"organisation {org_name} contact email is not {email} as expected"
-
-
 @step('confirm the current assessment has expected data "{data_file_name}"')
 def check_assessment_data(context: Context, data_file_name: str):
     """

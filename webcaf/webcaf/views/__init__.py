@@ -14,8 +14,6 @@ from .general import AuthenticationErrorView, Index, logout_view  # noqa
 from .organisation import (
     ChangeActiveProfileView,
     MyOrganisationView,
-    OrganisationContactView,
-    OrganisationTypeView,
 )
 from .sections import ViewSubmittedAssessmentsView
 
@@ -39,8 +37,6 @@ __all__ = [
     "ViewDraftAssessmentsView",
     # Organisation views
     "MyOrganisationView",
-    "OrganisationContactView",
-    "OrganisationTypeView",
     "ChangeActiveProfileView",
     # Workflow views
     "ViewSubmittedAssessmentsView",

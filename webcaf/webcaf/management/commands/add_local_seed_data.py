@@ -1,5 +1,3 @@
-import sys
-
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
@@ -10,6 +8,7 @@ SUPERUSER_PASSWORD = "password"  # pragma: allowlist secret
 DEX_USER_NAMES = ["admin@example.gov.uk", "alice@example.gov.uk"]
 DEX_USERS_PASSWORD = "password"  # pragma: allowlist secret
 ORG_NAME = "An Organisation"
+ORG_GSS_CODE = "E06000001"
 SYSTEM_NAMES = ["Big System", "Little System"]
 
 
@@ -18,8 +17,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not Organisation.objects.exists():
-            self.stdout.write(self.style.ERROR("Run python manage.py add_organisations before running this command"))
-            sys.exit(1)
+            Organisation.objects.create(name=ORG_NAME, organisation_type="council", gss_code=ORG_GSS_CODE)
+            self.stdout.write(self.style.SUCCESS(f"Organisation '{ORG_NAME}' created"))
 
         if not User.objects.filter(username=SUPERUSER_NAME).exists():
             User.objects.create_superuser(

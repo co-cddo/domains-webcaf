@@ -17,7 +17,8 @@ class Command(BaseCommand):
 
         with open(CSV_PATH, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
-            for count, row in enumerate(reader):
+            count = 0
+            for row in reader:
                 pk = int(row["old_organisation_id"])
                 name = row["organisation_name"]
                 organisation_type = Organisation.get_type_id(row["organisation_type_description"])
@@ -26,5 +27,6 @@ class Command(BaseCommand):
                     name=name,
                     organisation_type=organisation_type,
                 )
+                count += 1
 
-            self.stdout.write(self.style.SUCCESS(f"Seeded {count + 1} organisations from {CSV_PATH}"))
+            self.stdout.write(self.style.SUCCESS(f"Seeded {count} organisations from {CSV_PATH}"))
