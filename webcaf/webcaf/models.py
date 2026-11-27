@@ -534,8 +534,8 @@ class Configuration(models.Model):
         stage_4_start_date = self.get_stage_4_start_date()
         if not stage_4_start_date:
             return True
-        london_today = django_utils_timezone.now().astimezone(ZoneInfo("Europe/London")).date()
-        return london_today >= stage_4_start_date
+        today = django_utils_timezone.now().astimezone(ZoneInfo("Europe/London")).date()
+        return today >= stage_4_start_date
 
     def get_submission_due_date(self):
         """

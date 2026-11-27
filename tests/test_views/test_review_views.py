@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.test import Client
 from django.urls import reverse
 from freezegun import freeze_time
@@ -153,6 +155,47 @@ class TestReviewIndexVisibility(BaseViewTest):
         reviews = list(resp.context["reviews"])  # filtered by membership
         self.assertIn(self.peer_review_ok, reviews)
         self.assertNotIn(hidden_review, reviews)
+
+    def test_review_list_hides_reviews_before_stage_4_start_date(self):
+        self.config.config_data["stage_4_start_date"] = "01 February 2050"
+        self.config.save()
+
+        client, _ = self._login_with_role("assessor", self.org)
+        resp = client.get(reverse("review-list"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.context["is_stage_4_open"])
+        self.assertEqual(resp.context["stage_4_start_date"], date(2050, 2, 1))
+        self.assertContains(resp, "Stage 4 begins in February 2050")
+        self.assertContains(resp, "Stage 4 of GovAssure will be available in WebCAF on 1 February 2050.")
+        self.assertContains(resp, f'href="{reverse("index")}"')
+        self.assertContains(resp, "Return to WebCAF")
+        self.assertContains(resp, f'href="{reverse("logout")}"')
+        self.assertContains(resp, "Sign out")
+        self.assertNotContains(resp, self.review_ok.assessment.reference)
+
+    def test_review_list_shows_reviews_on_stage_4_start_date(self):
+        self.config.config_data["stage_4_start_date"] = "15 January 2050"
+        self.config.save()
+
+        client, _ = self._login_with_role("assessor", self.org)
+        resp = client.get(reverse("review-list"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.context["is_stage_4_open"])
+        self.assertEqual(resp.context["stage_4_start_date"], date(2050, 1, 15))
+        self.assertContains(resp, self.review_ok.assessment.reference)
+        self.assertNotContains(resp, "Stage 4 begins in")
+
+    def test_review_list_shows_reviews_when_stage_4_start_date_not_configured(self):
+        client, _ = self._login_with_role("assessor", self.org)
+        resp = client.get(reverse("review-list"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.context["is_stage_4_open"])
+        self.assertIsNone(resp.context["stage_4_start_date"])
+        self.assertContains(resp, self.review_ok.assessment.reference)
+        self.assertNotContains(resp, "Stage 4 begins in")
 
 
 # Fixing the time in future so the configuration does not conflict with any existing data in the database.

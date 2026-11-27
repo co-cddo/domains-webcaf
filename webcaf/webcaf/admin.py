@@ -948,6 +948,7 @@ class CustomConfigForm(ModelForm):
         ),
         required=True,
     )
+    # Parameter to control the stage 4 start date display
     stage_4_start_date = forms.DateField(
         widget=DateInput(
             attrs={
