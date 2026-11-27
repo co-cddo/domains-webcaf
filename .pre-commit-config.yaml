@@ -76,6 +76,6 @@ repos:
           - python-dotenv
           - django-simple-history
           - django-axes
-          - 'sentry-sdk[django]==2.71.0'
+          - 'sentry-sdk[django]==2.77.0'
           - 'weasyprint>=70,<71'
           - django-otp
