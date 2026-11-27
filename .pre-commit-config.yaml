@@ -9,9 +9,9 @@ repos:
         args: [ --allow-multiple-documents ]
         exclude: ^docker-compose\.(feature-tests|dex|dex-feature-tests)\.yml$
       - id: end-of-file-fixer
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
       - id: trailing-whitespace
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
   # Lint, sort imports and format. Replaces isort, black and flake8.
   # Configuration lives in pyproject.toml under [tool.ruff].
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -20,12 +20,12 @@ repos:
       - id: ruff-check
         args: [--fix]
         types_or: [python, pyi]
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
       - id: ruff-format
         # ruff-format also formats markdown by default; Black only formatted
         # Python, so keep the same scope.
         types_or: [python, pyi]
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
       # Check-only variants for `make lint`. In the manual stage, so they never
       # run on commit or in CI, and they use the same pinned Ruff version.
       - id: ruff-check
@@ -33,21 +33,21 @@ repos:
         name: ruff check (no fixes)
         args: [--no-fix]
         types_or: [python, pyi]
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
         stages: [manual]
       - id: ruff-format
         alias: ruff-format-check
         name: ruff format (check only)
         args: [--check]
         types_or: [python, pyi]
-        exclude: webcaf/static|seed/
+        exclude: webcaf/static
         stages: [manual]
   # https://gds-way.cloudapps.digital/standards/pre-commit-hooks.html
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        exclude: (^\.github/workflows/)|package\.lock\.json|(^tests/fixtures/)|webcaf/static|seed/
+        exclude: (^\.github/workflows/)|package\.lock\.json|(^tests/fixtures/)|webcaf/static
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
     hooks:

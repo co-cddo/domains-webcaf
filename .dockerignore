@@ -57,4 +57,3 @@ docker-compose.dex-feature-tests.yml
 .dockerignore
 
 webcaf/static
-webcaf/seed
