@@ -2,7 +2,7 @@ import logging
 import typing
 import uuid
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any, Literal
 from zoneinfo import ZoneInfo
 
@@ -513,6 +513,29 @@ class Configuration(models.Model):
         :return:
         """
         return self.config_data.get("banner_display_until")
+
+    def get_stage_4_start_date(self) -> date | None:
+        """
+        Retrieve the Stage 4 start date from the configuration data.
+        The stored format is e.g. '01 February 2027'.
+        :return: A date object if configured, otherwise None.
+        """
+        stage_4_start_date = self.config_data.get("stage_4_start_date")
+        if not stage_4_start_date:
+            return None
+        return datetime.strptime(stage_4_start_date, "%d %B %Y").date()
+
+    def is_stage_4_open(self) -> bool:
+        """
+        Determine whether Stage 4 is open based on the configured Stage 4 start date
+        in Europe/London local time. Returns True if no start date is configured.
+        :return: True if Stage 4 is open, False otherwise.
+        """
+        stage_4_start_date = self.get_stage_4_start_date()
+        if not stage_4_start_date:
+            return True
+        london_today = django_utils_timezone.now().astimezone(ZoneInfo("Europe/London")).date()
+        return london_today >= stage_4_start_date
 
     def get_submission_due_date(self):
         """

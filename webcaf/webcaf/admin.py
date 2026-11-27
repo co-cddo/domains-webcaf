@@ -15,7 +15,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import RegexValidator
 from django.db.models import F, Model, Q
 from django.db.models.functions import Lower
-from django.forms import CharField, DateTimeInput, ModelForm
+from django.forms import CharField, DateInput, DateTimeInput, ModelForm
 from django.forms.fields import ChoiceField
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -948,6 +948,15 @@ class CustomConfigForm(ModelForm):
         ),
         required=True,
     )
+    stage_4_start_date = forms.DateField(
+        widget=DateInput(
+            attrs={
+                "type": "date",
+                "class": "vDateField",
+            }
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Configuration
@@ -957,6 +966,7 @@ class CustomConfigForm(ModelForm):
             "assessment_period_end",
             "banner_display_until",
             "default_framework",
+            "stage_4_start_date",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -982,6 +992,8 @@ class CustomConfigForm(ModelForm):
         if self.instance.get_banner_display_until():
             self.fields["banner_display_until"].initial = set_local_tz(self.instance.get_banner_display_until())
         self.fields["default_framework"].initial = self.instance.get_default_framework()
+        if stage_4_start_date := self.instance.get_stage_4_start_date():
+            self.fields["stage_4_start_date"].initial = stage_4_start_date.strftime("%Y-%m-%d")
 
     def save(self, commit=True):
         if not self.instance.config_data:
@@ -1005,6 +1017,10 @@ class CustomConfigForm(ModelForm):
         self.instance.config_data["assessment_period_end"] = to_local(self.cleaned_data["assessment_period_end"])
         self.instance.config_data["banner_display_until"] = to_local(self.cleaned_data["banner_display_until"])
         self.instance.config_data["default_framework"] = self.cleaned_data["default_framework"]
+        if stage_4_start_date := self.cleaned_data.get("stage_4_start_date"):
+            self.instance.config_data["stage_4_start_date"] = stage_4_start_date.strftime("%d %B %Y")
+        else:
+            self.instance.config_data.pop("stage_4_start_date", None)
         return super().save(commit=commit)
 
 
