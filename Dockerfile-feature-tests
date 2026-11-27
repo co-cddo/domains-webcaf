@@ -1,6 +1,6 @@
 # Playwright base image with all browser dependencies pre-installed
 # Matches the Playwright version in uv.lock, so the browsers fit the library.
-FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
+FROM mcr.microsoft.com/playwright/python:v1.65.2-noble
 
 ARG ALLURE_VERSION=2.46.2
 # Maven Central's published ZIP SHA-512; update together with ALLURE_VERSION.
