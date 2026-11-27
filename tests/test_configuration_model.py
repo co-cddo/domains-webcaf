@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from django.test import TestCase
 from django.utils import timezone
@@ -60,6 +60,67 @@ class ConfigurationModelTest(TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.hour, 12)
         self.assertEqual(result.minute, 0)
+
+    def test_get_stage_4_start_date_valid_format(self):
+        """Test parsing a valid stage_4_start_date string."""
+        config = Configuration.objects.create(
+            name="test_stage_4_valid", config_data={"stage_4_start_date": "01 February 2027"}
+        )
+        result = config.get_stage_4_start_date()
+
+        self.assertEqual(result, date(2027, 2, 1))
+
+    def test_get_stage_4_start_date_returns_none_when_unset(self):
+        """Test older configurations without stage_4_start_date return None."""
+        config = Configuration.objects.create(
+            name="test_stage_4_unset", config_data={"assessment_period_end": "31 March 2026 11:59pm"}
+        )
+
+        self.assertIsNone(config.get_stage_4_start_date())
+
+    def test_is_stage_4_open_returns_true_when_unset(self):
+        """Test Stage 4 defaults to open when stage_4_start_date is not configured."""
+        config = Configuration.objects.create(
+            name="test_stage_4_default_open", config_data={"assessment_period_end": "31 March 2026 11:59pm"}
+        )
+
+        self.assertTrue(config.is_stage_4_open())
+
+    @freeze_time("2027-01-31 23:59:59")
+    def test_is_stage_4_open_before_start_date(self):
+        """Test Stage 4 is closed before the configured start date."""
+        config = Configuration.objects.create(
+            name="test_stage_4_before", config_data={"stage_4_start_date": "01 February 2027"}
+        )
+
+        self.assertFalse(config.is_stage_4_open())
+
+    @freeze_time("2027-02-01 00:00:00")
+    def test_is_stage_4_open_on_start_date(self):
+        """Test Stage 4 is open on the configured start date."""
+        config = Configuration.objects.create(
+            name="test_stage_4_on_date", config_data={"stage_4_start_date": "01 February 2027"}
+        )
+
+        self.assertTrue(config.is_stage_4_open())
+
+    @freeze_time("2027-02-02 10:00:00")
+    def test_is_stage_4_open_after_start_date(self):
+        """Test Stage 4 is open after the configured start date."""
+        config = Configuration.objects.create(
+            name="test_stage_4_after", config_data={"stage_4_start_date": "01 February 2027"}
+        )
+
+        self.assertTrue(config.is_stage_4_open())
+
+    @freeze_time("2027-06-30 23:30:00")
+    def test_is_stage_4_open_uses_london_timezone_during_bst(self):
+        """Test Stage 4 open check uses Europe/London local date (23:30 UTC on 30 June is 00:30 BST on 1 July)."""
+        config = Configuration.objects.create(
+            name="test_stage_4_bst", config_data={"stage_4_start_date": "01 July 2027"}
+        )
+
+        self.assertTrue(config.is_stage_4_open())
 
 
 @freeze_time("2055-03-15 12:00:00")

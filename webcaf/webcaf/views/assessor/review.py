@@ -61,6 +61,8 @@ class ReviewIndexView(BaseReviewMixin, TemplateView):
                 for review in reviews_for_user
                 if review.assessment.assessment_period == configuration.get_current_assessment_period()
             ]
+        data["is_stage_4_open"] = configuration.is_stage_4_open()
+        data["stage_4_start_date"] = configuration.get_stage_4_start_date()
         data["reviews"] = reviews_for_user
         return data
 
